@@ -18,7 +18,25 @@
         Button:
             text: "Settings"
 
+<MainScreen>:
+    msg_label: message_label
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: None, None
+        size: 500, 200
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+        Label:
+            id: message_label
+
+        TextInput:
+            id: message_text
+
+        Button:
+            id: message_btn
+
 <MainScreenManager>:
+    main_screen: main_screen
     LoginScreen:
         name: "login"
         id: login_screen

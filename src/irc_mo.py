@@ -17,7 +17,10 @@ class MessageQueue:
         self.messages.insert(0, msg)
 
     def dequeue(self):
-        return self.messages.pop()
+        try:
+            return self.messages.pop()
+        except IndexError:
+            return None
 
     def size(self):
         return len(self.messages)
