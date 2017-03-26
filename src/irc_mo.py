@@ -33,7 +33,7 @@ class IrcConnection:
         self.msg_q = MessageQueue()
 
         try:
-            self.connection = reactor.server().connect(server, port, username)
+            self.connection = self.reactor.server().connect(server, port, username)
         except irc.client.ServerConnectionError:
             print("Something went wrong m8")
             raise
