@@ -5,7 +5,22 @@ class ChannelConnectionError(Exception):
     pass
 
 
+class Message:
+    '''This class will eventually handle message parsing and any other operations
+    on messages.
+    '''
+    def __init__(self, message):
+        self.msg = message
+
+    def __str__(self):
+        return self.msg
+
+    def __repr__(self):
+        return str(self.msg)
+
 class MessageQueue:
+    '''Standard First-In-First-Out queue for irc messages.
+    '''
 
     def __init__(self):
         self.messages = []
@@ -14,7 +29,8 @@ class MessageQueue:
         return self.messages == []
 
     def enqueue(self, msg):
-        self.messages.insert(0, msg)
+        message = Message(msg)
+        self.messages.insert(0, message)
 
     def dequeue(self):
         try:
