@@ -6,6 +6,7 @@ from kivy.clock import Clock
 from loginscreen import LoginScreen
 from mainscreen import MainScreen
 from settingsscreen import SettingsScreen
+from mopopup import MOPopup
 
 
 class MainScreenManager(ScreenManager):
@@ -15,8 +16,12 @@ class MainScreenManager(ScreenManager):
 
     def on_irc_connection(self, *args):
         Clock.schedule_interval(self.process_irc, 1.0/60.0)
+        self.popup_ = MOPopup("Connection", "Connecting to IRC", "K", False)
+        self.popup_.open()
 
     def on_connected(self, *args):
+        self.popup_.dismiss()
+        del self.popup_
         self.current = "main"
         Clock.schedule_interval(self.main_screen.update_chat, 1.0/60.0)
 
