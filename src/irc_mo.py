@@ -1,4 +1,6 @@
 import irc.client
+from mopopup import MOPopup
+from kivy.uix.textinput import TextInput
 
 
 class ChannelConnectionError(Exception):
@@ -61,6 +63,7 @@ class IrcConnection:
         self.connection.add_global_handler("join", self.on_join)
         self.connection.add_global_handler("disconnect", self.on_disconnect)
         self.connection.add_global_handler("pubmsg", self.on_pubmsg)
+        self.connection.add_global_handler("nicknameinuse", self.on_nickname_in_use)
 
     def get_msg(self):
         return self.msg_q.dequeue()
@@ -89,3 +92,13 @@ class IrcConnection:
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
         self.msg_q.enqueue(msg)
+
+    def on_nickname_in_use(self, c, e):
+        temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")
+        text_inp = TextInput(multiline=False, size_hint=(1, 0.4))
+        temp_pop.box_lay.add_widget(text_inp)
+        def temp_handler(*args):
+            c.nick(text_inp.text)
+
+        temp_pop.bind(on_dismiss=temp_handler)
+        temp_pop.open()
