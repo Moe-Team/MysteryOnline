@@ -59,11 +59,9 @@ class IrcConnection:
             print("Something went wrong m8")
             raise
 
-        self.connection.add_global_handler("welcome", self.on_connect)
-        self.connection.add_global_handler("join", self.on_join)
-        self.connection.add_global_handler("disconnect", self.on_disconnect)
-        self.connection.add_global_handler("pubmsg", self.on_pubmsg)
-        self.connection.add_global_handler("nicknameinuse", self.on_nickname_in_use)
+        events = ["welcome", "join", "disconnect", "pubmsg", "nicknameinuse"]
+        for e in events:
+            self.connection.add_global_handler(e, getattr(self, "on_" + e))
 
     def get_msg(self):
         return self.msg_q.dequeue()
@@ -77,7 +75,7 @@ class IrcConnection:
     def process(self):
         self.reactor.process_once()
 
-    def on_connect(self, c, e):
+    def on_welcome(self, c, e):
         if irc.client.is_channel(self.channel):
             c.join(self.channel)
         else:
@@ -93,7 +91,7 @@ class IrcConnection:
         msg = e.arguments[0]
         self.msg_q.enqueue(msg)
 
-    def on_nickname_in_use(self, c, e):
+    def on_nicknameinuse(self, c, e):
         temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")
         text_inp = TextInput(multiline=False, size_hint=(1, 0.4))
         temp_pop.box_lay.add_widget(text_inp)

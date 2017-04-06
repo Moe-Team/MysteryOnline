@@ -20,22 +20,40 @@
         Button:
             text: "Settings"
 
-<MainScreen>:
-    msg_label: message_label
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint: None, None
-        size: 500, 200
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
-        Label:
-            id: message_label
+<LogWindow>:
+    Label:
+        text: str("Long as fuck text" * 100)
+        text_size: self.width, None
+        size_hint_y: None
+        height: self.texture_size[1]
+
+
+<MainScreen>:
+
+    FloatLayout:
+        SpriteWindow:
+            id: sprite_window
+            canvas:
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint: None, None
+            size: 800, 600
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
         TextInput:
-            id: message_text
+            size_hint: None, None
+            size: 800, 30
+            pos: sprite_window.x, sprite_window.y - 35
 
-        Button:
-            id: message_btn
+        LogWindow:
+            size_hint: None, None
+            x: sprite_window.right + 5
+            top: sprite_window.top
+            size: 200, 600
+
+
 
 <MainScreenManager>:
     main_screen: main_screen
