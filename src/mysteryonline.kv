@@ -11,7 +11,7 @@
             id: username_input
             on_text_validate: root.on_login_clicked()
             multiline: False
-            text: "Username"
+            text: "TestingMO"
 
         Button:
             text: "Log in"
@@ -30,7 +30,6 @@
 
 
 <MainScreen>:
-
     FloatLayout:
         SpriteWindow:
             id: sprite_window
@@ -42,16 +41,41 @@
             size: 800, 600
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
+        TextBox:
+            size_hint: None, None
+            size: 800, 200
+            pos: sprite_window.x, sprite_window.y
+            canvas:
+                Color:
+                    rgba: 0.3, 0.3, 0.3, 0.3
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
         TextInput:
             size_hint: None, None
             size: 800, 30
             pos: sprite_window.x, sprite_window.y - 35
+            multiline: False
 
         LogWindow:
+            id: log_window
             size_hint: None, None
             x: sprite_window.right + 5
             top: sprite_window.top
-            size: 200, 600
+            size: 200, 300
+
+        OOCWindow:
+            size_hint: None, None
+            size: 200, 330
+            x: log_window.x
+            top: log_window.y
+            canvas:
+                Color:
+                    rgba: 0.3, 0.3, 0.3, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
 
 

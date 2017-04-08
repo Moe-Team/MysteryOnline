@@ -11,10 +11,22 @@ class SpriteWindow(Widget):
         super(SpriteWindow, self).__init__(**kwargs)
 
 
+class TextBox(Widget):
+
+    def __init__(self, **kwargs):
+        super(TextBox, self).__init__(**kwargs)
+
+
 class LogWindow(ScrollView):
 
     def __init__(self, **kwargs):
         super(LogWindow, self).__init__(**kwargs)
+
+
+class OOCWindow(ScrollView):
+
+    def __init__(self, **kwargs):
+        super(OOCWindow, self).__init__(**kwargs)
 
 
 class MainScreen(Screen):
