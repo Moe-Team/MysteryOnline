@@ -1,9 +1,12 @@
 from kivy.uix.screenmanager import Screen
+from kivy.app import App
 from kivy.properties import StringProperty, ObjectProperty
 from mopopup import MOPopup
+
 import re
 
 from irc_mo import IrcConnection
+from user import User
 
 SERVER = "chat.freenode.net"
 PORT = 6665
@@ -23,3 +26,4 @@ class LoginScreen(Screen):
                 return
 
             self.manager.irc_connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
+            App.get_running_app().set_user(User(self.username))

@@ -6,4 +6,4 @@ class Location:
         pass
 
 
-locations = []
+locations = {'main': None}

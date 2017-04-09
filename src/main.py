@@ -36,6 +36,12 @@ class MysteryOnlineApp(App):
         msm = MainScreenManager()
         return msm
 
+    def set_user(self, user):
+        self.user = user
+
+    def get_user(self):
+        return self.user
+
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
