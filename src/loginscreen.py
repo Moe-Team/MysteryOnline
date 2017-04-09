@@ -2,6 +2,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.app import App
 from kivy.properties import StringProperty, ObjectProperty
 from mopopup import MOPopup
+from character_select import CharacterSelect
 
 import re
 
@@ -27,3 +28,7 @@ class LoginScreen(Screen):
 
             self.manager.irc_connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
             App.get_running_app().set_user(User(self.username))
+
+    def on_select_clicked(self, *args):
+        cs = CharacterSelect()
+        cs.open()

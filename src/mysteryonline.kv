@@ -4,7 +4,7 @@
     BoxLayout:
         orientation: 'vertical'
         size_hint: None, None
-        size: 300, 100
+        size: 300, 150
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
         TextInput:
@@ -16,6 +16,10 @@
         Button:
             text: "Log in"
             on_release: root.on_login_clicked()
+
+        Button:
+            text: "Choose character"
+            on_release: root.on_select_clicked()
 
         Button:
             text: "Settings"
