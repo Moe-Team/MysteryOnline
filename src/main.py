@@ -23,6 +23,7 @@ class MainScreenManager(ScreenManager):
         self.popup_.dismiss()
         del self.popup_
         self.current = "main"
+        self.main_screen.on_ready()
         Clock.schedule_interval(self.main_screen.update_chat, 1.0/60.0)
 
     def process_irc(self, dt):

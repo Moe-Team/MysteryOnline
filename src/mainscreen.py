@@ -43,6 +43,10 @@ class MainScreen(Screen):
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
+        self.user = None
+
+    def on_ready(self, *args):
+        pass
 
     def update_chat(self, dt):
         pass
