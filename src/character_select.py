@@ -27,6 +27,7 @@ class CharacterSelect(Popup):
         self.title = "Select your character"
         self.size_hint = (0.7, 0.7)
         self.auto_dismiss = False
+        self.picked_char = None
         grids = {}
         for s in series:
             self.main_lay.add_widget(Label(text=s, size_hint=(0.1, 0.1)))
