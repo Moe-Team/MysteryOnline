@@ -3,10 +3,18 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.image import Image
 from kivy.properties import ObjectProperty
+from kivy.clock import Clock
+
+from character import Character
 
 
 class SpriteWindow(Widget):
+
+    center_sprite = ObjectProperty(None)
+    left_sprite = ObjectProperty(None)
+    right_sprite = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(SpriteWindow, self).__init__(**kwargs)

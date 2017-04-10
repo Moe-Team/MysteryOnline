@@ -33,14 +33,33 @@
         height: self.texture_size[1]
 
 
+<SpriteWindow>:
+    center_sprite: center_s
+    left_sprite: left_s
+    right_sprite: right_s
+    Image:
+        id: center_s
+        size_hint: None, None
+        size: 600, 600
+        pos: root.x + 100, root.y
+
+    Image:
+        id: left_s
+        size_hint: None, None
+        size: 600, 600
+        pos: root.x, root.y
+
+    Image:
+        id: right_s
+        size_hint: None, None
+        size: 600, 600
+        pos: root.x, root.y
+
+
 <MainScreen>:
     FloatLayout:
         SpriteWindow:
             id: sprite_window
-            canvas:
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
             size_hint: None, None
             size: 800, 600
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -80,6 +99,13 @@
                 Rectangle:
                     pos: self.pos
                     size: self.size
+
+
+<CharacterSelect>:
+    main_lay: main_lay
+    BoxLayout:
+        orientation: 'vertical'
+        id: main_lay
 
 
 
