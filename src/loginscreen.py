@@ -31,6 +31,7 @@ class LoginScreen(Screen):
             user = User(self.username)
             if self.picked_char is not None:
                 user.set_char(self.picked_char)
+                user.get_char().load()
             App.get_running_app().set_user(user)
 
 

@@ -57,6 +57,9 @@
 
 
 <MainScreen>:
+    icons_layout: icons_layout
+    sprite_preview: sprite_preview
+
     FloatLayout:
         SpriteWindow:
             id: sprite_window
@@ -99,6 +102,21 @@
                 Rectangle:
                     pos: self.pos
                     size: self.size
+
+        IconsLayout:
+            id: icons_layout
+            size_hint: None, None
+            size: 200, 300
+            right: sprite_window.x - 5
+            y: sprite_window.y
+
+        SpritePreview:
+            id: sprite_preview
+            size_hint: None, None
+            size: 200, 200
+            y: icons_layout.top + 5
+            x: icons_layout.x
+
 
 
 <CharacterSelect>:
