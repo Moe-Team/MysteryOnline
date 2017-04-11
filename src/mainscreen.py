@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
@@ -8,6 +9,18 @@ from kivy.properties import ObjectProperty
 from kivy.clock import Clock
 
 from character import Character
+
+
+class IconsLayout(GridLayout):
+
+    def __init__(self, **kwargs):
+        super(IconsLayout, self).__init__(**kwargs)
+
+
+class SpritePreview(Image):
+
+    def __init__(self, **kwargs):
+        super(SpritePreview, self).__init__(**kwargs)
 
 
 class SpriteWindow(Widget):
