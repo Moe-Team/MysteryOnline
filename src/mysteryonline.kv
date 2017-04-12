@@ -39,18 +39,21 @@
     right_sprite: right_s
     Image:
         id: center_s
+        opacity: 0
         size_hint: None, None
         size: 600, 600
         pos: root.x + 100, root.y
 
     Image:
         id: left_s
+        opacity: 0
         size_hint: None, None
         size: 600, 600
         pos: root.x, root.y
 
     Image:
         id: right_s
+        opacity: 0
         size_hint: None, None
         size: 600, 600
         pos: root.x, root.y
@@ -59,6 +62,8 @@
 <MainScreen>:
     icons_layout: icons_layout
     sprite_preview: sprite_preview
+    sprite_window: sprite_window
+    msg_input: msg_input
 
     FloatLayout:
         SpriteWindow:
@@ -79,10 +84,11 @@
                     size: self.size
 
         TextInput:
+            id: msg_input
+            multiline: False
             size_hint: None, None
             size: 800, 30
             pos: sprite_window.x, sprite_window.y - 35
-            multiline: False
 
         LogWindow:
             id: log_window

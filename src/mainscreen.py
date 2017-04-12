@@ -22,21 +22,27 @@ class Icon(Image):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            self.parent.sprite_picked(self.name)
+            self.parent.sprite_picked(self, self.name)
 
 class IconsLayout(GridLayout):
 
     def __init__(self, **kwargs):
         super(IconsLayout, self).__init__(**kwargs)
         self.cols = 5
+        self.current_icon = None
 
     def load_icons(self, icons):
         for i in sorted(icons.textures.keys()):
             self.add_widget(Icon(i, icons[i]))
+        self.sprite_picked(self.children[-1], "1")
 
-    def sprite_picked(self, sprite_name):
+    def sprite_picked(self, icon, sprite_name):
         main_scr = self.parent.parent # blame kivy
         main_scr.current_sprite = sprite_name
+        if self.current_icon is not None:
+            self.current_icon.color = [1, 1, 1, 1]
+        icon.color = [0.3, 0.3, 0.3, 1]
+        self.current_icon = icon
 
 
 class SpritePreview(Image):
@@ -58,13 +64,15 @@ class SpriteWindow(Widget):
         super(SpriteWindow, self).__init__(**kwargs)
 
     def set_sprite(self, sprite):
-        pass
+        self.center_sprite.texture = sprite
+        self.center_sprite.opacity = 1
 
 
 class TextBox(Widget):
 
     def __init__(self, **kwargs):
         super(TextBox, self).__init__(**kwargs)
+
 
 
 class LogWindow(ScrollView):
@@ -82,6 +90,8 @@ class OOCWindow(ScrollView):
 class MainScreen(Screen):
     icons_layout = ObjectProperty(None)
     sprite_preview = ObjectProperty(None)
+    sprite_window = ObjectProperty(None)
+    msg_input = ObjectProperty(None)
     current_sprite = StringProperty("")
 
     def __init__(self, **kwargs):
@@ -89,6 +99,8 @@ class MainScreen(Screen):
         self.user = None
 
     def on_ready(self, *args):
+        self.msg_input.bind(on_text_validate=self.send_message)
+        Clock.schedule_once(self.refocus_text)
         self.user = App.get_running_app().get_user()
         char = self.user.get_char()
         if char is not None:
@@ -96,7 +108,16 @@ class MainScreen(Screen):
 
     def on_current_sprite(self, *args):
         char = self.user.get_char()
-        self.sprite_preview.set_sprite(char.get_sprite(self.current_sprite))
+        sprite = char.get_sprite(self.current_sprite)
+        self.sprite_preview.set_sprite(sprite)
+
+    def send_message(self, *args):
+        self.msg_input.text = ""
+        Clock.schedule_once(self.refocus_text)
+        self.sprite_window.set_sprite(self.user.get_char().get_sprite(self.current_sprite))
+
+    def refocus_text(self, *args):
+        self.msg_input.focus = True
 
     def update_chat(self, dt):
         pass
