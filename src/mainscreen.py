@@ -23,6 +23,7 @@ class Icon(Image):
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             self.parent.sprite_picked(self, self.name)
+            return True
 
 class IconsLayout(GridLayout):
 
@@ -110,6 +111,7 @@ class MainScreen(Screen):
         char = self.user.get_char()
         sprite = char.get_sprite(self.current_sprite)
         self.sprite_preview.set_sprite(sprite)
+        Clock.schedule_once(self.refocus_text, 0.5)
 
     def send_message(self, *args):
         self.msg_input.text = ""

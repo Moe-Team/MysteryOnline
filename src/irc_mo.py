@@ -20,6 +20,12 @@ class Message:
     def __repr__(self):
         return str(self.msg)
 
+    def encode(self, name, loc, char, sprite):
+        pass
+
+    def decode(self):
+        pass
+
 class MessageQueue:
     '''Standard First-In-First-Out queue for irc messages.
     '''
@@ -66,8 +72,10 @@ class IrcConnection:
     def get_msg(self):
         return self.msg_q.dequeue()
 
-    def send_msg(self, msg):
-        self.connection.pubmsg(msg)
+    def send_msg(self, msg, name, loc, char, sprite):
+        message = Message(msg)
+        message.encode(name, loc, char, sprite)
+        self.connection.pubmsg(message)
 
     def is_connected(self):
         return self._joined
