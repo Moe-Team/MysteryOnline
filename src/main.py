@@ -2,11 +2,15 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.clock import Clock
+from kivy.config import Config
 
 from loginscreen import LoginScreen
 from mainscreen import MainScreen
 from settingsscreen import SettingsScreen
 from mopopup import MOPopup
+
+Config.set('kivy', 'desktop', '1')
+Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
 
 class MainScreenManager(ScreenManager):

@@ -88,7 +88,14 @@ class OOCWindow(ScrollView):
         super(OOCWindow, self).__init__(**kwargs)
 
 
+class RightClickMenu(Widget):
+
+    def __init__(self, **kwargs):
+        super(RightClickMenu, self).__init__(**kwargs)
+
+
 class MainScreen(Screen):
+
     icons_layout = ObjectProperty(None)
     sprite_preview = ObjectProperty(None)
     sprite_window = ObjectProperty(None)
@@ -99,7 +106,17 @@ class MainScreen(Screen):
         super(MainScreen, self).__init__(**kwargs)
         self.user = None
 
+    def on_touch_down(self, touch):
+        if touch.button == 'right':
+            self.on_right_click(touch)
+            return True
+        super(MainScreen, self).on_touch_down(touch)
+
+    def on_right_click(self, touch):
+        print("Yay")
+
     def on_ready(self, *args):
+        # Called when main screen becomes active
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)
         self.user = App.get_running_app().get_user()
@@ -108,10 +125,11 @@ class MainScreen(Screen):
             self.icons_layout.load_icons(char.get_icons())
 
     def on_current_sprite(self, *args):
+        # Called when user picks new sprite
         char = self.user.get_char()
         sprite = char.get_sprite(self.current_sprite)
         self.sprite_preview.set_sprite(sprite)
-        Clock.schedule_once(self.refocus_text, 0.5)
+        Clock.schedule_once(self.refocus_text, 0.1)
 
     def send_message(self, *args):
         self.msg_input.text = ""
@@ -119,6 +137,7 @@ class MainScreen(Screen):
         self.sprite_window.set_sprite(self.user.get_char().get_sprite(self.current_sprite))
 
     def refocus_text(self, *args):
+        # Refocusing the text input has to be done this way cause Kivy
         self.msg_input.focus = True
 
     def update_chat(self, dt):
