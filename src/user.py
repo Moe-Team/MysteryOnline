@@ -1,4 +1,3 @@
-from location import locations
 
 
 class User:
@@ -6,7 +5,7 @@ class User:
     def __init__(self, username):
         self.username = username
         self.character = None
-        self.location = locations['main']
+        self.location = None
 
     def set_char(self, char):
         self.character = char

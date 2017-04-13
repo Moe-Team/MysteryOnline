@@ -9,6 +9,7 @@ from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
 
 from character import Character
+from location import locations
 
 
 class Icon(Image):
@@ -48,11 +49,19 @@ class IconsLayout(GridLayout):
 
 class SpritePreview(Image):
 
+    center_sprite = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(SpritePreview, self).__init__(**kwargs)
 
+    def set_subloc(self, sub):
+        self.texture = sub.texture
+
     def set_sprite(self, sprite):
-        self.texture = sprite
+        self.center_sprite.texture = sprite
+        self.center_sprite.opacity = 1
+        self.center_sprite.size = (self.center_sprite.texture.width / 3,
+        self.center_sprite.texture.height / 3)
 
 
 class SpriteWindow(Widget):
@@ -67,6 +76,7 @@ class SpriteWindow(Widget):
     def set_sprite(self, sprite):
         self.center_sprite.texture = sprite
         self.center_sprite.opacity = 1
+        self.center_sprite.size = self.center_sprite.texture.size
 
 
 class TextBox(Widget):
@@ -113,16 +123,21 @@ class MainScreen(Screen):
         super(MainScreen, self).on_touch_down(touch)
 
     def on_right_click(self, touch):
-        print("Yay")
+        pass
 
     def on_ready(self, *args):
         # Called when main screen becomes active
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)
+
         self.user = App.get_running_app().get_user()
+        self.user.set_loc(locations['Hakuryou'])
         char = self.user.get_char()
         if char is not None:
             self.icons_layout.load_icons(char.get_icons())
+
+        subloc = locations['Hakuryou'].get_first_sub()
+        self.sprite_preview.set_subloc(subloc)
 
     def on_current_sprite(self, *args):
         # Called when user picks new sprite

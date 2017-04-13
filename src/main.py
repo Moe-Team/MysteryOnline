@@ -8,6 +8,7 @@ from loginscreen import LoginScreen
 from mainscreen import MainScreen
 from settingsscreen import SettingsScreen
 from mopopup import MOPopup
+from location import locations
 
 Config.set('kivy', 'desktop', '1')
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
@@ -39,6 +40,7 @@ class MysteryOnlineApp(App):
 
     def build(self):
         msm = MainScreenManager()
+        locations['Hakuryou'].load()
         return msm
 
     def set_user(self, user):

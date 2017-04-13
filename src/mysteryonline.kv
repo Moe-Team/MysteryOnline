@@ -112,16 +112,27 @@
         IconsLayout:
             id: icons_layout
             size_hint: None, None
-            size: 200, 300
+            size: 250, 300
             right: sprite_window.x - 5
             y: sprite_window.y
 
         SpritePreview:
             id: sprite_preview
             size_hint: None, None
-            size: 200, 200
+            size: 800 / 3, 600 / 3
             y: icons_layout.top + 5
             x: icons_layout.x
+
+
+<SpritePreview>:
+    center_sprite: center_s
+
+    Image:
+        id: center_s
+        opacity: 0
+        size_hint: None, None
+        size: 200, 200
+        pos: root.x + 30, root.y
 
 
 
