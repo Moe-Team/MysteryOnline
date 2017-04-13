@@ -64,6 +64,7 @@
     sprite_preview: sprite_preview
     sprite_window: sprite_window
     msg_input: msg_input
+    toolbar: toolbar
 
     FloatLayout:
         SpriteWindow:
@@ -123,6 +124,12 @@
             y: icons_layout.top + 5
             x: icons_layout.x
 
+        Toolbar:
+            id: toolbar
+            size_hint: None, None
+            size: 800, 40
+            pos: msg_input.x, msg_input.y - 10
+
 
 <SpritePreview>:
     center_sprite: center_s
@@ -135,13 +142,19 @@
         pos: root.x + 30, root.y
 
 
+<Toolbar>:
+    subloc_drop: subloc
+
+    DropDown:
+        id: subloc
+        size_hint: 0.3, 1
+
 
 <CharacterSelect>:
     main_lay: main_lay
     BoxLayout:
         orientation: 'vertical'
         id: main_lay
-
 
 
 <MainScreenManager>:

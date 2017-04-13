@@ -19,7 +19,7 @@ class Location:
         return self.sublocations[name]
 
     def get_first_sub(self):
-        return self.sublocations[self.list_sub()[0]]
+        return self.list_sub()[0]
 
 
 locations = {'Hakuryou': Location('Hakuryou')}

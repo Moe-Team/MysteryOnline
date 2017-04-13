@@ -2,6 +2,7 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
@@ -10,6 +11,17 @@ from kivy.clock import Clock
 
 from character import Character
 from location import locations
+
+
+class Toolbar(BoxLayout):
+
+    subloc_drop = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(Toolbar, self).__init__(**kwargs)
+
+    def load_subloc(self, loc):
+        pass
 
 
 class Icon(Image):
@@ -110,7 +122,11 @@ class MainScreen(Screen):
     sprite_preview = ObjectProperty(None)
     sprite_window = ObjectProperty(None)
     msg_input = ObjectProperty(None)
+    toolbar = ObjectProperty(None)
+
     current_sprite = StringProperty("")
+    current_loc = ObjectProperty(None)
+    current_subloc = StringProperty("")
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
@@ -131,12 +147,19 @@ class MainScreen(Screen):
         Clock.schedule_once(self.refocus_text)
 
         self.user = App.get_running_app().get_user()
-        self.user.set_loc(locations['Hakuryou'])
+        self.current_loc = locations['Hakuryou']
         char = self.user.get_char()
         if char is not None:
             self.icons_layout.load_icons(char.get_icons())
 
+    def on_current_loc(self, *args):
+        self.user.set_loc(self.current_loc)
+        self.toolbar.load_subloc(self.current_loc)
         subloc = locations['Hakuryou'].get_first_sub()
+        self.current_subloc = subloc
+
+    def on_current_subloc(self, *args):
+        subloc = self.current_loc.get_sub(self.current_subloc)
         self.sprite_preview.set_subloc(subloc)
 
     def on_current_sprite(self, *args):
