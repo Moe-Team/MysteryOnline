@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
@@ -6,6 +7,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
+from kivy.uix.modalview import ModalView
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
 
@@ -110,7 +112,7 @@ class OOCWindow(ScrollView):
         super(OOCWindow, self).__init__(**kwargs)
 
 
-class RightClickMenu(Widget):
+class RightClickMenu(ModalView):
 
     def __init__(self, **kwargs):
         super(RightClickMenu, self).__init__(**kwargs)
@@ -139,7 +141,17 @@ class MainScreen(Screen):
         super(MainScreen, self).on_touch_down(touch)
 
     def on_right_click(self, touch):
-        pass
+        menu = RightClickMenu()
+        # Can't use absolute position so it uses a workaround
+        menu_x = touch.pos[0] / Window.width
+        menu_y = touch.pos[1] / Window.height
+        if touch.pos[1] >= menu.height:
+            loc_y = 'top'
+        else:
+            loc_y = 'y'
+
+        menu.pos_hint = {'x': menu_x, loc_y: menu_y}
+        menu.open()
 
     def on_ready(self, *args):
         # Called when main screen becomes active
@@ -153,12 +165,14 @@ class MainScreen(Screen):
             self.icons_layout.load_icons(char.get_icons())
 
     def on_current_loc(self, *args):
+        # Called when the current location changes
         self.user.set_loc(self.current_loc)
         self.toolbar.load_subloc(self.current_loc)
         subloc = locations['Hakuryou'].get_first_sub()
         self.current_subloc = subloc
 
     def on_current_subloc(self, *args):
+        # Called when the current sublocation changes
         subloc = self.current_loc.get_sub(self.current_subloc)
         self.sprite_preview.set_subloc(subloc)
 
