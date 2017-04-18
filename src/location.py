@@ -1,5 +1,5 @@
 import os
-from kivy.uix.image import Image
+from kivy.uix.image import AsyncImage
 
 
 class Location:
@@ -10,7 +10,11 @@ class Location:
         self.sublocations = {}
 
     def load(self):
-        self.sublocations = {file: Image(source=self.path+file) for file in os.listdir(self.path)}
+        self.sublocations = {self.strip_ext(file): AsyncImage(source=self.path+file) for file in os.listdir(self.path)}
+
+    def strip_ext(self, name):
+        if name.lower().endswith((".jpg", ".png")):
+            return name[:4]
 
     def list_sub(self):
         return sorted(list(self.sublocations.keys()))

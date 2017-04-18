@@ -4,10 +4,12 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
 from kivy.uix.modalview import ModalView
+from kivy.uix.dropdown import DropDown
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
 
@@ -17,12 +19,22 @@ from location import locations
 
 class Toolbar(BoxLayout):
 
-    subloc_drop = ObjectProperty(None)
-
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
+        self.subloc_drop = DropDown(size_hint=(None, None), size=(400, 40))
 
-    def load_subloc(self, loc):
+    def update_sub(self, loc):
+        for sub in loc.list_sub():
+            btn = Button(text=sub, size_hint=(None, None), size=(400, 40))
+            btn.bind(on_release=lambda btn: self.subloc_drop.select(sub))
+            self.subloc_drop.add_widget(btn)
+
+        main_btn = Button(size_hint=(None, None), size=(400, 40))
+        main_btn.bind(on_release=self.subloc_drop.open)
+        self.add_widget(main_btn)
+        self.subloc_drop.bind(on_select=self.on_subloc_select)
+
+    def on_subloc_select(self,*args):
         pass
 
 
@@ -167,9 +179,9 @@ class MainScreen(Screen):
     def on_current_loc(self, *args):
         # Called when the current location changes
         self.user.set_loc(self.current_loc)
-        self.toolbar.load_subloc(self.current_loc)
         subloc = locations['Hakuryou'].get_first_sub()
         self.current_subloc = subloc
+        self.toolbar.update_sub(self.current_loc)
 
     def on_current_subloc(self, *args):
         # Called when the current sublocation changes
