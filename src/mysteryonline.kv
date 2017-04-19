@@ -34,29 +34,36 @@
 
 
 <SpriteWindow>:
+    background: background
     center_sprite: center_s
     left_sprite: left_s
     right_sprite: right_s
-    Image:
-        id: center_s
-        opacity: 0
-        size_hint: None, None
-        size: 600, 600
-        pos: root.x + 100, root.y
 
     Image:
-        id: left_s
-        opacity: 0
-        size_hint: None, None
-        size: 600, 600
-        pos: root.x, root.y
+        id: background
+        size: root.size
+        pos: root.pos
 
-    Image:
-        id: right_s
-        opacity: 0
-        size_hint: None, None
-        size: 600, 600
-        pos: root.x, root.y
+        Image:
+            id: center_s
+            opacity: 0
+            size_hint: None, None
+            size: 600, 600
+            pos: root.x + 100, root.y
+
+        Image:
+            id: left_s
+            opacity: 0
+            size_hint: None, None
+            size: 600, 600
+            pos: root.x, root.y
+
+        Image:
+            id: right_s
+            opacity: 0
+            size_hint: None, None
+            size: 600, 600
+            pos: root.x, root.y
 
 
 <MainScreen>:
@@ -114,7 +121,7 @@
             id: icons_layout
             size_hint: None, None
             size: 250, 300
-            right: sprite_window.x - 5
+            right: sprite_window.x - 20
             y: sprite_window.y
 
         SpritePreview:

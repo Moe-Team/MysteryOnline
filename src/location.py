@@ -13,6 +13,7 @@ class Location:
         self.sublocations = {self.strip_ext(file): AsyncImage(source=self.path+file) for file in os.listdir(self.path)}
 
     def strip_ext(self, name):
+        # Strips extension from sublocation names
         if name.lower().endswith((".jpg", ".png")):
             return name[:4]
 

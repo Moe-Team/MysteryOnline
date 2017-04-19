@@ -26,16 +26,19 @@ class Toolbar(BoxLayout):
     def update_sub(self, loc):
         for sub in loc.list_sub():
             btn = Button(text=sub, size_hint=(None, None), size=(400, 40))
-            btn.bind(on_release=lambda btn: self.subloc_drop.select(sub))
+            btn.bind(on_release=lambda btn: self.subloc_drop.select(btn.text))
             self.subloc_drop.add_widget(btn)
 
-        main_btn = Button(size_hint=(None, None), size=(400, 40))
-        main_btn.bind(on_release=self.subloc_drop.open)
-        self.add_widget(main_btn)
+        self.main_btn = Button(size_hint=(None, None), size=(400, 40))
+        self.main_btn.text = loc.get_first_sub()
+        self.main_btn.bind(on_release=self.subloc_drop.open)
+        self.add_widget(self.main_btn)
         self.subloc_drop.bind(on_select=self.on_subloc_select)
 
-    def on_subloc_select(self,*args):
-        pass
+    def on_subloc_select(self, inst, subloc):
+        self.main_btn.text = subloc
+        main_scr = self.parent.parent # Always blame Kivy
+        main_scr.current_subloc = subloc
 
 
 class Icon(Image):
@@ -92,6 +95,7 @@ class SpritePreview(Image):
 
 class SpriteWindow(Widget):
 
+    background = ObjectProperty(None)
     center_sprite = ObjectProperty(None)
     left_sprite = ObjectProperty(None)
     right_sprite = ObjectProperty(None)
@@ -103,6 +107,9 @@ class SpriteWindow(Widget):
         self.center_sprite.texture = sprite
         self.center_sprite.opacity = 1
         self.center_sprite.size = self.center_sprite.texture.size
+
+    def set_background(self, subloc):
+        self.background.texture = subloc.texture
 
 
 class TextBox(Widget):
@@ -199,6 +206,8 @@ class MainScreen(Screen):
         self.msg_input.text = ""
         Clock.schedule_once(self.refocus_text)
         self.sprite_window.set_sprite(self.user.get_char().get_sprite(self.current_sprite))
+        subloc = self.current_loc.get_sub(self.current_subloc)
+        self.sprite_window.set_background(subloc)
 
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
