@@ -119,22 +119,48 @@ class SpriteWindow(Widget):
     def __init__(self, **kwargs):
         super(SpriteWindow, self).__init__(**kwargs)
 
-    def set_sprite(self, user, sprite, pos):
+    def set_sprite(self, user):
+        subloc = user.get_subloc()
+        pos = user.get_pos()
         if pos == 'right':
-            self.right_sprite.texture = sprite
-            self.right_sprite.opacity = 1
-            self.right_sprite.size = self.right_sprite.texture.size
+            subloc.set_r_user(user)
         elif pos == 'left':
+            subloc.set_l_user(user)
+        else:
+            subloc.set_c_user(user)
+
+        self.display_sub(subloc)
+
+    def set_subloc(self, subloc):
+        self.background.texture = subloc.get_img().texture
+
+    def display_sub(self, subloc):
+        if subloc.get_c_user() is not None:
+            sprite = subloc.get_c_user().get_char().get_current_sprite()
+            self.center_sprite.texture = sprite
+            self.center_sprite.opacity = 1
+            self.center_sprite.size = self.center_sprite.texture.size
+        else:
+            self.center_sprite.texture = None
+            self.center_sprite.opacity = 0
+
+        if subloc.get_l_user() is not None:
+            sprite = subloc.get_l_user().get_char().get_current_sprite()
             self.left_sprite.texture = sprite
             self.left_sprite.opacity = 1
             self.left_sprite.size = self.left_sprite.texture.size
         else:
-            self.center_sprite.texture = sprite
-            self.center_sprite.opacity = 1
-            self.center_sprite.size = self.center_sprite.texture.size
+            self.left_sprite.texture = None
+            self.left_sprite.opacity = 0
 
-    def set_background(self, subloc):
-        self.background.texture = subloc.get_img().texture
+        if subloc.get_r_user() is not None:
+            sprite = subloc.get_r_user().get_char().get_current_sprite()
+            self.right_sprite.texture = sprite
+            self.right_sprite.opacity = 1
+            self.right_sprite.size = self.right_sprite.texture.size
+        else:
+            self.right_sprite.texture = None
+            self.right_sprite.opacity = 0
 
 
 class TextBox(Widget):
@@ -222,10 +248,14 @@ class MainScreen(Screen):
         self.user.set_subloc(subloc)
         self.sprite_preview.set_subloc(subloc)
 
+    def on_current_pos(self, *args):
+        self.user.set_pos(self.current_pos)
+
     def on_current_sprite(self, *args):
         # Called when user picks new sprite
         char = self.user.get_char()
-        sprite = char.get_sprite(self.current_sprite)
+        char.set_current_sprite(self.current_sprite)
+        sprite = char.get_current_sprite()
         self.sprite_preview.set_sprite(sprite)
         Clock.schedule_once(self.refocus_text, 0.1)
 
@@ -233,9 +263,9 @@ class MainScreen(Screen):
         self.msg_input.text = ""
         Clock.schedule_once(self.refocus_text)
         sprite = self.user.get_char().get_sprite(self.current_sprite)
-        self.sprite_window.set_sprite(self.user, sprite, self.current_pos)
+        self.sprite_window.set_sprite(self.user)
         subloc = self.current_loc.get_sub(self.current_subloc)
-        self.sprite_window.set_background(subloc)
+        self.sprite_window.set_subloc(subloc)
 
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy

@@ -19,6 +19,13 @@ class User:
         self.subloc = subloc
 
     def set_pos(self, pos):
+        if self.pos is not None:
+            if self.pos == 'right':
+                self.subloc.set_r_user(None)
+            elif self.pos == 'left':
+                self.subloc.set_l_user(None)
+            else:
+                self.subloc.set_c_user(None)
         self.pos = pos
 
     def get_char(self):
