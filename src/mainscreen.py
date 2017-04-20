@@ -22,6 +22,17 @@ class Toolbar(BoxLayout):
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
         self.subloc_drop = DropDown(size_hint=(None, None), size=(400, 40))
+        self.pos_drop = DropDown(size_hint=(None, None), size=(400, 40))
+        for pos in ('center', 'right', 'left'):
+            btn = Button(text=pos, size_hint=(None, None), size=(400, 40))
+            btn.bind(on_release=lambda btn: self.pos_drop.select(btn.text))
+            self.pos_drop.add_widget(btn)
+
+        self.pos_btn = Button(size_hint=(None, None), size=(400, 40))
+        self.pos_btn.text = 'center'
+        self.pos_btn.bind(on_release=self.pos_drop.open)
+        self.add_widget(self.pos_btn)
+        self.pos_drop.bind(on_select=self.on_pos_select)
 
     def update_sub(self, loc):
         for sub in loc.list_sub():
@@ -39,6 +50,11 @@ class Toolbar(BoxLayout):
         self.main_btn.text = subloc
         main_scr = self.parent.parent # Always blame Kivy
         main_scr.current_subloc = subloc
+
+    def on_pos_select(self, inst, pos):
+        self.pos_btn.text = pos
+        main_scr = self.parent.parent # I will never forgive Kivy
+        main_scr.current_pos = pos
 
 
 class Icon(Image):
@@ -84,7 +100,7 @@ class SpritePreview(Image):
         super(SpritePreview, self).__init__(**kwargs)
 
     def set_subloc(self, sub):
-        self.texture = sub.texture
+        self.texture = sub.get_img().texture
 
     def set_sprite(self, sprite):
         self.center_sprite.texture = sprite
@@ -103,13 +119,22 @@ class SpriteWindow(Widget):
     def __init__(self, **kwargs):
         super(SpriteWindow, self).__init__(**kwargs)
 
-    def set_sprite(self, sprite):
-        self.center_sprite.texture = sprite
-        self.center_sprite.opacity = 1
-        self.center_sprite.size = self.center_sprite.texture.size
+    def set_sprite(self, user, sprite, pos):
+        if pos == 'right':
+            self.right_sprite.texture = sprite
+            self.right_sprite.opacity = 1
+            self.right_sprite.size = self.right_sprite.texture.size
+        elif pos == 'left':
+            self.left_sprite.texture = sprite
+            self.left_sprite.opacity = 1
+            self.left_sprite.size = self.left_sprite.texture.size
+        else:
+            self.center_sprite.texture = sprite
+            self.center_sprite.opacity = 1
+            self.center_sprite.size = self.center_sprite.texture.size
 
     def set_background(self, subloc):
-        self.background.texture = subloc.texture
+        self.background.texture = subloc.get_img().texture
 
 
 class TextBox(Widget):
@@ -148,6 +173,7 @@ class MainScreen(Screen):
     current_sprite = StringProperty("")
     current_loc = ObjectProperty(None)
     current_subloc = StringProperty("")
+    current_pos = StringProperty("center")
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
@@ -193,6 +219,7 @@ class MainScreen(Screen):
     def on_current_subloc(self, *args):
         # Called when the current sublocation changes
         subloc = self.current_loc.get_sub(self.current_subloc)
+        self.user.set_subloc(subloc)
         self.sprite_preview.set_subloc(subloc)
 
     def on_current_sprite(self, *args):
@@ -205,7 +232,8 @@ class MainScreen(Screen):
     def send_message(self, *args):
         self.msg_input.text = ""
         Clock.schedule_once(self.refocus_text)
-        self.sprite_window.set_sprite(self.user.get_char().get_sprite(self.current_sprite))
+        sprite = self.user.get_char().get_sprite(self.current_sprite)
+        self.sprite_window.set_sprite(self.user, sprite, self.current_pos)
         subloc = self.current_loc.get_sub(self.current_subloc)
         self.sprite_window.set_background(subloc)
 
