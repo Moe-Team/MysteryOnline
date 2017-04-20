@@ -163,11 +163,28 @@ class SpriteWindow(Widget):
             self.right_sprite.opacity = 0
 
 
-class TextBox(Widget):
+class TextBox(Label):
 
     def __init__(self, **kwargs):
         super(TextBox, self).__init__(**kwargs)
+        self.msg = ""
 
+    def display_text(self, msg):
+        self.msg = msg
+
+        def text_gen(text):
+            for c in text:
+                yield c
+
+        self.gen = text_gen(self.msg)
+        Clock.schedule_interval(self._animate, 1.0/60.0)
+
+    def _animate(self, dt):
+        try:
+            self.text += next(self.gen)
+        except StopIteration:
+            self.text += " "
+            return False
 
 
 class LogWindow(ScrollView):
@@ -195,6 +212,7 @@ class MainScreen(Screen):
     sprite_window = ObjectProperty(None)
     msg_input = ObjectProperty(None)
     toolbar = ObjectProperty(None)
+    text_box = ObjectProperty(None)
 
     current_sprite = StringProperty("")
     current_loc = ObjectProperty(None)
@@ -260,12 +278,15 @@ class MainScreen(Screen):
         Clock.schedule_once(self.refocus_text, 0.1)
 
     def send_message(self, *args):
-        self.msg_input.text = ""
         Clock.schedule_once(self.refocus_text)
         sprite = self.user.get_char().get_sprite(self.current_sprite)
         self.sprite_window.set_sprite(self.user)
         subloc = self.current_loc.get_sub(self.current_subloc)
         self.sprite_window.set_subloc(subloc)
+
+        msg = self.msg_input.text
+        self.msg_input.text = ""
+        self.text_box.display_text(msg)
 
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy

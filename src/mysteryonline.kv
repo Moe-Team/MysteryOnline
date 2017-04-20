@@ -72,6 +72,7 @@
     sprite_window: sprite_window
     msg_input: msg_input
     toolbar: toolbar
+    text_box: text_box
 
     FloatLayout:
         SpriteWindow:
@@ -81,9 +82,14 @@
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
         TextBox:
+            id: text_box
             size_hint: None, None
             size: 800, 200
             pos: sprite_window.x, sprite_window.y
+            font_size: 20
+            text_size: self.size
+            halign: 'left'
+            valign: 'top'
             canvas:
                 Color:
                     rgba: 0.3, 0.3, 0.3, 0.3
