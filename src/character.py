@@ -16,7 +16,6 @@ class Character:
         self.sprites_path = self.path + char['sprites']
         self.icons_path = self.path + char['icons']
         self.avatar = self.path + "avatar.png"
-        self.current_sprite = None
         self.loaded = False
 
     def load(self):
@@ -24,12 +23,6 @@ class Character:
             return
         self.sprites = Atlas(self.sprites_path)
         self.icons = Atlas(self.icons_path)
-
-    def set_current_sprite(self, id):
-        self.current_sprite = id
-
-    def get_current_sprite(self):
-        return self.get_sprite(self.current_sprite)
 
     def get_icons(self):
         try:

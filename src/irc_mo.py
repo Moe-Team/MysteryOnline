@@ -107,6 +107,7 @@ class IrcConnection:
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
         self.msg_q.enqueue(msg)
+        print(msg)
 
     def on_namreply(self, c, e):
         self.on_users_handler(e.arguments[2])

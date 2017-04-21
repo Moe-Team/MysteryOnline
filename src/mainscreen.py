@@ -139,7 +139,7 @@ class SpriteWindow(Widget):
 
     def display_sub(self, subloc):
         if subloc.get_c_user() is not None:
-            sprite = subloc.get_c_user().get_char().get_current_sprite()
+            sprite = subloc.get_c_user().get_current_sprite()
             self.center_sprite.texture = sprite
             self.center_sprite.opacity = 1
             self.center_sprite.size = self.center_sprite.texture.size
@@ -148,7 +148,7 @@ class SpriteWindow(Widget):
             self.center_sprite.opacity = 0
 
         if subloc.get_l_user() is not None:
-            sprite = subloc.get_l_user().get_char().get_current_sprite()
+            sprite = subloc.get_l_user().get_current_sprite()
             self.left_sprite.texture = sprite
             self.left_sprite.opacity = 1
             self.left_sprite.size = self.left_sprite.texture.size
@@ -157,7 +157,7 @@ class SpriteWindow(Widget):
             self.left_sprite.opacity = 0
 
         if subloc.get_r_user() is not None:
-            sprite = subloc.get_r_user().get_char().get_current_sprite()
+            sprite = subloc.get_r_user().get_current_sprite()
             self.right_sprite.texture = sprite
             self.right_sprite.opacity = 1
             self.right_sprite.size = self.right_sprite.texture.size
@@ -313,19 +313,19 @@ class MainScreen(Screen):
         self.sprite_preview.set_subloc(subloc)
 
     def on_current_pos(self, *args):
-        self.user.set_pos(self.current_pos)
+        pass
 
     def on_current_sprite(self, *args):
         # Called when user picks new sprite
-        char = self.user.get_char()
-        char.set_current_sprite(self.current_sprite)
-        sprite = char.get_current_sprite()
+        self.user.set_current_sprite(self.current_sprite)
+        sprite = self.user.get_current_sprite()
         self.sprite_preview.set_sprite(sprite)
         Clock.schedule_once(self.refocus_text, 0.1)
 
     def send_message(self, *args):
+        self.user.set_pos(self.current_pos)
         Clock.schedule_once(self.refocus_text)
-        sprite = self.user.get_char().get_sprite(self.current_sprite)
+        sprite = self.user.get_current_sprite()
         self.sprite_window.set_sprite(self.user)
         subloc = self.current_loc.get_sub(self.current_subloc)
         self.sprite_window.set_subloc(subloc)
