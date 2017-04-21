@@ -24,7 +24,9 @@ class Message:
         self.msg = "{}#{}#{}#{}#{}#{}#{}".format(name, loc, subloc, char, sprite, pos, self.msg)
 
     def decode(self):
-        res = self.text.split("#", 6)
+        if self.msg.count("#") < 6:
+            return False
+        res = self.msg.split("#", 6)
         return tuple(res)
 
 class MessageQueue:
@@ -59,6 +61,8 @@ class IrcConnection:
         self.channel = channel
         self._joined = False
         self.msg_q = MessageQueue()
+        self.on_join_handler = None
+        self.on_users_handler = None
 
         try:
             self.connection = self.reactor.server().connect(server, port, username)
@@ -66,7 +70,7 @@ class IrcConnection:
             print("Something went wrong m8")
             raise
 
-        events = ["welcome", "join", "disconnect", "pubmsg", "nicknameinuse"]
+        events = ["welcome", "join", "disconnect", "pubmsg", "nicknameinuse", "namreply"]
         for e in events:
             self.connection.add_global_handler(e, getattr(self, "on_" + e))
 
@@ -91,7 +95,11 @@ class IrcConnection:
             raise ChannelConnectionError("Couldn't connect to {}".format(self.channel))
 
     def on_join(self, c, e):
-        self._joined = True
+        nick = e.source.nick
+        if c.nickname != nick:
+            self.on_join_handler(nick)
+        else:
+            self._joined = True
 
     def on_disconnect(self, c, e):
         pass
@@ -99,7 +107,9 @@ class IrcConnection:
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
         self.msg_q.enqueue(msg)
-        print("Got one boss")
+
+    def on_namreply(self, c, e):
+        self.on_users_handler(e.arguments[2])
 
     def on_nicknameinuse(self, c, e):
         temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")

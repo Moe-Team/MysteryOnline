@@ -1,3 +1,5 @@
+from character import characters
+from location import locations
 
 
 class User:
@@ -7,7 +9,16 @@ class User:
         self.character = None
         self.location = None
         self.subloc = None
-        self.pos = None
+        self.pos = "center"
+
+    def set_from_msg(self, *args):
+        args = list(args)
+        self.location = locations[args[1]]
+        self.subloc = self.location.get_sub(args[2])
+        self.character = characters[args[3]]
+        self.character.load()
+        self.character.set_current_sprite(args[4])
+        self.pos = self.set_pos(args[5])
 
     def set_char(self, char):
         self.character = char

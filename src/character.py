@@ -17,8 +17,11 @@ class Character:
         self.icons_path = self.path + char['icons']
         self.avatar = self.path + "avatar.png"
         self.current_sprite = None
+        self.loaded = False
 
     def load(self):
+        if self.loaded:
+            return
         self.sprites = Atlas(self.sprites_path)
         self.icons = Atlas(self.icons_path)
 

@@ -15,6 +15,7 @@ from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
 
 from character import Character
+from user import User
 from location import locations
 from character_select import CharacterSelect
 
@@ -261,6 +262,7 @@ class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         self.user = None
+        self.users = {}
         App.get_running_app().set_main_screen(self)
 
     def on_touch_down(self, touch):
@@ -343,4 +345,23 @@ class MainScreen(Screen):
         self.msg_input.focus = True
 
     def update_chat(self, dt):
-        pass
+        msg_q = self.manager.irc_connection.msg_q
+        msg = msg_q.dequeue()
+        if msg is not None:
+            dcd = msg.decode()
+            if dcd:
+                user = self.users[dcd[0]]
+                user.set_from_msg(*dcd)
+                self.sprite_window.set_subloc(user.get_subloc())
+                self.sprite_window.set_sprite(user)
+                self.text_box.display_text(dcd[6], user)
+
+    def on_join(self, username):
+        if username not in self.users:
+            self.users[username] = User(username)
+
+    def on_join_users(self, users):
+        users = users.split()
+        for u in users:
+            if u != self.user.username:
+                self.users[u] = User(u)
