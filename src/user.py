@@ -17,9 +17,12 @@ class User:
         args = list(args)
         self.location = locations[args[1]]
         self.subloc = self.location.get_sub(args[2])
-        self.character = characters[args[3]]
-        self.character.load()
         self.set_current_sprite(args[4])
+        self.character = characters.get(args[3])
+        if self.character is None:
+            self.character = characters['RedHerring']
+            self.set_current_sprite('4')
+        self.character.load()
         self.set_pos(args[5])
 
     def set_current_sprite(self, id):
@@ -42,25 +45,19 @@ class User:
         if self.pos is not None:
             if self.pos == 'right':
                 if self.prev_subloc is not None and self.prev_subloc.get_r_user() is self:
-                    print("Prev")
                     self.prev_subloc.set_r_user(None)
                 else:
                     self.subloc.set_r_user(None)
-                    print("Curr")
             elif self.pos == 'left':
                 if self.prev_subloc is not None and self.prev_subloc.get_l_user() is self:
                     self.prev_subloc.set_l_user(None)
-                    print("Prev")
                 else:
                     self.subloc.set_l_user(None)
-                    print("Curr")
             else:
                 if self.prev_subloc is not None and self.prev_subloc.get_c_user() is self:
                     self.prev_subloc.set_c_user(None)
-                    print("Prev")
                 else:
                     self.subloc.set_c_user(None)
-                    print("Curr")
         self.pos = pos
 
     def get_char(self):

@@ -24,14 +24,14 @@ class Toolbar(BoxLayout):
 
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
-        self.subloc_drop = DropDown(size_hint=(None, None), size=(400, 40))
-        self.pos_drop = DropDown(size_hint=(None, None), size=(400, 40))
+        self.subloc_drop = DropDown(size_hint=(None, None), size=(400, 30))
+        self.pos_drop = DropDown(size_hint=(None, None), size=(400, 30))
         for pos in ('center', 'right', 'left'):
-            btn = Button(text=pos, size_hint=(None, None), size=(400, 40))
+            btn = Button(text=pos, size_hint=(None, None), size=(400, 30))
             btn.bind(on_release=lambda btn: self.pos_drop.select(btn.text))
             self.pos_drop.add_widget(btn)
 
-        self.pos_btn = Button(size_hint=(None, None), size=(400, 40))
+        self.pos_btn = Button(size_hint=(None, None), size=(400, 30))
         self.pos_btn.text = 'center'
         self.pos_btn.bind(on_release=self.pos_drop.open)
         self.add_widget(self.pos_btn)
@@ -39,11 +39,11 @@ class Toolbar(BoxLayout):
 
     def update_sub(self, loc):
         for sub in loc.list_sub():
-            btn = Button(text=sub, size_hint=(None, None), size=(400, 40))
+            btn = Button(text=sub, size_hint=(None, None), size=(400, 30))
             btn.bind(on_release=lambda btn: self.subloc_drop.select(btn.text))
             self.subloc_drop.add_widget(btn)
 
-        self.main_btn = Button(size_hint=(None, None), size=(400, 40))
+        self.main_btn = Button(size_hint=(None, None), size=(400, 30))
         self.main_btn.text = loc.get_first_sub()
         self.main_btn.bind(on_release=self.subloc_drop.open)
         self.add_widget(self.main_btn)
@@ -82,6 +82,7 @@ class IconsLayout(GridLayout):
         self.current_icon = None
 
     def load_icons(self, icons):
+        self.clear_widgets()
         for i in sorted(icons.textures.keys()):
             self.add_widget(Icon(i, icons[i]))
         self.sprite_picked(self.children[-1], "1")
@@ -285,6 +286,7 @@ class MainScreen(Screen):
         menu.open()
 
     def on_ready(self, *args):
+        self.msg_input.readonly = True
         self.log_window.log.bind(on_ref_press=self.log_window.copy_text)
         # Called when main screen becomes active
         self.msg_input.bind(on_text_validate=self.send_message)
@@ -297,6 +299,7 @@ class MainScreen(Screen):
             self.on_new_char(char)
 
     def on_new_char(self, char):
+        self.msg_input.readonly = False
         self.icons_layout.load_icons(char.get_icons())
 
     def on_current_loc(self, *args):
