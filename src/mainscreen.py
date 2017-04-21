@@ -16,6 +16,7 @@ from kivy.clock import Clock
 
 from character import Character
 from location import locations
+from character_select import CharacterSelect
 
 
 class Toolbar(BoxLayout):
@@ -222,8 +223,24 @@ class OOCWindow(ScrollView):
 
 class RightClickMenu(ModalView):
 
+    char_select = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(RightClickMenu, self).__init__(**kwargs)
+
+    def on_char_select_clicked(self, *args):
+        cs = CharacterSelect()
+        self.dismiss()
+        cs.bind(on_dismiss=self.on_picked)
+        cs.open()
+
+    def on_picked(self, inst):
+        user = App.get_running_app().get_user()
+        if inst.picked_char is not None:
+            user.set_char(inst.picked_char)
+            user.get_char().load()
+            main_scr = App.get_running_app().get_main_screen()
+            main_scr.on_new_char(user.get_char())
 
 
 class MainScreen(Screen):
@@ -244,6 +261,7 @@ class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         self.user = None
+        App.get_running_app().set_main_screen(self)
 
     def on_touch_down(self, touch):
         if touch.button == 'right':
@@ -274,7 +292,10 @@ class MainScreen(Screen):
         self.current_loc = locations['Hakuryou']
         char = self.user.get_char()
         if char is not None:
-            self.icons_layout.load_icons(char.get_icons())
+            self.on_new_char(char)
+
+    def on_new_char(self, char):
+        self.icons_layout.load_icons(char.get_icons())
 
     def on_current_loc(self, *args):
         # Called when the current location changes

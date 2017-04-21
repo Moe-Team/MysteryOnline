@@ -181,8 +181,20 @@
 
 
 <RightClickMenu>:
+    char_select: char_select
+
     size_hint: None, None
     size: 100, 300
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        Button:
+            id: char_select
+            size_hint: None, None
+            size: 100, 30
+            text: 'Character'
+            on_release: root.on_char_select_clicked()
 
 
 <CharacterSelect>:
