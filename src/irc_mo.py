@@ -20,11 +20,12 @@ class Message:
     def __repr__(self):
         return str(self.msg)
 
-    def encode(self, name, loc, char, sprite):
-        pass
+    def encode(self, name, loc, subloc, char, sprite, pos):
+        self.msg = "{}#{}#{}#{}#{}#{}#{}".format(name, loc, subloc, char, sprite, pos, self.msg)
 
     def decode(self):
-        pass
+        res = self.text.split("#", 6)
+        return tuple(res)
 
 class MessageQueue:
     '''Standard First-In-First-Out queue for irc messages.
@@ -72,10 +73,10 @@ class IrcConnection:
     def get_msg(self):
         return self.msg_q.dequeue()
 
-    def send_msg(self, msg, name, loc, char, sprite):
+    def send_msg(self, msg, name, loc, subloc, char, sprite, pos):
         message = Message(msg)
-        message.encode(name, loc, char, sprite)
-        self.connection.pubmsg(message)
+        message.encode(name, loc, subloc, char, sprite, pos)
+        self.connection.privmsg(self.channel, message.msg)
 
     def is_connected(self):
         return self._joined
@@ -98,6 +99,7 @@ class IrcConnection:
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
         self.msg_q.enqueue(msg)
+        print("Got one boss")
 
     def on_nicknameinuse(self, c, e):
         temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")

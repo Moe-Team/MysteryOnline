@@ -332,6 +332,12 @@ class MainScreen(Screen):
         self.msg_input.text = ""
         self.text_box.display_text(msg, self.user)
 
+        user = self.user
+        loc = user.get_loc().name
+        char = user.get_char().name
+        pos = user.get_pos()
+        self.manager.irc_connection.send_msg(msg, user.username, loc, self.current_subloc, char, self.current_sprite, self.current_pos)
+
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
         self.msg_input.focus = True
