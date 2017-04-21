@@ -165,11 +165,19 @@ class SpriteWindow(Widget):
 
 class TextBox(Label):
 
+    char_name = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(TextBox, self).__init__(**kwargs)
         self.msg = ""
+        self.prev_user = None
 
-    def display_text(self, msg):
+    def display_text(self, msg, user):
+        if self.prev_user is not user:
+            self.text = ""
+        self.prev_user = user
+        char_name = user.get_char().name
+        self.char_name.text = char_name
         self.msg = msg
 
         def text_gen(text):
@@ -286,7 +294,7 @@ class MainScreen(Screen):
 
         msg = self.msg_input.text
         self.msg_input.text = ""
-        self.text_box.display_text(msg)
+        self.text_box.display_text(msg, self.user)
 
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy

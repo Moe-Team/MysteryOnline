@@ -97,6 +97,7 @@
                     pos: self.pos
                     size: self.size
 
+
         TextInput:
             id: msg_input
             multiline: False
@@ -142,6 +143,26 @@
             size_hint: None, None
             size: 800, 40
             pos: msg_input.x, msg_input.y - 50
+
+
+<TextBox>:
+    char_name: char_name
+
+    Label:
+        id: char_name
+        pos: root.x, root.top
+        size_hint: None, None
+        size: 200, 30
+        text_size: self.size
+        halign: 'left'
+        valign: 'top'
+        font_size: 20
+        canvas:
+            Color:
+                rgba: 0.4, 0.4, 0.4, 0.4
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
 
 <SpritePreview>:
