@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.core.window import Window
+from kivy.core.clipboard import Clipboard
 from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
@@ -187,6 +188,9 @@ class TextBox(Label):
         self.gen = text_gen(self.msg)
         Clock.schedule_interval(self._animate, 1.0/60.0)
 
+        main_scr = self.parent.parent # BLAAAME KIVYYYY
+        main_scr.log_window.add_entry(msg, user.username)
+
     def _animate(self, dt):
         try:
             self.text += next(self.gen)
@@ -197,8 +201,17 @@ class TextBox(Label):
 
 class LogWindow(ScrollView):
 
+    log = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(LogWindow, self).__init__(**kwargs)
+
+    def add_entry(self, msg, username):
+        self.log.text += "{0}: [ref={1}]{1}[/ref]\n".format(username, msg)
+        self.scroll_y = 0
+
+    def copy_text(self, inst, value):
+        Clipboard.copy(value)
 
 
 class OOCWindow(ScrollView):
@@ -221,6 +234,7 @@ class MainScreen(Screen):
     msg_input = ObjectProperty(None)
     toolbar = ObjectProperty(None)
     text_box = ObjectProperty(None)
+    log_window = ObjectProperty(None)
 
     current_sprite = StringProperty("")
     current_loc = ObjectProperty(None)
@@ -251,6 +265,7 @@ class MainScreen(Screen):
         menu.open()
 
     def on_ready(self, *args):
+        self.log_window.log.bind(on_ref_press=self.log_window.copy_text)
         # Called when main screen becomes active
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)

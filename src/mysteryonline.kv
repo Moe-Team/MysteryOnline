@@ -26,8 +26,11 @@
 
 
 <LogWindow>:
+    log: log
+
     Label:
-        text: str("Long as fuck text" * 100)
+        id: log
+        markup: True
         text_size: self.width, None
         size_hint_y: None
         height: self.texture_size[1]
@@ -73,6 +76,7 @@
     msg_input: msg_input
     toolbar: toolbar
     text_box: text_box
+    log_window: log_window
 
     FloatLayout:
         SpriteWindow:
@@ -110,11 +114,11 @@
             size_hint: None, None
             x: sprite_window.right + 5
             top: sprite_window.top
-            size: 200, 300
+            size: 300, 300
 
         OOCWindow:
             size_hint: None, None
-            size: 200, 330
+            size: 300, 330
             x: log_window.x
             top: log_window.y
             canvas:
