@@ -63,6 +63,7 @@ class IrcConnection:
         self.msg_q = MessageQueue()
         self.on_join_handler = None
         self.on_users_handler = None
+        self.on_disconnect_handler = None
 
         try:
             self.connection = self.reactor.server().connect(server, port, username)
@@ -70,7 +71,7 @@ class IrcConnection:
             print("Something went wrong m8")
             raise
 
-        events = ["welcome", "join", "disconnect", "pubmsg", "nicknameinuse", "namreply"]
+        events = ["welcome", "join", "quit", "pubmsg", "nicknameinuse", "namreply"]
         for e in events:
             self.connection.add_global_handler(e, getattr(self, "on_" + e))
 
@@ -101,8 +102,9 @@ class IrcConnection:
         else:
             self._joined = True
 
-    def on_disconnect(self, c, e):
-        pass
+    def on_quit(self, c, e):
+        nick = e.source.nick
+        self.on_disconnect_handler(nick)
 
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]

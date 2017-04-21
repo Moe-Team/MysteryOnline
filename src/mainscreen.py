@@ -254,6 +254,7 @@ class MainScreen(Screen):
     toolbar = ObjectProperty(None)
     text_box = ObjectProperty(None)
     log_window = ObjectProperty(None)
+    user_list = ObjectProperty(None)
 
     current_sprite = StringProperty("")
     current_loc = ObjectProperty(None)
@@ -362,9 +363,23 @@ class MainScreen(Screen):
     def on_join(self, username):
         if username not in self.users:
             self.users[username] = User(username)
+        self.log_window.log.text += "{} has joined.\n".format(username)
+        self.log_window.log.scroll_y = 0
+
+    def on_disconnect(self, username):
+        self.log_window.log.text += "{} has disconnected.\n".format(username)
+        self.log_window.log.scroll_y = 0
 
     def on_join_users(self, users):
         users = users.split()
+        temp = []
         for u in users:
+            if u == "@"+self.user.username:
+                print("GG")
+                return
             if u != self.user.username:
                 self.users[u] = User(u)
+                temp.append(u)
+        temp = ", ".join(temp)
+        self.log_window.log.text += "{} are currently online.\n".format(temp)
+        self.log_window.log.scroll_y = 0
