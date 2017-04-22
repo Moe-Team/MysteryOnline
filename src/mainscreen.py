@@ -15,7 +15,7 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
 
-from character import Character
+from character import Character, characters
 from user import User
 from location import locations
 from character_select import CharacterSelect
@@ -238,6 +238,9 @@ class OOCWindow(TabbedPanel):
         self.user_list.add_widget(lbl)
         self.online_users[user.username] = lbl
 
+    def update_char(self, char, user):
+        self.online_users[user].text = "{}: {}\n".format(user, char)
+
 
 class RightClickMenu(ModalView):
 
@@ -318,6 +321,7 @@ class MainScreen(Screen):
     def on_new_char(self, char):
         self.msg_input.readonly = False
         self.icons_layout.load_icons(char.get_icons())
+        self.manager.irc_connection.send_special('char', char.name)
 
     def on_current_loc(self, *args):
         # Called when the current location changes
@@ -358,23 +362,35 @@ class MainScreen(Screen):
         loc = user.get_loc().name
         char = user.get_char().name
         pos = user.get_pos()
-        self.manager.irc_connection.send_msg(msg, user.username, loc, self.current_subloc, char, self.current_sprite, self.current_pos)
+        self.manager.irc_connection.send_msg(msg, loc, self.current_subloc, char, self.current_sprite, self.current_pos)
 
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
         self.msg_input.focus = True
 
     def update_chat(self, dt):
-        msg_q = self.manager.irc_connection.msg_q
-        msg = msg_q.dequeue()
+        msg = self.manager.irc_connection.get_msg()
         if msg is not None:
-            dcd = msg.decode()
-            if dcd:
+            if msg.identify() == 'chat':
+                dcd = msg.decode()
                 user = self.users[dcd[0]]
                 user.set_from_msg(*dcd)
                 self.sprite_window.set_subloc(user.get_subloc())
                 self.sprite_window.set_sprite(user)
                 self.text_box.display_text(dcd[6], user)
+
+            elif msg.identify() == 'char':
+                dcd = msg.decode_other()
+                self.update_char(*dcd)
+
+    def update_char(self, char, user):
+        self.ooc_window.update_char(char, user)
+        if char not in characters:
+            self.users[user].set_char(characters['RedHerring'])
+            self.users[user].set_current_sprite('4')
+        else:
+            self.users[user].set_char(characters[char])
+        self.users[user].get_char().load()
 
     def on_join(self, username):
         if username not in self.users:
@@ -382,6 +398,9 @@ class MainScreen(Screen):
             self.ooc_window.add_user(self.users[username])
         self.log_window.log.text += "{} has joined.\n".format(username)
         self.log_window.log.scroll_y = 0
+        char = self.user.get_char()
+        if char is not None:
+            self.manager.irc_connection.send_special('char', char.name)
 
     def on_disconnect(self, username):
         self.log_window.log.text += "{} has disconnected.\n".format(username)

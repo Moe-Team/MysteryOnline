@@ -12,8 +12,9 @@ class Message:
     '''This class will eventually handle message parsing and any other operations
     on messages.
     '''
-    def __init__(self, message):
+    def __init__(self, message, sender="default"):
         self.msg = message
+        self.sender = sender
 
     def __str__(self):
         return self.msg
@@ -21,14 +22,24 @@ class Message:
     def __repr__(self):
         return str(self.msg)
 
-    def encode(self, name, loc, subloc, char, sprite, pos):
-        self.msg = "{}#{}#{}#{}#{}#{}#{}".format(name, loc, subloc, char, sprite, pos, self.msg)
+    def encode(self, loc, subloc, char, sprite, pos):
+        self.msg = "{}#{}#{}#{}#{}#{}".format(loc, subloc, char, sprite, pos, self.msg)
 
     def decode(self):
-        if self.msg.count("#") < 6:
-            return False
-        res = self.msg.split("#", 6)
+        res = self.msg.split("#", 5)
+        res.insert(0, self.sender)
         return tuple(res)
+
+    def decode_other(self):
+        res = self.msg.split("#", 1)
+        res.append(self.sender)
+        return (res[1], res[2])
+
+    def identify(self):
+        if self.msg.count('#') >= 5:
+            return 'chat'
+        if self.msg.startswith('c#'):
+            return 'char'
 
 class MessageQueue:
     '''Standard First-In-First-Out queue for irc messages.
@@ -40,8 +51,8 @@ class MessageQueue:
     def is_empty(self):
         return self.messages == []
 
-    def enqueue(self, msg):
-        message = Message(msg)
+    def enqueue(self, msg, sender):
+        message = Message(msg, sender)
         self.messages.insert(0, message)
 
     def dequeue(self):
@@ -79,10 +90,14 @@ class IrcConnection:
     def get_msg(self):
         return self.msg_q.dequeue()
 
-    def send_msg(self, msg, name, loc, subloc, char, sprite, pos):
+    def send_msg(self, msg, loc, subloc, char, sprite, pos):
         message = Message(msg)
-        message.encode(name, loc, subloc, char, sprite, pos)
+        message.encode(loc, subloc, char, sprite, pos)
         self.connection.privmsg(self.channel, message.msg)
+
+    def send_special(self, type, value):
+        types = {'char': 'c#'}
+        self.connection.privmsg(self.channel, types[type] + value)
 
     def is_connected(self):
         return self._joined
@@ -108,7 +123,7 @@ class IrcConnection:
 
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
-        self.msg_q.enqueue(msg)
+        self.msg_q.enqueue(msg, e.source.nick)
 
     def on_namreply(self, c, e):
         self.on_users_handler(e.arguments[2])
