@@ -16,7 +16,7 @@ class User:
     def set_from_msg(self, *args):
         args = list(args)
         self.location = locations[args[1]]
-        self.subloc = self.location.get_sub(args[2])
+        self.set_subloc(self.location.get_sub(args[2]))
         self.set_current_sprite(args[4])
         self.character = characters.get(args[3])
         if self.character is None:
@@ -44,20 +44,20 @@ class User:
     def set_pos(self, pos):
         if self.pos is not None:
             if self.pos == 'right':
-                if self.prev_subloc is not None and self.prev_subloc.get_r_user() is self:
-                    self.prev_subloc.set_r_user(None)
-                else:
-                    self.subloc.set_r_user(None)
+                if self.prev_subloc is not None and self in self.prev_subloc.r_users:
+                    self.prev_subloc.remove_r_user(self)
+                elif self in self.subloc.r_users:
+                    self.subloc.remove_r_user(self)
             elif self.pos == 'left':
-                if self.prev_subloc is not None and self.prev_subloc.get_l_user() is self:
-                    self.prev_subloc.set_l_user(None)
-                else:
-                    self.subloc.set_l_user(None)
+                if self.prev_subloc is not None and self in self.prev_subloc.l_users:
+                    self.prev_subloc.remove_l_user(self)
+                elif self in self.subloc.l_users:
+                    self.subloc.remove_l_user(self)
             else:
-                if self.prev_subloc is not None and self.prev_subloc.get_c_user() is self:
-                    self.prev_subloc.set_c_user(None)
-                else:
-                    self.subloc.set_c_user(None)
+                if self.prev_subloc is not None and self in self.prev_subloc.c_users:
+                    self.prev_subloc.remove_c_user(self)
+                elif self in self.subloc.c_users:
+                    self.subloc.remove_c_user(self)
         self.pos = pos
 
     def get_char(self):

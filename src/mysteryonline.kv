@@ -77,7 +77,7 @@
     toolbar: toolbar
     text_box: text_box
     log_window: log_window
-    user_list: user_list
+    ooc_window: ooc_window
 
     FloatLayout:
         SpriteWindow:
@@ -118,19 +118,11 @@
             size: 250, 300
 
         OOCWindow:
+            id: ooc_window
             size_hint: None, None
             size: 250, 330
             x: log_window.x
             top: log_window.y
-            canvas:
-                Color:
-                    rgba: 0.3, 0.3, 0.3, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-
-            Label:
-                id: user_list
 
         IconsLayout:
             id: icons_layout
@@ -152,6 +144,31 @@
             size: 800, 30
             pos: msg_input.x, msg_input.y - 30
 
+
+<OOCWindow>:
+
+    user_list: user_list
+    do_default_tab: False
+
+    TabbedPanelItem:
+        text: 'OOC'
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            Label:
+                text: 'Blahblah'
+
+            TextInput:
+                size_hint: 1, None
+                height: 30
+
+    TabbedPanelItem:
+        text: 'Online'
+
+        BoxLayout:
+            orientation: 'vertical'
+            id: user_list
 
 <TextBox>:
     char_name: char_name

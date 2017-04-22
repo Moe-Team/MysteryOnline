@@ -7,9 +7,9 @@ class SubLocation:
     def __init__(self, name, img):
         self.name = name
         self.img = img
-        self.c_user = None
-        self.l_user = None
-        self.r_user = None
+        self.c_users = []
+        self.l_users = []
+        self.r_users = []
 
     def get_img(self):
         return self.img
@@ -17,23 +17,32 @@ class SubLocation:
     def get_name(self):
         return self.name
 
-    def set_c_user(self, user):
-        self.c_user = user
+    def add_c_user(self, user):
+        self.c_users.append(user)
 
-    def set_l_user(self, user):
-        self.l_user = user
+    def add_l_user(self, user):
+        self.l_users.append(user)
 
-    def set_r_user(self, user):
-        self.r_user = user
+    def add_r_user(self, user):
+        self.r_users.append(user)
 
     def get_c_user(self):
-        return self.c_user
+        return self.c_users[-1]
 
     def get_l_user(self):
-        return self.l_user
+        return self.l_users[-1]
 
     def get_r_user(self):
-        return self.r_user
+        return self.r_users[-1]
+
+    def remove_c_user(self, user):
+        self.c_users.remove(user)
+
+    def remove_l_user(self, user):
+        self.l_users.remove(user)
+
+    def remove_r_user(self, user):
+        self.r_users.remove(user)
 
 
 class Location:

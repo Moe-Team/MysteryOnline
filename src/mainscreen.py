@@ -11,6 +11,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
 from kivy.uix.modalview import ModalView
 from kivy.uix.dropdown import DropDown
+from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
 
@@ -129,11 +130,11 @@ class SpriteWindow(Widget):
         subloc = user.get_subloc()
         pos = user.get_pos()
         if pos == 'right':
-            subloc.set_r_user(user)
+            subloc.add_r_user(user)
         elif pos == 'left':
-            subloc.set_l_user(user)
+            subloc.add_l_user(user)
         else:
-            subloc.set_c_user(user)
+            subloc.add_c_user(user)
 
         self.display_sub(subloc)
 
@@ -141,7 +142,7 @@ class SpriteWindow(Widget):
         self.background.texture = subloc.get_img().texture
 
     def display_sub(self, subloc):
-        if subloc.get_c_user() is not None:
+        if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
             self.center_sprite.texture = sprite
             self.center_sprite.opacity = 1
@@ -150,7 +151,7 @@ class SpriteWindow(Widget):
             self.center_sprite.texture = None
             self.center_sprite.opacity = 0
 
-        if subloc.get_l_user() is not None:
+        if subloc.l_users:
             sprite = subloc.get_l_user().get_current_sprite()
             self.left_sprite.texture = sprite
             self.left_sprite.opacity = 1
@@ -159,7 +160,7 @@ class SpriteWindow(Widget):
             self.left_sprite.texture = None
             self.left_sprite.opacity = 0
 
-        if subloc.get_r_user() is not None:
+        if subloc.r_users:
             sprite = subloc.get_r_user().get_current_sprite()
             self.right_sprite.texture = sprite
             self.right_sprite.opacity = 1
@@ -219,10 +220,23 @@ class LogWindow(ScrollView):
         Clipboard.copy(value)
 
 
-class OOCWindow(ScrollView):
+class OOCWindow(TabbedPanel):
+
+    user_list = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
+        self.online_users = {}
+
+    def add_user(self, user):
+        char = user.get_char()
+        if char is None:
+            char = ""
+        else:
+            char = char.name
+        lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, height=30)
+        self.user_list.add_widget(lbl)
+        self.online_users[user.username] = lbl
 
 
 class RightClickMenu(ModalView):
@@ -256,7 +270,7 @@ class MainScreen(Screen):
     toolbar = ObjectProperty(None)
     text_box = ObjectProperty(None)
     log_window = ObjectProperty(None)
-    user_list = ObjectProperty(None)
+    ooc_window = ObjectProperty(None)
 
     current_sprite = StringProperty("")
     current_loc = ObjectProperty(None)
@@ -294,6 +308,7 @@ class MainScreen(Screen):
         # Called when main screen becomes active
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)
+        self.ooc_window.add_user(self.user)
 
         self.current_loc = locations['Hakuryou']
         char = self.user.get_char()
@@ -364,6 +379,7 @@ class MainScreen(Screen):
     def on_join(self, username):
         if username not in self.users:
             self.users[username] = User(username)
+            self.ooc_window.add_user(self.users[username])
         self.log_window.log.text += "{} has joined.\n".format(username)
         self.log_window.log.scroll_y = 0
 
@@ -373,14 +389,9 @@ class MainScreen(Screen):
 
     def on_join_users(self, users):
         users = users.split()
-        temp = []
         for u in users:
             if u == "@"+self.user.username:
-                print("GG")
-                return
+                continue
             if u != self.user.username:
                 self.users[u] = User(u)
-                temp.append(u)
-        temp = ", ".join(temp)
-        self.log_window.log.text += "{} are currently online.\n".format(temp)
-        self.log_window.log.scroll_y = 0
+                self.ooc_window.add_user(self.users[u])
