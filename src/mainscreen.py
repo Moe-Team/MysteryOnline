@@ -71,21 +71,23 @@ class Icon(Image):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            self.parent.sprite_picked(self, self.name)
+            self.parent.parent.sprite_picked(self, self.name)
             return True
 
-class IconsLayout(GridLayout):
+class IconsLayout(ScrollView):
 
     def __init__(self, **kwargs):
         super(IconsLayout, self).__init__(**kwargs)
-        self.cols = 5
+        self.g = GridLayout(cols=6, size_hint_y=None)
+        self.g.bind(minimum_height=self.g.setter('height'))
+        self.add_widget(self.g)
         self.current_icon = None
 
     def load_icons(self, icons):
-        self.clear_widgets()
+        self.g.clear_widgets()
         for i in sorted(icons.textures.keys()):
-            self.add_widget(Icon(i, icons[i]))
-        self.sprite_picked(self.children[-1], "1")
+            self.g.add_widget(Icon(i, icons[i]))
+        self.sprite_picked(self.g.children[-1], "1")
 
     def sprite_picked(self, icon, sprite_name):
         main_scr = self.parent.parent # blame kivy

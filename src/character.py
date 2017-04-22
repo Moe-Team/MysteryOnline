@@ -23,6 +23,7 @@ class Character:
             return
         self.sprites = Atlas(self.sprites_path)
         self.icons = Atlas(self.icons_path)
+        self.loaded = True
 
     def get_icons(self):
         try:
