@@ -27,12 +27,12 @@ class LoginScreen(Screen):
                 popup.open()
                 return
 
-            self.manager.irc_connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
             user = User(self.username)
             if self.picked_char is not None:
                 user.set_char(self.picked_char)
                 user.get_char().load()
             App.get_running_app().set_user(user)
+            self.manager.irc_connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
 
 
     def on_select_clicked(self, *args):

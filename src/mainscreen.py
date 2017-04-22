@@ -295,7 +295,6 @@ class MainScreen(Screen):
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)
 
-        self.user = App.get_running_app().get_user()
         self.current_loc = locations['Hakuryou']
         char = self.user.get_char()
         if char is not None:

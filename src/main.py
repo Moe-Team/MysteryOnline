@@ -23,6 +23,7 @@ class MainScreenManager(ScreenManager):
         self.irc_connection.on_join_handler = self.main_screen.on_join
         self.irc_connection.on_users_handler = self.main_screen.on_join_users
         self.irc_connection.on_disconnect_handler = self.main_screen.on_disconnect
+        self.main_screen.user = App.get_running_app().get_user()
         Clock.schedule_interval(self.process_irc, 1.0/60.0)
         self.popup_ = MOPopup("Connection", "Connecting to IRC", "K", False)
         self.popup_.open()

@@ -1,6 +1,7 @@
 import irc.client
 from mopopup import MOPopup
 from kivy.uix.textinput import TextInput
+from kivy.app import App
 
 
 class ChannelConnectionError(Exception):
@@ -71,7 +72,7 @@ class IrcConnection:
             print("Something went wrong m8")
             raise
 
-        events = ["welcome", "join", "quit", "pubmsg", "nicknameinuse", "namreply"]
+        events = ["welcome", "join", "quit", "pubmsg", "nicknameinuse", "namreply", "privnotice"]
         for e in events:
             self.connection.add_global_handler(e, getattr(self, "on_" + e))
 
@@ -96,11 +97,10 @@ class IrcConnection:
             raise ChannelConnectionError("Couldn't connect to {}".format(self.channel))
 
     def on_join(self, c, e):
+        self._joined = True
         nick = e.source.nick
         if c.nickname != nick:
             self.on_join_handler(nick)
-        else:
-            self._joined = True
 
     def on_quit(self, c, e):
         nick = e.source.nick
@@ -113,12 +113,15 @@ class IrcConnection:
     def on_namreply(self, c, e):
         self.on_users_handler(e.arguments[2])
 
+    def on_privnotice(self, c, e):
+        print(e.arguments)
+
     def on_nicknameinuse(self, c, e):
         temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")
         text_inp = TextInput(multiline=False, size_hint=(1, 0.4))
         temp_pop.box_lay.add_widget(text_inp)
         def temp_handler(*args):
             c.nick(text_inp.text)
-
+            App.get_running_app().get_user().username = text_inp.text
         temp_pop.bind(on_dismiss=temp_handler)
         temp_pop.open()
