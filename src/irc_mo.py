@@ -93,6 +93,7 @@ class IrcConnection:
     def send_msg(self, msg, loc, subloc, char, sprite, pos):
         message = Message(msg)
         message.encode(loc, subloc, char, sprite, pos)
+        self.msg_q.messages.insert(0, message)
         self.connection.privmsg(self.channel, message.msg)
 
     def send_special(self, type, value):

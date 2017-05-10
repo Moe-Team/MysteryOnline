@@ -178,8 +178,10 @@ class TextBox(Label):
         super(TextBox, self).__init__(**kwargs)
         self.msg = ""
         self.prev_user = None
+        self.is_displaying_msg = False
 
     def display_text(self, msg, user):
+        self.is_displaying_msg = True
         if self.prev_user is not user:
             self.text = ""
         self.prev_user = user
@@ -202,6 +204,7 @@ class TextBox(Label):
             self.text += next(self.gen)
         except StopIteration:
             self.text += " "
+            self.is_displaying_msg = False
             return False
 
 
@@ -349,19 +352,13 @@ class MainScreen(Screen):
     def send_message(self, *args):
         self.user.set_pos(self.current_pos)
         Clock.schedule_once(self.refocus_text)
-        sprite = self.user.get_current_sprite()
-        self.sprite_window.set_sprite(self.user)
-        subloc = self.current_loc.get_sub(self.current_subloc)
-        self.sprite_window.set_subloc(subloc)
 
         msg = self.msg_input.text
         self.msg_input.text = ""
-        self.text_box.display_text(msg, self.user)
 
         user = self.user
         loc = user.get_loc().name
         char = user.get_char().name
-        pos = user.get_pos()
         self.manager.irc_connection.send_msg(msg, loc, self.current_subloc, char, self.current_sprite, self.current_pos)
 
     def refocus_text(self, *args):
@@ -369,12 +366,17 @@ class MainScreen(Screen):
         self.msg_input.focus = True
 
     def update_chat(self, dt):
+        if self.text_box.is_displaying_msg:
+            return
         msg = self.manager.irc_connection.get_msg()
         if msg is not None:
             if msg.identify() == 'chat':
                 dcd = msg.decode()
-                user = self.users[dcd[0]]
-                user.set_from_msg(*dcd)
+                if dcd[0] == "default":
+                    user = self.user
+                else:
+                    user = self.users[dcd[0]]
+                    user.set_from_msg(*dcd)
                 self.sprite_window.set_subloc(user.get_subloc())
                 self.sprite_window.set_sprite(user)
                 self.text_box.display_text(dcd[6], user)
