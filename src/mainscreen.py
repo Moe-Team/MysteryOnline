@@ -187,7 +187,7 @@ class TextBox(Label):
     char_name = ObjectProperty(None)
 
     def __init__(self, **kwargs):
-        super(TextBox, self).__init__()
+        super(TextBox, self).__init__(**kwargs)
         self.msg = ""
         self.prev_user = None
         self.is_displaying_msg = False
@@ -216,30 +216,31 @@ class TextBox(Label):
 
     def _animate(self, dt):
         try:
-             if self.colored is False:
-                 self.text += next(self.gen)
-             else:
-                 self.text = '[color='+ self.selected_color +']' + self.msg + '[/color]' # it repeats the msg without color
-                 self.colored = False
+            if self.colored == False:
+                self.text += next(self.gen)
+            else:
+                self.text = '[color='+ self.selected_color +']' + self.msg + '[/color]' # it repeats the msg without color
+                self.colored = False
+                return False
 
         except StopIteration:
-             self.text += " "
-             self.is_displaying_msg = False
-             return False
+            self.text += " "
+            self.is_displaying_msg = False
+            return False
 
     def color_select(self, col):
-        if col is 'red':
+        if col == 'red':
             return 'ff3333'
-        elif col is 'blue':
+        elif col == 'blue':
             return '0000ff'
-        elif col is 'golden':
+        elif col == 'golden':
             return 'ffd700'
-        elif col is 'green':
+        elif col == 'green':
             return '00cd00'
 
     def color_change(self, col):
         self.selected_color = self.color_select(col)
-        if self.colored is False:
+        if self.colored == False:
             self.colored = True
         else:
             self.colored = False
