@@ -33,7 +33,7 @@ class Toolbar(BoxLayout):
             self.pos_drop.add_widget(btn)
 
         self.color_drop = DropDown(size_hint=(None, None), size=(100, 30))
-        for col in ('red', 'blue', 'golden', 'green'):
+        for col in ('red', 'blue', 'golden', 'green', 'normal'):
             btn = Button(text=col, size_hint=(None, None), size=(100, 30))
             btn.bind(on_release=lambda btn: self.color_drop.select(btn.text))
             self.color_drop.add_widget(btn)
@@ -75,6 +75,7 @@ class Toolbar(BoxLayout):
         self.text_col_btn.text = col
         main_scr = self.parent.parent # I will never forgive Kivy either
         main_scr.text_box.color_change(col)
+
 
 class Icon(Image):
 
@@ -193,7 +194,7 @@ class TextBox(Label):
         self.is_displaying_msg = False
         self.markup = True
         self.colored = False
-        self.selected_color = '00cd00'
+        self.selected_color = 'ffffff'
 
     def display_text(self, msg, user):
         self.is_displaying_msg = True
@@ -208,20 +209,24 @@ class TextBox(Label):
             for c in text:
                 yield c
 
-        self.gen = text_gen(self.msg)
-        Clock.schedule_interval(self._animate, 1.0/60.0)
+        if self.colored == False:
+            self.gen = text_gen(self.msg)
+            Clock.schedule_interval(self._animate, 1.0/60.0)
+        else:
+            self.text = '[color=' + self.selected_color + ']' + self.msg + '[/color]'
+            self.msg =''
+            self.gen = text_gen(self.msg)
+            Clock.schedule_interval(self._animate, 1.0 / 60.0)
 
         main_scr = self.parent.parent # BLAAAME KIVYYYY
         main_scr.log_window.add_entry(msg, user.username)
+        main_scr.toolbar.text_col_btn.text = 'color'
+        self.revert_color()
 
     def _animate(self, dt):
         try:
             if self.colored == False:
                 self.text += next(self.gen)
-            else:
-                self.text = '[color='+ self.selected_color +']' + self.msg + '[/color]' # it repeats the msg without color
-                self.colored = False
-                return False
 
         except StopIteration:
             self.text += " "
@@ -237,13 +242,17 @@ class TextBox(Label):
             return 'ffd700'
         elif col == 'green':
             return '00cd00'
+        elif col == 'normal':
+            return 'ffffff'
 
     def color_change(self, col):
         self.selected_color = self.color_select(col)
-        if self.colored == False:
+        if self.selected_color != 'ffffff':
             self.colored = True
-        else:
-            self.colored = False
+
+    def revert_color(self):
+        self.selected_color = 'ffffff'
+        self.colored= False
 
 
 class LogWindow(ScrollView):
@@ -391,10 +400,8 @@ class MainScreen(Screen):
     def send_message(self, *args):
         self.user.set_pos(self.current_pos)
         Clock.schedule_once(self.refocus_text)
-
         msg = self.msg_input.text
         self.msg_input.text = ""
-
         user = self.user
         loc = user.get_loc().name
         char = user.get_char().name
