@@ -28,11 +28,22 @@ class Toolbar(BoxLayout):
         self.subloc_drop = DropDown(size_hint=(None, None), size=(400, 30))
         self.pos_drop = DropDown(size_hint=(None, None), size=(400, 30))
         for pos in ('center', 'right', 'left'):
-            btn = Button(text=pos, size_hint=(None, None), size=(400, 30))
+            btn = Button(text=pos, size_hint=(None, None), size=(300, 30))
             btn.bind(on_release=lambda btn: self.pos_drop.select(btn.text))
             self.pos_drop.add_widget(btn)
 
-        self.pos_btn = Button(size_hint=(None, None), size=(400, 30))
+        self.color_drop = DropDown(size_hint=(None, None), size=(100, 30))
+        for col in ('red', 'blue', 'golden', 'green'):
+            btn = Button(text=col, size_hint=(None, None), size=(100, 30))
+            btn.bind(on_release=lambda btn: self.color_drop.select(btn.text))
+            self.color_drop.add_widget(btn)
+
+        self.text_col_btn = Button(text='color', size_hint=(None, None), size=(100, 30))
+        self.text_col_btn.bind(on_release=self.color_drop.open)
+        self.add_widget(self.text_col_btn)
+        self.color_drop.bind(on_select=self.on_col_select)
+
+        self.pos_btn = Button(size_hint=(None, None), size=(300, 30))
         self.pos_btn.text = 'center'
         self.pos_btn.bind(on_release=self.pos_drop.open)
         self.add_widget(self.pos_btn)
@@ -60,6 +71,10 @@ class Toolbar(BoxLayout):
         main_scr = self.parent.parent # I will never forgive Kivy
         main_scr.current_pos = pos
 
+    def on_col_select(self, inst, col):
+        self.text_col_btn.text = col
+        main_scr = self.parent.parent # I will never forgive Kivy either
+        main_scr.text_box.color_change(col)
 
 class Icon(Image):
 
@@ -98,7 +113,6 @@ class IconsLayout(ScrollView):
         icon.color = [0.3, 0.3, 0.3, 1]
         self.current_icon = icon
 
-
 class SpritePreview(Image):
 
     center_sprite = ObjectProperty(None)
@@ -114,7 +128,6 @@ class SpritePreview(Image):
         self.center_sprite.opacity = 1
         self.center_sprite.size = (self.center_sprite.texture.width / 3,
         self.center_sprite.texture.height / 3)
-
 
 class SpriteWindow(Widget):
 
@@ -169,16 +182,18 @@ class SpriteWindow(Widget):
             self.right_sprite.texture = None
             self.right_sprite.opacity = 0
 
-
 class TextBox(Label):
 
     char_name = ObjectProperty(None)
 
     def __init__(self, **kwargs):
-        super(TextBox, self).__init__(**kwargs)
+        super(TextBox, self).__init__()
         self.msg = ""
         self.prev_user = None
         self.is_displaying_msg = False
+        self.markup = True
+        self.colored = False
+        self.selected_color = '00cd00'
 
     def display_text(self, msg, user):
         self.is_displaying_msg = True
@@ -201,11 +216,33 @@ class TextBox(Label):
 
     def _animate(self, dt):
         try:
-            self.text += next(self.gen)
+             if self.colored is False:
+                 self.text += next(self.gen)
+             else:
+                 self.text = '[color='+ self.selected_color +']' + self.msg + '[/color]' # it repeats the msg without color
+                 self.colored = False
+
         except StopIteration:
-            self.text += " "
-            self.is_displaying_msg = False
-            return False
+             self.text += " "
+             self.is_displaying_msg = False
+             return False
+
+    def color_select(self, col):
+        if col is 'red':
+            return 'ff3333'
+        elif col is 'blue':
+            return '0000ff'
+        elif col is 'golden':
+            return 'ffd700'
+        elif col is 'green':
+            return '00cd00'
+
+    def color_change(self, col):
+        self.selected_color = self.color_select(col)
+        if self.colored is False:
+            self.colored = True
+        else:
+            self.colored = False
 
 
 class LogWindow(ScrollView):
@@ -282,6 +319,7 @@ class MainScreen(Screen):
     current_loc = ObjectProperty(None)
     current_subloc = StringProperty("")
     current_pos = StringProperty("center")
+
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
