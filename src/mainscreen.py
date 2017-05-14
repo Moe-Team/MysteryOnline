@@ -25,20 +25,20 @@ class Toolbar(BoxLayout):
 
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
-        self.subloc_drop = DropDown(size_hint=(None, None), size=(400, 30))
-        self.pos_drop = DropDown(size_hint=(None, None), size=(400, 30))
+        self.subloc_drop = DropDown(size_hint=(None, None), size=(300, 30))
+        self.pos_drop = DropDown(size_hint=(None, None), size=(300, 30))
         for pos in ('center', 'right', 'left'):
             btn = Button(text=pos, size_hint=(None, None), size=(300, 30))
             btn.bind(on_release=lambda btn: self.pos_drop.select(btn.text))
             self.pos_drop.add_widget(btn)
 
-        self.color_drop = DropDown(size_hint=(None, None), size=(100, 30))
-        for col in ('red', 'blue', 'golden', 'green', 'normal'):
-            btn = Button(text=col, size_hint=(None, None), size=(100, 30))
+        self.color_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        for col in ('red', 'blue', 'golden', 'green', 'FUCKING RAINBOW', 'normal'):
+            btn = Button(text=col, size_hint=(None, None), size=(200, 30))
             btn.bind(on_release=lambda btn: self.color_drop.select(btn.text))
             self.color_drop.add_widget(btn)
 
-        self.text_col_btn = Button(text='color', size_hint=(None, None), size=(100, 30))
+        self.text_col_btn = Button(text='color', size_hint=(None, None), size=(200, 30))
         self.text_col_btn.bind(on_release=self.color_drop.open)
         self.add_widget(self.text_col_btn)
         self.color_drop.bind(on_select=self.on_col_select)
@@ -51,11 +51,11 @@ class Toolbar(BoxLayout):
 
     def update_sub(self, loc):
         for sub in loc.list_sub():
-            btn = Button(text=sub, size_hint=(None, None), size=(400, 30))
+            btn = Button(text=sub, size_hint=(None, None), size=(300, 30))
             btn.bind(on_release=lambda btn: self.subloc_drop.select(btn.text))
             self.subloc_drop.add_widget(btn)
 
-        self.main_btn = Button(size_hint=(None, None), size=(400, 30))
+        self.main_btn = Button(size_hint=(None, None), size=(300, 30))
         self.main_btn.text = loc.get_first_sub()
         self.main_btn.bind(on_release=self.subloc_drop.open)
         self.add_widget(self.main_btn)
@@ -75,7 +75,6 @@ class Toolbar(BoxLayout):
         self.text_col_btn.text = col
         main_scr = self.parent.parent # I will never forgive Kivy either
         main_scr.text_box.color_change(col)
-
 
 class Icon(Image):
 
@@ -209,29 +208,32 @@ class TextBox(Label):
             for c in text:
                 yield c
 
-        if self.colored == False:
+        print(self.msg)
+        if '[color=' not in self.msg:
             self.gen = text_gen(self.msg)
-            Clock.schedule_interval(self._animate, 1.0/60.0)
         else:
-            self.text = '[color=' + self.selected_color + ']' + self.msg + '[/color]'
-            self.msg =''
-            self.gen = text_gen(self.msg)
-            Clock.schedule_interval(self._animate, 1.0 / 60.0)
+            self.text = self.msg
 
+        Clock.schedule_interval(self._animate, 1.0 / 60.0)
         main_scr = self.parent.parent # BLAAAME KIVYYYY
+        if '[color=' in msg:
+            if self.selected_color == 'rainbow':
+                #soon
+                pass
+            else:
+                msg = msg[:-8]
+                msg = msg[14:]
         main_scr.log_window.add_entry(msg, user.username)
         main_scr.toolbar.text_col_btn.text = 'color'
         self.revert_color()
 
     def _animate(self, dt):
-        try:
-            if self.colored == False:
+            try:
                 self.text += next(self.gen)
-
-        except StopIteration:
-            self.text += " "
-            self.is_displaying_msg = False
-            return False
+            except StopIteration:
+                self.text += " "
+                self.is_displaying_msg = False
+                return False
 
     def color_select(self, col):
         if col == 'red':
@@ -242,6 +244,8 @@ class TextBox(Label):
             return 'ffd700'
         elif col == 'green':
             return '00cd00'
+        elif col == 'FUCKING RAINBOW':
+            return 'rainbow'
         elif col == 'normal':
             return 'ffffff'
 
@@ -249,6 +253,8 @@ class TextBox(Label):
         self.selected_color = self.color_select(col)
         if self.selected_color != 'ffffff':
             self.colored = True
+        else:
+            self.colored = False
 
     def revert_color(self):
         self.selected_color = 'ffffff'
@@ -401,6 +407,12 @@ class MainScreen(Screen):
         self.user.set_pos(self.current_pos)
         Clock.schedule_once(self.refocus_text)
         msg = self.msg_input.text
+        if self.text_box.colored:
+            print(self.text_box.selected_color)
+            if self.text_box.selected_color == 'rainbow':
+                msg = 'hi, im a rainbow'
+            else:
+                msg = '[color=' + self.text_box.selected_color + ']' + msg + '[/color]'
         self.msg_input.text = ""
         user = self.user
         loc = user.get_loc().name
