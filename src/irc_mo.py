@@ -9,9 +9,9 @@ class ChannelConnectionError(Exception):
 
 
 class Message:
-    '''This class will eventually handle message parsing and any other operations
+    """This class will eventually handle message parsing and any other operations
     on messages.
-    '''
+    """
     def __init__(self, message, sender="default"):
         self.msg = message
         self.sender = sender
@@ -33,7 +33,7 @@ class Message:
     def decode_other(self):
         res = self.msg.split("#", 1)
         res.append(self.sender)
-        return (res[1], res[2])
+        return res[1], res[2]
 
     def identify(self):
         if self.msg.count('#') >= 5:
@@ -41,9 +41,10 @@ class Message:
         if self.msg.startswith('c#'):
             return 'char'
 
+
 class MessageQueue:
-    '''Standard First-In-First-Out queue for irc messages.
-    '''
+    """Standard First-In-First-Out queue for irc messages.
+    """
 
     def __init__(self):
         self.messages = []
@@ -96,9 +97,9 @@ class IrcConnection:
         self.msg_q.messages.insert(0, message)
         self.connection.privmsg(self.channel, message.msg)
 
-    def send_special(self, type, value):
+    def send_special(self, kind, value):
         types = {'char': 'c#'}
-        self.connection.privmsg(self.channel, types[type] + value)
+        self.connection.privmsg(self.channel, types[kind] + value)
 
     def is_connected(self):
         return self._joined
@@ -136,6 +137,7 @@ class IrcConnection:
         temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")
         text_inp = TextInput(multiline=False, size_hint=(1, 0.4))
         temp_pop.box_lay.add_widget(text_inp)
+
         def temp_handler(*args):
             c.nick(text_inp.text)
             App.get_running_app().get_user().username = text_inp.text

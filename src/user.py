@@ -25,8 +25,8 @@ class User:
         self.character.load()
         self.set_pos(args[5])
 
-    def set_current_sprite(self, id):
-        self.current_sprite = id
+    def set_current_sprite(self, num):
+        self.current_sprite = num
 
     def get_current_sprite(self):
         return self.character.get_sprite(self.current_sprite)

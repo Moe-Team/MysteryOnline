@@ -1,4 +1,3 @@
-from kivy.app import App
 from kivy.uix.popup import Popup
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton

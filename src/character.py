@@ -17,6 +17,8 @@ class Character:
         self.icons_path = self.path + char['icons']
         self.avatar = self.path + "avatar.png"
         self.loaded = False
+        self.sprites = None
+        self.icons = None
 
     def load(self):
         if self.loaded:
@@ -32,9 +34,9 @@ class Character:
             print("The icons aren't loaded into memory.")
             raise
 
-    def get_sprite(self, id):
+    def get_sprite(self, num):
         try:
-            return self.sprites[id]
+            return self.sprites[num]
         except AttributeError:
             print("The sprites aren't loaded into memory.")
             raise

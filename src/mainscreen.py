@@ -15,7 +15,7 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
 
-from character import Character, characters
+from character import characters
 from user import User
 from location import locations
 from character_select import CharacterSelect
@@ -25,17 +25,19 @@ class Toolbar(BoxLayout):
 
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
+        self.main_btn = None
+
         self.subloc_drop = DropDown(size_hint=(None, None), size=(300, 30))
         self.pos_drop = DropDown(size_hint=(None, None), size=(300, 30))
         for pos in ('center', 'right', 'left'):
             btn = Button(text=pos, size_hint=(None, None), size=(300, 30))
-            btn.bind(on_release=lambda btn: self.pos_drop.select(btn.text))
+            btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
             self.pos_drop.add_widget(btn)
 
         self.color_drop = DropDown(size_hint=(None, None), size=(200, 30))
         for col in ('red', 'blue', 'golden', 'green', 'FUCKING RAINBOW', 'normal'):
             btn = Button(text=col, size_hint=(None, None), size=(200, 30))
-            btn.bind(on_release=lambda btn: self.color_drop.select(btn.text))
+            btn.bind(on_release=lambda btn_: self.color_drop.select(btn_.text))
             self.color_drop.add_widget(btn)
 
         self.text_col_btn = Button(text='color', size_hint=(None, None), size=(200, 30))
@@ -52,7 +54,7 @@ class Toolbar(BoxLayout):
     def update_sub(self, loc):
         for sub in loc.list_sub():
             btn = Button(text=sub, size_hint=(None, None), size=(300, 30))
-            btn.bind(on_release=lambda btn: self.subloc_drop.select(btn.text))
+            btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
             self.subloc_drop.add_widget(btn)
 
         self.main_btn = Button(size_hint=(None, None), size=(300, 30))
@@ -63,18 +65,19 @@ class Toolbar(BoxLayout):
 
     def on_subloc_select(self, inst, subloc):
         self.main_btn.text = subloc
-        main_scr = self.parent.parent # Always blame Kivy
+        main_scr = self.parent.parent  # Always blame Kivy
         main_scr.current_subloc = subloc
 
     def on_pos_select(self, inst, pos):
         self.pos_btn.text = pos
-        main_scr = self.parent.parent # I will never forgive Kivy
+        main_scr = self.parent.parent  # I will never forgive Kivy
         main_scr.current_pos = pos
 
     def on_col_select(self, inst, col):
         self.text_col_btn.text = col
-        main_scr = self.parent.parent # I will never forgive Kivy either
+        main_scr = self.parent.parent  # I will never forgive Kivy either
         main_scr.text_box.color_change(col)
+
 
 class Icon(Image):
 
@@ -89,6 +92,7 @@ class Icon(Image):
         if self.collide_point(*touch.pos):
             self.parent.parent.sprite_picked(self, self.name)
             return True
+
 
 class IconsLayout(ScrollView):
 
@@ -106,12 +110,13 @@ class IconsLayout(ScrollView):
         self.sprite_picked(self.g.children[-1], "1")
 
     def sprite_picked(self, icon, sprite_name):
-        main_scr = self.parent.parent # blame kivy
+        main_scr = self.parent.parent  # blame kivy
         main_scr.current_sprite = sprite_name
         if self.current_icon is not None:
             self.current_icon.color = [1, 1, 1, 1]
         icon.color = [0.3, 0.3, 0.3, 1]
         self.current_icon = icon
+
 
 class SpritePreview(Image):
 
@@ -127,7 +132,8 @@ class SpritePreview(Image):
         self.center_sprite.texture = sprite
         self.center_sprite.opacity = 1
         self.center_sprite.size = (self.center_sprite.texture.width / 3,
-        self.center_sprite.texture.height / 3)
+                                   self.center_sprite.texture.height / 3)
+
 
 class SpriteWindow(Widget):
 
@@ -182,6 +188,7 @@ class SpriteWindow(Widget):
             self.right_sprite.texture = None
             self.right_sprite.opacity = 0
 
+
 class TextBox(Label):
 
     char_name = ObjectProperty(None)
@@ -194,6 +201,7 @@ class TextBox(Label):
         self.markup = True
         self.colored = False
         self.selected_color = 'ffffff'
+        self.gen = None
 
     def display_text(self, msg, user):
         self.is_displaying_msg = True
@@ -208,17 +216,16 @@ class TextBox(Label):
             for c in text:
                 yield c
 
-        print(self.msg)
         if '[color=' not in self.msg:
             self.gen = text_gen(self.msg)
         else:
             self.text = self.msg
 
         Clock.schedule_interval(self._animate, 1.0 / 60.0)
-        main_scr = self.parent.parent # BLAAAME KIVYYYY
+        main_scr = self.parent.parent  # BLAAAME KIVYYYY
         if '[color=' in msg:
             if self.selected_color == 'rainbow':
-                #soon
+                # soon
                 pass
             else:
                 msg = msg[:-8]
@@ -258,7 +265,7 @@ class TextBox(Label):
 
     def revert_color(self):
         self.selected_color = 'ffffff'
-        self.colored= False
+        self.colored = False
 
 
 class LogWindow(ScrollView):
@@ -336,7 +343,6 @@ class MainScreen(Screen):
     current_subloc = StringProperty("")
     current_pos = StringProperty("center")
 
-
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         self.user = None
@@ -408,7 +414,6 @@ class MainScreen(Screen):
         Clock.schedule_once(self.refocus_text)
         msg = self.msg_input.text
         if self.text_box.colored:
-            print(self.text_box.selected_color)
             if self.text_box.selected_color == 'rainbow':
                 msg = 'hi, im a rainbow'
             else:

@@ -1,6 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from kivy.app import App
-from kivy.properties import StringProperty, ObjectProperty
+from kivy.properties import StringProperty
 from mopopup import MOPopup
 from character_select import CharacterSelect
 
@@ -12,6 +12,7 @@ from user import User
 SERVER = "chat.freenode.net"
 PORT = 6665
 CHANNEL = "##mysteryonline"
+
 
 class LoginScreen(Screen):
     username = StringProperty('')
@@ -33,7 +34,6 @@ class LoginScreen(Screen):
                 user.get_char().load()
             App.get_running_app().set_user(user)
             self.manager.irc_connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
-
 
     def on_select_clicked(self, *args):
         cs = CharacterSelect()
