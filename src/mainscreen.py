@@ -14,6 +14,7 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
+from kivy.utils import escape_markup
 
 from character import characters
 from user import User
@@ -201,7 +202,9 @@ class TextBox(Label):
         self.markup = True
         self.colored = False
         self.selected_color = 'ffffff'
+        self.raw_color = ""
         self.gen = None
+        self.color_ids = ['normal', 'red', 'blue', 'golden', 'green', 'FUCKING RAINBOW']
 
     def display_text(self, msg, user):
         self.is_displaying_msg = True
@@ -216,21 +219,20 @@ class TextBox(Label):
             for c in text:
                 yield c
 
-        if '[color=' not in self.msg:
+        if self.raw_color == 'normal':
             self.gen = text_gen(self.msg)
+            Clock.schedule_interval(self._animate, 1.0 / 60.0)
         else:
+            self.msg = "[color={}]{}[/color]".format(self.selected_color, self.msg)
             self.text = self.msg
+            self.text += " "
+            self.is_displaying_msg = False
 
-        Clock.schedule_interval(self._animate, 1.0 / 60.0)
         main_scr = self.parent.parent  # BLAAAME KIVYYYY
-        if '[color=' in msg:
-            if self.selected_color == 'rainbow':
-                # soon
-                pass
-            else:
-                msg = msg[:-8]
-                msg = msg[14:]
-        main_scr.log_window.add_entry(msg, user.username)
+        print(self.msg)
+        print(self.text)
+        print(msg)
+        main_scr.log_window.add_entry(self.msg, user.username)
         main_scr.toolbar.text_col_btn.text = 'color'
         self.revert_color()
 
@@ -257,6 +259,7 @@ class TextBox(Label):
             return 'ffffff'
 
     def color_change(self, col):
+        self.raw_color = col
         self.selected_color = self.color_select(col)
         if self.selected_color != 'ffffff':
             self.colored = True
@@ -276,7 +279,7 @@ class LogWindow(ScrollView):
         super(LogWindow, self).__init__(**kwargs)
 
     def add_entry(self, msg, username):
-        self.log.text += "{0}: [ref={1}]{1}[/ref]\n".format(username, msg)
+        self.log.text += "{0}: [ref={2}]{1}[/ref]\n".format(username, msg, escape_markup(msg))
         self.scroll_y = 0
 
     def copy_text(self, inst, value):
@@ -412,17 +415,16 @@ class MainScreen(Screen):
     def send_message(self, *args):
         self.user.set_pos(self.current_pos)
         Clock.schedule_once(self.refocus_text)
-        msg = self.msg_input.text
+        msg = escape_markup(self.msg_input.text)
+        col_id = 0
         if self.text_box.colored:
-            if self.text_box.selected_color == 'rainbow':
-                msg = 'hi, im a rainbow'
-            else:
-                msg = '[color=' + self.text_box.selected_color + ']' + msg + '[/color]'
+            col_id = self.text_box.color_ids.index(self.text_box.raw_color)
         self.msg_input.text = ""
         user = self.user
         loc = user.get_loc().name
         char = user.get_char().name
-        self.manager.irc_connection.send_msg(msg, loc, self.current_subloc, char, self.current_sprite, self.current_pos)
+        self.manager.irc_connection.send_msg(msg, loc, self.current_subloc, char,
+                                             self.current_sprite, self.current_pos, col_id)
 
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
@@ -442,7 +444,9 @@ class MainScreen(Screen):
                     user.set_from_msg(*dcd)
                 self.sprite_window.set_subloc(user.get_subloc())
                 self.sprite_window.set_sprite(user)
-                self.text_box.display_text(dcd[6], user)
+                col = self.text_box.color_ids[int(dcd[6])]
+                self.text_box.color_change(col)
+                self.text_box.display_text(dcd[7], user)
 
             elif msg.identify() == 'char':
                 dcd = msg.decode_other()

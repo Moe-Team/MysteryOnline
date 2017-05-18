@@ -22,11 +22,11 @@ class Message:
     def __repr__(self):
         return str(self.msg)
 
-    def encode(self, loc, subloc, char, sprite, pos):
-        self.msg = "{}#{}#{}#{}#{}#{}".format(loc, subloc, char, sprite, pos, self.msg)
+    def encode(self, loc, subloc, char, sprite, pos, col_id):
+        self.msg = "{}#{}#{}#{}#{}#{}#{}".format(loc, subloc, char, sprite, pos, col_id, self.msg)
 
     def decode(self):
-        res = self.msg.split("#", 5)
+        res = self.msg.split("#", 6)
         res.insert(0, self.sender)
         return tuple(res)
 
@@ -36,7 +36,7 @@ class Message:
         return res[1], res[2]
 
     def identify(self):
-        if self.msg.count('#') >= 5:
+        if self.msg.count('#') >= 6:
             return 'chat'
         if self.msg.startswith('c#'):
             return 'char'
@@ -91,9 +91,10 @@ class IrcConnection:
     def get_msg(self):
         return self.msg_q.dequeue()
 
-    def send_msg(self, msg, loc, subloc, char, sprite, pos):
+    def send_msg(self, msg, *args):
+        args = tuple(args)
         message = Message(msg)
-        message.encode(loc, subloc, char, sprite, pos)
+        message.encode(*args)
         self.msg_q.messages.insert(0, message)
         self.connection.privmsg(self.channel, message.msg)
 
