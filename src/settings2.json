@@ -1,0 +1,9 @@
+[{"type": "title",
+  "title": "Volume"},
+  {"type": "numeric",
+  "title": "Blip volume",
+  "desc": "Can be also set in the volume tab next to OOC",
+  "section": "sound",
+  "key": "blip_volume"
+  }
+]

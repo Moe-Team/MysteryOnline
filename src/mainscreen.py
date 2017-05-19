@@ -388,6 +388,7 @@ class MainScreen(Screen):
         self.user = None
         self.users = {}
         App.get_running_app().set_main_screen(self)
+        self.config = App.get_running_app().config
 
     def on_touch_down(self, touch):
         if touch.button == 'right':

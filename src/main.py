@@ -41,11 +41,24 @@ class MainScreenManager(ScreenManager):
 
 
 class MysteryOnlineApp(App):
+    use_kivy_settings = False
 
     def build(self):
         msm = MainScreenManager()
         locations['Hakuryou'].load()
         return msm
+
+    def build_config(self, config):
+        config.setdefaults('display', {
+            'resolution': '1920x1080',
+        })
+        config.setdefaults('sound', {
+            'blip_volume': 100
+        })
+
+    def build_settings(self, settings):
+        settings.add_json_panel('Display', self.config, 'settings.json')
+        settings.add_json_panel('Sound', self.config, 'settings2.json')
 
     def set_user(self, user):
         self.user = user

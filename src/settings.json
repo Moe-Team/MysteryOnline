@@ -1,0 +1,10 @@
+[{"type": "title",
+  "title": "Display"},
+  {"type": "options",
+  "title": "Resolution",
+  "desc": "Set your resolution",
+  "section": "display",
+  "key": "resolution",
+  "options": ["1920x1080", "1366x768"]
+  }
+]
