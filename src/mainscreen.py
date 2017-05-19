@@ -229,9 +229,6 @@ class TextBox(Label):
             self.is_displaying_msg = False
 
         main_scr = self.parent.parent  # BLAAAME KIVYYYY
-        print(self.msg)
-        print(self.text)
-        print(msg)
         main_scr.log_window.add_entry(self.msg, user.username)
         main_scr.toolbar.text_col_btn.text = 'color'
         self.revert_color()
@@ -289,6 +286,8 @@ class LogWindow(ScrollView):
 class OOCWindow(TabbedPanel):
 
     user_list = ObjectProperty(None)
+    ooc_chat = ObjectProperty(None)
+    ooc_input = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
@@ -306,6 +305,23 @@ class OOCWindow(TabbedPanel):
 
     def update_char(self, char, user):
         self.online_users[user].text = "{}: {}\n".format(user, char)
+
+    def update_ooc(self, msg, sender):
+        if sender == 'default':
+            sender = App.get_running_app().get_user().username
+        self.ooc_chat.text += "{0}: {1}\n".format(sender, msg)
+        self.ooc_chat.parent.scroll_y = 0
+
+    def send_ooc(self):
+        Clock.schedule_once(self.refocus_text)
+        msg = self.ooc_input.text
+        main_scr = self.parent.parent
+        irc = main_scr.manager.irc_connection
+        irc.send_special('OOC', msg)
+        self.ooc_input.text = ""
+
+    def refocus_text(self, *args):
+        self.ooc_input.focus = True
 
 
 class RightClickMenu(ModalView):
@@ -451,6 +467,9 @@ class MainScreen(Screen):
             elif msg.identify() == 'char':
                 dcd = msg.decode_other()
                 self.update_char(*dcd)
+            elif msg.identify() == 'OOC':
+                dcd = msg.decode_other()
+                self.ooc_window.update_ooc(*dcd)
 
     def update_char(self, char, user):
         self.ooc_window.update_char(char, user)

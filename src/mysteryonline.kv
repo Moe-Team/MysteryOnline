@@ -148,6 +148,9 @@
 <OOCWindow>:
 
     user_list: user_list
+    ooc_chat: ooc_chat
+    ooc_input: ooc_input
+
     do_default_tab: False
 
     TabbedPanelItem:
@@ -156,12 +159,22 @@
         BoxLayout:
             orientation: 'vertical'
 
-            Label:
-                text: 'Blahblah'
+            ScrollView:
+                Label:
+                    id: ooc_chat
+                    halign: 'left'
+                    valign: 'top'
+                    font_size: 16
+                    text_size: self.width, None
+                    size_hint_y: None
+                    height: self.texture_size[1]
 
             TextInput:
+                id: ooc_input
                 size_hint: 1, None
                 height: 30
+                multiline: False
+                on_text_validate: root.send_ooc()
 
     TabbedPanelItem:
         text: 'Online'
