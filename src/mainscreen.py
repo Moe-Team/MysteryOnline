@@ -22,6 +22,7 @@ from location import locations
 from character_select import CharacterSelect
 
 import re
+import webbrowser
 
 
 class Toolbar(BoxLayout):
@@ -282,6 +283,9 @@ class LogWindow(ScrollView):
         self.scroll_y = 0
 
     def copy_text(self, inst, value):
+        if 'www.' in value or 'http://'in value or 'https://' in value:
+            webbrowser.open(value)
+            return
         value = value.replace('&bl;', '[').replace('&br;', ']').replace('&amp', '&')
         Clipboard.copy(value)
 
@@ -315,9 +319,12 @@ class OOCWindow(TabbedPanel):
         self.online_users[user].text = "{}: {}\n".format(user, char)
 
     def update_ooc(self, msg, sender):
+        ref = msg
         if sender == 'default':
             sender = App.get_running_app().get_user().username
-        self.ooc_chat.text += "{0}: {1}\n".format(sender, msg)
+        if 'www.' in msg or 'http://' in msg or 'https://' in msg:
+            msg = "[u]{}[/u]".format(msg)
+        self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
         self.ooc_chat.parent.scroll_y = 0
 
     def send_ooc(self):
@@ -398,6 +405,7 @@ class MainScreen(Screen):
     def on_ready(self, *args):
         self.msg_input.readonly = True
         self.log_window.log.bind(on_ref_press=self.log_window.copy_text)
+        self.ooc_window.ooc_chat.bind(on_ref_press=self.log_window.copy_text)
         # Called when main screen becomes active
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)
