@@ -284,7 +284,10 @@ class LogWindow(ScrollView):
 
     def copy_text(self, inst, value):
         if 'www.' in value or 'http://'in value or 'https://' in value:
-            webbrowser.open(value)
+            pattern = re.compile(r'((https?:\/\/)|(www\.)).*?\...*?\b')
+            url = re.search(pattern, value)
+            if url:
+                webbrowser.open(url.group(0))
             return
         value = value.replace('&bl;', '[').replace('&br;', ']').replace('&amp', '&')
         Clipboard.copy(value)
