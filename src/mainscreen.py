@@ -21,6 +21,8 @@ from user import User
 from location import locations
 from character_select import CharacterSelect
 
+import re
+
 
 class Toolbar(BoxLayout):
 
@@ -276,11 +278,17 @@ class LogWindow(ScrollView):
         super(LogWindow, self).__init__(**kwargs)
 
     def add_entry(self, msg, username):
-        self.log.text += "{0}: [ref={2}]{1}[/ref]\n".format(username, msg, escape_markup(msg))
+        self.log.text += "{0}: [ref={2}]{1}[/ref]\n".format(username, msg, self.remove_markup(msg))
         self.scroll_y = 0
 
     def copy_text(self, inst, value):
+        value = value.replace('&bl;', '[').replace('&br;', ']').replace('&amp', '&')
         Clipboard.copy(value)
+
+    def remove_markup(self, msg):
+        pattern = re.compile(r'\[/?color.*?\]')
+        msg = re.sub(pattern, '', msg)
+        return msg
 
 
 class OOCWindow(TabbedPanel):
