@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.core.clipboard import Clipboard
+from kivy.core.audio import SoundLoader
 from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
@@ -208,6 +209,7 @@ class TextBox(Label):
         self.raw_color = ""
         self.gen = None
         self.color_ids = ['normal', 'red', 'blue', 'golden', 'green', 'FUCKING RAINBOW']
+        self.blip = SoundLoader.load('sounds/general/blip.wav')
 
     def display_text(self, msg, user):
         self.is_displaying_msg = True
@@ -239,6 +241,7 @@ class TextBox(Label):
     def _animate(self, dt):
             try:
                 self.text += next(self.gen)
+                self.blip.play()
             except StopIteration:
                 self.text += " "
                 self.is_displaying_msg = False
@@ -284,7 +287,7 @@ class LogWindow(ScrollView):
 
     def copy_text(self, inst, value):
         if 'www.' in value or 'http://'in value or 'https://' in value:
-            pattern = re.compile(r'((https?:\/\/)|(www\.)).*?\...*?\b')
+            pattern = re.compile(r'((https?://)|(www\.)).*?\...*?\b')
             url = re.search(pattern, value)
             if url:
                 webbrowser.open(url.group(0))
