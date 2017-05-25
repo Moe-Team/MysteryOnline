@@ -324,6 +324,11 @@ class OOCWindow(TabbedPanel):
     def update_char(self, char, username):
         self.online_users[username].text = "{}: {}\n".format(username, char)
 
+    def delete_user(self, username):
+        label = self.online_users[username]
+        self.user_list.remove_widget(label)
+        del self.online_users[username]
+
     def update_ooc(self, msg, sender):
         ref = msg
         if sender == 'default':
@@ -525,6 +530,8 @@ class MainScreen(Screen):
     def on_disconnect(self, username):
         self.log_window.log.text += "{} has disconnected.\n".format(username)
         self.log_window.log.scroll_y = 0
+        self.ooc_window.delete_user(username)
+        del self.users[username]
 
     def on_join_users(self, users):
         users = users.split()
