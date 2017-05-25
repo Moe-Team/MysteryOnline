@@ -321,8 +321,8 @@ class OOCWindow(TabbedPanel):
         self.user_list.add_widget(lbl)
         self.online_users[user.username] = lbl
 
-    def update_char(self, char, user):
-        self.online_users[user].text = "{}: {}\n".format(user, char)
+    def update_char(self, char, username):
+        self.online_users[username].text = "{}: {}\n".format(username, char)
 
     def update_ooc(self, msg, sender):
         ref = msg
@@ -427,6 +427,7 @@ class MainScreen(Screen):
         self.msg_input.readonly = False
         self.icons_layout.load_icons(char.get_icons())
         self.manager.irc_connection.send_special('char', char.name)
+        self.update_char(char.name, self.user.username)
 
     def on_current_loc(self, *args):
         # Called when the current location changes
@@ -500,14 +501,16 @@ class MainScreen(Screen):
                 dcd = msg.decode_other()
                 self.ooc_window.update_ooc(*dcd)
 
-    def update_char(self, char, user):
-        self.ooc_window.update_char(char, user)
+    def update_char(self, char, username):
+        self.ooc_window.update_char(char, username)
+        if username == self.user.username:
+            return
         if char not in characters:
-            self.users[user].set_char(characters['RedHerring'])
-            self.users[user].set_current_sprite('4')
+            self.users[username].set_char(characters['RedHerring'])
+            self.users[username].set_current_sprite('4')
         else:
-            self.users[user].set_char(characters[char])
-        self.users[user].get_char().load()
+            self.users[username].set_char(characters[char])
+        self.users[username].get_char().load()
 
     def on_join(self, username):
         if username not in self.users:
