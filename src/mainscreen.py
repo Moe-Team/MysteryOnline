@@ -452,9 +452,15 @@ class MainScreen(Screen):
         Clock.schedule_once(self.refocus_text, 0.1)
 
     def send_message(self, *args):
-        self.user.set_pos(self.current_pos)
-        Clock.schedule_once(self.refocus_text)
         msg = escape_markup(self.msg_input.text)
+        Clock.schedule_once(self.refocus_text)
+
+        pattern = re.compile(r'\s+')
+        match = re.fullmatch(pattern, msg)
+        if msg == '' or match:
+            return
+
+        self.user.set_pos(self.current_pos)
         col_id = 0
         if self.text_box.colored:
             col_id = self.text_box.color_ids.index(self.text_box.raw_color)
