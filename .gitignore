@@ -89,3 +89,6 @@ ENV/
 .ropeproject
 
 \.idea/workspace\.xml
+.idea/dictionaries/
+
+src/mysteryonline\.ini

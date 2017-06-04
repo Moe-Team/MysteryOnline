@@ -210,6 +210,9 @@ class TextBox(Label):
         self.gen = None
         self.color_ids = ['normal', 'red', 'blue', 'golden', 'green', 'FUCKING RAINBOW']
         self.blip = SoundLoader.load('sounds/general/blip.wav')
+        config = App.get_running_app().config  # The main config
+        config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
+        self.blip.volume = config.getdefaultint('sound', 'blip_volume', 100) / 100
 
     def display_text(self, msg, user):
         self.is_displaying_msg = True
@@ -272,6 +275,9 @@ class TextBox(Label):
     def revert_color(self):
         self.selected_color = 'ffffff'
         self.colored = False
+
+    def on_volume_change(self, s, k, v):
+        self.blip.volume = int(v) / 100
 
 
 class LogWindow(ScrollView):
