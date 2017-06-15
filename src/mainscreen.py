@@ -112,9 +112,11 @@ class IconsLayout(ScrollView):
         self.g.clear_widgets()
         for i in sorted(icons.textures.keys()):
             self.g.add_widget(Icon(i, icons[i]))
-        self.sprite_picked(self.g.children[-1], "1")
+        self.sprite_picked(self.g.children[-1])
 
-    def sprite_picked(self, icon, sprite_name):
+    def sprite_picked(self, icon, sprite_name=None):
+        if sprite_name is None:
+            sprite_name = icon.name
         main_scr = self.parent.parent  # blame kivy
         main_scr.current_sprite = sprite_name
         if self.current_icon is not None:

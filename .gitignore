@@ -92,3 +92,5 @@ ENV/
 .idea/dictionaries/
 
 src/mysteryonline\.ini
+
+\.idea/vcs\.xml
