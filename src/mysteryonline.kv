@@ -60,14 +60,14 @@
             opacity: 0
             size_hint: None, None
             size: 600, 600
-            pos: root.x, root.y
+            pos: root.x - 100, root.y
 
         Image:
             id: right_s
             opacity: 0
             size_hint: None, None
             size: 600, 600
-            pos: root.right - 500, root.y
+            pos: root.x + 300, root.y
 
 
 <MainScreen>:
@@ -220,7 +220,7 @@
     char_select: char_select
 
     size_hint: None, None
-    size: 100, 300
+    size: 105, 300
 
     BoxLayout:
         orientation: 'vertical'
