@@ -3,16 +3,26 @@ from kivy.atlas import Atlas
 import os
 
 
+series_list = ["OC"]
+
+
 class Character:
 
     def __init__(self, name):
+        global series_list
         self.name = name
         self.path = "characters/{0}/".format(self.name)
         self.config = ConfigParser(self.name)
         self.config.read(self.path + "settings.ini")
         char = self.config['character']
         self.display_name = char['name']
-        self.series = char['series']
+        con_series = char['series']
+        if con_series in series_list:
+            self.series = con_series
+        else:
+            series_list.append(con_series)
+            self.series = con_series
+
         self.sprites_path = self.path + char['sprites']
         self.icons_path = self.path + char['icons']
         self.avatar = self.path + "avatar.png"
@@ -42,4 +52,3 @@ class Character:
             raise
 
 characters = {name: Character(name) for name in os.listdir("characters") if os.path.isdir("characters/" + name)}
-series = ["OC"]

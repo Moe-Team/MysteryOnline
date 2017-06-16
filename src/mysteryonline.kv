@@ -242,9 +242,23 @@
 
 <CharacterSelect>:
     main_lay: main_lay
-    BoxLayout:
+    button_lay: button_lay
+    scroll_lay: scroll_lay
+
+    FloatLayout:
         orientation: 'vertical'
-        id: main_lay
+        id: button_lay
+
+        ScrollView:
+            pos_hint: {'top': 1, 'x': 0}
+            size_hint: 1, None
+            height: root.height - 100
+            id: scroll_lay
+
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint: 1, None
+                id: main_lay
 
 
 <MainScreenManager>:
