@@ -54,7 +54,8 @@ class Location:
 
     def load(self):
         self.sublocations = {self.strip_ext(file):
-                             SubLocation(self.strip_ext(file), AsyncImage(source=self.path+file)) for file in os.listdir(self.path)}
+                             SubLocation(self.strip_ext(file),
+                                         AsyncImage(source=self.path+file)) for file in os.listdir(self.path)}
 
     def strip_ext(self, name):
         # Strips extension from sublocation names
@@ -71,4 +72,4 @@ class Location:
         return self.list_sub()[0]
 
 
-locations = {'Hakuryou': Location('Hakuryou')}
+locations = {name: Location(name) for name in os.listdir("locations") if os.path.isdir("locations/" + name)}

@@ -151,8 +151,10 @@
     user_list: user_list
     ooc_chat: ooc_chat
     ooc_input: ooc_input
+    blip_slider: blip_slider
 
     do_default_tab: False
+    tab_width: 70
 
     TabbedPanelItem:
         text: 'OOC'
@@ -184,6 +186,25 @@
         BoxLayout:
             orientation: 'vertical'
             id: user_list
+
+    TabbedPanelItem:
+        text: 'Volume'
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            Label:
+                text: "Blips"
+                size_hint: 1, None
+                height: 30
+
+            Slider:
+                id: blip_slider
+                size_hint: 1, 1
+                min: 0
+                max: 100
+                on_value: root.on_slider_blip_value()
+
 
 <TextBox>:
     char_name: char_name

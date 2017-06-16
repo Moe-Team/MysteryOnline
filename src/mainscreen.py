@@ -317,10 +317,25 @@ class OOCWindow(TabbedPanel):
     user_list = ObjectProperty(None)
     ooc_chat = ObjectProperty(None)
     ooc_input = ObjectProperty(None)
+    blip_slider = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
         self.online_users = {}
+
+    def ready(self):
+        config = App.get_running_app().config  # The main config
+        config.add_callback(self.on_blip_volume_change, 'sound', 'blip_volume')
+        self.blip_slider.value = config.getdefaultint('sound', 'blip_volume', 100)
+
+    def on_blip_volume_change(self, s, k, v):
+        self.blip_slider.value = v
+
+    def on_slider_blip_value(self, *args):
+        config = App.get_running_app().config
+        value = int(self.blip_slider.value)
+        config.set('sound', 'blip_volume', value)
+        config.write()
 
     def add_user(self, user):
         char = user.get_char()
@@ -430,13 +445,14 @@ class MainScreen(Screen):
         menu.open()
 
     def on_ready(self, *args):
+        """Called when mainscreen becomes active"""
         self.msg_input.readonly = True
         self.log_window.log.bind(on_ref_press=self.log_window.copy_text)
         self.ooc_window.ooc_chat.bind(on_ref_press=self.log_window.copy_text)
-        # Called when main screen becomes active
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)
         self.ooc_window.add_user(self.user)
+        self.ooc_window.ready()
 
         self.current_loc = locations['Hakuryou']
         char = self.user.get_char()
