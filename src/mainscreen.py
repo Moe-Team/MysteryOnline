@@ -374,6 +374,10 @@ class RightClickMenu(ModalView):
         cs.bind(on_dismiss=self.on_picked)
         cs.open()
 
+    def on_settings_clicked(self, *args):
+        App.get_running_app().open_settings()
+        self.dismiss()
+
     def on_picked(self, inst):
         user = App.get_running_app().get_user()
         if inst.picked_char is not None:
