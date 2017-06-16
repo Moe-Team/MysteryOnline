@@ -72,16 +72,19 @@ class Toolbar(BoxLayout):
         self.main_btn.text = subloc
         main_scr = self.parent.parent  # Always blame Kivy
         main_scr.current_subloc = subloc
+        main_scr.refocus_text()
 
     def on_pos_select(self, inst, pos):
         self.pos_btn.text = pos
         main_scr = self.parent.parent  # I will never forgive Kivy
         main_scr.current_pos = pos
+        main_scr.refocus_text()
 
     def on_col_select(self, inst, col):
         self.text_col_btn.text = col
         main_scr = self.parent.parent  # I will never forgive Kivy either
         main_scr.text_box.color_change(col)
+        main_scr.refocus_text()
 
 
 class Icon(Image):
