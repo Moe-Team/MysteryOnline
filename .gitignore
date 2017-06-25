@@ -94,3 +94,5 @@ ENV/
 src/mysteryonline\.ini
 
 \.idea/vcs\.xml
+
+src/temp\.mp3

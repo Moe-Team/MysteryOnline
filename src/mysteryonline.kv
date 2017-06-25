@@ -152,9 +152,11 @@
     ooc_chat: ooc_chat
     ooc_input: ooc_input
     blip_slider: blip_slider
+    music_slider: music_slider
+    url_input: url_input
 
     do_default_tab: False
-    tab_width: 70
+    tab_width: 60
 
     TabbedPanelItem:
         text: 'OOC'
@@ -204,6 +206,35 @@
                 min: 0
                 max: 100
                 on_value: root.on_slider_blip_value()
+
+            Label:
+                text: "Music"
+                size_hint: 1, None
+                height: 30
+
+            Slider:
+                id: music_slider
+                size_hint: 1, 1
+                min: 0
+                max: 100
+                on_value: root.on_slider_music_value()
+
+    TabbedPanelItem:
+        text: 'Music'
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            TextInput:
+                id: url_input
+                size_hint: 1, None
+                height: 30
+
+            Button:
+                text: "Play"
+                on_release: root.on_music_play()
+                size_hint: None, None
+                height: 40
 
 
 <TextBox>:

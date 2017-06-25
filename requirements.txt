@@ -2,3 +2,4 @@ cython
 kivy
 irc
 pillow
+requests

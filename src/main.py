@@ -1,6 +1,5 @@
 from kivy.config import Config
 
-
 Config.set('kivy', 'desktop', 1)
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 Config.set('kivy', 'exit_on_escape', 0)
@@ -60,7 +59,8 @@ class MysteryOnlineApp(App):
             'resolution': '1920x1080',
         })
         config.setdefaults('sound', {
-            'blip_volume': 100
+            'blip_volume': 100,
+            'music_volume': 100
         })
 
     def build_settings(self, settings):

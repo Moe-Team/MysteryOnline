@@ -24,6 +24,8 @@ from character_select import CharacterSelect
 
 import re
 import webbrowser
+import threading
+import requests
 
 
 class Toolbar(BoxLayout):
@@ -86,7 +88,7 @@ class Toolbar(BoxLayout):
         self.main_loc_btn.bind(on_release=self.loc_drop.open)
         self.add_widget(self.main_loc_btn)
         self.loc_drop.bind(on_select=self.on_loc_select)
-    
+
     def on_loc_select(self, inst, loc):
         self.main_loc_btn.text = loc
         main_scr = self.parent.parent  # fug u
@@ -342,15 +344,20 @@ class OOCWindow(TabbedPanel):
     ooc_chat = ObjectProperty(None)
     ooc_input = ObjectProperty(None)
     blip_slider = ObjectProperty(None)
+    music_slider = ObjectProperty(None)
+    url_input = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
         self.online_users = {}
+        self.track = None
 
     def ready(self):
         config = App.get_running_app().config  # The main config
         config.add_callback(self.on_blip_volume_change, 'sound', 'blip_volume')
         self.blip_slider.value = config.getdefaultint('sound', 'blip_volume', 100)
+        config.add_callback(self.on_music_volume_change, 'sound', 'music_volume')
+        self.music_slider.value = config.getdefaultint('sound', 'music_volume', 100)
 
     def on_blip_volume_change(self, s, k, v):
         self.blip_slider.value = v
@@ -359,6 +366,16 @@ class OOCWindow(TabbedPanel):
         config = App.get_running_app().config
         value = int(self.blip_slider.value)
         config.set('sound', 'blip_volume', value)
+
+    def on_music_volume_change(self, s, k, v):
+        self.music_slider.value = v
+
+    def on_slider_music_value(self, *args):
+        config = App.get_running_app().config
+        value = int(self.music_slider.value)
+        if self.track is not None:
+            self.track.volume = value / 100
+        config.set('sound', 'music_volume', value)
 
     def add_user(self, user):
         char = user.get_char()
@@ -397,6 +414,24 @@ class OOCWindow(TabbedPanel):
 
     def refocus_text(self, *args):
         self.ooc_input.focus = True
+
+    def on_music_play(self, *args):
+        url = self.url_input.text
+
+        def play_song(root):
+            track = root.track
+            if track is not None and track.state == 'play':
+                track.stop()
+            r = requests.get(url)
+            f = open("temp.mp3", mode="wb")
+            f.write(r.content)
+            f.close()
+            track = SoundLoader.load("temp.mp3")
+            config = App.get_running_app().config
+            track.volume = config.getdefaultint('sound', 'music_volume', 100) / 100
+            track.play()
+            root.track = track
+        threading.Thread(target=play_song, args=(self,)).start()
 
 
 class RightClickMenu(ModalView):
