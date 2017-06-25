@@ -1,5 +1,6 @@
 from kivy.config import ConfigParser
 from kivy.atlas import Atlas
+from kivy.uix.image import Image
 import os
 
 
@@ -33,7 +34,7 @@ class Character:
     def load(self):
         if self.loaded:
             return
-        self.sprites = Atlas(self.sprites_path)
+        self.sprites = "atlas://" + self.sprites_path[:-6] + "/"
         self.icons = Atlas(self.icons_path)
         self.loaded = True
 
@@ -46,7 +47,7 @@ class Character:
 
     def get_sprite(self, num):
         try:
-            return self.sprites[num]
+            return Image(source=self.sprites+num).texture
         except AttributeError:
             print("The sprites aren't loaded into memory.")
             raise
