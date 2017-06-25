@@ -31,11 +31,12 @@ class Toolbar(BoxLayout):
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
         self.main_btn = None
+        self.main_loc_btn = None
 
-        self.subloc_drop = DropDown(size_hint=(None, None), size=(300, 30))
-        self.pos_drop = DropDown(size_hint=(None, None), size=(300, 30))
+        self.subloc_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30))
         for pos in ('center', 'right', 'left'):
-            btn = Button(text=pos, size_hint=(None, None), size=(300, 30))
+            btn = Button(text=pos, size_hint=(None, None), size=(100, 30))
             btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
             self.pos_drop.add_widget(btn)
 
@@ -50,23 +51,46 @@ class Toolbar(BoxLayout):
         self.add_widget(self.text_col_btn)
         self.color_drop.bind(on_select=self.on_col_select)
 
-        self.pos_btn = Button(size_hint=(None, None), size=(300, 30))
+        self.pos_btn = Button(size_hint=(None, None), size=(100, 30))
         self.pos_btn.text = 'center'
         self.pos_btn.bind(on_release=self.pos_drop.open)
         self.add_widget(self.pos_btn)
         self.pos_drop.bind(on_select=self.on_pos_select)
 
+        self.loc_drop = DropDown(size_hint=(None, None), size=(200, 30))
+
     def update_sub(self, loc):
+        if self.main_btn is not None:
+            self.subloc_drop.clear_widgets()
+
         for sub in loc.list_sub():
-            btn = Button(text=sub, size_hint=(None, None), size=(300, 30))
+            btn = Button(text=sub, size_hint=(None, None), size=(200, 30))
             btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
             self.subloc_drop.add_widget(btn)
 
-        self.main_btn = Button(size_hint=(None, None), size=(300, 30))
+        if self.main_btn is None:
+            self.main_btn = Button(size_hint=(None, None), size=(200, 30))
+            self.main_btn.bind(on_release=self.subloc_drop.open)
+            self.add_widget(self.main_btn)
+            self.subloc_drop.bind(on_select=self.on_subloc_select)
         self.main_btn.text = loc.get_first_sub()
-        self.main_btn.bind(on_release=self.subloc_drop.open)
-        self.add_widget(self.main_btn)
-        self.subloc_drop.bind(on_select=self.on_subloc_select)
+
+    def update_loc(self):
+        for l in locations:
+            btn = Button(text=l, size_hint=(None, None), size=(200, 30))
+            btn.bind(on_release=lambda btn_: self.loc_drop.select(btn_.text))
+            self.loc_drop.add_widget(btn)
+
+        self.main_loc_btn = Button(size_hint=(None, None), size=(200, 30))
+        self.main_loc_btn.text = self.parent.parent.current_loc.name
+        self.main_loc_btn.bind(on_release=self.loc_drop.open)
+        self.add_widget(self.main_loc_btn)
+        self.loc_drop.bind(on_select=self.on_loc_select)
+    
+    def on_loc_select(self, inst, loc):
+        self.main_loc_btn.text = loc
+        main_scr = self.parent.parent  # fug u
+        main_scr.current_loc = locations[loc]
 
     def on_subloc_select(self, inst, subloc):
         self.main_btn.text = subloc
@@ -455,6 +479,7 @@ class MainScreen(Screen):
         self.ooc_window.ready()
 
         self.current_loc = locations['Hakuryou']
+        self.toolbar.update_loc()
         char = self.user.get_char()
         if char is not None:
             self.on_new_char(char)
@@ -468,7 +493,7 @@ class MainScreen(Screen):
     def on_current_loc(self, *args):
         # Called when the current location changes
         self.user.set_loc(self.current_loc)
-        subloc = locations['Hakuryou'].get_first_sub()
+        subloc = self.current_loc.get_first_sub()
         self.current_subloc = subloc
         self.toolbar.update_sub(self.current_loc)
 

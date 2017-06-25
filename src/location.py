@@ -1,18 +1,18 @@
 import os
-from kivy.uix.image import AsyncImage
+from kivy.uix.image import Image
 
 
 class SubLocation:
 
-    def __init__(self, name, img):
+    def __init__(self, name, img_path):
         self.name = name
-        self.img = img
+        self.img_path = img_path
         self.c_users = []
         self.l_users = []
         self.r_users = []
 
     def get_img(self):
-        return self.img
+        return Image(source=self.img_path)
 
     def get_name(self):
         return self.name
@@ -55,12 +55,12 @@ class Location:
     def load(self):
         self.sublocations = {self.strip_ext(file):
                              SubLocation(self.strip_ext(file),
-                                         AsyncImage(source=self.path+file)) for file in os.listdir(self.path)}
+                                         self.path+file) for file in os.listdir(self.path)}
 
     def strip_ext(self, name):
         # Strips extension from sublocation names
         if name.lower().endswith((".jpg", ".png")):
-            return name[:4]
+            return name[:-4]
 
     def list_sub(self):
         return sorted(list(self.sublocations.keys()))

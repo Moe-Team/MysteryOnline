@@ -51,7 +51,8 @@ class MysteryOnlineApp(App):
 
     def build(self):
         msm = MainScreenManager()
-        locations['Hakuryou'].load()
+        for l in locations:
+            locations[l].load()
         return msm
 
     def build_config(self, config):
