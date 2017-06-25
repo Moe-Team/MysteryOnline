@@ -27,16 +27,20 @@ class Character:
         self.sprites_path = self.path + char['sprites']
         self.icons_path = self.path + char['icons']
         self.avatar = self.path + "avatar.png"
-        self.loaded = False
+        self.loaded_sprites = False
+        self.loaded_icons = False
         self.sprites = None
         self.icons = None
 
-    def load(self):
-        if self.loaded:
+    def load(self, no_icons=False):
+        if self.loaded_icons and self.loaded_sprites:
             return
-        self.sprites = "atlas://" + self.sprites_path[:-6] + "/"
-        self.icons = Atlas(self.icons_path)
-        self.loaded = True
+        if not self.loaded_sprites:
+            self.sprites = "atlas://" + self.sprites_path[:-6] + "/"
+            self.loaded_sprites = True
+        if not no_icons and not self.loaded_icons:
+            self.icons = Atlas(self.icons_path)
+            self.loaded_icons = True
 
     def get_icons(self):
         try:
