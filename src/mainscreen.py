@@ -549,11 +549,13 @@ class MainScreen(Screen):
                 else:
                     user = self.users[dcd[0]]
                     user.set_from_msg(*dcd)
-                self.sprite_window.set_subloc(user.get_subloc())
-                self.sprite_window.set_sprite(user)
-                col = self.text_box.color_ids[int(dcd[6])]
-                self.text_box.color_change(col)
-                self.text_box.display_text(dcd[7], user)
+                loc = dcd[1]
+                if loc == self.current_loc.name:
+                    self.sprite_window.set_subloc(user.get_subloc())
+                    self.sprite_window.set_sprite(user)
+                    col = self.text_box.color_ids[int(dcd[6])]
+                    self.text_box.color_change(col)
+                    self.text_box.display_text(dcd[7], user)
 
             elif msg.identify() == 'char':
                 dcd = msg.decode_other()
