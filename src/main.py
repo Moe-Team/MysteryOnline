@@ -79,6 +79,12 @@ class MysteryOnlineApp(App):
     def get_main_screen(self):
         return self.main_screen
 
+    def on_stop(self):
+        if self.main_screen:
+            self.main_screen.on_stop()
+        self.config.write()
+        super(MysteryOnlineApp, self).on_stop()
+
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()

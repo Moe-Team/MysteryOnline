@@ -359,7 +359,6 @@ class OOCWindow(TabbedPanel):
         config = App.get_running_app().config
         value = int(self.blip_slider.value)
         config.set('sound', 'blip_volume', value)
-        config.write()
 
     def add_user(self, user):
         char = user.get_char()
@@ -448,6 +447,9 @@ class MainScreen(Screen):
         self.users = {}
         App.get_running_app().set_main_screen(self)
         self.config = App.get_running_app().config
+
+    def on_stop(self):
+        pass
 
     def on_touch_down(self, touch):
         if touch.button == 'right':
