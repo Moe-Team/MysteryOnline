@@ -227,14 +227,26 @@
 
             TextInput:
                 id: url_input
+                multiline: False
+                on_text_validate: root.on_music_play()
                 size_hint: 1, None
                 height: 30
 
-            Button:
-                text: "Play"
-                on_release: root.on_music_play()
-                size_hint: None, None
+            BoxLayout:
+
+                size_hint: 1, None
                 height: 40
+
+                Button:
+                    text: "Play"
+                    on_release: root.on_music_play()
+                    size_hint: None, None
+                    height: 40
+                Button:
+                    text: "Stop"
+                    on_release: root.music_stop()
+                    size_hint: None, None
+                    height: 40
 
 
 <TextBox>:

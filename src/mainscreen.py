@@ -420,12 +420,22 @@ class OOCWindow(TabbedPanel):
             url = self.url_input.text
             main_screen = self.parent.parent
             main_screen.update_music(url)
+            main_screen.log_window.log.text += "You changed the music.\n"
+            main_screen.log_window.log.scroll_y = 0
+
+        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
+            print("Probably not music m8.")
+            return
 
         def play_song(root):
             track = root.track
             if track is not None and track.state == 'play':
                 track.stop()
-            r = requests.get(url)
+            try:
+                r = requests.get(url)
+            except requests.exceptions.MissingSchema:
+                print("Invalid url.")
+                return
             f = open("temp.mp3", mode="wb")
             f.write(r.content)
             f.close()
@@ -435,6 +445,16 @@ class OOCWindow(TabbedPanel):
             track.play()
             root.track = track
         threading.Thread(target=play_song, args=(self,)).start()
+
+    def music_stop(self, local=True):
+        if self.track is not None:
+            if self.track.state == 'play':
+                self.track.stop()
+                main_screen = self.parent.parent
+                if local:
+                    main_screen.update_music("stop")
+                    main_screen.log_window.log.text += "You stopped the music.\n"
+                    main_screen.log_window.log.scroll_y = 0
 
 
 class RightClickMenu(ModalView):
@@ -605,9 +625,14 @@ class MainScreen(Screen):
                 self.ooc_window.update_ooc(*dcd)
             elif msg.identify() == 'music':
                 dcd = msg.decode_other()
-                self.log_window.log.text += "{} changed the music.\n".format(dcd[1])
-                self.log_window.log.scroll_y = 0
-                self.ooc_window.on_music_play(dcd[0])
+                if dcd[0] == "stop":
+                    self.log_window.log.text += "{} stopped the music.\n".format(dcd[1])
+                    self.log_window.log.scroll_y = 0
+                    self.ooc_window.music_stop(False)
+                else:
+                    self.log_window.log.text += "{} changed the music.\n".format(dcd[1])
+                    self.log_window.log.scroll_y = 0
+                    self.ooc_window.on_music_play(dcd[0])
 
     def update_music(self, url):
         self.manager.irc_connection.send_special('music', url)
