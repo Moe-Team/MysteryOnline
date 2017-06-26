@@ -415,8 +415,11 @@ class OOCWindow(TabbedPanel):
     def refocus_text(self, *args):
         self.ooc_input.focus = True
 
-    def on_music_play(self, *args):
-        url = self.url_input.text
+    def on_music_play(self, url=None):
+        if url is None:
+            url = self.url_input.text
+            main_screen = self.parent.parent
+            main_screen.update_music(url)
 
         def play_song(root):
             track = root.track
@@ -600,6 +603,14 @@ class MainScreen(Screen):
             elif msg.identify() == 'OOC':
                 dcd = msg.decode_other()
                 self.ooc_window.update_ooc(*dcd)
+            elif msg.identify() == 'music':
+                dcd = msg.decode_other()
+                self.log_window.log.text += "{} changed the music.\n".format(dcd[1])
+                self.log_window.log.scroll_y = 0
+                self.ooc_window.on_music_play(dcd[0])
+
+    def update_music(self, url):
+        self.manager.irc_connection.send_special('music', url)
 
     def update_char(self, char, username):
         self.ooc_window.update_char(char, username)

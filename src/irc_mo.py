@@ -42,6 +42,8 @@ class Message:
             return 'char'
         if self.msg.startswith('OOC#'):
             return 'OOC'
+        if self.msg.startswith('m#'):
+            return 'music'
 
 
 class MessageQueue:
@@ -101,13 +103,12 @@ class IrcConnection:
         self.connection.privmsg(self.channel, message.msg)
 
     def send_special(self, kind, value):
-        kinds = {'char': 'c#', 'OOC': 'OOC#'}
+        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#'}
         msg = kinds[kind] + value
         self.connection.privmsg(self.channel, msg)
         if kind == 'OOC':
             message = Message(msg)
             self.msg_q.messages.insert(0, message)
-
 
     def is_connected(self):
         return self._joined
