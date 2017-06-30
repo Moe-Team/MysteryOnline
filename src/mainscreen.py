@@ -324,7 +324,7 @@ class LogWindow(ScrollView):
 
     def copy_text(self, inst, value):
         if 'www.' in value or 'http://'in value or 'https://' in value:
-            pattern = re.compile(r'((https?://)|(www\.)).*?\...*?\b')
+            pattern = re.compile(r'[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')
             url = re.search(pattern, value)
             if url:
                 webbrowser.open(url.group(0))
