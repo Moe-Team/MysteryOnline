@@ -5,6 +5,15 @@ Config.set('input', 'mouse', 'mouse,disable_multitouch')
 Config.set('kivy', 'exit_on_escape', 0)
 Config.set('kivy', 'window_icon', 'icon.ico')
 
+# import os
+#
+# wrong_path = os.environ['GST_PLUGIN_PATH']
+# right_path = os.getcwd()
+# pattern = '{}:'.format(right_path)
+# to_replace = '{};'.format(right_path)
+#
+# fixed_path = wrong_path.replace(pattern, to_replace)
+# os.environ['GST_PLUGIN_PATH'] = fixed_path
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
