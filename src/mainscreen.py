@@ -662,6 +662,7 @@ class MainScreen(Screen):
         self.log_window.log.text += "{} has disconnected.\n".format(username)
         self.log_window.log.scroll_y = 0
         self.ooc_window.delete_user(username)
+        self.users[username].remove()
         del self.users[username]
 
     def on_join_users(self, users):

@@ -71,3 +71,13 @@ class User:
 
     def get_pos(self):
         return self.pos
+
+    def remove(self):
+        if self.pos is None or self.subloc is None:
+            return
+        if self.pos == 'right':
+            self.subloc.remove_r_user(self)
+        elif self.pos == 'left':
+            self.subloc.remove_l_user(self)
+        else:
+            self.subloc.remove_c_user(self)
