@@ -48,26 +48,30 @@
         size: root.size
         pos: root.pos
 
-        Image:
-            id: center_s
-            opacity: 0
-            size_hint: None, None
-            size: 600, 600
-            pos: root.x + 100, root.y
+        StencilView:
+            size: root.size
+            pos: root.pos
 
-        Image:
-            id: left_s
-            opacity: 0
-            size_hint: None, None
-            size: 600, 600
-            pos: root.x - 100, root.y
+            Image:
+                id: center_s
+                opacity: 0
+                size_hint: None, None
+                size: 600, 600
+                pos: root.x + 100, root.y
 
-        Image:
-            id: right_s
-            opacity: 0
-            size_hint: None, None
-            size: 600, 600
-            pos: root.x + 300, root.y
+            Image:
+                id: left_s
+                opacity: 0
+                size_hint: None, None
+                size: 600, 600
+                pos: root.x - 100, root.y
+
+            Image:
+                id: right_s
+                opacity: 0
+                size_hint: None, None
+                size: 600, 600
+                pos: root.x + 300, root.y
 
 
 <MainScreen>:
