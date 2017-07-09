@@ -158,6 +158,7 @@
     blip_slider: blip_slider
     music_slider: music_slider
     url_input: url_input
+    loop_checkbox: loop_checkbox
 
     do_default_tab: False
     tab_width: 60
@@ -251,6 +252,18 @@
                     on_release: root.music_stop()
                     size_hint: None, None
                     height: 40
+
+            BoxLayout:
+
+                size_hint: 1, None
+                height: 40
+
+                Label:
+                    text: 'Loop'
+
+                CheckBox:
+                    id: loop_checkbox
+                    active: True
 
 
 <TextBox>:

@@ -346,11 +346,13 @@ class OOCWindow(TabbedPanel):
     blip_slider = ObjectProperty(None)
     music_slider = ObjectProperty(None)
     url_input = ObjectProperty(None)
+    loop_checkbox = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
         self.online_users = {}
         self.track = None
+        self.loop = True
 
     def ready(self):
         config = App.get_running_app().config  # The main config
@@ -358,6 +360,7 @@ class OOCWindow(TabbedPanel):
         self.blip_slider.value = config.getdefaultint('sound', 'blip_volume', 100)
         config.add_callback(self.on_music_volume_change, 'sound', 'music_volume')
         self.music_slider.value = config.getdefaultint('sound', 'music_volume', 100)
+        self.loop_checkbox.bind(active=self.on_loop)
 
     def on_blip_volume_change(self, s, k, v):
         self.blip_slider.value = v
@@ -388,7 +391,10 @@ class OOCWindow(TabbedPanel):
         self.online_users[user.username] = lbl
 
     def update_char(self, char, username):
-        self.online_users[username].text = "{}: {}\n".format(username, char)
+        try:
+            self.online_users[username].text = "{}: {}\n".format(username, char)
+        except KeyError:
+            pass
 
     def delete_user(self, username):
         label = self.online_users[username]
@@ -418,6 +424,7 @@ class OOCWindow(TabbedPanel):
     def on_music_play(self, url=None):
         if url is None:
             url = self.url_input.text
+            self.url_input.text = ""
             main_screen = self.parent.parent
             main_screen.update_music(url)
             main_screen.log_window.log.text += "You changed the music.\n"
@@ -442,6 +449,7 @@ class OOCWindow(TabbedPanel):
             track = SoundLoader.load("temp.mp3")
             config = App.get_running_app().config
             track.volume = config.getdefaultint('sound', 'music_volume', 100) / 100
+            track.loop = root.loop
             track.play()
             root.track = track
         threading.Thread(target=play_song, args=(self,)).start()
@@ -455,6 +463,9 @@ class OOCWindow(TabbedPanel):
                     main_screen.update_music("stop")
                     main_screen.log_window.log.text += "You stopped the music.\n"
                     main_screen.log_window.log.scroll_y = 0
+
+    def on_loop(self, c, value):
+        self.loop = value
 
 
 class RightClickMenu(ModalView):

@@ -22,7 +22,7 @@ class User:
         if self.character is None:
             self.character = characters['RedHerring']
             self.set_current_sprite('4')
-        self.character.load()
+        self.character.load(no_icons=True)
         self.set_pos(args[5])
 
     def set_current_sprite(self, num):
