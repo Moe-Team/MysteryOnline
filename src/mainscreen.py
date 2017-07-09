@@ -547,6 +547,9 @@ class MainScreen(Screen):
     def on_new_char(self, char):
         self.msg_input.readonly = False
         self.icons_layout.load_icons(char.get_icons())
+        first_icon = sorted(self.user.get_char().get_icons().textures.keys())[0]
+        first_sprite = self.user.get_char().get_sprite(first_icon)
+        self.sprite_preview.set_sprite(first_sprite)
         self.manager.irc_connection.send_special('char', char.name)
         self.update_char(char.name, self.user.username)
 
