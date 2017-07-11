@@ -69,12 +69,17 @@ class MysteryOnlineApp(App):
         })
         config.setdefaults('sound', {
             'blip_volume': 100,
-            'music_volume': 100
+            'music_volume': 100,
+            'effect_volume': 100
+        })
+        config.setdefaults('other', {
+            'ooc_notif_delay': 60
         })
 
     def build_settings(self, settings):
         settings.add_json_panel('Display', self.config, 'settings.json')
         settings.add_json_panel('Sound', self.config, 'settings2.json')
+        settings.add_json_panel('Other', self.config, 'settings3.json')
 
     def set_user(self, user):
         self.user = user

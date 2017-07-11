@@ -154,9 +154,11 @@
 
     user_list: user_list
     ooc_chat: ooc_chat
+    ooc_chat_header: ooc_chat_header
     ooc_input: ooc_input
     blip_slider: blip_slider
     music_slider: music_slider
+    effect_slider: effect_slider
     url_input: url_input
     loop_checkbox: loop_checkbox
 
@@ -165,6 +167,7 @@
 
     TabbedPanelItem:
         text: 'OOC'
+        id: ooc_chat_header
 
         BoxLayout:
             orientation: 'vertical'
@@ -223,6 +226,18 @@
                 min: 0
                 max: 100
                 on_value: root.on_slider_music_value()
+
+            Label:
+                text: "Sound effects"
+                size_hint: 1, None
+                height: 30
+
+            Slider:
+                id: effect_slider
+                size_hint: 1, 1
+                min: 0
+                max: 100
+                on_value: root.on_slider_effect_value()
 
     TabbedPanelItem:
         text: 'Music'

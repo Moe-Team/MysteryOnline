@@ -1,0 +1,9 @@
+[{"type": "title",
+  "title": "Notifications"},
+  {"type": "numeric",
+  "title": "OOC notification delay",
+  "desc": "Set the delay in seconds for the OOC notification sound",
+  "section": "other",
+  "key": "ooc_notif_delay"
+  }
+]

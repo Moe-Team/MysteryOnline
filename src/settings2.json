@@ -11,5 +11,11 @@
   "desc": "Can be also set in the volume tab next to OOC",
   "section": "sound",
   "key": "music_volume"
+  },
+  {"type": "numeric",
+  "title": "Sound effects volume",
+  "desc": "Can also be set in the volume tab next to OOC",
+  "section": "sound",
+  "key": "effect_volume"
   }
 ]

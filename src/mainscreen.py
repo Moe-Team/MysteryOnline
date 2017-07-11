@@ -342,9 +342,11 @@ class OOCWindow(TabbedPanel):
 
     user_list = ObjectProperty(None)
     ooc_chat = ObjectProperty(None)
+    ooc_chat_header = ObjectProperty(None)
     ooc_input = ObjectProperty(None)
     blip_slider = ObjectProperty(None)
     music_slider = ObjectProperty(None)
+    effect_slider = ObjectProperty(None)
     url_input = ObjectProperty(None)
     loop_checkbox = ObjectProperty(None)
 
@@ -353,6 +355,8 @@ class OOCWindow(TabbedPanel):
         self.online_users = {}
         self.track = None
         self.loop = True
+        self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
+        self.ooc_play = True
 
     def ready(self):
         config = App.get_running_app().config  # The main config
@@ -360,7 +364,10 @@ class OOCWindow(TabbedPanel):
         self.blip_slider.value = config.getdefaultint('sound', 'blip_volume', 100)
         config.add_callback(self.on_music_volume_change, 'sound', 'music_volume')
         self.music_slider.value = config.getdefaultint('sound', 'music_volume', 100)
+        config.add_callback(self.on_ooc_volume_change, 'sound', 'effect_volume')
+        self.effect_slider.value = config.getdefaultint('sound', 'effect_volume', 100)
         self.loop_checkbox.bind(active=self.on_loop)
+        self.ooc_chat_header.bind(on_press=self.on_ooc_checked)
 
     def on_blip_volume_change(self, s, k, v):
         self.blip_slider.value = v
@@ -379,6 +386,15 @@ class OOCWindow(TabbedPanel):
         if self.track is not None:
             self.track.volume = value / 100
         config.set('sound', 'music_volume', value)
+
+    def on_ooc_volume_change(self, s, k, v):
+        self.effect_slider.value = v
+        self.ooc_notif.volume = int(v) / 100
+
+    def on_slider_effect_value(self, *args):
+        config = App.get_running_app().config
+        value = int(self.effect_slider.value)
+        config.set('sound', 'effect_volume', value)
 
     def add_user(self, user):
         char = user.get_char()
@@ -401,6 +417,10 @@ class OOCWindow(TabbedPanel):
         self.user_list.remove_widget(label)
         del self.online_users[username]
 
+    def on_ooc_checked(self, *args):
+        self.ooc_chat_header.background_normal = 'atlas://data/images/defaulttheme/button'
+        self.ooc_chat_header.background_color = [1, 1, 1, 1]
+
     def update_ooc(self, msg, sender):
         ref = msg
         if sender == 'default':
@@ -409,6 +429,20 @@ class OOCWindow(TabbedPanel):
             msg = "[u]{}[/u]".format(msg)
         self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
         self.ooc_chat.parent.scroll_y = 0
+        if self.current_tab != self.ooc_chat_header:
+            color = [0, 0.5, 1, 1]
+            if self.ooc_chat_header.background_color != color:
+                self.ooc_chat_header.background_normal = ''
+                self.ooc_chat_header.background_color = color
+            if self.ooc_play:
+                self.ooc_notif.play()
+                config = App.get_running_app().config
+                delay = config.getdefaultint('other', 'ooc_notif_delay', 60)
+                Clock.schedule_once(self.ooc_time_callback, delay)
+                self.ooc_play = False
+
+    def ooc_time_callback(self, *args):
+        self.ooc_play = True
 
     def send_ooc(self):
         Clock.schedule_once(self.refocus_text)
