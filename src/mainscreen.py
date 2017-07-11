@@ -274,8 +274,8 @@ class TextBox(Label):
 
     def _animate(self, dt):
             try:
-                self.text += next(self.gen)
                 self.blip.play()
+                self.text += next(self.gen)
             except StopIteration:
                 self.text += " "
                 self.is_displaying_msg = False
