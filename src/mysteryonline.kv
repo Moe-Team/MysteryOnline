@@ -52,26 +52,30 @@
             size: root.size
             pos: root.pos
 
-            Image:
-                id: center_s
-                opacity: 0
-                size_hint: None, None
-                size: 600, 600
-                pos: root.x + 100, root.y
+            FloatLayout:
+                size: root.size
+                pos: root.pos
 
-            Image:
-                id: left_s
-                opacity: 0
-                size_hint: None, None
-                size: 600, 600
-                pos: root.x - 100, root.y
+                Image:
+                    id: center_s
+                    opacity: 0
+                    size_hint: None, None
+                    size: 600, 600
+                    pos_hint: {'center_x': 0.5, 'y': 0}
 
-            Image:
-                id: right_s
-                opacity: 0
-                size_hint: None, None
-                size: 600, 600
-                pos: root.x + 300, root.y
+                Image:
+                    id: left_s
+                    opacity: 0
+                    size_hint: None, None
+                    size: 600, 600
+                    pos_hint: {'center_x': 0.25, 'y': 0}
+
+                Image:
+                    id: right_s
+                    opacity: 0
+                    size_hint: None, None
+                    size: 600, 600
+                    pos_hint: {'center_x': 0.75, 'y': 0}
 
 
 <MainScreen>:
@@ -304,12 +308,20 @@
 <SpritePreview>:
     center_sprite: center_s
 
-    Image:
-        id: center_s
-        opacity: 0
-        size_hint: None, None
-        size: 200, 200
-        pos: root.x + 30, root.y
+    StencilView:
+        size: root.size
+        pos: root.pos
+
+        FloatLayout:
+            size: root.size
+            pos: root.pos
+
+            Image:
+                id: center_s
+                opacity: 0
+                size_hint: None, None
+                size: 200, 200
+                pos_hint: {'center_x': 0.5, 'y': 0}
 
 
 <RightClickMenu>:
