@@ -13,6 +13,7 @@ from kivy.uix.image import Image
 from kivy.uix.modalview import ModalView
 from kivy.uix.dropdown import DropDown
 from kivy.uix.tabbedpanel import TabbedPanel
+from kivy.uix.modalview import ModalView
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.clock import Clock
 from kivy.utils import escape_markup
@@ -121,11 +122,27 @@ class Icon(Image):
         self.name = name
         self.size_hint = (None, None)
         self.size = (40, 40)
+        Window.bind(mouse_pos=self.on_mouse_pos)
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             self.parent.parent.sprite_picked(self, self.name)
             return True
+
+    def on_mouse_pos(self, *args):
+        if not self.get_root_window():
+            return
+        pos = args[1]
+        Clock.unschedule(self.display_tooltip)  # cancel scheduled event since I moved the cursor
+        self.close_tooltip()  # close if it's opened
+        if self.collide_point(*self.to_widget(*pos)):
+            Clock.schedule_once(self.display_tooltip, 1)
+
+    def display_tooltip(self, *args):
+        self.parent.parent.on_hover_in(self.name)
+
+    def close_tooltip(self, *args):
+        self.parent.parent.on_hover_out()
 
 
 class IconsLayout(ScrollView):
@@ -136,6 +153,7 @@ class IconsLayout(ScrollView):
         self.g.bind(minimum_height=self.g.setter('height'))
         self.add_widget(self.g)
         self.current_icon = None
+        self.hover_popup = ModalView(size_hint=(None, None))
 
     def load_icons(self, icons):
         self.g.clear_widgets()
@@ -152,6 +170,26 @@ class IconsLayout(ScrollView):
             self.current_icon.color = [1, 1, 1, 1]
         icon.color = [0.3, 0.3, 0.3, 1]
         self.current_icon = icon
+
+    def on_hover_in(self, sprite_name):
+        if self.hover_popup.get_parent_window():
+            return
+        main_scr = self.parent.parent
+        char = main_scr.user.get_char()
+        sprite = char.get_sprite(sprite_name, True)
+        sprite_size = char.get_sprite(sprite_name).size
+        # Can't use absolute position so it uses a workaround
+        hover_x = self.right / Window.width
+        hover_y = self.y / Window.height
+        sprite_size = sprite_size[0] * 0.8, sprite_size[1] * 0.8
+        self.hover_popup.background = sprite
+        self.hover_popup.size = sprite_size
+        self.hover_popup.pos_hint = {'x': hover_x, 'y': hover_y}
+        self.hover_popup.open()
+
+    def on_hover_out(self):
+        if self.hover_popup.get_parent_window():
+            self.hover_popup.dismiss(animation=False)
 
 
 class SpritePreview(Image):

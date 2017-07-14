@@ -49,9 +49,12 @@ class Character:
             print("The icons aren't loaded into memory.")
             raise
 
-    def get_sprite(self, num):
+    def get_sprite(self, num, source=False):
         try:
-            return Image(source=self.sprites+num).texture
+            if not source:
+                return Image(source=self.sprites+num).texture
+            else:
+                return self.sprites+num
         except AttributeError:
             print("The sprites aren't loaded into memory.")
             raise
