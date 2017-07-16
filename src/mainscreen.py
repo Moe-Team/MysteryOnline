@@ -32,6 +32,14 @@ class SpriteSettings(BoxLayout):
 
     def __init__(self, **kwargs):
         super(SpriteSettings, self).__init__(**kwargs)
+        self.functions = {"flip": self.flip_sprite}
+        self.activated = []
+
+    def apply_post_processing(self, sprite, settings=None):
+        return sprite
+
+    def flip_sprite(self, sprite):
+        return sprite.flip_horizontal()
 
 
 class LeftTab(TabbedPanel):

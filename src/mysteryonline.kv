@@ -100,15 +100,16 @@
         TextBox:
             id: text_box
             size_hint: None, None
-            size: 800, 200
+            size: 800, 170
             pos: sprite_window.x, sprite_window.y
             font_size: 20
             text_size: self.size
+            color: 1, 1, 1, 1
             halign: 'left'
             valign: 'top'
             canvas:
                 Color:
-                    rgba: 0.3, 0.3, 0.3, 0.3
+                    rgba: 0.3, 0.3, 0.3, 0.2
                 Rectangle:
                     pos: self.pos
                     size: self.size
