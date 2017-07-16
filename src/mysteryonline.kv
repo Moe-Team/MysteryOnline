@@ -87,6 +87,8 @@
     text_box: text_box
     log_window: log_window
     ooc_window: ooc_window
+    left_tab: left_tab
+    sprite_settings: sprite_settings
 
     FloatLayout:
         SpriteWindow:
@@ -140,18 +142,49 @@
             right: sprite_window.x - 20
             y: sprite_window.y
 
-        SpritePreview:
-            id: sprite_preview
-            size_hint: None, None
-            size: 800 / 3, 600 / 3
+        LeftTab:
+            id: left_tab
             y: icons_layout.top + 5
             x: icons_layout.x
+            size_hint: None, None
+            size: 800 / 3, 340
+
+            TabbedPanelItem:
+                text: "Preview"
+
+                BoxLayout:
+                    size: left_tab.size
+                    pos: left_tab.pos
+                    orientation: 'vertical'
+
+                    SpritePreview:
+                        id: sprite_preview
+                        size_hint: None, None
+                        size: 800 / 3, 600 / 3
+
+                    SpriteSettings:
+                        id: sprite_settings
+                        ize_hint: None, None
+                        size: 800 / 3, 140
 
         Toolbar:
             id: toolbar
             size_hint: None, None
             size: 800, 30
             pos: msg_input.x, msg_input.y - 30
+
+
+<SpriteSettings>:
+    orientation: 'vertical'
+
+
+<LeftTab>:
+
+    do_default_tab: False
+    tab_width: 60
+
+    TabbedPanelItem:
+        text: "Other"
 
 
 <OOCWindow>:

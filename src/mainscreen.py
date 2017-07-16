@@ -28,6 +28,18 @@ import threading
 import requests
 
 
+class SpriteSettings(BoxLayout):
+
+    def __init__(self, **kwargs):
+        super(SpriteSettings, self).__init__(**kwargs)
+
+
+class LeftTab(TabbedPanel):
+
+    def __init__(self, **kwargs):
+        super(LeftTab, self).__init__(**kwargs)
+
+
 class Toolbar(BoxLayout):
 
     def __init__(self, **kwargs):
@@ -577,6 +589,8 @@ class MainScreen(Screen):
     text_box = ObjectProperty(None)
     log_window = ObjectProperty(None)
     ooc_window = ObjectProperty(None)
+    left_tab = ObjectProperty(None)
+    sprite_settings = ObjectProperty(None)
 
     current_sprite = StringProperty("")
     current_loc = ObjectProperty(None)
