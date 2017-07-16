@@ -258,27 +258,30 @@ class SpriteWindow(Widget):
     def display_sub(self, subloc):
         if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
-            self.center_sprite.texture = sprite
-            self.center_sprite.opacity = 1
-            self.center_sprite.size = self.center_sprite.texture.size
+            if sprite is not None:
+                self.center_sprite.texture = sprite
+                self.center_sprite.opacity = 1
+                self.center_sprite.size = self.center_sprite.texture.size
         else:
             self.center_sprite.texture = None
             self.center_sprite.opacity = 0
 
         if subloc.l_users:
             sprite = subloc.get_l_user().get_current_sprite()
-            self.left_sprite.texture = sprite
-            self.left_sprite.opacity = 1
-            self.left_sprite.size = self.left_sprite.texture.size
+            if sprite is not None:
+                self.left_sprite.texture = sprite
+                self.left_sprite.opacity = 1
+                self.left_sprite.size = self.left_sprite.texture.size
         else:
             self.left_sprite.texture = None
             self.left_sprite.opacity = 0
 
         if subloc.r_users:
             sprite = subloc.get_r_user().get_current_sprite()
-            self.right_sprite.texture = sprite
-            self.right_sprite.opacity = 1
-            self.right_sprite.size = self.right_sprite.texture.size
+            if sprite is not None:
+                self.right_sprite.texture = sprite
+                self.right_sprite.opacity = 1
+                self.right_sprite.size = self.right_sprite.texture.size
         else:
             self.right_sprite.texture = None
             self.right_sprite.opacity = 0
@@ -716,7 +719,10 @@ class MainScreen(Screen):
                 if dcd[0] == "default":
                     user = self.user
                 else:
-                    user = self.users[dcd[0]]
+                    try:
+                        user = self.users[dcd[0]]
+                    except KeyError:
+                        return
                     user.set_from_msg(*dcd)
                 loc = dcd[1]
                 if loc == self.current_loc.name:
