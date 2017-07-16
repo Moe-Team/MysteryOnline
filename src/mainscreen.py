@@ -138,6 +138,8 @@ class Icon(Image):
             Clock.schedule_once(self.display_tooltip, 1)
 
     def display_tooltip(self, *args):
+        if len(Window.children) > 1:
+            return
         self.parent.parent.on_hover_in(self.name)
 
     def close_tooltip(self, *args):
