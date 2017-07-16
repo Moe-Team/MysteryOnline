@@ -10,7 +10,6 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
-from kivy.uix.modalview import ModalView
 from kivy.uix.dropdown import DropDown
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.modalview import ModalView
@@ -362,7 +361,7 @@ class LogWindow(ScrollView):
 
     def copy_text(self, inst, value):
         if 'www.' in value or 'http://'in value or 'https://' in value:
-            pattern = re.compile(r'[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')
+            pattern = re.compile(r'(https?://)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)')
             url = re.search(pattern, value)
             if url:
                 webbrowser.open(url.group(0))
