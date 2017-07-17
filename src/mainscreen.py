@@ -308,7 +308,7 @@ class TextBox(Label):
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
         self.blip.volume = config.getdefaultint('sound', 'blip_volume', 100) / 100
 
-    def display_text(self, msg, user, color):
+    def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
         if self.prev_user is not user:
             self.text = ""
@@ -347,7 +347,7 @@ class TextBox(Label):
 
         main_scr = self.parent.parent  # BLAAAME KIVYYYY
         main_scr.log_window.add_entry(self.msg, user.username)
-        if user:
+        if user.username == sender:
             main_scr.toolbar.text_col_btn.text = 'color'
         user.color = 'ffffff'
         user.colored = False
@@ -721,7 +721,7 @@ class MainScreen(Screen):
                     self.sprite_window.set_subloc(user.get_subloc())
                     self.sprite_window.set_sprite(user)
                     col = self.user.color_ids[int(dcd[6])]
-                    self.text_box.display_text(dcd[7], user, col)
+                    self.text_box.display_text(dcd[7], user, col, self.user.username)
 
             elif msg.identify() == 'char':
                 dcd = msg.decode_other()
