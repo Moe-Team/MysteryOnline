@@ -326,20 +326,20 @@ class TextBox(Label):
             self.gen = text_gen(self.msg)
             Clock.schedule_interval(self._animate, 1.0 / 60.0)
         else:
-            if user.color!= 'rainbow':
+            if user.color != 'rainbow':
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
             else:
-                msgArray = list(self.msg)
+                msg_array = list(self.msg)
                 self.msg = ''
-                why_wont_you_let_me_do_this_in_a_single_function_python_pls = len(msgArray)
+                why_wont_you_let_me_do_this_in_a_single_function_python_pls = len(msg_array)
                 color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '0000ff', '4b0082', 'ee82ee']
                 y = 0
                 for x in range(why_wont_you_let_me_do_this_in_a_single_function_python_pls):
                     if y == 7:
                         y = 0
                     col = color_spectrum[y]
-                    self.msg += "[color={}]{}[/color]".format(col,msgArray[x])
-                    if msgArray[x] != ' ':
+                    self.msg += "[color={}]{}[/color]".format(col, msg_array[x])
+                    if msg_array[x] != ' ':
                         y = y+1
             self.text = self.msg
             self.text += " "

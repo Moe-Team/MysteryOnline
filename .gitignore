@@ -88,12 +88,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
-\.idea/workspace\.xml
-.idea/dictionaries/
-
 src/mysteryonline\.ini
 
-\.idea/vcs\.xml
 
 src/temp\.mp3
 /src/characters/
+.idea
