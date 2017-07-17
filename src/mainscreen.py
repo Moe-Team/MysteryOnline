@@ -126,11 +126,16 @@ class Toolbar(BoxLayout):
         main_scr.current_pos = pos
         main_scr.refocus_text()
 
-    def on_col_select(self, inst, col):
+    def on_col_select(self, inst, col, user=None):
         self.text_col_btn.text = col
         main_scr = self.parent.parent  # I will never forgive Kivy either
-        main_scr.text_box.color_change(col)
-        main_scr.refocus_text()
+        if user is None:
+            user = self.parent.parent.user
+        user.set_color(col)
+        if user.color != 'ffffff':
+            user.colored = True
+        else:
+            user.colored = False
 
 
 class Icon(Image):
@@ -297,17 +302,13 @@ class TextBox(Label):
         self.prev_user = None
         self.is_displaying_msg = False
         self.markup = True
-        self.colored = False
-        self.selected_color = 'ffffff'
-        self.raw_color = ""
         self.gen = None
-        self.color_ids = ['normal', 'red', 'blue', 'golden', 'green', 'FUCKING RAINBOW']
         self.blip = SoundLoader.load('sounds/general/blip.wav')
         config = App.get_running_app().config  # The main config
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
         self.blip.volume = config.getdefaultint('sound', 'blip_volume', 100) / 100
 
-    def display_text(self, msg, user):
+    def display_text(self, msg, user, color):
         self.is_displaying_msg = True
         if self.prev_user is not user:
             self.text = ""
@@ -315,24 +316,41 @@ class TextBox(Label):
         char_name = user.get_char().name
         self.char_name.text = char_name
         self.msg = msg
+        user.color = color
 
         def text_gen(text):
             for c in text:
                 yield c
 
-        if self.raw_color == 'normal':
+        if user.color == 'ffffff':
             self.gen = text_gen(self.msg)
             Clock.schedule_interval(self._animate, 1.0 / 60.0)
         else:
-            self.msg = "[color={}]{}[/color]".format(self.selected_color, self.msg)
+            if user.color!= 'rainbow':
+                self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
+            else:
+                msgArray = list(self.msg)
+                self.msg = ''
+                why_wont_you_let_me_do_this_in_a_single_function_python_pls = len(msgArray)
+                color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '0000ff', '4b0082', 'ee82ee']
+                y = 0
+                for x in range(why_wont_you_let_me_do_this_in_a_single_function_python_pls):
+                    if y == 7:
+                        y = 0
+                    col = color_spectrum[y]
+                    self.msg += "[color={}]{}[/color]".format(col,msgArray[x])
+                    if msgArray[x] != ' ':
+                        y = y+1
             self.text = self.msg
             self.text += " "
             self.is_displaying_msg = False
 
         main_scr = self.parent.parent  # BLAAAME KIVYYYY
         main_scr.log_window.add_entry(self.msg, user.username)
-        main_scr.toolbar.text_col_btn.text = 'color'
-        self.revert_color()
+        if user:
+            main_scr.toolbar.text_col_btn.text = 'color'
+        user.color = 'ffffff'
+        user.colored = False
 
     def _animate(self, dt):
             try:
@@ -342,32 +360,6 @@ class TextBox(Label):
                 self.text += " "
                 self.is_displaying_msg = False
                 return False
-
-    def color_select(self, col):
-        if col == 'red':
-            return 'ff3333'
-        elif col == 'blue':
-            return '0000ff'
-        elif col == 'golden':
-            return 'ffd700'
-        elif col == 'green':
-            return '00cd00'
-        elif col == 'FUCKING RAINBOW':
-            return 'rainbow'
-        elif col == 'normal':
-            return 'ffffff'
-
-    def color_change(self, col):
-        self.raw_color = col
-        self.selected_color = self.color_select(col)
-        if self.selected_color != 'ffffff':
-            self.colored = True
-        else:
-            self.colored = False
-
-    def revert_color(self):
-        self.selected_color = 'ffffff'
-        self.colored = False
 
     def on_volume_change(self, s, k, v):
         self.blip.volume = int(v) / 100
@@ -696,10 +688,10 @@ class MainScreen(Screen):
 
         self.user.set_pos(self.current_pos)
         col_id = 0
-        if self.text_box.colored:
-            col_id = self.text_box.color_ids.index(self.text_box.raw_color)
-        self.msg_input.text = ""
         user = self.user
+        if user.colored:
+            col_id = self.user.color_ids.index(user.get_color())
+        self.msg_input.text = ""
         loc = user.get_loc().name
         char = user.get_char().name
         self.manager.irc_connection.send_msg(msg, loc, self.current_subloc, char,
@@ -728,9 +720,8 @@ class MainScreen(Screen):
                 if loc == self.current_loc.name:
                     self.sprite_window.set_subloc(user.get_subloc())
                     self.sprite_window.set_sprite(user)
-                    col = self.text_box.color_ids[int(dcd[6])]
-                    self.text_box.color_change(col)
-                    self.text_box.display_text(dcd[7], user)
+                    col = self.user.color_ids[int(dcd[6])]
+                    self.text_box.display_text(dcd[7], user, col)
 
             elif msg.identify() == 'char':
                 dcd = msg.decode_other()

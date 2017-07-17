@@ -12,6 +12,9 @@ class User:
         self.pos = "center"
         self.current_sprite = None
         self.prev_subloc = None
+        self.color = 'ffffff' # Default color for text
+        self.colored = None # True for a color selected
+        self.color_ids = ['ffffff', 'ff3333', '0000ff', 'ffd700', '00cd00', 'rainbow'] # Color code for text
 
     def set_from_msg(self, *args):
         args = list(args)
@@ -24,6 +27,23 @@ class User:
             self.set_current_sprite('4')
         self.character.load(no_icons=True)
         self.set_pos(args[5])
+
+    def get_color(self):
+        return self.color
+
+    def set_color(self, col):
+        if col == 'red':
+            self.color = 'ff3333'
+        elif col == 'blue':
+            self.color = '0000ff'
+        elif col == 'golden':
+            self.color = 'ffd700'
+        elif col == 'green':
+            self.color = '00cd00'
+        elif col == 'FUCKING RAINBOW':
+            self.color = 'rainbow'
+        elif col == 'normal':
+            self.color = 'ffffff'
 
     def set_current_sprite(self, num):
         self.current_sprite = num
