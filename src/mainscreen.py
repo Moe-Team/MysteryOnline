@@ -26,6 +26,7 @@ import re
 import webbrowser
 import threading
 import requests
+from datetime import datetime
 
 
 class SpriteSettings(BoxLayout):
@@ -375,6 +376,13 @@ class LogWindow(ScrollView):
     def add_entry(self, msg, username):
         self.log.text += "{0}: [ref={2}]{1}[/ref]\n".format(username, msg, self.remove_markup(msg))
         self.scroll_y = 0
+        now = datetime.now()
+        cur_date = now.strftime("%d-%m-%Y")
+        cur_time = now.strftime("%H:%M:%S")
+        msg = self.remove_markup(msg)
+        log_msg = "<{} {}> {}: {}\n".format(cur_time, cur_date, username, msg)
+        with open('msg_log.txt', 'a', encoding='utf-8') as f:
+            f.write(log_msg)
 
     def copy_text(self, inst, value):
         if 'www.' in value or 'http://'in value or 'https://' in value:
@@ -483,6 +491,12 @@ class OOCWindow(TabbedPanel):
             msg = "[u]{}[/u]".format(msg)
         self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
         self.ooc_chat.parent.scroll_y = 0
+        now = datetime.now()
+        cur_date = now.strftime("%d-%m-%Y")
+        cur_time = now.strftime("%H:%M:%S")
+        log_msg = "<{} {}> {}: {}\n".format(cur_time, cur_date, sender, msg)
+        with open('ooc_log.txt', 'a', encoding='utf-8') as f:
+            f.write(log_msg)
         if self.current_tab != self.ooc_chat_header:
             color = [0, 0.5, 1, 1]
             if self.ooc_chat_header.background_color != color:
