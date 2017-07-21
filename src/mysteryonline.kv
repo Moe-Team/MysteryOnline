@@ -233,7 +233,9 @@
 
         BoxLayout:
             orientation: 'vertical'
+            halign: 'left'
             id: user_list
+
 
     TabbedPanelItem:
         text: 'Volume'
@@ -357,6 +359,78 @@
                 size: 200, 200
                 pos_hint: {'center_x': 0.5, 'y': 0}
 
+<PrivateMessageScreen>:
+    size_hint: 0.8, 0.8
+
+    BoxLayout
+        orientation: 'horizontal'
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            ScrollView:
+                size_hint: 0.8, 1
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    id: prv_msg_scroll
+
+            BoxLayout:
+                orientation: 'vertical'
+                id: pm_input
+
+                TextInput:
+                    id: pm_input
+                    on_text_validate: root.send_pm()
+                    multiline: False
+                    height: 30
+                    size_hint: 1, None
+
+        BoxLayout:
+            size_hint: 0.2, 1
+            orientation: 'vertical'
+
+            ScrollView:
+                valign: 'top'
+                size_hint: 1, 0.9
+                title: 'User list'
+                id: prv_users_scroll
+
+                BoxLayout
+                    valign: 'top'
+                    size_hint: 1, 1
+                    orientation: 'vertical'
+                    id: prv_users_list
+
+            Button:
+                size_hint: 1, None
+                valign: 'bottom'
+                text: 'Close'
+                on_release: root.prv_chat_close_btn()
+                id: prv_chat_btn
+
+
+<SentPrivateMessage>
+    BoxLayout
+        orientation: 'horizontal'
+
+        Image
+            id: sent_pm_image
+
+        Label
+            id: sent_pm_text
+
+
+<ReceivedPrivateMessage>
+    BoxLayout
+        orientation: 'horizontal'
+
+        Image
+            id: received_pm_image
+
+        Label
+            id: received_pm_text
+
 
 <RightClickMenu>:
     char_select: char_select
@@ -416,3 +490,4 @@
     SettingsScreen:
         name: "settings"
         id: settings_screen
+
