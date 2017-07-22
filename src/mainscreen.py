@@ -528,9 +528,10 @@ class OOCWindow(TabbedPanel):
         irc = main_scr.manager.irc_connection
         pm = irc.get_pm()
         if pm is not None:
-            print(pm)
+            private_msg_box = BoxLayout(orientation='horizontal')
             lbl = Label(text=pm.msg)
-            self.chat.add_widget(lbl)
+            private_msg_box.add_widget(lbl)
+            self.chat.add_widget(private_msg_box)
 
     def mute_user(self, user, btn):
         if user in self.muted_users:

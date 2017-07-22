@@ -76,6 +76,7 @@ class PrivateMessage:
         self.receiver = receiver
         self.msg = msg
 
+
 class PrivateConversation:
     def __init__(self):
         self.user = None
@@ -138,7 +139,10 @@ class IrcConnection:
     def send_private_msg(self, receiver, sender, msg):
         pm = PrivateMessage(msg, sender, receiver)
         self.p_msg_q.private_messages.insert(0, pm)
+        if len(msg) > 480:  # controls the msg length so it doesn't crash
+            msg = (msg[:480] + '..')
         self.connection.privmsg(receiver, msg)
+
 
     def send_special(self, kind, value):
         kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#'}
