@@ -408,6 +408,15 @@ class PrivateMessageScreen(ModalView):
     def set_current_conversation(self, conversation):
         self.current_conversation = conversation
 
+    def get_conversation_for_user(self, user):
+        for c in self.conversations:
+            if c.user.username is user.username:
+                return c
+
+    def set_current_conversation_user(self, user):
+            conversation = self.get_conversation_for_user(user)
+            self.current_conversation = conversation
+
     def prv_chat_close_btn(self):
         self.dismiss()
 
@@ -447,6 +456,9 @@ class OOCWindow(TabbedPanel):
     effect_slider = ObjectProperty(None)
     url_input = ObjectProperty(None)
     loop_checkbox = ObjectProperty(None)
+    pm_body = ObjectProperty(None)
+    pm_text = ObjectProperty(None)
+    pm_icon = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
@@ -499,28 +511,29 @@ class OOCWindow(TabbedPanel):
 
     def add_user(self, user):
         char = user.get_char()
+        main_screen = self.parent.parent
         if char is None:
             char = ""
         else:
             char = char.name
-        user_box = BoxLayout(orientation='horizontal')
-        lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, height=30)
-        pm = Button(text="PM")
-        mute = Button(text='Mute')
-        pm.bind(on_press=lambda x: self.open_private_msg_screen(user))
-        mute.bind(on_press=lambda x: self.mute_user(user,mute))
-        self.user_list.add_widget(user_box)
-        user_box.add_widget(lbl)
-        if lbl.text is not "@ChanServ:" or "ChanServ:": # Find a way to avoid putting PM on ChanServ
-            print(lbl.text)
+        if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
+            user_box = BoxLayout(orientation='horizontal')
+            lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, height=30)
+            pm = Button(text="PM")
+            mute = Button(text='Mute')
+            pm.bind(on_press=lambda x: self.open_private_msg_screen(user))
+            mute.bind(on_press=lambda x: self.mute_user(user,mute))
+            self.user_list.add_widget(user_box)
+            user_box.add_widget(lbl)
             user_box.add_widget(pm)
             user_box.add_widget(mute)
-        self.online_users[user.username] = lbl
+            self.online_users[user.username] = lbl
 
     def open_private_msg_screen(self, user):
         self.chat.build_conversation(user)
         self.chat.irc = self.parent.parent.manager.irc_connection
         self.chat.user = self.parent.parent.user
+        self.chat.set_current_conversation_user(user)
         self.chat.open()
 
     def update_private_messages(self, *args):
@@ -529,7 +542,7 @@ class OOCWindow(TabbedPanel):
         pm = irc.get_pm()
         if pm is not None:
             private_msg_box = BoxLayout(orientation='horizontal')
-            lbl = Label(text=pm.msg)
+            lbl = Label(text=pm.msg, valign='top')
             private_msg_box.add_widget(lbl)
             self.chat.add_widget(private_msg_box)
 

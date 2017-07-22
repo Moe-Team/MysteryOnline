@@ -143,7 +143,6 @@ class IrcConnection:
             msg = (msg[:480] + '..')
         self.connection.privmsg(receiver, msg)
 
-
     def send_special(self, kind, value):
         kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#'}
         msg = kinds[kind] + value

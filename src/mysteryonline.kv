@@ -409,6 +409,23 @@
                 on_release: root.prv_chat_close_btn()
                 id: prv_chat_btn
 
+<PrivateMessage>
+
+    BoxLayout:
+        id: 'pm_body'
+        orientation: 'horizontal'
+        size_hint: 1, 0.2
+
+        Image:
+            id: 'pm_icon'
+            size_hint: 0.2, 1
+
+        Label:
+            id: 'pm_text'
+            text: ''
+            size_hint: 0.8, 1
+
+
 
 <RightClickMenu>:
     char_select: char_select
