@@ -54,6 +54,7 @@ class Icarus(EventDispatcher):
         for sub, ids in meta.items():
             if image_name in ids:
                 found = sub
+                ids_found = ids
         subfilename = join(d, found)
         Logger.debug('Atlas: Load <%s>' % subfilename)
 
@@ -64,7 +65,7 @@ class Icarus(EventDispatcher):
 
         # for all the uid, load the image, get the region, and put
         # it in our dict.
-        for meta_id, meta_coords in ids.items():
+        for meta_id, meta_coords in ids_found.items():
             x, y, w, h = meta_coords
             textures[meta_id] = atlas_texture.get_region(*meta_coords)
 

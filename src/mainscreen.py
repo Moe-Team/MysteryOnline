@@ -162,6 +162,7 @@ class Icon(Image):
         self.close_tooltip()  # close if it's opened
         if self.collide_point(*self.to_widget(*pos)):
             Clock.schedule_once(self.display_tooltip, 1)
+            self.parent.scheduled_icon = self
 
     def display_tooltip(self, *args):
         if len(Window.children) > 1:
@@ -180,7 +181,9 @@ class IconsLayout(ScrollView):
         self.g.bind(minimum_height=self.g.setter('height'))
         self.add_widget(self.g)
         self.current_icon = None
-        self.hover_popup = ModalView(size_hint=(None, None))
+        self.hover_popup = ModalView(size_hint=(None, None), background_color=[0, 0, 0, 0],
+                                     background='misc_img/transparent.png')
+        self.scheduled_icon = None
 
     def load_icons(self, icons):
         self.g.clear_widgets()
@@ -209,14 +212,23 @@ class IconsLayout(ScrollView):
         hover_x = self.right / Window.width
         hover_y = self.y / Window.height
         sprite_size = sprite_size[0] * 0.8, sprite_size[1] * 0.8
-        self.hover_popup.background = sprite
+        im = Image()
+        im.texture = sprite
+        im.size = sprite.size
+        self.hover_popup.add_widget(im)
         self.hover_popup.size = sprite_size
         self.hover_popup.pos_hint = {'x': hover_x, 'y': hover_y}
         self.hover_popup.open()
 
     def on_hover_out(self):
         if self.hover_popup.get_parent_window():
+            self.hover_popup.clear_widgets()
             self.hover_popup.dismiss(animation=False)
+
+    def on_scroll_start(self, *args):
+        super(IconsLayout, self).on_scroll_start(*args)
+        if self.scheduled_icon:
+            Clock.unschedule(self.scheduled_icon.display_tooltip)
 
 
 class SpritePreview(Image):
