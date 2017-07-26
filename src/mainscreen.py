@@ -396,6 +396,8 @@ class LogWindow(ScrollView):
 
 class PrivateMessageScreen(ModalView):
 
+    pm_body = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(PrivateMessageScreen, self).__init__(**kwargs)
         self.conversations = []
@@ -437,12 +439,19 @@ class PrivateMessageScreen(ModalView):
         btn.bind(on_press=lambda x: self.set_current_conversation(conversation))
         self.conversation_list.add_widget(btn)
 
+    def update_pms(self, username, msg):
+        self.pm_body.text += "{0}: {1}\n".format(username, msg)
+        self.pm_body.scroll_y = 0
+
     def send_pm(self):
         sender = self.user.username
         if self.current_conversation is not '':
             receiver = self.current_conversation.user.username
             self.irc.send_private_msg(receiver, sender, self.text_box.text)
+            self.update_pms(sender, self.text_box.text)
             self.text_box.text = ''
+
+
 
 
 class OOCWindow(TabbedPanel):
@@ -456,9 +465,6 @@ class OOCWindow(TabbedPanel):
     effect_slider = ObjectProperty(None)
     url_input = ObjectProperty(None)
     loop_checkbox = ObjectProperty(None)
-    pm_body = ObjectProperty(None)
-    pm_text = ObjectProperty(None)
-    pm_icon = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
@@ -527,24 +533,25 @@ class OOCWindow(TabbedPanel):
             user_box.add_widget(lbl)
             user_box.add_widget(pm)
             user_box.add_widget(mute)
-            self.online_users[user.username] = lbl
+            self.online_users[user.username] = user_box
 
     def open_private_msg_screen(self, user):
+        if self.chat.irc is None:
+            self.chat.irc = self.parent.parent.manager.irc_connection
         self.chat.build_conversation(user)
-        self.chat.irc = self.parent.parent.manager.irc_connection
         self.chat.user = self.parent.parent.user
         self.chat.set_current_conversation_user(user)
+        self.update_private_messages(self.chat)
         self.chat.open()
 
-    def update_private_messages(self, *args):
-        main_scr = self.parent.parent  # I will never forgive Kivy number: 9
+    def update_private_messages(self,  *args):
+        main_scr = self.parent.parent
         irc = main_scr.manager.irc_connection
         pm = irc.get_pm()
         if pm is not None:
-            private_msg_box = BoxLayout(orientation='horizontal')
-            lbl = Label(text=pm.msg, valign='top')
-            private_msg_box.add_widget(lbl)
-            self.chat.add_widget(private_msg_box)
+            username = main_scr.user.username
+            if username is not pm.sender:
+                self.chat.update_pms(pm.sender, pm.msg)
 
     def mute_user(self, user, btn):
         if user in self.muted_users:
