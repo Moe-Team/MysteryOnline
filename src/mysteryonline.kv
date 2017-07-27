@@ -139,7 +139,7 @@
         IconsLayout:
             id: icons_layout
             size_hint: None, None
-            size: 250, 300
+            size: 250, 360
             right: sprite_window.x - 20
             y: sprite_window.y
 
@@ -186,6 +186,22 @@
 
     TabbedPanelItem:
         text: "Other"
+
+
+<IconsLayout>:
+
+    BoxLayout:
+
+        size_hint: 1, None
+        height: 40
+
+        Button:
+            text: "<"
+            on_release: root.prev_page()
+
+        Button:
+            text: ">"
+            on_release: root.next_page()
 
 
 <OOCWindow>:

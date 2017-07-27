@@ -13,7 +13,7 @@ from kivy.uix.image import Image
 from kivy.uix.dropdown import DropDown
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.modalview import ModalView
-from kivy.properties import ObjectProperty, StringProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty
 from kivy.clock import Clock
 from kivy.utils import escape_markup
 
@@ -155,6 +155,8 @@ class Icon(Image):
             return True
 
     def on_mouse_pos(self, *args):
+        if not self.parent or not self.parent.parent:
+            return
         if not self.get_root_window():
             return
         pos = args[1]
@@ -173,23 +175,52 @@ class Icon(Image):
         self.parent.parent.on_hover_out()
 
 
-class IconsLayout(ScrollView):
+# noinspection PyTypeChecker
+class IconsLayout(BoxLayout):
+
+    current_page = NumericProperty(1)
 
     def __init__(self, **kwargs):
         super(IconsLayout, self).__init__(**kwargs)
-        self.g = GridLayout(cols=6, size_hint_y=None)
-        self.g.bind(minimum_height=self.g.setter('height'))
-        self.add_widget(self.g)
+        self.orientation = 'vertical'
+        self.grids = []
         self.current_icon = None
         self.hover_popup = ModalView(size_hint=(None, None), background_color=[0, 0, 0, 0],
                                      background='misc_img/transparent.png')
         self.scheduled_icon = None
+        self.max_pages = 0
+
+    def prev_page(self, *args):
+        if self.current_page > 1:
+            self.current_page -= 1
+
+    def next_page(self, *args):
+        if self.current_page < self.max_pages:
+            self.current_page += 1
+
+    def on_current_page(self, *args):
+        self.remove_widget(self.children[1])
+        grid_index = self.current_page - 1
+        self.add_widget(self.grids[grid_index], index=1)
 
     def load_icons(self, icons):
-        self.g.clear_widgets()
+        if len(self.children) > 1:
+            self.remove_widget(self.children[1])
+        for g in self.grids:
+            g.clear_widgets()
+        del self.grids[:]
+        counter = 0
+        g = None
         for i in sorted(icons.textures.keys()):
-            self.g.add_widget(Icon(i, icons[i]))
-        self.sprite_picked(self.g.children[-1])
+            if counter % 48 == 0:
+                g = GridLayout(cols=6)
+                self.grids.append(g)
+            g.add_widget(Icon(i, icons[i]))
+            counter += 1
+        self.max_pages = len(self.grids)
+        print(self.max_pages)
+        self.add_widget(self.grids[0], index=1)
+        self.sprite_picked(self.grids[0].children[-1])
 
     def sprite_picked(self, icon, sprite_name=None):
         if sprite_name is None:
@@ -701,7 +732,7 @@ class MainScreen(Screen):
         self.user.set_current_sprite(self.current_sprite)
         sprite = self.user.get_current_sprite()
         self.sprite_preview.set_sprite(sprite)
-        Clock.schedule_once(self.refocus_text, 0.1)
+        Clock.schedule_once(self.refocus_text, 0.2)
 
     def send_message(self, *args):
         msg = escape_markup(self.msg_input.text)
