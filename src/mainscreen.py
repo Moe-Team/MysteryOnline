@@ -409,6 +409,12 @@ class TextBox(Label):
         self.blip.volume = int(v) / 100
 
 
+class LogLabel(Label):
+
+    def __init__(self, **kwargs):
+        super(LogLabel, self).__init__(**kwargs)
+
+
 class LogWindow(ScrollView):
 
     log = ObjectProperty(None)
@@ -441,6 +447,12 @@ class LogWindow(ScrollView):
         pattern = re.compile(r'\[/?color.*?\]')
         msg = re.sub(pattern, '', msg)
         return msg
+
+    def reset_log(self):
+        self.clear_widgets()
+        self.log = LogLabel()
+        self.add_widget(self.log)
+        self.log.bind(on_ref_press=self.copy_text)
 
 
 class OOCWindow(TabbedPanel):
@@ -611,6 +623,14 @@ class OOCWindow(TabbedPanel):
 
     def on_loop(self, c, value):
         self.loop = value
+
+    def reset_music(self, *args):
+        if self.track is not None:
+            self.track.stop()
+
+    def reset_log(self, *args):
+        log_window = self.parent.parent.log_window
+        log_window.reset_log()
 
 
 class RightClickMenu(ModalView):

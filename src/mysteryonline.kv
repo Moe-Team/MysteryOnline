@@ -25,16 +25,18 @@
             text: "Settings"
             on_release: app.open_settings()
 
+<LogLabel>:
+    markup: True
+    text_size: self.width, None
+    size_hint_y: None
+    height: self.texture_size[1]
+
 
 <LogWindow>:
     log: log
 
-    Label:
+    LogLabel:
         id: log
-        markup: True
-        text_size: self.width, None
-        size_hint_y: None
-        height: self.texture_size[1]
 
 
 <SpriteWindow>:
@@ -333,6 +335,19 @@
                 CheckBox:
                     id: loop_checkbox
                     active: True
+
+            BoxLayout:
+
+                size_hint: 1, None
+                height: 40
+
+                Button:
+                    text: "Reset music"
+                    on_release: root.reset_music()
+
+                Button:
+                    text: "Reset log"
+                    on_release: root.reset_log()
 
 
 <TextBox>:
