@@ -167,11 +167,15 @@ class Icon(Image):
             self.parent.scheduled_icon = self
 
     def display_tooltip(self, *args):
+        if not self.parent or not self.parent.parent:
+            return
         if len(Window.children) > 1:
             return
         self.parent.parent.on_hover_in(self.name)
 
     def close_tooltip(self, *args):
+        if not self.parent or not self.parent.parent:
+            return
         self.parent.parent.on_hover_out()
 
 
@@ -189,6 +193,7 @@ class IconsLayout(BoxLayout):
                                      background='misc_img/transparent.png')
         self.scheduled_icon = None
         self.max_pages = 0
+        self.loading = False
 
     def prev_page(self, *args):
         if self.current_page > 1:
@@ -199,9 +204,10 @@ class IconsLayout(BoxLayout):
             self.current_page += 1
 
     def on_current_page(self, *args):
-        self.remove_widget(self.children[1])
-        grid_index = self.current_page - 1
-        self.add_widget(self.grids[grid_index], index=1)
+        if not self.loading:
+            self.remove_widget(self.children[1])
+            grid_index = self.current_page - 1
+            self.add_widget(self.grids[grid_index], index=1)
 
     def load_icons(self, icons):
         if len(self.children) > 1:
@@ -218,9 +224,11 @@ class IconsLayout(BoxLayout):
             g.add_widget(Icon(i, icons[i]))
             counter += 1
         self.max_pages = len(self.grids)
-        print(self.max_pages)
+        self.loading = True
+        self.current_page = 1
         self.add_widget(self.grids[0], index=1)
         self.sprite_picked(self.grids[0].children[-1])
+        self.loading = False
 
     def sprite_picked(self, icon, sprite_name=None):
         if sprite_name is None:
