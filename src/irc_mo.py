@@ -79,8 +79,8 @@ class PrivateMessage:
 
 class PrivateConversation:
     def __init__(self):
-        self.user = None
-        self.msgs = []
+        self.user = ''
+        self.msgs = ''
 
 
 class PrivateMessageQueue:
