@@ -443,14 +443,14 @@ class PrivateMessageScreen(ModalView):
         conversation = PrivateConversation()
         conversation.username = username
         self.conversations.append(conversation)
-        #number_of_conversations = len(self.conversations)
-        #btn = Button(text=username, pos=(self.conversation_list.height - number_of_conversations * 90, self.conversation_list.y), height=90)  # WHY WON'T YOU ADD ON THE TOP
-        btn = Button(text=username, size_hint_y=0, height=90)
+        btn = Button(text=username, size_hint_y=None, height=50, width=self.conversation_list.width)
         btn.bind(on_press=lambda x: self.open_conversation(conversation))
         self.conversation_list.add_widget(btn)
         self.current_conversation = conversation
 
     def update_conversation(self, sender, msg):
+        if 'www.' in msg or 'http://' in msg or 'https://' in msg:
+            msg = "[u]{}[/u]".format(msg)
         self.current_conversation.msgs += sender + ': ' + msg + '\n'
         self.update_pms()
 
@@ -466,7 +466,10 @@ class PrivateMessageScreen(ModalView):
         if self.current_conversation is not None:
             receiver = self.current_conversation.username
             self.irc.send_private_msg(receiver, sender, self.text_box.text)
-            self.current_conversation.msgs += sender + ': ' + self.text_box.text + '\n'
+            msg = self.text_box.text
+            if 'www.' in msg or 'http://' in msg or 'https://' in msg:
+                msg = "[u]{}[/u]".format(msg)
+            self.current_conversation.msgs += sender + ': ' + msg + '\n'
             self.pm_body.text = self.current_conversation.msgs
             self.text_box.text = ''
             self.pm_body.scroll_y = 0
@@ -545,11 +548,11 @@ class OOCWindow(TabbedPanel):
         else:
             char = char.name
         if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
-            user_box = BoxLayout(orientation='horizontal')
-            lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, height=30)
-            pm = Button(text="PM", height=30, width=50)
-            mute = Button(text='Mute', height=30, width=50)
-            pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username))
+            user_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
+            lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, size_hint_x=0.4, height=30)
+            pm = Button(text="PM", size_hint_x=0.3, size_hint_y=None, height=30)
+            mute = Button(text='Mute',size_hint_x=0.3, size_hint_y=None, height=30)
+            pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, pm))
             mute.bind(on_press=lambda x: self.mute_user(user, mute))
             self.user_list.add_widget(user_box)
             user_box.add_widget(lbl)
@@ -557,7 +560,8 @@ class OOCWindow(TabbedPanel):
             user_box.add_widget(mute)
             self.online_users[user.username] = user_box
 
-    def open_private_msg_screen(self, username):
+    def open_private_msg_screen(self, username, pm):
+        pm.background_color = (1, 1, 1, 1)
         self.chat.build_conversation(username)
         self.chat.set_current_conversation_user(username)
         self.chat.open()

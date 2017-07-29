@@ -231,10 +231,13 @@
     TabbedPanelItem:
         text: 'Online'
 
-        BoxLayout:
-            orientation: 'vertical'
-            halign: 'left'
-            id: user_list
+        ScrollView:
+            GridLayout:
+                size: 300, 300
+                cols: 1
+                spacing: 10
+                size_hint_y: None
+                id: user_list
 
 
     TabbedPanelItem:
@@ -361,6 +364,7 @@
 
 <PrivateMessageScreen>:
     pm_body: pm_body
+    prv_users_scroll: prv_users_scroll
     size_hint: 0.8, 0.8
 
     BoxLayout
@@ -393,21 +397,24 @@
         BoxLayout:
             size_hint: 0.2, 1
             orientation: 'vertical'
+            id: pm_user_box
 
             ScrollView:
                 valign: 'top'
-                size_hint: 1, 0.9
+                size_hint: 1, 0.8
+                size: pm_user_box.width, pm_user_box.height
                 title: 'User list'
                 id: prv_users_scroll
 
-                BoxLayout
-                    valign: 'top'
-                    size_hint: 1, 1
-                    orientation: 'vertical'
+                GridLayout:
+                    cols: 1
+                    spacing: 10
+                    size_hint_y: None
+                    size: pm_user_box.width, pm_user_box.height
                     id: prv_users_list
 
             Button:
-                size_hint: 1, None
+                size_hint: 1, 0.2
                 valign: 'bottom'
                 text: 'Close'
                 on_release: root.prv_chat_close_btn()
