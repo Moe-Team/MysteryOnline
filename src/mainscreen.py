@@ -432,7 +432,9 @@ class LogWindow(ScrollView):
 
     def add_entry(self, msg, username):
         self.log.text += "{0}: [ref={2}]{1}[/ref]\n".format(username, msg, self.remove_markup(msg))
-        self.scroll_y = 0
+        config = App.get_running_app().config
+        if config.getdefaultint('other', 'log_scrolling', 1):
+            self.scroll_y = 0
         now = datetime.now()
         cur_date = now.strftime("%d-%m-%Y")
         cur_time = now.strftime("%H:%M:%S")
@@ -553,7 +555,9 @@ class OOCWindow(TabbedPanel):
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
             msg = "[u]{}[/u]".format(msg)
         self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
-        self.ooc_chat.parent.scroll_y = 0
+        config = App.get_running_app().config
+        if config.getdefaultint('other', 'ooc_scrolling', 1):
+            self.ooc_chat.parent.scroll_y = 0
         now = datetime.now()
         cur_date = now.strftime("%d-%m-%Y")
         cur_time = now.strftime("%H:%M:%S")
@@ -593,7 +597,9 @@ class OOCWindow(TabbedPanel):
             main_screen = self.parent.parent
             main_screen.update_music(url)
             main_screen.log_window.log.text += "You changed the music.\n"
-            main_screen.log_window.log.scroll_y = 0
+            config = App.get_running_app().config
+            if config.getdefaultint('other', 'log_scrolling', 1):
+                main_screen.log_window.log.scroll_y = 0
 
         if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
             print("Probably not music m8.")
@@ -627,7 +633,9 @@ class OOCWindow(TabbedPanel):
                 if local:
                     main_screen.update_music("stop")
                     main_screen.log_window.log.text += "You stopped the music.\n"
-                    main_screen.log_window.log.scroll_y = 0
+                    config = App.get_running_app().config
+                    if config.getdefaultint('other', 'log_scrolling', 1):
+                        main_screen.log_window.log.scroll_y = 0
 
     def on_loop(self, c, value):
         self.loop = value
@@ -789,6 +797,7 @@ class MainScreen(Screen):
     def update_chat(self, dt):
         if self.text_box.is_displaying_msg:
             return
+        config = App.get_running_app().config
         msg = self.manager.irc_connection.get_msg()
         if msg is not None:
             if msg.identify() == 'chat':
@@ -818,11 +827,13 @@ class MainScreen(Screen):
                 dcd = msg.decode_other()
                 if dcd[0] == "stop":
                     self.log_window.log.text += "{} stopped the music.\n".format(dcd[1])
-                    self.log_window.log.scroll_y = 0
+                    if config.getdefaultint('other', 'log_scrolling', 1):
+                        self.log_window.log.scroll_y = 0
                     self.ooc_window.music_stop(False)
                 else:
                     self.log_window.log.text += "{} changed the music.\n".format(dcd[1])
-                    self.log_window.log.scroll_y = 0
+                    if config.getdefaultint('other', 'log_scrolling', 1):
+                        self.log_window.log.scroll_y = 0
                     self.ooc_window.on_music_play(dcd[0])
 
     def update_music(self, url):
@@ -844,14 +855,18 @@ class MainScreen(Screen):
             self.users[username] = User(username)
             self.ooc_window.add_user(self.users[username])
         self.log_window.log.text += "{} has joined.\n".format(username)
-        self.log_window.log.scroll_y = 0
+        config = App.get_running_app().config
+        if config.getdefaultint('other', 'log_scrolling', 1):
+            self.log_window.log.scroll_y = 0
         char = self.user.get_char()
         if char is not None:
             self.manager.irc_connection.send_special('char', char.name)
 
     def on_disconnect(self, username):
         self.log_window.log.text += "{} has disconnected.\n".format(username)
-        self.log_window.log.scroll_y = 0
+        config = App.get_running_app().config
+        if config.getdefaultint('other', 'log_scrolling', 1):
+            self.log_window.log.scroll_y = 0
         self.ooc_window.delete_user(username)
         self.users[username].remove()
         del self.users[username]
