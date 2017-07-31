@@ -51,6 +51,8 @@ class Icarus(EventDispatcher):
 
         d = dirname(filename)
         textures = {}
+        found = None
+        ids_found = None
         for sub, ids in meta.items():
             if image_name in ids:
                 found = sub

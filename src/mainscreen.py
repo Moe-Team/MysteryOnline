@@ -425,13 +425,29 @@ class LogLabel(Label):
 
 class LogWindow(ScrollView):
 
-    log = ObjectProperty(None)
+    grid_l = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(LogWindow, self).__init__(**kwargs)
+        self.log = LogLabel()
+        self.log.bind(on_ref_press=self.copy_text)
+        self.counter = 0
+
+    def ready(self):
+        self.grid_l.bind(minimum_height=self.grid_l.setter('height'))
+        self.grid_l.add_widget(self.log)
+
+    def add_special_entry(self, msg):
+        self.log.text += msg
 
     def add_entry(self, msg, username):
+        if self.counter == 100:
+            self.counter = 0
+            self.log = LogLabel()
+            self.grid_l.add_widget(self.log)
+            self.log.bind(on_ref_press=self.copy_text)
         self.log.text += "{0}: [ref={2}]{1}[/ref]\n".format(username, msg, self.remove_markup(msg))
+        self.counter += 1
         config = App.get_running_app().config
         if config.getdefaultint('other', 'log_scrolling', 1):
             self.scroll_y = 0
@@ -458,17 +474,16 @@ class LogWindow(ScrollView):
         msg = re.sub(pattern, '', msg)
         return msg
 
-    def reset_log(self):
-        self.clear_widgets()
-        self.log = LogLabel()
-        self.add_widget(self.log)
-        self.log.bind(on_ref_press=self.copy_text)
+
+class OOCLogLabel(Label):
+
+    def __init__(self, **kwargs):
+        super(OOCLogLabel, self).__init__(**kwargs)
 
 
 class OOCWindow(TabbedPanel):
 
     user_list = ObjectProperty(None)
-    ooc_chat = ObjectProperty(None)
     ooc_chat_header = ObjectProperty(None)
     ooc_input = ObjectProperty(None)
     blip_slider = ObjectProperty(None)
@@ -476,6 +491,7 @@ class OOCWindow(TabbedPanel):
     effect_slider = ObjectProperty(None)
     url_input = ObjectProperty(None)
     loop_checkbox = ObjectProperty(None)
+    chat_grid = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
@@ -484,8 +500,14 @@ class OOCWindow(TabbedPanel):
         self.loop = True
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
         self.ooc_play = True
+        self.ooc_chat = OOCLogLabel()
+        self.counter = 0
 
     def ready(self):
+        main_scr = self.parent.parent
+        self.chat_grid.bind(minimum_height=self.chat_grid.setter('height'))
+        self.ooc_chat.bind(on_ref_press=main_scr.log_window.copy_text)
+        self.chat_grid.add_widget(self.ooc_chat)
         config = App.get_running_app().config  # The main config
         config.add_callback(self.on_blip_volume_change, 'sound', 'blip_volume')
         self.blip_slider.value = config.getdefaultint('sound', 'blip_volume', 100)
@@ -554,10 +576,17 @@ class OOCWindow(TabbedPanel):
             sender = App.get_running_app().get_user().username
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
             msg = "[u]{}[/u]".format(msg)
+        if self.counter == 100:
+            self.counter = 0
+            self.ooc_chat = OOCLogLabel()
+            self.chat_grid.add_widget(self.ooc_chat)
+            main_scr = self.parent.parent
+            self.ooc_chat.bind(on_ref_press=main_scr.log_window.copy_text)
         self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
+        self.counter += 1
         config = App.get_running_app().config
         if config.getdefaultint('other', 'ooc_scrolling', 1):
-            self.ooc_chat.parent.scroll_y = 0
+            self.ooc_chat.parent.parent.scroll_y = 0
         now = datetime.now()
         cur_date = now.strftime("%d-%m-%Y")
         cur_time = now.strftime("%H:%M:%S")
@@ -644,10 +673,6 @@ class OOCWindow(TabbedPanel):
         if self.track is not None:
             self.track.stop()
 
-    def reset_log(self, *args):
-        log_window = self.parent.parent.log_window
-        log_window.reset_log()
-
 
 class RightClickMenu(ModalView):
 
@@ -725,12 +750,12 @@ class MainScreen(Screen):
     def on_ready(self, *args):
         """Called when mainscreen becomes active"""
         self.msg_input.readonly = True
-        self.log_window.log.bind(on_ref_press=self.log_window.copy_text)
         self.ooc_window.ooc_chat.bind(on_ref_press=self.log_window.copy_text)
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)
         self.ooc_window.add_user(self.user)
         self.ooc_window.ready()
+        self.log_window.ready()
 
         self.current_loc = locations['Hakuryou']
         self.toolbar.update_loc()
@@ -826,14 +851,14 @@ class MainScreen(Screen):
             elif msg.identify() == 'music':
                 dcd = msg.decode_other()
                 if dcd[0] == "stop":
-                    self.log_window.log.text += "{} stopped the music.\n".format(dcd[1])
+                    self.log_window.add_special_entry("{} stopped the music.\n".format(dcd[1]))
                     if config.getdefaultint('other', 'log_scrolling', 1):
-                        self.log_window.log.scroll_y = 0
+                        self.log_window.scroll_y = 0
                     self.ooc_window.music_stop(False)
                 else:
-                    self.log_window.log.text += "{} changed the music.\n".format(dcd[1])
+                    self.log_window.add_special_entry("{} changed the music.\n".format(dcd[1]))
                     if config.getdefaultint('other', 'log_scrolling', 1):
-                        self.log_window.log.scroll_y = 0
+                        self.log_window.scroll_y = 0
                     self.ooc_window.on_music_play(dcd[0])
 
     def update_music(self, url):
@@ -854,19 +879,19 @@ class MainScreen(Screen):
         if username not in self.users:
             self.users[username] = User(username)
             self.ooc_window.add_user(self.users[username])
-        self.log_window.log.text += "{} has joined.\n".format(username)
+        self.log_window.add_special_entry("{} has joined.\n".format(username))
         config = App.get_running_app().config
         if config.getdefaultint('other', 'log_scrolling', 1):
-            self.log_window.log.scroll_y = 0
+            self.log_window.scroll_y = 0
         char = self.user.get_char()
         if char is not None:
             self.manager.irc_connection.send_special('char', char.name)
 
     def on_disconnect(self, username):
-        self.log_window.log.text += "{} has disconnected.\n".format(username)
+        self.log_window.add_special_entry("{} has disconnected.\n".format(username))
         config = App.get_running_app().config
         if config.getdefaultint('other', 'log_scrolling', 1):
-            self.log_window.log.scroll_y = 0
+            self.log_window.scroll_y = 0
         self.ooc_window.delete_user(username)
         self.users[username].remove()
         del self.users[username]

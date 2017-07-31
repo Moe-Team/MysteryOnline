@@ -33,10 +33,13 @@
 
 
 <LogWindow>:
-    log: log
+    grid_l: grid_l
 
-    LogLabel:
-        id: log
+    GridLayout:
+        id: grid_l
+        cols: 1
+        size_hint_y: None
+        size: root.size
 
 
 <SpriteWindow>:
@@ -206,10 +209,19 @@
             on_release: root.next_page()
 
 
+<OOCLogLabel>:
+    halign: 'left'
+    valign: 'top'
+    font_size: 16
+    text_size: self.width, None
+    size_hint_y: None
+    height: self.texture_size[1]
+    markup: True
+
+
 <OOCWindow>:
 
     user_list: user_list
-    ooc_chat: ooc_chat
     ooc_chat_header: ooc_chat_header
     ooc_input: ooc_input
     blip_slider: blip_slider
@@ -217,6 +229,7 @@
     effect_slider: effect_slider
     url_input: url_input
     loop_checkbox: loop_checkbox
+    chat_grid: chat_grid
 
     do_default_tab: False
     tab_width: 60
@@ -229,15 +242,11 @@
             orientation: 'vertical'
 
             ScrollView:
-                Label:
-                    id: ooc_chat
-                    halign: 'left'
-                    valign: 'top'
-                    font_size: 16
-                    text_size: self.width, None
+
+                GridLayout:
+                    id: chat_grid
+                    cols: 1
                     size_hint_y: None
-                    height: self.texture_size[1]
-                    markup: True
 
             TextInput:
                 id: ooc_input
@@ -344,10 +353,6 @@
                 Button:
                     text: "Reset music"
                     on_release: root.reset_music()
-
-                Button:
-                    text: "Reset log"
-                    on_release: root.reset_log()
 
 
 <TextBox>:
