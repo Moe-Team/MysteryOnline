@@ -73,7 +73,9 @@ class MysteryOnlineApp(App):
             'effect_volume': 100
         })
         config.setdefaults('other', {
-            'ooc_notif_delay': 60
+            'ooc_notif_delay': 60,
+            'log_scrolling': 1,
+            'ooc_scrolling': 1
         })
 
     def build_settings(self, settings):
