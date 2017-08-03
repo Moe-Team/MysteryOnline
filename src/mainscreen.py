@@ -21,6 +21,8 @@ from character import characters
 from user import User
 from location import locations
 from character_select import CharacterSelect
+from irc_mo import PrivateConversation
+from irc_mo import PrivateMessage
 
 import re
 import webbrowser
@@ -392,6 +394,88 @@ class LogWindow(ScrollView):
         return msg
 
 
+class PrivateMessageScreen(ModalView):
+
+    pm_body = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(PrivateMessageScreen, self).__init__(**kwargs)
+        self.conversations = []
+        self.irc = None
+        self.username = ''
+        self.current_conversation = None
+        self.conversation_list = getattr(self.ids, 'prv_users_list')
+        self.text_box = getattr(self.ids, 'pm_input')
+
+    def set_current_conversation(self, conversation):
+        self.current_conversation = conversation
+
+    def open_conversation(self, conversation):
+        self.set_current_conversation(conversation)
+        self.update_pms()
+
+    def get_conversation_for_user(self, username):
+        if len(self.conversations) is 0:
+            self.build_conversation(username)
+            return self.get_conversation_for_user(username)
+        else:
+            for c in self.conversations:
+                if c.username == username:
+                    return c
+
+    def set_current_conversation_user(self, username):
+            conversation = self.get_conversation_for_user(username)
+            self.current_conversation = conversation
+
+    def prv_chat_close_btn(self):
+        self.dismiss()
+
+    def build_conversation(self, username):
+        is_init = False
+        if username is not self.username:
+            for c in self.conversations:
+                if username == c.username:
+                    is_init = True
+            if not is_init:
+                self.add_conversation(username)
+
+    def add_conversation(self, username):
+        conversation = PrivateConversation()
+        conversation.username = username
+        self.conversations.append(conversation)
+        btn = Button(text=username, size_hint_y=None, height=50, width=self.conversation_list.width)
+        btn.bind(on_press=lambda x: self.open_conversation(conversation))
+        self.conversation_list.add_widget(btn)
+        self.current_conversation = conversation
+
+    def update_conversation(self, sender, msg):
+        if 'www.' in msg or 'http://' in msg or 'https://' in msg:
+            msg = "[u]{}[/u]".format(msg)
+        self.current_conversation.msgs += sender + ': ' + msg + '\n'
+        self.update_pms()
+
+    def update_pms(self):
+        self.pm_body.text = self.current_conversation.msgs
+        self.pm_body.scroll_y = 0
+
+    def refocus_text(self, *args):
+        self.text_box.focus = True
+
+    def send_pm(self):
+        sender = self.username
+        if self.current_conversation is not None:
+            receiver = self.current_conversation.username
+            self.irc.send_private_msg(receiver, sender, self.text_box.text)
+            msg = self.text_box.text
+            if 'www.' in msg or 'http://' in msg or 'https://' in msg:
+                msg = "[u]{}[/u]".format(msg)
+            self.current_conversation.msgs += sender + ': ' + msg + '\n'
+            self.pm_body.text = self.current_conversation.msgs
+            self.text_box.text = ''
+            self.pm_body.scroll_y = 0
+            Clock.schedule_once(self.refocus_text, 0.1)
+
+
 class OOCWindow(TabbedPanel):
 
     user_list = ObjectProperty(None)
@@ -411,6 +495,8 @@ class OOCWindow(TabbedPanel):
         self.loop = True
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
         self.ooc_play = True
+        self.chat = PrivateMessageScreen()
+        self.muted_users = []
 
     def ready(self):
         config = App.get_running_app().config  # The main config
@@ -422,6 +508,10 @@ class OOCWindow(TabbedPanel):
         self.effect_slider.value = config.getdefaultint('sound', 'effect_volume', 100)
         self.loop_checkbox.bind(active=self.on_loop)
         self.ooc_chat_header.bind(on_press=self.on_ooc_checked)
+        if self.chat.irc is None:
+            self.chat.irc = self.parent.parent.manager.irc_connection
+        self.chat.username = self.parent.parent.user.username
+        Clock.schedule_interval(self.update_private_messages, 1.0 / 60.0)
 
     def on_blip_volume_change(self, s, k, v):
         self.blip_slider.value = v
@@ -452,13 +542,47 @@ class OOCWindow(TabbedPanel):
 
     def add_user(self, user):
         char = user.get_char()
+        main_screen = self.parent.parent
         if char is None:
             char = ""
         else:
             char = char.name
-        lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, height=30)
-        self.user_list.add_widget(lbl)
-        self.online_users[user.username] = lbl
+        if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
+            user_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
+            lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, size_hint_x=0.4, height=30)
+            pm = Button(text="PM", size_hint_x=0.3, size_hint_y=None, height=30)
+            mute = Button(text='Mute',size_hint_x=0.3, size_hint_y=None, height=30)
+            pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, pm))
+            mute.bind(on_press=lambda x: self.mute_user(user, mute))
+            self.user_list.add_widget(user_box)
+            user_box.add_widget(lbl)
+            user_box.add_widget(pm)
+            user_box.add_widget(mute)
+            self.online_users[user.username] = user_box
+
+    def open_private_msg_screen(self, username, pm):
+        pm.background_color = (1, 1, 1, 1)
+        self.chat.build_conversation(username)
+        self.chat.set_current_conversation_user(username)
+        self.chat.open()
+
+    def update_private_messages(self,  *args):
+        main_scr = self.parent.parent
+        irc = main_scr.manager.irc_connection
+        pm = irc.get_pm()
+        if pm is not None:
+            if pm.sender != self.chat.username:
+                self.chat.build_conversation(pm.sender)
+                self.chat.set_current_conversation_user(pm.sender)
+                self.chat.update_conversation(pm.sender, pm.msg)
+
+    def mute_user(self, user, btn):
+        if user in self.muted_users:
+            self.muted_users.remove(user)
+            btn.text = 'Mute'
+        else:
+            self.muted_users.append(user)
+            btn.text = 'Unmute'
 
     def update_char(self, char, username):
         try:
@@ -717,7 +841,7 @@ class MainScreen(Screen):
                         return
                     user.set_from_msg(*dcd)
                 loc = dcd[1]
-                if loc == self.current_loc.name:
+                if loc == self.current_loc.name and user not in self.ooc_window.muted_users:
                     self.sprite_window.set_subloc(user.get_subloc())
                     self.sprite_window.set_sprite(user)
                     col = self.user.color_ids[int(dcd[6])]

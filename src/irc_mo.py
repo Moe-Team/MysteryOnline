@@ -70,6 +70,36 @@ class MessageQueue:
         return len(self.messages)
 
 
+class PrivateMessage:
+    def __init__(self, msg, sender="default", receiver="default"):
+        self.sender = sender
+        self.receiver = receiver
+        self.msg = msg
+
+
+class PrivateConversation:
+    def __init__(self):
+        self.user = ''
+        self.msgs = ''
+
+
+class PrivateMessageQueue:
+    """Standard First-In-First-Out queue for irc messages.
+    """
+    def __init__(self):
+        self.private_messages = []
+
+    def enqueue(self, msg, sender):
+        message = PrivateMessage(msg, sender, "no")
+        self.private_messages.insert(0, message)
+
+    def dequeue(self):
+        try:
+            return self.private_messages.pop()
+        except IndexError:
+            return None
+
+
 class IrcConnection:
 
     def __init__(self, server, port, channel, username):
@@ -78,6 +108,7 @@ class IrcConnection:
         self.channel = channel
         self._joined = False
         self.msg_q = MessageQueue()
+        self.p_msg_q = PrivateMessageQueue()
         self.on_join_handler = None
         self.on_users_handler = None
         self.on_disconnect_handler = None
@@ -88,12 +119,15 @@ class IrcConnection:
             print("Something went wrong m8")
             raise
 
-        events = ["welcome", "join", "quit", "pubmsg", "nicknameinuse", "namreply", "privnotice"]
+        events = ["welcome", "join", "quit", "pubmsg", "nicknameinuse", "namreply", "privnotice", "privmsg"]
         for e in events:
             self.connection.add_global_handler(e, getattr(self, "on_" + e))
 
     def get_msg(self):
         return self.msg_q.dequeue()
+
+    def get_pm(self):
+        return self.p_msg_q.dequeue()
 
     def send_msg(self, msg, *args):
         args = tuple(args)
@@ -101,6 +135,13 @@ class IrcConnection:
         message.encode(*args)
         self.msg_q.messages.insert(0, message)
         self.connection.privmsg(self.channel, message.msg)
+
+    def send_private_msg(self, receiver, sender, msg):
+        pm = PrivateMessage(msg, sender, receiver)
+        self.p_msg_q.private_messages.insert(0, pm)
+        if len(msg) > 480:  # controls the msg length so it doesn't crash
+            msg = (msg[:480] + '..')
+        self.connection.privmsg(receiver, msg)
 
     def send_special(self, kind, value):
         kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#'}
@@ -152,3 +193,7 @@ class IrcConnection:
             App.get_running_app().get_user().username = text_inp.text
         temp_pop.bind(on_dismiss=temp_handler)
         temp_pop.open()
+
+    def on_privmsg(self, c, e):
+        msg = e.arguments[0]
+        self.p_msg_q.enqueue(msg, e.source.nick)
