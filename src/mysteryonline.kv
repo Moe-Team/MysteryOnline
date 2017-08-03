@@ -406,11 +406,12 @@
 
 
 <PrivateMessageScreen>:
-    pm_body: pm_body
     prv_users_scroll: prv_users_scroll
+    pm_body: pm_body
     size_hint: 0.8, 0.8
+    padding: 10, 10
 
-    BoxLayout
+    BoxLayout:
         orientation: 'horizontal'
 
         BoxLayout:
@@ -426,16 +427,12 @@
                     size_hint_y: None
                     height: self.texture_size[1]
 
-            BoxLayout:
-                orientation: 'vertical'
+            TextInput:
                 id: pm_input
-
-                TextInput:
-                    id: pm_input
-                    on_text_validate: root.send_pm()
-                    multiline: False
-                    height: 30
-                    size_hint: 1, None
+                on_text_validate: root.send_pm()
+                multiline: False
+                height: 30
+                size_hint: 1, None
 
         BoxLayout:
             size_hint: 0.2, 1

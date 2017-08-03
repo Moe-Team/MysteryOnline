@@ -464,6 +464,10 @@ class PrivateMessageScreen(ModalView):
         self.conversation_list = getattr(self.ids, 'prv_users_list')
         self.text_box = getattr(self.ids, 'pm_input')
 
+    def ready(self):
+        main_scr = App.get_running_app().get_main_screen()
+        self.pm_body.bind(on_ref_press=main_scr.log_window.copy_text)
+
     def set_current_conversation(self, conversation):
         self.current_conversation = conversation
 
@@ -508,12 +512,12 @@ class PrivateMessageScreen(ModalView):
     def update_conversation(self, sender, msg):
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
             msg = "[u]{}[/u]".format(msg)
-        self.current_conversation.msgs += sender + ': ' + msg + '\n'
+        self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
         self.update_pms()
 
     def update_pms(self):
         self.pm_body.text = self.current_conversation.msgs
-        self.pm_body.scroll_y = 0
+        self.pm_body.parent.scroll_y = 0
 
     def refocus_text(self, *args):
         self.text_box.focus = True
@@ -526,10 +530,10 @@ class PrivateMessageScreen(ModalView):
             msg = self.text_box.text
             if 'www.' in msg or 'http://' in msg or 'https://' in msg:
                 msg = "[u]{}[/u]".format(msg)
-            self.current_conversation.msgs += sender + ': ' + msg + '\n'
+            self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
             self.pm_body.text = self.current_conversation.msgs
             self.text_box.text = ''
-            self.pm_body.scroll_y = 0
+            self.pm_body.parent.scroll_y = 0
             Clock.schedule_once(self.refocus_text, 0.1)
 
 
@@ -575,6 +579,7 @@ class OOCWindow(TabbedPanel):
         self.effect_slider.value = config.getdefaultint('sound', 'effect_volume', 100)
         self.loop_checkbox.bind(active=self.on_loop)
         self.ooc_chat_header.bind(on_press=self.on_ooc_checked)
+        self.chat.ready()
         if self.chat.irc is None:
             self.chat.irc = self.parent.parent.manager.irc_connection
         self.chat.username = self.parent.parent.user.username
@@ -658,7 +663,10 @@ class OOCWindow(TabbedPanel):
             pass
 
     def delete_user(self, username):
-        label = self.online_users[username]
+        try:
+            label = self.online_users[username]
+        except KeyError:
+            return
         self.user_list.remove_widget(label)
         del self.online_users[username]
 
@@ -982,8 +990,11 @@ class MainScreen(Screen):
         if config.getdefaultint('other', 'log_scrolling', 1):
             self.log_window.scroll_y = 0
         self.ooc_window.delete_user(username)
-        self.users[username].remove()
-        del self.users[username]
+        try:
+            self.users[username].remove()
+            del self.users[username]
+        except KeyError:
+            pass
 
     def on_join_users(self, users):
         users = users.split()
