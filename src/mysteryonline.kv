@@ -109,13 +109,14 @@
             pos: sprite_window.x, sprite_window.y
             font_size: 20
             text_size: self.size
-            color: 1, 1, 1, 1
             halign: 'left'
             valign: 'top'
-            canvas:
+            padding: 10, 10
+            canvas.before:
                 Color:
-                    rgba: 0.3, 0.3, 0.3, 0.2
+                    rgba: 1, 1, 1, 0.6
                 Rectangle:
+                    source: "misc_img\\TextBox.png"
                     pos: self.pos
                     size: self.size
 
@@ -367,10 +368,12 @@
         halign: 'left'
         valign: 'top'
         font_size: 20
-        canvas:
+        padding: 2, 2
+        canvas.before:
             Color:
-                rgba: 0.4, 0.4, 0.4, 0.4
+                rgba: 1, 1, 1, 0.6
             Rectangle:
+                source: "misc_img\\BoxChar.png"
                 pos: self.pos
                 size: self.size
 
