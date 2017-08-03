@@ -14,7 +14,7 @@ class User:
         self.prev_subloc = None
         self.color = 'ffffff' # Default color for text
         self.colored = None # True for a color selected
-        self.color_ids = ['ffffff', 'ff3333', '0000ff', 'ffd700', '00cd00', 'rainbow'] # Color code for text
+        self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow'] # Color code for text
 
     def set_from_msg(self, *args):
         args = list(args)
@@ -35,7 +35,7 @@ class User:
         if col == 'red':
             self.color = 'ff3333'
         elif col == 'blue':
-            self.color = '0000ff'
+            self.color = '00adfc'
         elif col == 'golden':
             self.color = 'ffd700'
         elif col == 'green':

@@ -364,7 +364,7 @@ class TextBox(Label):
                 msg_array = list(self.msg)
                 self.msg = ''
                 why_wont_you_let_me_do_this_in_a_single_function_python_pls = len(msg_array)
-                color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '0000ff', '4b0082', 'ee82ee']
+                color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '00adfc', '8b6fba', 'ee82ee']
                 y = 0
                 for x in range(why_wont_you_let_me_do_this_in_a_single_function_python_pls):
                     if y == 7:
