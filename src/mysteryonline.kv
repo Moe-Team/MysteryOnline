@@ -102,7 +102,7 @@
             id: sprite_window
             size_hint: None, None
             size: 800, 600
-            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            pos_hint: {'center_x': 0.5, 'center_y': 0.52}
 
         TextBox:
             id: text_box
@@ -145,14 +145,14 @@
             size_hint: None, None
             size: 250, 330
             x: log_window.x
-            top: log_window.y
+            top: log_window.y -5
 
         IconsLayout:
             id: icons_layout
             size_hint: None, None
             size: 250, 360
             right: sprite_window.x - 20
-            y: sprite_window.y
+            y: sprite_window.y -65
 
         LeftTab:
             id: left_tab
