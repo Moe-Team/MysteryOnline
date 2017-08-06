@@ -86,7 +86,6 @@
 
 <MainScreen>:
     icons_layout: icons_layout
-    sprite_preview: sprite_preview
     sprite_window: sprite_window
     msg_input: msg_input
     toolbar: toolbar
@@ -94,7 +93,6 @@
     log_window: log_window
     ooc_window: ooc_window
     left_tab: left_tab
-    sprite_settings: sprite_settings
 
     FloatLayout:
 
@@ -161,24 +159,6 @@
             size_hint: None, None
             size: 800 / 3, 340
 
-            TabbedPanelItem:
-                text: "Preview"
-
-                BoxLayout:
-                    size: left_tab.size
-                    pos: left_tab.pos
-                    orientation: 'vertical'
-
-                    SpritePreview:
-                        id: sprite_preview
-                        size_hint: None, None
-                        size: 800 / 3, 600 / 3
-
-                    SpriteSettings:
-                        id: sprite_settings
-                        ize_hint: None, None
-                        size: 800 / 3, 140
-
         Toolbar:
             id: toolbar
             size_hint: None, None
@@ -187,16 +167,42 @@
 
 
 <SpriteSettings>:
+    check_flip_h: check_flip_h
     orientation: 'vertical'
+
+    CheckBox:
+        id: check_flip_h
+
+    Label:
+        text: "Flip horizontally"
 
 
 <LeftTab>:
+    sprite_preview: sprite_preview
+    sprite_settings: sprite_settings
     do_default_tab: False
     tab_width: 60
 
     TabbedPanelItem:
-        text: "Other"
+        text: "Preview"
 
+        BoxLayout:
+            size: root.size
+            pos: root.pos
+            orientation: 'vertical'
+
+            SpritePreview:
+                id: sprite_preview
+                size_hint: None, None
+                size: 800 / 3, 600 / 3
+
+            SpriteSettings:
+                id: sprite_settings
+                size_hint: None, None
+                size: 800 / 3, 140
+
+    TabbedPanelItem:
+        text: "Other"
 
 <IconsLayout>:
 

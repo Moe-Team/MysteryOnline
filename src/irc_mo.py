@@ -22,11 +22,11 @@ class Message:
     def __repr__(self):
         return str(self.msg)
 
-    def encode(self, loc, subloc, char, sprite, pos, col_id):
-        self.msg = "{}#{}#{}#{}#{}#{}#{}".format(loc, subloc, char, sprite, pos, col_id, self.msg)
+    def encode(self, loc, subloc, char, sprite, pos, col_id, sprite_option):
+        self.msg = "{}#{}#{}#{}#{}#{}#{}#{}".format(loc, subloc, char, sprite, pos, col_id, sprite_option, self.msg)
 
     def decode(self):
-        res = self.msg.split("#", 6)
+        res = self.msg.split("#", 7)
         res.insert(0, self.sender)
         return tuple(res)
 
@@ -36,7 +36,7 @@ class Message:
         return res[1], res[2]
 
     def identify(self):
-        if self.msg.count('#') >= 6:
+        if self.msg.count('#') >= 7:
             return 'chat'
         if self.msg.startswith('c#'):
             return 'char'
@@ -44,6 +44,8 @@ class Message:
             return 'OOC'
         if self.msg.startswith('m#'):
             return 'music'
+
+        return None
 
 
 class MessageQueue:

@@ -29,21 +29,49 @@ from datetime import datetime
 
 
 class SpriteSettings(BoxLayout):
+    check_flip_h = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(SpriteSettings, self).__init__(**kwargs)
-        self.functions = {"flip": self.flip_sprite}
+        self.functions = {"flip_h": self.flip_sprite}
         self.activated = []
+        self.flipped = []
 
-    def apply_post_processing(self, sprite, settings=None):
+    def ready(self):
+        self.check_flip_h.bind(active=self.on_check_flip_h)
+
+    def apply_post_processing(self, sprite, setting):
+        if setting == 0:
+            if sprite not in self.flipped:
+                self.flip_sprite(sprite)
+                self.flipped.append(sprite)
+        else:
+            if sprite in self.flipped:
+                self.flip_sprite(sprite)
+                self.flipped.remove(sprite)
         return sprite
 
     def flip_sprite(self, sprite):
-        return sprite.flip_horizontal()
+        sprite.flip_horizontal()
+
+    def on_check_flip_h(self, c, value):
+        main_scr = App.get_running_app().get_main_screen()
+        if value == 1:
+            main_scr.current_sprite_option = 0
+        else:
+            main_scr.current_sprite_option = -1
 
 
 class LeftTab(TabbedPanel):
+    sprite_preview = ObjectProperty(None)
+    sprite_settings = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(LeftTab, self).__init__(**kwargs)
+
+    def ready(self, main_scr):
+        main_scr.sprite_preview = self.sprite_preview
+        main_scr.sprite_settings = self.sprite_settings
 
 
 class Toolbar(BoxLayout):
@@ -232,7 +260,7 @@ class IconsLayout(BoxLayout):
         main_scr = self.parent.parent
         char = main_scr.user.get_char()
         sprite = char.get_sprite(sprite_name, True)
-        sprite_size = char.get_sprite(sprite_name).size
+        sprite_size = sprite.size
         # Can't use absolute position so it uses a workaround
         hover_x = self.right / Window.width
         hover_y = self.y / Window.height
@@ -266,6 +294,7 @@ class SpritePreview(Image):
         self.texture = sub.get_img().texture
 
     def set_sprite(self, sprite):
+        self.center_sprite.texture = None
         self.center_sprite.texture = sprite
         self.center_sprite.opacity = 1
         self.center_sprite.size = (self.center_sprite.texture.width / 3,
@@ -298,7 +327,11 @@ class SpriteWindow(Widget):
     def display_sub(self, subloc):
         if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
+            option = subloc.get_c_user().get_sprite_option()
+            main_scr = self.parent.parent
+            sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
+                self.center_sprite.texture = None
                 self.center_sprite.texture = sprite
                 self.center_sprite.opacity = 1
                 self.center_sprite.size = self.center_sprite.texture.size
@@ -307,7 +340,11 @@ class SpriteWindow(Widget):
             self.center_sprite.opacity = 0
         if subloc.l_users:
             sprite = subloc.get_l_user().get_current_sprite()
+            option = subloc.get_l_user().get_sprite_option()
+            main_scr = self.parent.parent
+            sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
+                self.left_sprite.texture = None
                 self.left_sprite.texture = sprite
                 self.left_sprite.opacity = 1
                 self.left_sprite.size = self.left_sprite.texture.size
@@ -316,7 +353,11 @@ class SpriteWindow(Widget):
             self.left_sprite.opacity = 0
         if subloc.r_users:
             sprite = subloc.get_r_user().get_current_sprite()
+            option = subloc.get_r_user().get_sprite_option()
+            main_scr = self.parent.parent
+            sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
+                self.right_sprite.texture = None
                 self.right_sprite.texture = sprite
                 self.right_sprite.opacity = 1
                 self.right_sprite.size = self.right_sprite.texture.size
@@ -818,6 +859,7 @@ class MainScreen(Screen):
     current_loc = ObjectProperty(None)
     current_subloc = StringProperty("")
     current_pos = StringProperty("center")
+    current_sprite_option = NumericProperty(-1)
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
@@ -854,8 +896,10 @@ class MainScreen(Screen):
         self.msg_input.bind(on_text_validate=self.send_message)
         Clock.schedule_once(self.refocus_text)
         self.ooc_window.add_user(self.user)
+        self.left_tab.ready(self)
         self.ooc_window.ready()
         self.log_window.ready()
+        self.sprite_settings.ready()
         self.current_loc = locations['Hakuryou']
         self.toolbar.update_loc()
         char = self.user.get_char()
@@ -891,8 +935,15 @@ class MainScreen(Screen):
         # Called when user picks new sprite
         self.user.set_current_sprite(self.current_sprite)
         sprite = self.user.get_current_sprite()
+        sprite = self.sprite_settings.apply_post_processing(sprite, self.current_sprite_option)
         self.sprite_preview.set_sprite(sprite)
         Clock.schedule_once(self.refocus_text, 0.2)
+
+    def on_current_sprite_option(self, *args):
+        self.user.set_sprite_option(self.current_sprite_option)
+        sprite = self.user.get_current_sprite()
+        sprite = self.sprite_settings.apply_post_processing(sprite, self.current_sprite_option)
+        self.sprite_preview.set_sprite(sprite)
 
     def send_message(self, *args):
         msg = escape_markup(self.msg_input.text)
@@ -909,8 +960,9 @@ class MainScreen(Screen):
         self.msg_input.text = ""
         loc = user.get_loc().name
         char = user.get_char().name
+        sprite_option = user.get_sprite_option()
         self.manager.irc_connection.send_msg(msg, loc, self.current_subloc, char,
-                                             self.current_sprite, self.current_pos, col_id)
+                                             self.current_sprite, self.current_pos, col_id, sprite_option)
 
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
@@ -934,10 +986,12 @@ class MainScreen(Screen):
                     user.set_from_msg(*dcd)
                 loc = dcd[1]
                 if loc == self.current_loc.name and user not in self.ooc_window.muted_users:
+                    option = int(dcd[7])
+                    user.set_sprite_option(option)
                     self.sprite_window.set_subloc(user.get_subloc())
                     self.sprite_window.set_sprite(user)
                     col = self.user.color_ids[int(dcd[6])]
-                    self.text_box.display_text(dcd[7], user, col, self.user.username)
+                    self.text_box.display_text(dcd[8], user, col, self.user.username)
 
             elif msg.identify() == 'char':
                 dcd = msg.decode_other()

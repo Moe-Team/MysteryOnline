@@ -15,6 +15,7 @@ class User:
         self.color = 'ffffff' # Default color for text
         self.colored = None # True for a color selected
         self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow'] # Color code for text
+        self.sprite_option = -1
 
     def set_from_msg(self, *args):
         args = list(args)
@@ -80,6 +81,9 @@ class User:
                     self.subloc.remove_c_user(self)
         self.pos = pos
 
+    def set_sprite_option(self, option):
+        self.sprite_option = option
+
     def get_char(self):
         return self.character
 
@@ -91,6 +95,9 @@ class User:
 
     def get_pos(self):
         return self.pos
+
+    def get_sprite_option(self):
+        return self.sprite_option
 
     def remove(self):
         if self.pos is None or self.subloc is None:
