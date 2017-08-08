@@ -77,6 +77,9 @@ class MysteryOnlineApp(App):
             'log_scrolling': 1,
             'ooc_scrolling': 1
         })
+        config.setdefaults('other', {
+            'last_username': 'TestingMO'
+        })
 
     def build_settings(self, settings):
         settings.add_json_panel('Display', self.config, 'settings.json')

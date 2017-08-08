@@ -7,11 +7,15 @@
         size: 300, 150
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
+        Label:
+            text: "Username"
+            font_size: 20
+
         TextInput:
             id: username_input
             on_text_validate: root.on_login_clicked()
             multiline: False
-            text: "TestingMO"
+            text: app.config.get('other', 'last_username')
 
         Button:
             text: "Log in"
@@ -323,6 +327,11 @@
 
         BoxLayout:
             orientation: 'vertical'
+
+            Label:
+                text: "Music URL"
+                size_hint: 1, None
+                height: 40
 
             TextInput:
                 id: url_input

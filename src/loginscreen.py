@@ -28,6 +28,8 @@ class LoginScreen(Screen):
                 popup.open()
                 return
 
+            config = App.get_running_app().config
+            config.set('other', 'last_username', self.username)
             user = User(self.username)
             if self.picked_char is not None:
                 user.set_char(self.picked_char)
