@@ -75,10 +75,10 @@ class MysteryOnlineApp(App):
         config.setdefaults('other', {
             'ooc_notif_delay': 60,
             'log_scrolling': 1,
-            'ooc_scrolling': 1
-        })
-        config.setdefaults('other', {
-            'last_username': 'TestingMO'
+            'ooc_scrolling': 1,
+            'last_username': 'YourUsernameHere',
+            'textbox_speed': 60,
+            'textbox_transparency': 60
         })
 
     def build_settings(self, settings):

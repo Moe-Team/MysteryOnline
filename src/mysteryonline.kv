@@ -111,22 +111,6 @@
             size_hint: None, None
             size: 800, 170
             pos: sprite_window.x, sprite_window.y
-            font_size: 20
-            text_size: self.size
-            halign: 'left'
-            valign: 'top'
-            outline_color: [0, 0, 0]
-            outline_width: 2
-            padding: 10, 10
-            canvas.before:
-
-                Color:
-                    rgba: 1, 1, 1, 0.6
-
-                Rectangle:
-                    source: "misc_img\\TextBox.png"
-                    pos: self.pos
-                    size: self.size
 
         TextInput:
             id: msg_input
@@ -185,6 +169,8 @@
 <LeftTab>:
     sprite_preview: sprite_preview
     sprite_settings: sprite_settings
+    trans_slider: trans_slider
+    speed_slider: speed_slider
     do_default_tab: False
     tab_width: 60
 
@@ -208,6 +194,29 @@
 
     TabbedPanelItem:
         text: "Other"
+
+        BoxLayout:
+            size: root.size
+            pos: root.pos
+            orientation: 'vertical'
+
+            Label:
+                text: "Textbox transparency"
+
+            Slider:
+                id: trans_slider
+                min: 0
+                max: 100
+                on_value: root.on_trans_slider_value()
+
+            Label:
+                text: "Textbox speed"
+
+            Slider:
+                id: speed_slider
+                min: 0
+                max: 100
+                on_value: root.on_speed_slider_value()
 
 <IconsLayout>:
 
@@ -378,6 +387,13 @@
 
 <TextBox>:
     char_name: char_name
+    font_size: 20
+    text_size: self.size
+    halign: 'left'
+    valign: 'top'
+    outline_color: [0, 0, 0]
+    outline_width: 2
+    padding: 10, 10
 
     Label:
         id: char_name
@@ -391,15 +407,6 @@
         outline_color: [0, 0, 0]
         outline_width: 2
         padding: 2, 2
-        canvas.before:
-
-            Color:
-                rgba: 1, 1, 1, 0.6
-
-            Rectangle:
-                source: "misc_img\\BoxChar.png"
-                pos: self.pos
-                size: self.size
 
 
 <SpritePreview>:

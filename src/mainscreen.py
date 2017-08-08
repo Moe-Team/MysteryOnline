@@ -14,6 +14,7 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.modalview import ModalView
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty
+from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
 from kivy.utils import escape_markup
 from character import characters
@@ -65,6 +66,8 @@ class SpriteSettings(BoxLayout):
 class LeftTab(TabbedPanel):
     sprite_preview = ObjectProperty(None)
     sprite_settings = ObjectProperty(None)
+    trans_slider = ObjectProperty(None)
+    speed_slider = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(LeftTab, self).__init__(**kwargs)
@@ -72,6 +75,16 @@ class LeftTab(TabbedPanel):
     def ready(self, main_scr):
         main_scr.sprite_preview = self.sprite_preview
         main_scr.sprite_settings = self.sprite_settings
+        config = App.get_running_app().config
+        self.trans_slider.value = config.getdefaultint('other', 'textbox_transparency', 60)
+
+    def on_trans_slider_value(self, *args):
+        config = App.get_running_app().config
+        value = int(self.trans_slider.value)
+        config.set('other', 'textbox_transparency', value)
+
+    def on_speed_slider_value(self, *args):
+        pass
 
 
 class Toolbar(BoxLayout):
@@ -379,7 +392,31 @@ class TextBox(Label):
         self.blip = SoundLoader.load('sounds/general/blip.wav')
         config = App.get_running_app().config  # The main config
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
+        config.add_callback(self.on_trans_change, 'other', 'textbox_transparency')
         self.blip.volume = config.getdefaultint('sound', 'blip_volume', 100) / 100
+        self.char_name_color = None
+        self.char_name_rect = None
+        with self.canvas.before:
+            self.textbox_color = Color(rgba=[1, 1, 1, 0.6])
+            self.textbox_rect = Rectangle(size=self.size, pos=self.pos, source="misc_img\\TextBox.png")
+        Clock.schedule_once(self.update_ui, 0)
+        self.bind(pos=self.update_rect, size=self.update_rect)
+
+    def update_ui(self, dt):
+        with self.char_name.canvas.before:
+            self.char_name_color = Color(rgba=[1, 1, 1, 0.6])
+            self.char_name_rect = Rectangle(size=self.size, pos=self.pos, source="misc_img\\BoxChar.png")
+
+    def update_rect(self, *args):
+        self.textbox_rect.pos = self.pos
+        if self.char_name_rect is not None:
+            self.char_name_rect.pos = self.char_name.pos
+            self.char_name_rect.size = self.char_name.size
+        self.textbox_rect.size = self.size
+
+    def on_trans_change(self, s, k, v):
+        self.textbox_color.rgba = [1, 1, 1, v/100]
+        self.char_name_color.rgba = [1, 1, 1, v/100]
 
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
