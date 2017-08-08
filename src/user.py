@@ -12,9 +12,9 @@ class User:
         self.pos = "center"
         self.current_sprite = None
         self.prev_subloc = None
-        self.color = 'ffffff' # Default color for text
-        self.colored = None # True for a color selected
-        self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow'] # Color code for text
+        self.color = 'ffffff'  # Default color for text
+        self.colored = None  # True for a color selected
+        self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow']  # Color code for text
         self.sprite_option = -1
 
     def set_from_msg(self, *args):
