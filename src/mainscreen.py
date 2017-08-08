@@ -77,6 +77,7 @@ class LeftTab(TabbedPanel):
         main_scr.sprite_settings = self.sprite_settings
         config = App.get_running_app().config
         self.trans_slider.value = config.getdefaultint('other', 'textbox_transparency', 60)
+        self.speed_slider.value = config.getdefaultint('other', 'textbox_speed', 60)
 
     def on_trans_slider_value(self, *args):
         config = App.get_running_app().config
@@ -84,7 +85,9 @@ class LeftTab(TabbedPanel):
         config.set('other', 'textbox_transparency', value)
 
     def on_speed_slider_value(self, *args):
-        pass
+        config = App.get_running_app().config
+        value = int(self.speed_slider.value)
+        config.set('other', 'textbox_speed', value)
 
 
 class Toolbar(BoxLayout):
@@ -434,7 +437,9 @@ class TextBox(Label):
 
         if user.color == 'ffffff':
             self.gen = text_gen(self.msg)
-            Clock.schedule_interval(self._animate, 1.0 / 60.0)
+            config = App.get_running_app().config
+            speed = config.getdefaultint('other', 'textbox_speed', 60)
+            Clock.schedule_interval(self._animate, 1.0 / speed)
         else:
             if user.color != 'rainbow':
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
