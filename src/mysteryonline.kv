@@ -150,14 +150,14 @@
             size_hint: None, None
             size: 250, 360
             right: sprite_window.x - 20
-            y: sprite_window.y -65
+            y: sprite_window.y -30
 
         LeftTab:
             id: left_tab
             y: icons_layout.top + 5
             x: icons_layout.x
             size_hint: None, None
-            size: 800 / 3, 340
+            size: 800 / 3, 300
 
         Toolbar:
             id: toolbar
@@ -168,13 +168,14 @@
 
 <SpriteSettings>:
     check_flip_h: check_flip_h
-    orientation: 'vertical'
+    orientation: 'horizontal'
+
+    Label:
+        text: "Flip horizontally"
 
     CheckBox:
         id: check_flip_h
 
-    Label:
-        text: "Flip horizontally"
 
 
 <LeftTab>:
@@ -199,7 +200,7 @@
             SpriteSettings:
                 id: sprite_settings
                 size_hint: None, None
-                size: 800 / 3, 140
+                size: 800 / 3, 60
 
     TabbedPanelItem:
         text: "Other"
