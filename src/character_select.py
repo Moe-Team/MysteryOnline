@@ -33,7 +33,7 @@ class CharacterSelect(Popup):
         self.picked_char = None
         grids = {}
         for s in series_list:
-            self.main_lay.add_widget(Label(text=s, size_hint=(1, None)))
+            self.main_lay.add_widget(Label(text=s, size_hint=(1.2, None)))
             grids[s] = GridLayout(cols=7, size_hint=(1, None))
             self.main_lay.add_widget(grids[s])
 
