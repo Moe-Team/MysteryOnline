@@ -4,7 +4,6 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.properties import ObjectProperty
-from kivy.graphics import Color, Rectangle
 from character import characters, series_list
 from math import ceil
 
@@ -33,15 +32,17 @@ class CharacterSelect(Popup):
         self.picked_char = None
         grids = {}
         for s in series_list:
-            self.main_lay.add_widget(Label(text=s, size_hint=(1.2, None)))
-            grids[s] = GridLayout(cols=7, size_hint=(1, None))
+            temp = list(filter(lambda x: x.series == s, characters.values()))
+            mod = ceil(len(temp) / 7)
+            self.main_lay.add_widget(Label(text=s, size_hint=(1, None), height=40))
+            grids[s] = GridLayout(cols=7, size_hint=(1, None), height=60*mod)
             self.main_lay.add_widget(grids[s])
 
         for g in grids:
             chars = list(filter(lambda x: x.series == g, characters.values()))
             chars = sorted(chars, key=lambda x: x.name)
             for c in chars:
-                btn = CharacterToggle(c, group='char', size_hint=(1, None), height=60)
+                btn = CharacterToggle(c, group='char')
                 btn.bind(on_press=self.character_chosen)
                 grids[g].add_widget(btn)
         ok_btn = Button(text="OK", size_hint=(1, None), height=40, pos_hint={'y': 0, 'x': 0})
