@@ -169,6 +169,7 @@ class Toolbar(BoxLayout):
             user.colored = True
         else:
             user.colored = False
+        main_scr.refocus_text()
 
 
 class Icon(Image):
