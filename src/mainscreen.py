@@ -986,6 +986,7 @@ class MainScreen(Screen):
         sprite = self.user.get_current_sprite()
         sprite = self.sprite_settings.apply_post_processing(sprite, self.current_sprite_option)
         self.sprite_preview.set_sprite(sprite)
+        Clock.schedule_once(self.refocus_text, 0.2)
 
     def send_message(self, *args):
         msg = escape_markup(self.msg_input.text)
