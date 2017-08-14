@@ -10,6 +10,8 @@
         Label:
             text: "Username"
             font_size: 20
+            outline_color: 0, 0, 0
+            outline_width: 2
 
         TextInput:
             id: username_input
@@ -39,6 +41,12 @@
 
 <LogWindow>:
     grid_l: grid_l
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
     GridLayout:
         id: grid_l
@@ -535,10 +543,20 @@
     LoginScreen:
         name: "login"
         id: login_screen
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "misc_img\\loginBG.jpg"
 
     MainScreen:
         name: "main"
         id: main_screen
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "misc_img\\background.jpg"
 
     SettingsScreen:
         name: "settings"

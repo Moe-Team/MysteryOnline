@@ -57,6 +57,8 @@ class Icarus(EventDispatcher):
             if image_name in ids:
                 found = sub
                 ids_found = ids
+        if found is None:
+            print(image_name, " not found")
         subfilename = join(d, found)
         Logger.debug('Atlas: Load <%s>' % subfilename)
 
