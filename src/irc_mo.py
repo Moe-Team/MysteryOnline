@@ -153,6 +153,9 @@ class IrcConnection:
             message = Message(msg)
             self.msg_q.messages.insert(0, message)
 
+    def send_mode(self, username, msg):
+        self.connection.mode(username, msg)
+
     def is_connected(self):
         return self._joined
 

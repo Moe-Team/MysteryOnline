@@ -43,6 +43,8 @@ class MainScreenManager(ScreenManager):
         self.popup_.open()
 
     def on_connected(self, *args):
+        username = App.get_running_app().get_user().username
+        self.irc_connection.send_mode(username, "-R")
         self.popup_.dismiss()
         del self.popup_
         self.current = "main"
