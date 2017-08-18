@@ -643,9 +643,11 @@ class OOCWindow(TabbedPanel):
         self.track = None
         self.loop = True
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
+        self.pm_notif = SoundLoader.load('sounds/general/codeccall.wav')
         self.ooc_play = True
         self.chat = PrivateMessageScreen()
         self.muted_users = []
+        self.pm_buttons = []
         self.ooc_chat = OOCLogLabel()
         self.counter = 0
 
@@ -706,7 +708,8 @@ class OOCWindow(TabbedPanel):
         if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
             user_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
             lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, size_hint_x=0.4, height=30)
-            pm = Button(text="PM", size_hint_x=0.3, size_hint_y=None, height=30)
+            pm = Button(text="PM", id=user.username, size_hint_x=0.3, size_hint_y=None, height=30)
+            self.pm_buttons.append(pm)
             mute = Button(text='Mute', size_hint_x=0.3, size_hint_y=None, height=30)
             pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, pm))
             mute.bind(on_press=lambda x: self.mute_user(user, mute))
@@ -722,15 +725,27 @@ class OOCWindow(TabbedPanel):
         self.chat.set_current_conversation_user(username)
         self.chat.open()
 
+    def muted_sender(self, pm, muted_users):
+        for x in range(len(muted_users)):
+            if pm.sender == muted_users[x].username:
+                return True
+        return False
+
     def update_private_messages(self, *args):
         main_scr = self.parent.parent
         irc = main_scr.manager.irc_connection
         pm = irc.get_pm()
         if pm is not None:
             if pm.sender != self.chat.username:
-                self.chat.build_conversation(pm.sender)
-                self.chat.set_current_conversation_user(pm.sender)
-                self.chat.update_conversation(pm.sender, pm.msg)
+                    if not self.muted_sender(pm, self.muted_users):
+                        self.chat.build_conversation(pm.sender)
+                        self.chat.set_current_conversation_user(pm.sender)
+                        self.chat.update_conversation(pm.sender, pm.msg)
+                        self.pm_notif.play()
+                        for x in range(len(self.online_users)):
+                            if pm.sender == self.pm_buttons[x].id:
+                                self.pm_buttons[x].background_color = (1.0, 0.0, 0.0, 1.0)
+                                break
 
     def mute_user(self, user, btn):
         if user in self.muted_users:
