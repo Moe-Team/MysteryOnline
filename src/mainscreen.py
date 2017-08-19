@@ -547,6 +547,7 @@ class PrivateMessageScreen(ModalView):
         self.current_conversation = None
         self.conversation_list = getattr(self.ids, 'prv_users_list')
         self.text_box = getattr(self.ids, 'pm_input')
+        self.pm_close_sound = SoundLoader.load('sounds/general/codecover.wav')
 
     def ready(self):
         main_scr = App.get_running_app().get_main_screen()
@@ -572,7 +573,12 @@ class PrivateMessageScreen(ModalView):
         conversation = self.get_conversation_for_user(username)
         self.current_conversation = conversation
 
-    def prv_chat_close_btn(self):
+    def prv_chat_close_btn(self):  # HELLO I AM A GIANT COMMENT LINE HELLO I AM A GIANT COMMENT LINE
+        main_scr = App.get_running_app().get_main_screen()
+        pm_flag = main_scr.ooc_window.pm_flag
+        if pm_flag:
+            self.pm_close_sound.play()
+        main_scr.ooc_window.pm_window_open_flag = False
         self.dismiss()
 
     def build_conversation(self, username):
@@ -644,10 +650,13 @@ class OOCWindow(TabbedPanel):
         self.loop = True
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
         self.pm_notif = SoundLoader.load('sounds/general/codeccall.wav')
+        self.pm_open_sound = SoundLoader.load('sounds/general/codecopen.wav')
         self.ooc_play = True
         self.chat = PrivateMessageScreen()
         self.muted_users = []
         self.pm_buttons = []
+        self.pm_flag = False
+        self.pm_window_open_flag = False
         self.ooc_chat = OOCLogLabel()
         self.counter = 0
 
@@ -719,33 +728,40 @@ class OOCWindow(TabbedPanel):
             user_box.add_widget(mute)
             self.online_users[user.username] = user_box
 
-    def open_private_msg_screen(self, username, pm):
+    def open_private_msg_screen(self, username, pm):  # Opens the PM window
+        self.pm_window_open_flag = True
         pm.background_color = (1, 1, 1, 1)
         self.chat.build_conversation(username)
         self.chat.set_current_conversation_user(username)
         self.chat.open()
+        if self.pm_flag:
+            self.pm_flag = False
+            self.pm_open_sound.play()
 
-    def muted_sender(self, pm, muted_users):
+    def muted_sender(self, pm, muted_users):  # Checks whether a user is muted
         for x in range(len(muted_users)):
             if pm.sender == muted_users[x].username:
                 return True
         return False
 
-    def update_private_messages(self, *args):
+    def update_private_messages(self, *args):  # Acts on arrival of PMs
         main_scr = self.parent.parent
         irc = main_scr.manager.irc_connection
         pm = irc.get_pm()
         if pm is not None:
             if pm.sender != self.chat.username:
                     if not self.muted_sender(pm, self.muted_users):
+                        if not self.pm_window_open_flag:
+                            for x in range(len(self.online_users)):
+                                if pm.sender == self.pm_buttons[x].id:
+                                    self.pm_buttons[x].background_color = (1, 0, 0, 1)
+                                    break
+                            if not self.pm_flag:
+                                self.pm_notif.play()
+                        self.pm_flag = True
                         self.chat.build_conversation(pm.sender)
                         self.chat.set_current_conversation_user(pm.sender)
                         self.chat.update_conversation(pm.sender, pm.msg)
-                        self.pm_notif.play()
-                        for x in range(len(self.online_users)):
-                            if pm.sender == self.pm_buttons[x].id:
-                                self.pm_buttons[x].background_color = (1.0, 0.0, 0.0, 1.0)
-                                break
 
     def mute_user(self, user, btn):
         if user in self.muted_users:
