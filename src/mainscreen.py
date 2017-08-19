@@ -573,12 +573,8 @@ class PrivateMessageScreen(ModalView):
         conversation = self.get_conversation_for_user(username)
         self.current_conversation = conversation
 
-    def prv_chat_close_btn(self):  # HELLO I AM A GIANT COMMENT LINE HELLO I AM A GIANT COMMENT LINE
-        main_scr = App.get_running_app().get_main_screen()
-        pm_flag = main_scr.ooc_window.pm_flag
-        if pm_flag:
-            self.pm_close_sound.play()
-        main_scr.ooc_window.pm_window_open_flag = False
+    def prv_chat_close_btn(self):
+        self.pm_close_sound.play()
         self.dismiss()
 
     def build_conversation(self, username):
@@ -734,9 +730,7 @@ class OOCWindow(TabbedPanel):
         self.chat.build_conversation(username)
         self.chat.set_current_conversation_user(username)
         self.chat.open()
-        if self.pm_flag:
-            self.pm_flag = False
-            self.pm_open_sound.play()
+        self.pm_open_sound.play()
 
     def muted_sender(self, pm, muted_users):  # Checks whether a user is muted
         for x in range(len(muted_users)):
