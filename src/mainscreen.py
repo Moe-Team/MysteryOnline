@@ -1045,7 +1045,7 @@ class MainScreen(Screen):
                 dcd = msg.decode_other()
                 user = dcd[1]
                 loc = dcd[0]
-                self.log_window.add_special_entry("{} moved to {}".format(user, loc))
+                self.log_window.add_special_entry("{} moved to {}. \n".format(user, loc))
                 user = self.users.get(user, None)
                 if user is None:
                     return
