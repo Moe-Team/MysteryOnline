@@ -172,6 +172,36 @@ class Toolbar(BoxLayout):
         main_scr.refocus_text()
 
 
+class Tooltip(ModalView):
+
+    def __init__(self, **kwargs):
+        super(Tooltip, self).__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouse_pos)
+
+    def on_mouse_pos(self, *args):
+        if not self.parent or not self.parent.parent:
+            return
+        if not self.get_root_window():
+            return
+        pos = args[1]
+        Clock.unschedule(self.display_tooltip)  # cancel scheduled event since I moved the cursor
+        self.close_tooltip()  # close if it's opened
+        if self.collide_point(*self.to_widget(*pos)):
+            Clock.schedule_once(self.display_tooltip, 1)
+
+    def display_tooltip(self, *args):
+        if not self.parent or not self.parent.parent:
+            return
+        if len(Window.children) > 1:
+            return
+        self.open()
+
+    def close_tooltip(self, *args):
+        if not self.parent or not self.parent.parent:
+            return
+        self.dismiss()
+
+
 class Icon(Image):
     def __init__(self, name, ic, **kwargs):
         super(Icon, self).__init__(**kwargs)
