@@ -964,6 +964,7 @@ class MainScreen(Screen):
         subloc = self.current_loc.get_first_sub()
         self.current_subloc = subloc
         self.toolbar.update_sub(self.current_loc)
+        self.manager.irc_connection.send_special('loc', self.current_loc.name)
 
     def on_current_subloc(self, *args):
         # Called when the current sublocation changes
@@ -1040,6 +1041,15 @@ class MainScreen(Screen):
             elif msg.identify() == 'char':
                 dcd = msg.decode_other()
                 self.update_char(*dcd)
+            elif msg.identify() == 'loc':
+                dcd = msg.decode_other()
+                user = dcd[1]
+                loc = dcd[0]
+                self.log_window.add_special_entry("{} moved to {}".format(user, loc))
+                user = self.users.get(user, None)
+                if user is None:
+                    return
+                user.set_loc(loc, True)
             elif msg.identify() == 'OOC':
                 dcd = msg.decode_other()
                 self.ooc_window.update_ooc(*dcd)

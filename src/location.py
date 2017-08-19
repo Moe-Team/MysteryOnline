@@ -36,13 +36,16 @@ class SubLocation:
         return self.r_users[-1]
 
     def remove_c_user(self, user):
-        self.c_users.remove(user)
+        if user in self.c_users:
+            self.c_users.remove(user)
 
     def remove_l_user(self, user):
-        self.l_users.remove(user)
+        if user in self.l_users:
+            self.l_users.remove(user)
 
     def remove_r_user(self, user):
-        self.r_users.remove(user)
+        if user in self.r_users:
+            self.r_users.remove(user)
 
 
 class Location:

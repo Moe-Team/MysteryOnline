@@ -55,7 +55,9 @@ class User:
     def set_char(self, char):
         self.character = char
 
-    def set_loc(self, loc):
+    def set_loc(self, loc, from_string=False):
+        if from_string:
+            self.location = locations[loc]
         self.location = loc
 
     def set_subloc(self, subloc):

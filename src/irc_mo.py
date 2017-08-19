@@ -44,6 +44,8 @@ class Message:
             return 'OOC'
         if self.msg.startswith('m#'):
             return 'music'
+        if self.msg.startswith('l#'):
+            return 'loc'
 
         return None
 
@@ -146,7 +148,7 @@ class IrcConnection:
         self.connection.privmsg(receiver, msg)
 
     def send_special(self, kind, value):
-        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#'}
+        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#'}
         msg = kinds[kind] + value
         self.connection.privmsg(self.channel, msg)
         if kind == 'OOC':
