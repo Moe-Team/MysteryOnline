@@ -187,7 +187,7 @@ class Tooltip(ModalView):
         Clock.unschedule(self.display_tooltip)  # cancel scheduled event since I moved the cursor
         self.close_tooltip()  # close if it's opened
         if self.collide_point(*self.to_widget(*pos)):
-            Clock.schedule_once(self.display_tooltip, 1)
+            Clock.schedule_once(self.display_tooltip, 0.4)
 
     def display_tooltip(self, *args):
         if not self.parent or not self.parent.parent:
@@ -225,7 +225,7 @@ class Icon(Image):
         Clock.unschedule(self.display_tooltip)  # cancel scheduled event since I moved the cursor
         self.close_tooltip()  # close if it's opened
         if self.collide_point(*self.to_widget(*pos)):
-            Clock.schedule_once(self.display_tooltip, 1)
+            Clock.schedule_once(self.display_tooltip, 0.4)
             self.parent.scheduled_icon = self
 
     def display_tooltip(self, *args):
