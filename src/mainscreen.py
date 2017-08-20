@@ -172,11 +172,11 @@ class Toolbar(BoxLayout):
         main_scr.refocus_text()
 
 
-class Tooltip(ModalView):
+class TooltipBehavior:
 
     def __init__(self, **kwargs):
-        super(Tooltip, self).__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_pos)
+        self.popup = ModalView()
 
     def on_mouse_pos(self, *args):
         if not self.parent or not self.parent.parent:
@@ -194,12 +194,20 @@ class Tooltip(ModalView):
             return
         if len(Window.children) > 1:
             return
-        self.open()
+        x, y = self.to_window(self.x, self.y)
+        menu_x = x / Window.width
+        menu_y = y / Window.height
+        if y >= self.popup.height:
+            loc_y = 'top'
+        else:
+            loc_y = 'y'
+        self.popup.pos_hint = {'x': menu_x, loc_y: menu_y}
+        self.popup.open()
 
     def close_tooltip(self, *args):
         if not self.parent or not self.parent.parent:
             return
-        self.dismiss()
+        self.popup.dismiss()
 
 
 class Icon(Image):
@@ -656,6 +664,20 @@ class OOCLogLabel(Label):
         super(OOCLogLabel, self).__init__(**kwargs)
 
 
+class UserBox(BoxLayout, TooltipBehavior):
+
+    def __init__(self, **kwargs):
+        super(UserBox, self).__init__(**kwargs)
+        self.lbl = Label(size_hint_y=None, size_hint_x=0.4, height=30)
+        self.pm = Button(text="PM", size_hint_x=0.3, size_hint_y=None, height=30)
+        self.mute = Button(text='Mute', size_hint_x=0.3, size_hint_y=None, height=30)
+        self.add_widget(self.lbl)
+        self.add_widget(self.pm)
+        self.add_widget(self.mute)
+        self.popup.size_hint = None, None
+        self.popup.size = 100, 30
+
+
 class OOCWindow(TabbedPanel):
     user_list = ObjectProperty(None)
     ooc_chat_header = ObjectProperty(None)
@@ -734,16 +756,11 @@ class OOCWindow(TabbedPanel):
         else:
             char = char.name
         if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
-            user_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-            lbl = Label(text="{}: {}\n".format(user.username, char), size_hint_y=None, size_hint_x=0.4, height=30)
-            pm = Button(text="PM", size_hint_x=0.3, size_hint_y=None, height=30)
-            mute = Button(text='Mute', size_hint_x=0.3, size_hint_y=None, height=30)
-            pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, pm))
-            mute.bind(on_press=lambda x: self.mute_user(user, mute))
+            user_box = UserBox(orientation='horizontal', size_hint_y=None, height=40)
+            user_box.lbl.text = "{}: {}\n".format(user.username, char)
+            user_box.pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, user_box.pm))
+            user_box.mute.bind(on_press=lambda x: self.mute_user(user, user_box.mute))
             self.user_list.add_widget(user_box)
-            user_box.add_widget(lbl)
-            user_box.add_widget(pm)
-            user_box.add_widget(mute)
             self.online_users[user.username] = user_box
 
     def open_private_msg_screen(self, username, pm):
