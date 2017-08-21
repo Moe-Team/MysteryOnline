@@ -675,7 +675,13 @@ class UserBox(BoxLayout, TooltipBehavior):
         self.add_widget(self.pm)
         self.add_widget(self.mute)
         self.popup.size_hint = None, None
-        self.popup.size = 100, 30
+        self.popup.size = 100, 70
+        self.box_lay = BoxLayout(orientation='vertical')
+        self.popup.add_widget(self.box_lay)
+        self.popup_sub_lbl = Label()
+        self.popup_loc_lbl = Label()
+        self.box_lay.add_widget(self.popup_loc_lbl)
+        self.box_lay.add_widget(self.popup_sub_lbl)
 
 
 class OOCWindow(TabbedPanel):
@@ -762,6 +768,18 @@ class OOCWindow(TabbedPanel):
             user_box.mute.bind(on_press=lambda x: self.mute_user(user, user_box.mute))
             self.user_list.add_widget(user_box)
             self.online_users[user.username] = user_box
+
+    def update_loc(self, username, loc):
+        user_box = self.online_users.get(username, None)
+        if user_box is None:
+            return
+        user_box.popup_loc_lbl.text = loc
+
+    def update_subloc(self, username, subloc):
+        user_box = self.online_users.get(username, None)
+        if user_box is None:
+            return
+        user_box.popup_sub_lbl.text = subloc
 
     def open_private_msg_screen(self, username, pm):
         pm.background_color = (1, 1, 1, 1)
@@ -1084,6 +1102,7 @@ class MainScreen(Screen):
                     self.sprite_window.set_sprite(user)
                     col = self.user.color_ids[int(dcd[6])]
                     self.text_box.display_text(dcd[8], user, col, self.user.username)
+                    self.ooc_window.update_subloc(user.username, user.subloc.name)
 
             elif msg.identify() == 'char':
                 dcd = msg.decode_other()
@@ -1097,6 +1116,7 @@ class MainScreen(Screen):
                 if user is None:
                     return
                 user.set_loc(loc, True)
+                self.ooc_window.update_loc(user.username, loc)
             elif msg.identify() == 'OOC':
                 dcd = msg.decode_other()
                 self.ooc_window.update_ooc(*dcd)
