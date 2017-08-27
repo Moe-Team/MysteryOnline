@@ -57,9 +57,7 @@
 
 <SpriteWindow>:
     background: background
-    center_sprite: center_s
-    left_sprite: left_s
-    right_sprite: right_s
+    sprite_layout: sprite_layout
 
     Image:
         id: background
@@ -71,29 +69,9 @@
             pos: root.pos
 
             FloatLayout:
+                id: sprite_layout
                 size: root.size
                 pos: root.pos
-
-                Image:
-                    id: center_s
-                    opacity: 0
-                    size_hint: None, None
-                    size: 600, 600
-                    pos_hint: {'center_x': 0.5, 'y': 0}
-
-                Image:
-                    id: left_s
-                    opacity: 0
-                    size_hint: None, None
-                    size: 600, 600
-                    pos_hint: {'center_x': 0.25, 'y': 0}
-
-                Image:
-                    id: right_s
-                    opacity: 0
-                    size_hint: None, None
-                    size: 600, 600
-                    pos_hint: {'center_x': 0.75, 'y': 0}
 
 
 <MainScreen>:

@@ -173,7 +173,6 @@ class Toolbar(BoxLayout):
 
 
 class TooltipBehavior:
-
     def __init__(self, **kwargs):
         Window.bind(mouse_pos=self.on_mouse_pos)
         self.popup = ModalView()
@@ -358,22 +357,37 @@ class SpritePreview(Image):
 
 class SpriteWindow(Widget):
     background = ObjectProperty(None)
-    center_sprite = ObjectProperty(None)
-    left_sprite = ObjectProperty(None)
-    right_sprite = ObjectProperty(None)
+    sprite_layout = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(SpriteWindow, self).__init__(**kwargs)
+        self.center_sprite = Image(opacity=0, size_hint=(None, None), size=(600, 600),
+                                   pos_hint={'center_x': 0.5, 'y': 0})
+        self.left_sprite = Image(opacity=0, size_hint=(None, None), size=(600, 600),
+                                 pos_hint={'center_x': 0.25, 'y': 0})
+        self.right_sprite = Image(opacity=0, size_hint=(None, None), size=(600, 600),
+                                  pos_hint={'center_x': 0.75, 'y': 0})
 
     def set_sprite(self, user):
         subloc = user.get_subloc()
         pos = user.get_pos()
+        self.sprite_layout.clear_widgets()
         if pos == 'right':
+            self.sprite_layout.add_widget(self.center_sprite, index=2)
+            self.sprite_layout.add_widget(self.right_sprite, index=0)
+            self.sprite_layout.add_widget(self.left_sprite, index=1)
             subloc.add_r_user(user)
         elif pos == 'left':
+            self.sprite_layout.add_widget(self.center_sprite, index=1)
+            self.sprite_layout.add_widget(self.right_sprite, index=2)
+            self.sprite_layout.add_widget(self.left_sprite, index=0)
             subloc.add_l_user(user)
         else:
+            self.sprite_layout.add_widget(self.center_sprite, index=0)
+            self.sprite_layout.add_widget(self.right_sprite, index=2)
+            self.sprite_layout.add_widget(self.left_sprite, index=1)
             subloc.add_c_user(user)
+
         self.display_sub(subloc)
 
     def set_subloc(self, subloc):
@@ -457,8 +471,8 @@ class TextBox(Label):
         self.textbox_rect.size = self.size
 
     def on_trans_change(self, s, k, v):
-        self.textbox_color.rgba = [1, 1, 1, v/100]
-        self.char_name_color.rgba = [1, 1, 1, v/100]
+        self.textbox_color.rgba = [1, 1, 1, v / 100]
+        self.char_name_color.rgba = [1, 1, 1, v / 100]
 
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
@@ -665,7 +679,6 @@ class OOCLogLabel(Label):
 
 
 class UserBox(BoxLayout, TooltipBehavior):
-
     def __init__(self, **kwargs):
         super(UserBox, self).__init__(**kwargs)
         self.lbl = Label(size_hint_y=None, size_hint_x=0.4, height=30)
