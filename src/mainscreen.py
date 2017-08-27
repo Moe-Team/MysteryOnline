@@ -446,10 +446,17 @@ class TextBox(Label):
         self.markup = True
         self.gen = None
         self.blip = SoundLoader.load('sounds/general/blip.wav')
+        self.red_sfx = SoundLoader.load('sounds/general/red.wav')
+        self.blue_sfx = SoundLoader.load('sounds/general/blue.wav')
+        self.gold_sfx = SoundLoader.load('sounds/general/gold.wav')
         config = App.get_running_app().config  # The main config
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
         config.add_callback(self.on_trans_change, 'other', 'textbox_transparency')
-        self.blip.volume = config.getdefaultint('sound', 'blip_volume', 100) / 100
+        vol = config.getdefaultint('sound', 'blip_volume', 100) / 100
+        self.blip.volume = vol
+        self.red_sfx.volume = vol * 0.5
+        self.blue_sfx.volume = vol * 0.5
+        self.gold_sfx.volume = vol * 0.5
         self.char_name_color = None
         self.char_name_rect = None
         with self.canvas.before:
@@ -496,6 +503,12 @@ class TextBox(Label):
         else:
             if user.color != 'rainbow':
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
+                if user.color == 'ff3333':
+                    self.red_sfx.play()
+                elif user.color == '00adfc':
+                    self.blue_sfx.play()
+                elif user.color == 'ffd700':
+                    self.gold_sfx.play()
             else:
                 msg_array = list(self.msg)
                 self.msg = ''
@@ -529,7 +542,11 @@ class TextBox(Label):
             return False
 
     def on_volume_change(self, s, k, v):
-        self.blip.volume = int(v) / 100
+        vol = int(v) / 100
+        self.blip.volume = vol
+        self.red_sfx.volume = vol * 0.5
+        self.blue_sfx.volume = vol * 0.5
+        self.gold_sfx.volume = vol * 0.5
 
 
 class LogLabel(Label):
