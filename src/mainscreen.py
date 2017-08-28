@@ -26,6 +26,7 @@ import re
 import webbrowser
 import threading
 import requests
+import random
 from datetime import datetime
 
 
@@ -481,6 +482,70 @@ class TextBox(Label):
         self.textbox_color.rgba = [1, 1, 1, v / 100]
         self.char_name_color.rgba = [1, 1, 1, v / 100]
 
+    def command_identifier(self, msg):
+        msg = msg[1:]
+        command = msg.split(' ')[0]
+        if command != ' ':
+            return command
+
+    def int_to_str_in_box(self, num):
+        boxed = '(' + str(num) + ') '
+        return boxed
+
+    def fate_calculator(self, fate):
+        result = 0
+        for x in range(len(fate)):
+            if fate[x] == '(+)':
+                result = result + 1
+            if fate[x] == '(-)':
+                result = result - 1
+        return result
+
+    def command_handler(self, msg, command):
+        main_scr = self.parent.parent
+        user = main_scr.user
+        if command == 'roll':
+            modifier_flag = False
+            roll_regex = re.compile(r'(\d)d(\d*)\+*(\d+)')
+            fate_regex = re.compile(r'(\d)df')
+            roll_search = roll_regex.search(msg)
+            fate_search = fate_regex.search(msg)
+            if roll_search is None:
+                if fate_search is None:
+                    return
+                else:
+                    fate_values = fate_search.group(0).split('d', 1)
+                    fate_number = fate_values[0]
+                    fates = '(0)', '(+)', '(-)'
+                    fate_results = []
+                    for unused in range(int(fate_number)):
+                        fate_results.append(random.choice(fates))
+                    fate_results_str = ''.join(str(e) for e in fate_results)
+                    main_scr.log_window.add_entry('Rolled ' + fate_number + 'df ' 'and got: ' +
+                                                  fate_results_str + '= ' + str(self.fate_calculator(fate_results)),
+                                                  '[' + user.username + ']')
+            else:
+                dice_values = roll_search.group(0).split('d', 1)
+                dice_number = dice_values[0]
+                if '+' in dice_values[1]:
+                    dice_values = dice_values[1].split('+', 1)
+                    dice_sides = dice_values[0]
+                    dice_modifier = dice_values[1]
+                    modifier_flag = True
+                else:
+                    dice_sides = dice_values[1]
+                dice_results = []
+                for unused in range(0, int(dice_number)):
+                    dice_results.append(random.randint(1, int(dice_sides)))
+                dice_results_on_str = ''.join(self.int_to_str_in_box(e) for e in dice_results)
+                if modifier_flag:
+                    main_scr.log_window.add_entry('Rolled ' + dice_number + 'd' + dice_sides + ' and got: '
+                                                  + dice_results_on_str + '+' + dice_modifier + '= ' +
+                                                  str(sum(dice_results)+int(dice_modifier)), '[' + user.username + ']')
+                else:
+                    main_scr.log_window.add_entry('Rolled ' + dice_number+'d' + dice_sides + ' and got: '
+                                                  + dice_results_on_str + '= ' + str(sum(dice_results)), '[' + user.username + ']')
+
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
         if self.prev_user is not user:
@@ -616,6 +681,7 @@ class PrivateMessageScreen(ModalView):
         self.current_conversation = None
         self.conversation_list = getattr(self.ids, 'prv_users_list')
         self.text_box = getattr(self.ids, 'pm_input')
+        self.pm_close_sound = SoundLoader.load('sounds/general/codecover.wav')
 
     def ready(self):
         main_scr = App.get_running_app().get_main_screen()
@@ -642,6 +708,7 @@ class PrivateMessageScreen(ModalView):
         self.current_conversation = conversation
 
     def prv_chat_close_btn(self):
+        self.pm_close_sound.play()
         self.dismiss()
 
     def build_conversation(self, username):
@@ -731,9 +798,14 @@ class OOCWindow(TabbedPanel):
         self.track = None
         self.loop = True
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
+        self.pm_notif = SoundLoader.load('sounds/general/codeccall.wav')
+        self.pm_open_sound = SoundLoader.load('sounds/general/codecopen.wav')
         self.ooc_play = True
         self.chat = PrivateMessageScreen()
         self.muted_users = []
+        self.pm_buttons = []
+        self.pm_flag = False
+        self.pm_window_open_flag = False
         self.ooc_chat = OOCLogLabel()
         self.counter = 0
 
@@ -811,21 +883,38 @@ class OOCWindow(TabbedPanel):
             return
         user_box.popup_sub_lbl.text = subloc
 
-    def open_private_msg_screen(self, username, pm):
+    def open_private_msg_screen(self, username, pm):  # Opens the PM window
+        self.pm_window_open_flag = True
         pm.background_color = (1, 1, 1, 1)
         self.chat.build_conversation(username)
         self.chat.set_current_conversation_user(username)
         self.chat.open()
+        self.pm_open_sound.play()
 
-    def update_private_messages(self, *args):
+    def muted_sender(self, pm, muted_users):  # Checks whether the sender of a pm is muted
+        for x in range(len(muted_users)):
+            if pm.sender == muted_users[x].username:
+                return True
+        return False
+
+    def update_private_messages(self, *args):  # Acts on arrival of PMs
         main_scr = self.parent.parent
         irc = main_scr.manager.irc_connection
         pm = irc.get_pm()
         if pm is not None:
             if pm.sender != self.chat.username:
-                self.chat.build_conversation(pm.sender)
-                self.chat.set_current_conversation_user(pm.sender)
-                self.chat.update_conversation(pm.sender, pm.msg)
+                    if not self.muted_sender(pm, self.muted_users):
+                        if not self.pm_window_open_flag:
+                            for x in range(len(self.online_users)):
+                                if pm.sender == self.pm_buttons[x].id:
+                                    self.pm_buttons[x].background_color = (1, 0, 0, 1)
+                                    break
+                            if not self.pm_flag:
+                                self.pm_notif.play()
+                        self.pm_flag = True
+                        self.chat.build_conversation(pm.sender)
+                        self.chat.set_current_conversation_user(pm.sender)
+                        self.chat.update_conversation(pm.sender, pm.msg)
 
     def mute_user(self, user, btn):
         if user in self.muted_users:
@@ -1126,12 +1215,17 @@ class MainScreen(Screen):
                     user.set_from_msg(*dcd)
                 loc = dcd[1]
                 if loc == self.current_loc.name and user not in self.ooc_window.muted_users:
-                    option = int(dcd[7])
-                    user.set_sprite_option(option)
-                    self.sprite_window.set_subloc(user.get_subloc())
-                    self.sprite_window.set_sprite(user)
-                    col = self.user.color_ids[int(dcd[6])]
-                    self.text_box.display_text(dcd[8], user, col, self.user.username)
+                    if dcd[8][0] == '/':
+                        print(dcd[8])
+                        command = self.text_box.command_identifier(dcd[8])
+                        self.text_box.command_handler(dcd[8], command)
+                    else:
+                        option = int(dcd[7])
+                        user.set_sprite_option(option)
+                        self.sprite_window.set_subloc(user.get_subloc())
+                        self.sprite_window.set_sprite(user)
+                        col = self.user.color_ids[int(dcd[6])]
+                        self.text_box.display_text(dcd[8], user, col, self.user.username)
                     self.ooc_window.update_subloc(user.username, user.subloc.name)
 
             elif msg.identify() == 'char':
