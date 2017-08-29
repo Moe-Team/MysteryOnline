@@ -867,6 +867,7 @@ class OOCWindow(TabbedPanel):
             user_box = UserBox(orientation='horizontal', size_hint_y=None, height=40)
             user_box.lbl.text = "{}: {}\n".format(user.username, char)
             user_box.pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, user_box.pm))
+            self.pm_buttons.append(user_box.pm)
             user_box.mute.bind(on_press=lambda x: self.mute_user(user, user_box.mute))
             self.user_list.add_widget(user_box)
             self.online_users[user.username] = user_box
@@ -1176,7 +1177,7 @@ class MainScreen(Screen):
 
     def send_message(self, *args):
         msg = escape_markup(self.msg_input.text)
-        Clock.schedule_once(self.refocus_text)
+        Clock.schedule_once(self.refocus_text, 0.2)
         pattern = re.compile(r'\s+')
         match = re.fullmatch(pattern, msg)
         if msg == '' or match:
@@ -1279,6 +1280,8 @@ class MainScreen(Screen):
         config = App.get_running_app().config
         if config.getdefaultint('other', 'log_scrolling', 1):
             self.log_window.scroll_y = 0
+        loc = self.current_loc.name
+        self.manager.irc_connection.send_special('loc', loc)
         char = self.user.get_char()
         if char is not None:
             self.manager.irc_connection.send_special('char', char.name)
