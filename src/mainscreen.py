@@ -708,6 +708,8 @@ class PrivateMessageScreen(ModalView):
         self.current_conversation = conversation
 
     def prv_chat_close_btn(self):
+        vol = App.get_running_app().config.getdefaultint('sound', 'effect_volume', 100)
+        self.pm_close_sound.volume = vol / 100
         self.pm_close_sound.play()
         self.dismiss()
 
@@ -828,6 +830,10 @@ class OOCWindow(TabbedPanel):
             self.chat.irc = self.parent.parent.manager.irc_connection
         self.chat.username = self.parent.parent.user.username
         Clock.schedule_interval(self.update_private_messages, 1.0 / 60.0)
+        v = config.getdefaultint('sound', 'effect_volume', 100)
+        self.ooc_notif.volume = v / 100
+        self.pm_notif.volume = v / 100
+        self.pm_open_sound.volume = v / 100
 
     def on_blip_volume_change(self, s, k, v):
         self.blip_slider.value = v
@@ -850,6 +856,8 @@ class OOCWindow(TabbedPanel):
     def on_ooc_volume_change(self, s, k, v):
         self.effect_slider.value = v
         self.ooc_notif.volume = int(v) / 100
+        self.pm_notif.volume = int(v) / 100
+        self.pm_open_sound.volume = int(v) / 100
 
     def on_slider_effect_value(self, *args):
         config = App.get_running_app().config

@@ -1,5 +1,4 @@
 from kivy.config import ConfigParser
-from kivy.uix.image import Image
 from kivy.atlas import Atlas
 from icarus import Icarus
 import os

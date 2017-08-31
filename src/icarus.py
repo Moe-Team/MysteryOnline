@@ -2,7 +2,7 @@ import json
 from os.path import dirname, join
 from kivy.event import EventDispatcher
 from kivy.logger import Logger
-from kivy.properties import AliasProperty, DictProperty, ListProperty
+from kivy.properties import AliasProperty, DictProperty
 from kivy.core.image import Image as CoreImage
 import os
 
@@ -14,8 +14,6 @@ import os
 class Icarus(EventDispatcher):
     """Modified version of Kivy's Atlas class.
     """
-
-    original_textures = ListProperty([])
 
     textures = DictProperty({})
 
@@ -33,6 +31,9 @@ class Icarus(EventDispatcher):
             return self.textures[key]
         self.load(key)
         return self.textures[key]
+
+    def __contains__(self, item):
+        return item in self.textures
 
     def load(self, image_name):
         # late import to prevent recursive import.
@@ -65,7 +66,6 @@ class Icarus(EventDispatcher):
         # load the image
         ci = CoreImage(subfilename)
         atlas_texture = ci.texture
-        self.original_textures.append(atlas_texture)
 
         # for all the uid, load the image, get the region, and put
         # it in our dict.
