@@ -1279,6 +1279,7 @@ class MainScreen(Screen):
         else:
             self.users[username].set_char(characters[char])
         self.users[username].get_char().load(no_icons=True)
+        self.users[username].remove()
 
     def on_join(self, username):
         if username not in self.users:
