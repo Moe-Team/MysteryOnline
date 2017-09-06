@@ -173,10 +173,11 @@ class Toolbar(BoxLayout):
         main_scr.refocus_text()
 
 
-class TooltipBehavior:
+class TooltipBehavior(Widget):
     def __init__(self, **kwargs):
+        super(TooltipBehavior, self).__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_pos)
-        self.popup = ModalView()
+        self.popup = None
 
     def on_mouse_pos(self, *args):
         if not self.parent or not self.parent.parent:
@@ -194,6 +195,16 @@ class TooltipBehavior:
             return
         if len(Window.children) > 1:
             return
+        self.set_new_popup()
+        self.reposition()
+        self.popup.open()
+
+    def close_tooltip(self, *args):
+        if not self.parent or not self.parent.parent:
+            return
+        self.popup.dismiss()
+
+    def reposition(self):
         x, y = self.to_window(self.x, self.y)
         menu_x = x / Window.width
         menu_y = y / Window.height
@@ -202,12 +213,9 @@ class TooltipBehavior:
         else:
             loc_y = 'y'
         self.popup.pos_hint = {'x': menu_x, loc_y: menu_y}
-        self.popup.open()
 
-    def close_tooltip(self, *args):
-        if not self.parent or not self.parent.parent:
-            return
-        self.popup.dismiss()
+    def set_new_popup(self):
+        pass
 
 
 class Icon(Image):
@@ -764,23 +772,41 @@ class OOCLogLabel(Label):
         super(OOCLogLabel, self).__init__(**kwargs)
 
 
-class UserBox(BoxLayout, TooltipBehavior):
+class UserBox(TooltipBehavior):
+    lbl = ObjectProperty(None)
+    pm = ObjectProperty(None)
+    mute = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(UserBox, self).__init__(**kwargs)
-        self.lbl = Label(size_hint_y=None, size_hint_x=0.4, height=30)
-        self.pm = Button(text="PM", size_hint_x=0.3, size_hint_y=None, height=30)
-        self.mute = Button(text='Mute', size_hint_x=0.3, size_hint_y=None, height=30)
-        self.add_widget(self.lbl)
-        self.add_widget(self.pm)
-        self.add_widget(self.mute)
-        self.popup.size_hint = None, None
-        self.popup.size = 100, 70
-        self.box_lay = BoxLayout(orientation='vertical')
-        self.popup.add_widget(self.box_lay)
-        self.popup_sub_lbl = Label()
-        self.popup_loc_lbl = Label()
-        self.box_lay.add_widget(self.popup_loc_lbl)
-        self.box_lay.add_widget(self.popup_sub_lbl)
+        self.popup = UserBoxPopup()
+        self.char_lbl_text = ""
+        self.sub_lbl_text = ""
+        self.loc_lbl_text = ""
+
+    def set_new_popup(self):
+        self.popup = UserBoxPopup()
+        self.popup.char_lbl.text = self.char_lbl_text
+        self.popup.sub_lbl.text = self.sub_lbl_text
+        self.popup.loc_lbl.text = self.loc_lbl_text
+
+    def set_char_label(self, text):
+        self.char_lbl_text = text
+
+    def set_sub_label(self, text):
+        self.sub_lbl_text = text
+
+    def set_loc_label(self, text):
+        self.loc_lbl_text = text
+
+
+class UserBoxPopup(ModalView):
+    char_lbl = ObjectProperty(None)
+    sub_lbl = ObjectProperty(None)
+    loc_lbl = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(UserBoxPopup, self).__init__(**kwargs)
 
 
 class OOCWindow(TabbedPanel):
@@ -872,7 +898,7 @@ class OOCWindow(TabbedPanel):
         else:
             char = char.name
         if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
-            user_box = UserBox(orientation='horizontal', size_hint_y=None, height=40)
+            user_box = UserBox(size_hint_y=None, height=40)
             user_box.lbl.text = "{}: {}\n".format(user.username, char)
             user_box.pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, user_box.pm))
             self.pm_buttons.append(user_box.pm)
@@ -880,17 +906,23 @@ class OOCWindow(TabbedPanel):
             self.user_list.add_widget(user_box)
             self.online_users[user.username] = user_box
 
+    def update_char(self, username, char):
+        user_box = self.online_users.get(username, None)
+        if user_box is None:
+            return
+        user_box.set_char_label(char)
+
     def update_loc(self, username, loc):
         user_box = self.online_users.get(username, None)
         if user_box is None:
             return
-        user_box.popup_loc_lbl.text = loc
+        user_box.set_loc_label(loc)
 
     def update_subloc(self, username, subloc):
         user_box = self.online_users.get(username, None)
         if user_box is None:
             return
-        user_box.popup_sub_lbl.text = subloc
+        user_box.set_sub_label(subloc)
 
     def open_private_msg_screen(self, username, pm):  # Opens the PM window
         self.pm_window_open_flag = True
@@ -932,12 +964,6 @@ class OOCWindow(TabbedPanel):
         else:
             self.muted_users.append(user)
             btn.text = 'Unmute'
-
-    def update_char(self, char, username):
-        try:
-            self.online_users[username].text = "{}: {}\n".format(username, char)
-        except KeyError:
-            pass
 
     def delete_user(self, username):
         try:
@@ -1270,7 +1296,7 @@ class MainScreen(Screen):
         self.manager.irc_connection.send_special('music', url)
 
     def update_char(self, char, username):
-        self.ooc_window.update_char(char, username)
+        self.ooc_window.update_char(username, char)
         if username == self.user.username:
             return
         if char not in characters:

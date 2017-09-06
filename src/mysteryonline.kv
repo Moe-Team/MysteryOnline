@@ -45,6 +45,9 @@
 
 <LogWindow>:
     grid_l: grid_l
+    bar_width: 5
+    bar_margin: 0
+    scroll_type: ['content', 'bars']
     canvas.before:
         Color:
             rgba: 0, 0, 0, 1
@@ -231,6 +234,58 @@
     size_hint_y: None
     height: self.texture_size[1]
     markup: True
+
+
+<UserBoxPopup>:
+    char_lbl: char_lbl
+    sub_lbl: sub_lbl
+    loc_lbl: loc_lbl
+
+    size_hint: None, None
+    size: 100, 100
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        Label:
+            id: char_lbl
+
+        Label:
+            id: sub_lbl
+
+        Label:
+            id: loc_lbl
+
+
+<UserBox>:
+    lbl: lbl
+    pm: pm
+    mute: mute
+
+    BoxLayout:
+        orientation: 'horizontal'
+        size: root.size
+        pos: root.pos
+
+        Label:
+            id: lbl
+            size_hint_y: None
+            size_hint_x: 0.4
+            height: 30
+
+        Button:
+            id: pm
+            text: "PM"
+            size_hint_x: 0.3
+            size_hint_y: None
+            height: 30
+
+        Button:
+            id: mute
+            text: "Mute"
+            size_hint_x: 0.3
+            size_hint_y: None
+            height: 30
 
 
 <OOCWindow>:
