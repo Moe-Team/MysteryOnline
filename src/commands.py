@@ -57,8 +57,6 @@ class CommandHandler:
                 arg = int(arg)
             elif self.types[i] == 'float':
                 arg = float(arg)
-            elif self.types[i] == 'bool':
-                arg = bool(arg)
             else:
                 raise CommandUnknownArgumentTypeError(self.types[i])
             args_processed[self.names[i]] = arg
