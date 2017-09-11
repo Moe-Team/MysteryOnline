@@ -64,9 +64,3 @@ class CommandHandler:
             args_processed[self.names[i]] = arg
         command = Command(cmd, args_processed)
         return command
-
-
-ch = CommandHandler("test", "str:name int:age")
-test_command = ch.parse_command("/test Casca 5")
-print("Name:", test_command['name'])
-print("Age:", test_command['age'])
