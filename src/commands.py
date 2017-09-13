@@ -24,6 +24,12 @@ class Command:
     def __getitem__(self, item):
         return self.args[item]
 
+    def __str__(self):
+        return str(self.args)
+
+    def __repr__(self):
+        return str(self)
+
 
 class CommandHandler:
 
@@ -46,7 +52,7 @@ class CommandHandler:
     def parse_command(self, msg):
         if not msg.startswith(self.prefix):
             raise CommandPrefixNotFoundError(self.prefix, msg[0])
-        args = msg.split(' ')
+        args = self.split_msg_into_args(msg)
         args_processed = {}
         # Extract the command name without the prefix
         cmd = args[0][1:]
@@ -62,3 +68,24 @@ class CommandHandler:
             args_processed[self.names[i]] = arg
         command = Command(cmd, args_processed)
         return command
+
+    def split_msg_into_args(self, msg):
+        args = []
+        mark = None
+        start_index = None
+        for w in msg.split(' '):
+            if w.startswith(("'", '"')):
+                mark = w[0]
+                args.append(w[1:])
+                start_index = len(args) - 1
+                continue
+            if mark is not None:
+                if w.endswith(mark):
+                    args[start_index] += " " + w[:-1]
+                    mark = None
+                    start_index = None
+                else:
+                    args[start_index] += " " + w
+            else:
+                args.append(w)
+        return args

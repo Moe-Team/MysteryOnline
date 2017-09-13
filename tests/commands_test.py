@@ -43,3 +43,25 @@ class CommandHandlerTests(unittest.TestCase):
         self.assertIsInstance(test_arg_2, float)
         self.assertIsInstance(test_arg_3, str)
         self.assertEqual(test_value_1 + test_value_2, 52.5)
+
+    def test_multiple_word_string_argument(self):
+        test_value = "test value"
+        test_arg = self.set_up_command_handler('str:test_arg', "'{}'".format(test_value))
+        self.assertEqual(test_arg, test_value)
+        self.assertIsInstance(test_arg, str)
+
+    def test_multiple_word_multiple_arguments(self):
+        test_value_1 = "test value"
+        test_value_2 = 10
+        test_value_3 = "another test value"
+        ch = CommandHandler('test', 'str:1 int:2 str:3')
+        cmd = ch.parse_command('/test "{}" {} "{}"'.format(test_value_1, test_value_2, test_value_3))
+        test_arg_1 = cmd['1']
+        test_arg_2 = cmd['2']
+        test_arg_3 = cmd['3']
+        self.assertEqual(test_value_1, test_arg_1)
+        self.assertEqual(test_value_2, test_arg_2)
+        self.assertEqual(test_value_3, test_arg_3)
+        self.assertIsInstance(test_arg_1, str)
+        self.assertIsInstance(test_arg_2, int)
+        self.assertIsInstance(test_arg_3, str)
