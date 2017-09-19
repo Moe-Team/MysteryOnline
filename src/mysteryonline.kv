@@ -105,7 +105,7 @@
             size: 800, 170
             pos: sprite_window.x, sprite_window.y
 
-        TextInput:
+        MainTextInput:
             id: msg_input
             multiline: False
             size_hint: None, None
@@ -156,7 +156,7 @@
 
     CheckBox:
         id: check_flip_h
-
+        on_active: root.on_checked_flip_h(self.active)
 
 
 <LeftTab>:

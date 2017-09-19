@@ -13,6 +13,7 @@ from kivy.uix.image import Image
 from kivy.uix.dropdown import DropDown
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.modalview import ModalView
+from kivy.uix.textinput import TextInput
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty
 from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
@@ -39,9 +40,6 @@ class SpriteSettings(BoxLayout):
         self.activated = []
         self.flipped = []
 
-    def ready(self):
-        self.check_flip_h.bind(active=self.on_check_flip_h)
-
     def apply_post_processing(self, sprite, setting):
         if setting == 0:
             if sprite not in self.flipped:
@@ -56,7 +54,7 @@ class SpriteSettings(BoxLayout):
     def flip_sprite(self, sprite):
         sprite.flip_horizontal()
 
-    def on_check_flip_h(self, c, value):
+    def on_checked_flip_h(self, value):
         main_scr = App.get_running_app().get_main_screen()
         if value == 1:
             main_scr.current_sprite_option = 0
@@ -148,16 +146,16 @@ class Toolbar(BoxLayout):
         main_scr = self.parent.parent  # fug u
         main_scr.current_loc = locations[loc]
 
-    def on_subloc_select(self, inst, subloc):
-        self.main_btn.text = subloc
+    def on_subloc_select(self, inst, subloc_name):
+        self.main_btn.text = subloc_name
         main_scr = self.parent.parent  # Always blame Kivy
-        main_scr.current_subloc = subloc
+        main_scr.current_subloc_name = subloc_name
         main_scr.refocus_text()
 
     def on_pos_select(self, inst, pos):
         self.pos_btn.text = pos
         main_scr = self.parent.parent  # I will never forgive Kivy
-        main_scr.current_pos = pos
+        main_scr.current_pos_name = pos
         main_scr.refocus_text()
 
     def on_col_select(self, inst, col, user=None):
@@ -311,7 +309,7 @@ class IconsLayout(BoxLayout):
         if sprite_name is None:
             sprite_name = icon.name
         main_scr = self.parent.parent  # blame kivy
-        main_scr.current_sprite = sprite_name
+        main_scr.current_sprite_name = sprite_name
         if self.current_icon is not None:
             self.current_icon.color = [1, 1, 1, 1]
         icon.color = [0.3, 0.3, 0.3, 1]
@@ -837,8 +835,9 @@ class OOCWindow(TabbedPanel):
         self.ooc_chat = OOCLogLabel()
         self.counter = 0
 
-    def ready(self):
-        main_scr = self.parent.parent
+    def ready(self, main_scr):
+        self.ooc_chat.bind(on_ref_press=main_scr.log_window.copy_text)
+        self.add_user(main_scr.user)
         self.chat_grid.bind(minimum_height=self.chat_grid.setter('height'))
         self.ooc_chat.bind(on_ref_press=main_scr.log_window.copy_text)
         self.chat_grid.add_widget(self.ooc_chat)
@@ -1106,6 +1105,17 @@ class RightClickMenu(ModalView):
             main_scr.on_new_char(user.get_char())
 
 
+class MainTextInput(TextInput):
+
+    def __init__(self, **kwargs):
+        super(MainTextInput, self).__init__(**kwargs)
+
+    def ready(self, main_screen):
+        self.readonly = True
+        self.bind(on_text_validate=main_screen.send_message)
+        Clock.schedule_once(main_screen.refocus_text)
+
+
 class MainScreen(Screen):
     icons_layout = ObjectProperty(None)
     sprite_preview = ObjectProperty(None)
@@ -1117,10 +1127,10 @@ class MainScreen(Screen):
     ooc_window = ObjectProperty(None)
     left_tab = ObjectProperty(None)
     sprite_settings = ObjectProperty(None)
-    current_sprite = StringProperty("")
     current_loc = ObjectProperty(None)
-    current_subloc = StringProperty("")
-    current_pos = StringProperty("center")
+    current_sprite_name = StringProperty("")
+    current_subloc_name = StringProperty("")
+    current_pos_name = StringProperty("center")
     current_sprite_option = NumericProperty(-1)
 
     def __init__(self, **kwargs):
@@ -1153,15 +1163,11 @@ class MainScreen(Screen):
 
     def on_ready(self, *args):
         """Called when mainscreen becomes active"""
-        self.msg_input.readonly = True
-        self.ooc_window.ooc_chat.bind(on_ref_press=self.log_window.copy_text)
-        self.msg_input.bind(on_text_validate=self.send_message)
-        Clock.schedule_once(self.refocus_text)
-        self.ooc_window.add_user(self.user)
+
+        self.msg_input.ready(self)
         self.left_tab.ready(self)
-        self.ooc_window.ready()
+        self.ooc_window.ready(self)
         self.log_window.ready()
-        self.sprite_settings.ready()
         self.current_loc = locations['Hakuryou']
         self.toolbar.update_loc()
         char = self.user.get_char()
@@ -1171,32 +1177,35 @@ class MainScreen(Screen):
     def on_new_char(self, char):
         self.msg_input.readonly = False
         self.icons_layout.load_icons(char.get_icons())
-        first_icon = sorted(self.user.get_char().get_icons().textures.keys())[0]
-        first_sprite = self.user.get_char().get_sprite(first_icon)
-        self.sprite_preview.set_sprite(first_sprite)
+        self.set_first_sprite(char)
         self.manager.irc_connection.send_special('char', char.name)
         self.update_char(char.name, self.user.username)
+
+    def set_first_sprite(self, char):
+        first_icon = sorted(char.get_icons().textures.keys())[0]
+        first_sprite = char.get_sprite(first_icon)
+        self.sprite_preview.set_sprite(first_sprite)
 
     def on_current_loc(self, *args):
         # Called when the current location changes
         self.user.set_loc(self.current_loc)
         subloc = self.current_loc.get_first_sub()
-        self.current_subloc = subloc
+        self.current_subloc_name = subloc
         self.toolbar.update_sub(self.current_loc)
         self.manager.irc_connection.send_special('loc', self.current_loc.name)
 
-    def on_current_subloc(self, *args):
+    def on_current_subloc_name(self, *args):
         # Called when the current sublocation changes
-        subloc = self.current_loc.get_sub(self.current_subloc)
+        subloc = self.current_loc.get_sub(self.current_subloc_name)
         self.user.set_subloc(subloc)
         self.sprite_preview.set_subloc(subloc)
 
-    def on_current_pos(self, *args):
+    def on_current_pos_name(self, *args):
         pass
 
-    def on_current_sprite(self, *args):
+    def on_current_sprite_name(self, *args):
         # Called when user picks new sprite
-        self.user.set_current_sprite(self.current_sprite)
+        self.user.set_current_sprite(self.current_sprite_name)
         sprite = self.user.get_current_sprite()
         sprite = self.sprite_settings.apply_post_processing(sprite, self.current_sprite_option)
         self.sprite_preview.set_sprite(sprite)
@@ -1216,7 +1225,7 @@ class MainScreen(Screen):
         match = re.fullmatch(pattern, msg)
         if msg == '' or match:
             return
-        self.user.set_pos(self.current_pos)
+        self.user.set_pos(self.current_pos_name)
         col_id = 0
         user = self.user
         if user.colored:
@@ -1225,8 +1234,8 @@ class MainScreen(Screen):
         loc = user.get_loc().name
         char = user.get_char().name
         sprite_option = user.get_sprite_option()
-        self.manager.irc_connection.send_msg(msg, loc, self.current_subloc, char,
-                                             self.current_sprite, self.current_pos, col_id, sprite_option)
+        self.manager.irc_connection.send_msg(msg, loc, self.current_subloc_name, char,
+                                             self.current_sprite_name, self.current_pos_name, col_id, sprite_option)
 
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy

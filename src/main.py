@@ -32,6 +32,8 @@ class MainScreenManager(ScreenManager):
         self.popup_ = MOPopup("Connection", "Connecting to IRC", "K", False)
 
     def on_irc_connection(self, *args):
+        """Called when the IRC connection is created"""
+
         self.set_handlers()
         self.main_screen.user = App.get_running_app().get_user()
         Clock.schedule_interval(self.process_irc, 1.0/60.0)
@@ -43,13 +45,20 @@ class MainScreenManager(ScreenManager):
         self.irc_connection.on_disconnect_handler = self.main_screen.on_disconnect
 
     def on_connected(self, *args):
-        username = App.get_running_app().get_user().username
-        self.irc_connection.send_mode(username, "-R")
+        """Called when MO connects to the IRC channel"""
+
+        self.unset_the_r_flag()
         self.popup_.dismiss()
         del self.popup_
         self.current = "main"
         self.main_screen.on_ready()
         Clock.schedule_interval(self.main_screen.update_chat, 1.0/60.0)
+
+    def unset_the_r_flag(self):
+        """Fixes being unable to receive private messages from other users"""
+
+        username = App.get_running_app().get_user().username
+        self.irc_connection.send_mode(username, "-R")
 
     def process_irc(self, dt):
         self.irc_connection.process()
