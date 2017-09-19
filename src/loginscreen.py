@@ -22,20 +22,36 @@ class LoginScreen(Screen):
         self.picked_char = None
 
     def on_login_clicked(self, *args):
-            p = re.compile(r"[a-z_\d][a-z_\d-]+", re.I)
-            if not re.fullmatch(p, self.username):
-                popup = MOPopup("Error", "Invalid username", "Whatever you say, mate")
-                popup.open()
-                return
+            self.validate_username()
+            self.set_username_as_last_used()
+            self.set_current_user()
+            self.create_irc_connection()
 
-            config = App.get_running_app().config
-            config.set('other', 'last_username', self.username)
-            user = User(self.username)
-            if self.picked_char is not None:
-                user.set_char(self.picked_char)
-                user.get_char().load()
-            App.get_running_app().set_user(user)
-            self.manager.irc_connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
+    def validate_username(self):
+        if not self.is_username_valid():
+            popup = MOPopup("Error", "Invalid username", "Whatever you say, mate")
+            popup.open()
+
+    def create_irc_connection(self):
+        self.manager.irc_connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
+
+    def set_current_user(self):
+        user = User(self.username)
+        if self.picked_char is not None:
+            user.set_char(self.picked_char)
+            user.get_char().load()
+        App.get_running_app().set_user(user)
+
+    def set_username_as_last_used(self):
+        config = App.get_running_app().config
+        config.set('other', 'last_username', self.username)
+
+    # noinspection PyTypeChecker
+    def is_username_valid(self):
+        p = re.compile(r"[a-z_\d][a-z_\d-]+", re.I)
+        if not re.fullmatch(p, self.username):
+            return False
+        return True
 
     def on_select_clicked(self, *args):
         cs = CharacterSelect()

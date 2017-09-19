@@ -1,10 +1,3 @@
-from kivy.config import Config
-
-Config.set('kivy', 'desktop', 1)
-Config.set('input', 'mouse', 'mouse,disable_multitouch')
-Config.set('kivy', 'exit_on_escape', 0)
-Config.set('kivy', 'window_icon', 'icon.ico')
-
 # import os
 #
 # wrong_path = os.environ['GST_PLUGIN_PATH']
@@ -15,6 +8,8 @@ Config.set('kivy', 'window_icon', 'icon.ico')
 # fixed_path = wrong_path.replace(pattern, to_replace)
 # os.environ['GST_PLUGIN_PATH'] = fixed_path
 
+
+import set_kivy_config
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
@@ -22,7 +17,6 @@ from kivy.clock import Clock
 
 from loginscreen import LoginScreen
 from mainscreen import MainScreen
-from settingsscreen import SettingsScreen
 
 from mopopup import MOPopup
 from location import locations
@@ -33,14 +27,20 @@ class MainScreenManager(ScreenManager):
     irc_connection = ObjectProperty(None)
     connected = BooleanProperty(False)
 
+    def __init__(self, **kwargs):
+        super(MainScreenManager, self).__init__(**kwargs)
+        self.popup_ = MOPopup("Connection", "Connecting to IRC", "K", False)
+
     def on_irc_connection(self, *args):
+        self.set_handlers()
+        self.main_screen.user = App.get_running_app().get_user()
+        Clock.schedule_interval(self.process_irc, 1.0/60.0)
+        self.popup_.open()
+
+    def set_handlers(self):
         self.irc_connection.on_join_handler = self.main_screen.on_join
         self.irc_connection.on_users_handler = self.main_screen.on_join_users
         self.irc_connection.on_disconnect_handler = self.main_screen.on_disconnect
-        self.main_screen.user = App.get_running_app().get_user()
-        Clock.schedule_interval(self.process_irc, 1.0/60.0)
-        self.popup_ = MOPopup("Connection", "Connecting to IRC", "K", False)
-        self.popup_.open()
 
     def on_connected(self, *args):
         username = App.get_running_app().get_user().username
@@ -58,6 +58,11 @@ class MainScreenManager(ScreenManager):
 
 class MysteryOnlineApp(App):
     use_kivy_settings = False
+
+    def __init__(self, **kwargs):
+        super(MysteryOnlineApp, self).__init__(**kwargs)
+        self.user = None
+        self.main_screen = None
 
     def build(self):
         msm = MainScreenManager()
@@ -109,3 +114,6 @@ class MysteryOnlineApp(App):
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
+
+
+__all__ = ['set_kivy_config', 'LoginScreen', 'MainScreen']
