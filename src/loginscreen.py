@@ -6,12 +6,12 @@ from character_select import CharacterSelect
 
 import re
 
-from irc_mo import IrcConnection
-from user import User
+from irc_mo import IrcConnection, ConnectionManger
+from user import User, CurrentUserHandler
 
 SERVER = "chat.freenode.net"
 PORT = 6665
-CHANNEL = "##mysteryonline"
+CHANNEL = "##mysteryonlinetest"
 
 
 class LoginScreen(Screen):
@@ -33,14 +33,19 @@ class LoginScreen(Screen):
             popup.open()
 
     def create_irc_connection(self):
-        self.manager.irc_connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
+        user_handler = App.get_running_app().get_user_handler()
+        connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
+        user_handler.set_connection_manager(ConnectionManger(connection))
+        self.manager.irc_connection = connection
 
     def set_current_user(self):
         user = User(self.username)
+        user_handler = CurrentUserHandler(user)
         if self.picked_char is not None:
             user.set_char(self.picked_char)
             user.get_char().load()
         App.get_running_app().set_user(user)
+        App.get_running_app().set_user_handler(user_handler)
 
     def set_username_as_last_used(self):
         config = App.get_running_app().config

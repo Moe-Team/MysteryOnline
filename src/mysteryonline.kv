@@ -81,6 +81,11 @@
                 pos: root.pos
 
 
+<MainTextInput>:
+    readonly: True
+    on_text_validate: self.send_message()
+
+
 <MainScreen>:
     icons_layout: icons_layout
     sprite_window: sprite_window

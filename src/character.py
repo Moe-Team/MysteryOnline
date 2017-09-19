@@ -59,4 +59,5 @@ class Character:
             print("The sprites aren't loaded into memory.")
             raise
 
+
 characters = {name: Character(name) for name in os.listdir("characters") if os.path.isdir("characters/" + name)}

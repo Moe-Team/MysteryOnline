@@ -3,7 +3,6 @@ from location import locations
 
 
 class User:
-
     def __init__(self, username):
         self.username = username
         self.character = None
@@ -110,3 +109,90 @@ class User:
             self.subloc.remove_l_user(self)
         else:
             self.subloc.remove_c_user(self)
+
+
+class CurrentUserHandler:
+    def __init__(self, user):
+        self.user = user
+        self.connection_manager = None
+        self.current_loc = None
+        self.current_sprite_name = ""
+        self.current_subloc_name = ""
+        self.current_pos_name = ""
+        self.current_sprite_option = -1
+
+    def send_message(self, msg):
+        self.user.set_pos(self.current_pos_name)
+        col_id = 0
+        if self.user.colored:
+            col_id = self.user.color_ids.index(self.user.get_color())
+        loc = self.user.get_loc().name
+        char = self.user.get_char().name
+        sprite_option = self.user.get_sprite_option()
+        self.connection_manager.send_msg(msg, loc, self.current_subloc_name, char,
+                                         self.current_sprite_name, self.current_pos_name, col_id, sprite_option)
+
+    def on_current_loc(self, *args):
+        self.user.set_loc(self.current_loc)
+        subloc_name = self.current_loc.get_first_sub()
+        self.set_current_subloc_name(subloc_name)
+        self.connection_manager.send_loc_to_all(self.current_loc.name)
+
+    def on_current_subloc_name(self, *args):
+        subloc = self.current_loc.get_sub(self.current_subloc_name)
+        self.user.set_subloc(subloc)
+
+    def on_current_sprite_name(self, *args):
+        self.user.set_current_sprite(self.current_sprite_name)
+
+    def on_current_sprite_option(self, *args):
+        self.user.set_sprite_option(self.current_sprite_option)
+
+    def get_current_subloc(self):
+        return self.user.get_subloc()
+
+    def get_current_sprite(self):
+        return self.user.get_current_sprite()
+
+    def set_connection_manager(self, connection_manager):
+        self.connection_manager = connection_manager
+
+    def get_connection_manager(self):
+        return self.connection_manager
+
+    def set_current_sprite_name(self, sprite_name):
+        self.current_sprite_name = sprite_name
+        self.on_current_sprite_name()
+
+    def get_current_sprite_name(self):
+        return self.current_sprite_name
+
+    def set_current_loc(self, loc):
+        self.current_loc = loc
+        self.on_current_loc()
+
+    def get_current_loc(self):
+        return self.current_loc
+
+    def set_current_subloc_name(self, subloc_name):
+        self.current_subloc_name = subloc_name
+        self.on_current_subloc_name()
+
+    def get_current_subloc_name(self):
+        return self.current_subloc_name
+
+    def set_current_pos_name(self, pos_name):
+        self.current_pos_name = pos_name
+
+    def get_current_pos_name(self):
+        return self.current_pos_name
+
+    def set_current_sprite_option(self, sprite_option):
+        self.current_sprite_option = sprite_option
+        self.on_current_sprite_option()
+
+    def get_current_sprite_option(self):
+        return self.current_sprite_option
+
+    def get_user(self):
+        return self.user

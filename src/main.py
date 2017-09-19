@@ -40,9 +40,10 @@ class MainScreenManager(ScreenManager):
         self.popup_.open()
 
     def set_handlers(self):
-        self.irc_connection.on_join_handler = self.main_screen.on_join
-        self.irc_connection.on_users_handler = self.main_screen.on_join_users
-        self.irc_connection.on_disconnect_handler = self.main_screen.on_disconnect
+        connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+        self.irc_connection.on_join_handler = connection_manager.on_join
+        self.irc_connection.on_users_handler = connection_manager.on_join_users
+        self.irc_connection.on_disconnect_handler = connection_manager.on_disconnect
 
     def on_connected(self, *args):
         """Called when MO connects to the IRC channel"""
@@ -52,7 +53,8 @@ class MainScreenManager(ScreenManager):
         del self.popup_
         self.current = "main"
         self.main_screen.on_ready()
-        Clock.schedule_interval(self.main_screen.update_chat, 1.0/60.0)
+        connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+        Clock.schedule_interval(connection_manager.update_chat, 1.0/60.0)
 
     def unset_the_r_flag(self):
         """Fixes being unable to receive private messages from other users"""
@@ -72,6 +74,7 @@ class MysteryOnlineApp(App):
         super(MysteryOnlineApp, self).__init__(**kwargs)
         self.user = None
         self.main_screen = None
+        self.user_handler = None
 
     def build(self):
         msm = MainScreenManager()
@@ -113,6 +116,12 @@ class MysteryOnlineApp(App):
 
     def get_main_screen(self):
         return self.main_screen
+
+    def set_user_handler(self, user_handler):
+        self.user_handler = user_handler
+
+    def get_user_handler(self):
+        return self.user_handler
 
     def on_stop(self):
         if self.main_screen:

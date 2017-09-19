@@ -3,6 +3,9 @@ from mopopup import MOPopup
 from kivy.uix.textinput import TextInput
 from kivy.app import App
 
+from character import characters
+from user import User
+
 
 class ChannelConnectionError(Exception):
     pass
@@ -204,3 +207,150 @@ class IrcConnection:
     def on_privmsg(self, c, e):
         msg = e.arguments[0]
         self.p_msg_q.enqueue(msg, e.source.nick)
+
+
+class ConnectionManger:
+
+    def __init__(self, irc_connection):
+        self.irc_connection = irc_connection
+
+    def send_loc_to_all(self, loc_name):
+        self.irc_connection.send_special('loc', loc_name)
+
+    def send_char_to_all(self, char_name):
+        self.irc_connection.send_special('char', char_name)
+
+    def send_music_to_all(self, music_url):
+        self.irc_connection.send_special('music', music_url)
+
+    def send_msg(self, msg, *args):
+        self.irc_connection.send_msg(msg, *args)
+
+    def update_chat(self, dt):
+        main_scr = App.get_running_app().get_main_screen()
+        if main_scr.text_box.is_displaying_msg:
+            return
+
+        config = App.get_running_app().config
+        user_handler = App.get_running_app().get_user_handler()
+        msg = self.irc_connection.get_msg()
+        if msg is not None:
+            if msg.identify() == 'chat':
+                self.on_chat_message(main_scr, msg, user_handler)
+            elif msg.identify() == 'char':
+                self.on_char_message(main_scr, msg)
+            elif msg.identify() == 'loc':
+                self.on_loc_message(main_scr, msg)
+            elif msg.identify() == 'OOC':
+                self.on_ooc_message(main_scr, msg)
+            elif msg.identify() == 'music':
+                self.on_music_message(main_scr, config, msg)
+
+    def on_music_message(self, main_scr, config, msg):
+        dcd = msg.decode_other()
+        if dcd[0] == "stop":
+            main_scr.log_window.add_special_entry("{} stopped the music.\n".format(dcd[1]))
+            if config.getdefaultint('other', 'log_scrolling', 1):
+                main_scr.log_window.scroll_y = 0
+            main_scr.ooc_window.music_stop(False)
+        else:
+            main_scr.log_window.add_special_entry("{} changed the music.\n".format(dcd[1]))
+            if config.getdefaultint('other', 'log_scrolling', 1):
+                main_scr.log_window.scroll_y = 0
+            main_scr.ooc_window.on_music_play(dcd[0])
+
+    def on_ooc_message(self, main_scr, msg):
+        dcd = msg.decode_other()
+        main_scr.ooc_window.update_ooc(*dcd)
+
+    def on_loc_message(self, main_scr, msg):
+        dcd = msg.decode_other()
+        user = dcd[1]
+        loc = dcd[0]
+        main_scr.log_window.add_special_entry("{} moved to {}. \n".format(user, loc))
+        user = main_scr.users.get(user, None)
+        user.set_loc(loc, True)
+        main_scr.ooc_window.update_loc(user.username, loc)
+
+    def on_char_message(self, main_scr, msg):
+        dcd = msg.decode_other()
+        self.update_char(main_scr, *dcd)
+
+    def on_chat_message(self, main_scr, msg, user_handler):
+        dcd = msg.decode()
+        if dcd[0] == "default":
+            user = App.get_running_app().get_user()
+        else:
+            user = main_scr.users[dcd[0]]
+            user.set_from_msg(*dcd)
+        loc = dcd[1]
+        if loc == user_handler.get_current_loc().name and user not in main_scr.ooc_window.muted_users:
+            if dcd[8][0] == '/':
+                print(dcd[8])
+                command = main_scr.text_box.command_identifier(dcd[8])
+                main_scr.text_box.command_handler(dcd[8], command)
+            else:
+                option = int(dcd[7])
+                user.set_sprite_option(option)
+                main_scr.sprite_window.set_subloc(user.get_subloc())
+                main_scr.sprite_window.set_sprite(user)
+                col = user.color_ids[int(dcd[6])]
+                main_scr.text_box.display_text(dcd[8], user, col, user.username)
+            main_scr.ooc_window.update_subloc(user.username, user.subloc.name)
+
+    def update_music(self, url):
+        self.send_music_to_all(url)
+
+    def update_char(self, main_scr, char, username):
+        main_scr.ooc_window.update_char(username, char)
+        user = App.get_running_app().get_user()
+        if username == user.username:
+            return
+        if char not in characters:
+            main_scr.users[username].set_char(characters['RedHerring'])
+            main_scr.users[username].set_current_sprite('4')
+        else:
+            main_scr.users[username].set_char(characters[char])
+        main_scr.users[username].get_char().load(no_icons=True)
+        main_scr.users[username].remove()
+
+    def on_join(self, username):
+        main_scr = App.get_running_app().get_main_screen()
+        user_handler = App.get_running_app().get_user_handler()
+        user = user_handler.get_user()
+        if username not in main_scr.users:
+            main_scr.users[username] = User(username)
+            main_scr.ooc_window.add_user(main_scr.users[username])
+        main_scr.log_window.add_special_entry("{} has joined.\n".format(username))
+        config = App.get_running_app().config
+        if config.getdefaultint('other', 'log_scrolling', 1):
+            main_scr.log_window.scroll_y = 0
+        loc = user_handler.get_current_loc().name
+        self.send_loc_to_all(loc)
+        char = user.get_char()
+        if char is not None:
+            self.send_char_to_all(char.name)
+
+    def on_disconnect(self, username):
+        main_scr = App.get_running_app().get_main_screen()
+        main_scr.log_window.add_special_entry("{} has disconnected.\n".format(username))
+        config = App.get_running_app().config
+        if config.getdefaultint('other', 'log_scrolling', 1):
+            main_scr.log_window.scroll_y = 0
+        main_scr.ooc_window.delete_user(username)
+        try:
+            main_scr.users[username].remove()
+            del main_scr.users[username]
+        except KeyError:
+            pass
+
+    def on_join_users(self, users):
+        main_scr = App.get_running_app().get_main_screen()
+        user = App.get_running_app().get_user()
+        users = users.split()
+        for u in users:
+            if u == "@" + user.username:
+                continue
+            if u != user.username:
+                main_scr.users[u] = User(u)
+                main_scr.ooc_window.add_user(main_scr.users[u])

@@ -55,11 +55,17 @@ class SpriteSettings(BoxLayout):
         sprite.flip_horizontal()
 
     def on_checked_flip_h(self, value):
-        main_scr = App.get_running_app().get_main_screen()
-        if value == 1:
-            main_scr.current_sprite_option = 0
+        user_handler = App.get_running_app().get_user_handler()
+        if value:
+            user_handler.set_current_sprite_option(0)
         else:
-            main_scr.current_sprite_option = -1
+            user_handler.set_current_sprite_option(1)
+        sprite = user_handler.get_current_sprite()
+        sprite_option = user_handler.get_current_sprite_option()
+        sprite = self.apply_post_processing(sprite, sprite_option)
+        main_scr = App.get_running_app().get_main_screen()
+        main_scr.sprite_preview.set_sprite(sprite)
+        Clock.schedule_once(main_scr.refocus_text, 0.2)
 
 
 class LeftTab(TabbedPanel):
@@ -136,26 +142,36 @@ class Toolbar(BoxLayout):
             btn.bind(on_release=lambda btn_: self.loc_drop.select(btn_.text))
             self.loc_drop.add_widget(btn)
         self.main_loc_btn = Button(size_hint=(None, None), size=(200, 30))
-        self.main_loc_btn.text = self.parent.parent.current_loc.name
+        user_handler = App.get_running_app().get_user_handler()
+        current_loc = user_handler.get_current_loc()
+        self.main_loc_btn.text = current_loc.name
         self.main_loc_btn.bind(on_release=self.loc_drop.open)
         self.add_widget(self.main_loc_btn)
         self.loc_drop.bind(on_select=self.on_loc_select)
 
-    def on_loc_select(self, inst, loc):
-        self.main_loc_btn.text = loc
+    def on_loc_select(self, inst, loc_name):
+        self.main_loc_btn.text = loc_name
         main_scr = self.parent.parent  # fug u
-        main_scr.current_loc = locations[loc]
+        user_handler = App.get_running_app().get_user_handler()
+        loc = locations[loc_name]
+        user_handler.set_current_loc(loc)
+        self.update_sub(loc)
+        main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
 
     def on_subloc_select(self, inst, subloc_name):
         self.main_btn.text = subloc_name
-        main_scr = self.parent.parent  # Always blame Kivy
-        main_scr.current_subloc_name = subloc_name
+        main_scr = App.get_running_app().get_main_screen()
+        user_handler = App.get_running_app().get_user_handler()
+        user_handler.set_current_subloc_name(subloc_name)
+        sub = user_handler.get_current_subloc()
+        main_scr.sprite_preview.set_subloc(sub)
         main_scr.refocus_text()
 
     def on_pos_select(self, inst, pos):
         self.pos_btn.text = pos
         main_scr = self.parent.parent  # I will never forgive Kivy
-        main_scr.current_pos_name = pos
+        user_handler = App.get_running_app().get_user_handler()
+        user_handler.set_current_pos_name(pos)
         main_scr.refocus_text()
 
     def on_col_select(self, inst, col, user=None):
@@ -309,7 +325,13 @@ class IconsLayout(BoxLayout):
         if sprite_name is None:
             sprite_name = icon.name
         main_scr = self.parent.parent  # blame kivy
-        main_scr.current_sprite_name = sprite_name
+        user_handler = App.get_running_app().get_user_handler()
+        user_handler.set_current_sprite_name(sprite_name)
+        sprite = user_handler.get_current_sprite()
+        setting = user_handler.get_current_sprite_option
+        sprite = main_scr.sprite_settings.apply_post_processing(sprite, setting)
+        main_scr.sprite_preview.set_sprite(sprite)
+        Clock.schedule_once(main_scr.refocus_text, 0.2)
         if self.current_icon is not None:
             self.current_icon.color = [1, 1, 1, 1]
         icon.color = [0.3, 0.3, 0.3, 1]
@@ -1111,9 +1133,24 @@ class MainTextInput(TextInput):
         super(MainTextInput, self).__init__(**kwargs)
 
     def ready(self, main_screen):
-        self.readonly = True
-        self.bind(on_text_validate=main_screen.send_message)
         Clock.schedule_once(main_screen.refocus_text)
+
+    def send_message(self, *args):
+        main_scr = App.get_running_app().get_main_screen()
+        Clock.schedule_once(main_scr.refocus_text, 0.2)
+        msg = escape_markup(self.text)
+        if not self.is_message_valid(msg):
+            return
+        self.text = ""
+        user_handler = App.get_running_app().get_user_handler()
+        user_handler.send_message(msg)
+
+    def is_message_valid(self, msg):
+        pattern = re.compile(r'\s+')
+        match = re.fullmatch(pattern, msg)
+        if msg == '' or match:
+            return False
+        return True
 
 
 class MainScreen(Screen):
@@ -1127,11 +1164,6 @@ class MainScreen(Screen):
     ooc_window = ObjectProperty(None)
     left_tab = ObjectProperty(None)
     sprite_settings = ObjectProperty(None)
-    current_loc = ObjectProperty(None)
-    current_sprite_name = StringProperty("")
-    current_subloc_name = StringProperty("")
-    current_pos_name = StringProperty("center")
-    current_sprite_option = NumericProperty(-1)
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
@@ -1168,8 +1200,11 @@ class MainScreen(Screen):
         self.left_tab.ready(self)
         self.ooc_window.ready(self)
         self.log_window.ready()
-        self.current_loc = locations['Hakuryou']
+        user_handler = App.get_running_app().get_user_handler()
+        user_handler.set_current_loc(locations['Hakuryou'])
         self.toolbar.update_loc()
+        self.toolbar.update_sub(locations['Hakuryou'])
+        self.sprite_preview.set_subloc(user_handler.get_current_subloc())
         char = self.user.get_char()
         if char is not None:
             self.on_new_char(char)
@@ -1178,175 +1213,16 @@ class MainScreen(Screen):
         self.msg_input.readonly = False
         self.icons_layout.load_icons(char.get_icons())
         self.set_first_sprite(char)
-        self.manager.irc_connection.send_special('char', char.name)
-        self.update_char(char.name, self.user.username)
+        user_handler = App.get_running_app().get_user_handler()
+        connection_manager = user_handler.get_connection_manager()
+        connection_manager.send_char_to_all(char.name)
+        connection_manager.update_char(self, char.name, self.user.username)
 
     def set_first_sprite(self, char):
         first_icon = sorted(char.get_icons().textures.keys())[0]
         first_sprite = char.get_sprite(first_icon)
         self.sprite_preview.set_sprite(first_sprite)
 
-    def on_current_loc(self, *args):
-        # Called when the current location changes
-        self.user.set_loc(self.current_loc)
-        subloc = self.current_loc.get_first_sub()
-        self.current_subloc_name = subloc
-        self.toolbar.update_sub(self.current_loc)
-        self.manager.irc_connection.send_special('loc', self.current_loc.name)
-
-    def on_current_subloc_name(self, *args):
-        # Called when the current sublocation changes
-        subloc = self.current_loc.get_sub(self.current_subloc_name)
-        self.user.set_subloc(subloc)
-        self.sprite_preview.set_subloc(subloc)
-
-    def on_current_pos_name(self, *args):
-        pass
-
-    def on_current_sprite_name(self, *args):
-        # Called when user picks new sprite
-        self.user.set_current_sprite(self.current_sprite_name)
-        sprite = self.user.get_current_sprite()
-        sprite = self.sprite_settings.apply_post_processing(sprite, self.current_sprite_option)
-        self.sprite_preview.set_sprite(sprite)
-        Clock.schedule_once(self.refocus_text, 0.2)
-
-    def on_current_sprite_option(self, *args):
-        self.user.set_sprite_option(self.current_sprite_option)
-        sprite = self.user.get_current_sprite()
-        sprite = self.sprite_settings.apply_post_processing(sprite, self.current_sprite_option)
-        self.sprite_preview.set_sprite(sprite)
-        Clock.schedule_once(self.refocus_text, 0.2)
-
-    def send_message(self, *args):
-        msg = escape_markup(self.msg_input.text)
-        Clock.schedule_once(self.refocus_text, 0.2)
-        pattern = re.compile(r'\s+')
-        match = re.fullmatch(pattern, msg)
-        if msg == '' or match:
-            return
-        self.user.set_pos(self.current_pos_name)
-        col_id = 0
-        user = self.user
-        if user.colored:
-            col_id = self.user.color_ids.index(user.get_color())
-        self.msg_input.text = ""
-        loc = user.get_loc().name
-        char = user.get_char().name
-        sprite_option = user.get_sprite_option()
-        self.manager.irc_connection.send_msg(msg, loc, self.current_subloc_name, char,
-                                             self.current_sprite_name, self.current_pos_name, col_id, sprite_option)
-
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
         self.msg_input.focus = True
-
-    def update_chat(self, dt):
-        if self.text_box.is_displaying_msg:
-            return
-        config = App.get_running_app().config
-        msg = self.manager.irc_connection.get_msg()
-        if msg is not None:
-            if msg.identify() == 'chat':
-                dcd = msg.decode()
-                if dcd[0] == "default":
-                    user = self.user
-                else:
-                    try:
-                        user = self.users[dcd[0]]
-                    except KeyError:
-                        return
-                    user.set_from_msg(*dcd)
-                loc = dcd[1]
-                if loc == self.current_loc.name and user not in self.ooc_window.muted_users:
-                    if dcd[8][0] == '/':
-                        print(dcd[8])
-                        command = self.text_box.command_identifier(dcd[8])
-                        self.text_box.command_handler(dcd[8], command)
-                    else:
-                        option = int(dcd[7])
-                        user.set_sprite_option(option)
-                        self.sprite_window.set_subloc(user.get_subloc())
-                        self.sprite_window.set_sprite(user)
-                        col = self.user.color_ids[int(dcd[6])]
-                        self.text_box.display_text(dcd[8], user, col, self.user.username)
-                    self.ooc_window.update_subloc(user.username, user.subloc.name)
-
-            elif msg.identify() == 'char':
-                dcd = msg.decode_other()
-                self.update_char(*dcd)
-            elif msg.identify() == 'loc':
-                dcd = msg.decode_other()
-                user = dcd[1]
-                loc = dcd[0]
-                self.log_window.add_special_entry("{} moved to {}. \n".format(user, loc))
-                user = self.users.get(user, None)
-                if user is None:
-                    return
-                user.set_loc(loc, True)
-                self.ooc_window.update_loc(user.username, loc)
-            elif msg.identify() == 'OOC':
-                dcd = msg.decode_other()
-                self.ooc_window.update_ooc(*dcd)
-            elif msg.identify() == 'music':
-                dcd = msg.decode_other()
-                if dcd[0] == "stop":
-                    self.log_window.add_special_entry("{} stopped the music.\n".format(dcd[1]))
-                    if config.getdefaultint('other', 'log_scrolling', 1):
-                        self.log_window.scroll_y = 0
-                    self.ooc_window.music_stop(False)
-                else:
-                    self.log_window.add_special_entry("{} changed the music.\n".format(dcd[1]))
-                    if config.getdefaultint('other', 'log_scrolling', 1):
-                        self.log_window.scroll_y = 0
-                    self.ooc_window.on_music_play(dcd[0])
-
-    def update_music(self, url):
-        self.manager.irc_connection.send_special('music', url)
-
-    def update_char(self, char, username):
-        self.ooc_window.update_char(username, char)
-        if username == self.user.username:
-            return
-        if char not in characters:
-            self.users[username].set_char(characters['RedHerring'])
-            self.users[username].set_current_sprite('4')
-        else:
-            self.users[username].set_char(characters[char])
-        self.users[username].get_char().load(no_icons=True)
-        self.users[username].remove()
-
-    def on_join(self, username):
-        if username not in self.users:
-            self.users[username] = User(username)
-            self.ooc_window.add_user(self.users[username])
-        self.log_window.add_special_entry("{} has joined.\n".format(username))
-        config = App.get_running_app().config
-        if config.getdefaultint('other', 'log_scrolling', 1):
-            self.log_window.scroll_y = 0
-        loc = self.current_loc.name
-        self.manager.irc_connection.send_special('loc', loc)
-        char = self.user.get_char()
-        if char is not None:
-            self.manager.irc_connection.send_special('char', char.name)
-
-    def on_disconnect(self, username):
-        self.log_window.add_special_entry("{} has disconnected.\n".format(username))
-        config = App.get_running_app().config
-        if config.getdefaultint('other', 'log_scrolling', 1):
-            self.log_window.scroll_y = 0
-        self.ooc_window.delete_user(username)
-        try:
-            self.users[username].remove()
-            del self.users[username]
-        except KeyError:
-            pass
-
-    def on_join_users(self, users):
-        users = users.split()
-        for u in users:
-            if u == "@" + self.user.username:
-                continue
-            if u != self.user.username:
-                self.users[u] = User(u)
-                self.ooc_window.add_user(self.users[u])
