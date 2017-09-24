@@ -13,16 +13,17 @@ class RightClickMenu(ModalView):
 
     def __init__(self, **kwargs):
         super(RightClickMenu, self).__init__(**kwargs)
+        self.background_color = [0, 0, 0, 0]
 
     def on_char_select_clicked(self, *args):
         cs = CharacterSelect()
-        self.dismiss()
+        self.dismiss(animation=False)
         cs.bind(on_dismiss=self.on_picked)
         cs.open()
 
     def on_settings_clicked(self, *args):
         App.get_running_app().open_settings()
-        self.dismiss()
+        self.dismiss(animation=False)
 
     def on_picked(self, inst):
         user = App.get_running_app().get_user()
