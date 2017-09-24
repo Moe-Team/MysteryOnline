@@ -155,18 +155,18 @@ class OOCWindow(TabbedPanel):
         pm = irc.get_pm()
         if pm is not None:
             if pm.sender != self.chat.username:
-                    if not self.muted_sender(pm, self.muted_users):
-                        if not self.pm_window_open_flag:
-                            for x in range(len(self.online_users)):
-                                if pm.sender == self.pm_buttons[x].id:
-                                    self.pm_buttons[x].background_color = (1, 0, 0, 1)
-                                    break
-                            if not self.pm_flag:
-                                self.pm_notif.play()
-                        self.pm_flag = True
-                        self.chat.build_conversation(pm.sender)
-                        self.chat.set_current_conversation_user(pm.sender)
-                        self.chat.update_conversation(pm.sender, pm.msg)
+                if not self.muted_sender(pm, self.muted_users):
+                    if not self.pm_window_open_flag:
+                        for x in range(len(self.online_users)):
+                            if pm.sender == self.pm_buttons[x].id:
+                                self.pm_buttons[x].background_color = (1, 0, 0, 1)
+                                break
+                        if not self.pm_flag:
+                            self.pm_notif.play()
+                    self.pm_flag = True
+                    self.chat.build_conversation(pm.sender)
+                    self.chat.set_current_conversation_user(pm.sender)
+                    self.chat.update_conversation(pm.sender, pm.msg)
 
     def mute_user(self, user, btn):
         if user in self.muted_users:

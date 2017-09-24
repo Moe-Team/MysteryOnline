@@ -117,10 +117,12 @@ class TextBox(Label):
                 if modifier_flag:
                     main_scr.log_window.add_entry('Rolled ' + dice_number + 'd' + dice_sides + ' and got: '
                                                   + dice_results_on_str + '+' + dice_modifier + '= ' +
-                                                  str(sum(dice_results)+int(dice_modifier)), '[' + user.username + ']')
+                                                  str(sum(dice_results) + int(dice_modifier)),
+                                                  '[' + user.username + ']')
                 else:
-                    main_scr.log_window.add_entry('Rolled ' + dice_number+'d' + dice_sides + ' and got: '
-                                                  + dice_results_on_str + '= ' + str(sum(dice_results)), '[' + user.username + ']')
+                    main_scr.log_window.add_entry('Rolled ' + dice_number + 'd' + dice_sides + ' and got: '
+                                                  + dice_results_on_str + '= ' + str(sum(dice_results)),
+                                                  '[' + user.username + ']')
 
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
@@ -191,7 +193,6 @@ class TextBox(Label):
 
 
 class MainTextInput(TextInput):
-
     def __init__(self, **kwargs):
         super(MainTextInput, self).__init__(**kwargs)
 
