@@ -10,7 +10,7 @@ from kivy.uix.label import Label
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.utils import escape_markup
 
-from mainscreen import PrivateMessageScreen
+from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
 
 

@@ -21,6 +21,9 @@ from icon import Icon, IconsLayout
 from ooc import OOCWindow, OOCLogLabel
 from main_log import LogLabel, LogWindow
 from sprite import SpritePreview, SpriteSettings, SpriteWindow
+from textbox import MainTextInput, TextBox
+from toolbar import Toolbar
+from left_tab import LeftTab
 
 from mopopup import MOPopup
 from location import locations
@@ -139,4 +142,5 @@ if __name__ == "__main__":
 
 
 __all__ = ['set_kivy_config', 'LoginScreen', 'MainScreen', 'Icon', 'IconsLayout', 'OOCWindow', 'OOCLogLabel',
-           'LogLabel', 'LogWindow', 'SpriteSettings', 'SpriteWindow', 'SpritePreview']
+           'LogLabel', 'LogWindow', 'SpriteSettings', 'SpriteWindow', 'SpritePreview', 'TextBox', 'MainTextInput',
+           'Toolbar', 'LeftTab']
