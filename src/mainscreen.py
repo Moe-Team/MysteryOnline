@@ -65,14 +65,18 @@ class MainScreen(Screen):
     def on_right_click(self, touch):
         menu = RightClickMenu()
         # Can't use absolute position so it uses a workaround
+        loc_y, menu_x, menu_y = self.calculate_popup_position(menu, touch)
+        menu.pos_hint = {'x': menu_x, loc_y: menu_y}
+        menu.open()
+
+    def calculate_popup_position(self, menu, touch):
         menu_x = touch.pos[0] / Window.width
         menu_y = touch.pos[1] / Window.height
         if touch.pos[1] >= menu.height:
             loc_y = 'top'
         else:
             loc_y = 'y'
-        menu.pos_hint = {'x': menu_x, loc_y: menu_y}
-        menu.open()
+        return loc_y, menu_x, menu_y
 
     def on_ready(self, *args):
         """Called when mainscreen becomes active"""

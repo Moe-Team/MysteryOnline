@@ -42,6 +42,7 @@ class CharacterSelect(Popup):
         self.title = "Select your character"
         self.size_hint = (0.7, 0.7)
         self.auto_dismiss = False
+        self.background_color = [0, 0, 0, 0]
         self.picked_char = None
         self.main_lay = BoxLayout(orientation='vertical', size_hint=(1, None), height=self.height-100)
         self.scroll_lay.add_widget(self.main_lay)
@@ -82,3 +83,6 @@ class CharacterSelect(Popup):
 
     def character_chosen(self, inst):
         self.picked_char = inst.char
+
+    def dismiss(self, inst):
+        super(CharacterSelect, self).dismiss(animation=False)
