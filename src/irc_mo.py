@@ -311,7 +311,7 @@ class ConnectionManger:
             main_scr.users[username].set_current_sprite('4')
         else:
             main_scr.users[username].set_char(characters[char])
-        main_scr.users[username].get_char().load(no_icons=True)
+        main_scr.users[username].get_char().load_without_icons()
         main_scr.users[username].remove()
 
     def on_join(self, username):

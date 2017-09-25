@@ -117,7 +117,7 @@ class IconsLayout(BoxLayout):
             return
         main_scr = self.parent.parent
         char = main_scr.user.get_char()
-        sprite = char.get_sprite(sprite_name, True)
+        sprite = char.get_sprite(sprite_name)
         sprite_size = sprite.size
         # Can't use absolute position so it uses a workaround
         hover_x = self.right / Window.width

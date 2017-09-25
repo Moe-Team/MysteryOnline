@@ -25,7 +25,7 @@ class User:
         if self.character is None:
             self.character = characters['RedHerring']
             self.set_current_sprite('4')
-        self.character.load(no_icons=True)
+        self.character.load_without_icons()
         self.set_pos(args[5])
 
     def get_color(self):
