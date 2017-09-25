@@ -7,7 +7,7 @@ from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
 from kivy.properties import ObjectProperty
 from kivy.uix.label import Label
-from kivy.uix.tabbedpanel import TabbedPanel
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.utils import escape_markup
 
 from private_message_screen import PrivateMessageScreen
@@ -19,22 +19,84 @@ class OOCLogLabel(Label):
         super(OOCLogLabel, self).__init__(**kwargs)
 
 
+class MusicTab(TabbedPanelItem):
+    url_input = ObjectProperty(None)
+    loop_checkbox = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(MusicTab, self).__init__(**kwargs)
+        self.track = None
+        self.loop = True
+
+    def on_music_play(self, url=None):
+        if url is None:
+            url = self.url_input.text
+            self.url_input.text = ""
+            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+            connection_manager.update_music(url)
+            main_screen = App.get_running_app().get_main_screen()
+            main_screen.log_window.log.text += "You changed the music.\n"
+            config = App.get_running_app().config
+            if config.getdefaultint('other', 'log_scrolling', 1):
+                main_screen.log_window.log.scroll_y = 0
+        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
+            print("Probably not music m8.")
+            return
+
+        def play_song(root):
+            track = root.track
+            if track is not None and track.state == 'play':
+                track.stop()
+            try:
+                r = requests.get(url)
+            except requests.exceptions.MissingSchema:
+                print("Invalid url.")
+                return
+            f = open("temp.mp3", mode="wb")
+            f.write(r.content)
+            f.close()
+            track = SoundLoader.load("temp.mp3")
+            config_ = App.get_running_app().config
+            track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
+            track.loop = root.loop
+            track.play()
+            root.track = track
+
+        threading.Thread(target=play_song, args=(self,)).start()
+
+    def music_stop(self, local=True):
+        if self.track is not None:
+            if self.track.state == 'play':
+                self.track.stop()
+                main_screen = self.parent.parent
+                if local:
+                    main_screen.update_music("stop")
+                    main_screen.log_window.log.text += "You stopped the music.\n"
+                    config = App.get_running_app().config
+                    if config.getdefaultint('other', 'log_scrolling', 1):
+                        main_screen.log_window.log.scroll_y = 0
+
+    def on_loop(self, c, value):
+        self.loop = value
+
+    def reset_music(self, *args):
+        if self.track is not None:
+            self.track.stop()
+
+
 class OOCWindow(TabbedPanel):
     user_list = ObjectProperty(None)
     ooc_chat_header = ObjectProperty(None)
     ooc_input = ObjectProperty(None)
     blip_slider = ObjectProperty(None)
     music_slider = ObjectProperty(None)
+    music_tab = ObjectProperty(None)
     effect_slider = ObjectProperty(None)
-    url_input = ObjectProperty(None)
-    loop_checkbox = ObjectProperty(None)
     chat_grid = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(OOCWindow, self).__init__(**kwargs)
         self.online_users = {}
-        self.track = None
-        self.loop = True
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
         self.pm_notif = SoundLoader.load('sounds/general/codeccall.wav')
         self.pm_open_sound = SoundLoader.load('sounds/general/codecopen.wav')
@@ -60,7 +122,6 @@ class OOCWindow(TabbedPanel):
         self.music_slider.value = config.getdefaultint('sound', 'music_volume', 100)
         config.add_callback(self.on_ooc_volume_change, 'sound', 'effect_volume')
         self.effect_slider.value = config.getdefaultint('sound', 'effect_volume', 100)
-        self.loop_checkbox.bind(active=self.on_loop)
         self.ooc_chat_header.bind(on_press=self.on_ooc_checked)
         self.chat.ready()
         if self.chat.irc is None:
@@ -86,8 +147,8 @@ class OOCWindow(TabbedPanel):
     def on_slider_music_value(self, *args):
         config = App.get_running_app().config
         value = int(self.music_slider.value)
-        if self.track is not None:
-            self.track.volume = value / 100
+        if self.music_tab.track is not None:
+            self.music_tab.track.volume = value / 100
         config.set('sound', 'music_volume', value)
 
     def on_ooc_volume_change(self, s, k, v):
@@ -236,57 +297,3 @@ class OOCWindow(TabbedPanel):
 
     def refocus_text(self, *args):
         self.ooc_input.focus = True
-
-    def on_music_play(self, url=None):
-        if url is None:
-            url = self.url_input.text
-            self.url_input.text = ""
-            main_screen = self.parent.parent
-            main_screen.update_music(url)
-            main_screen.log_window.log.text += "You changed the music.\n"
-            config = App.get_running_app().config
-            if config.getdefaultint('other', 'log_scrolling', 1):
-                main_screen.log_window.log.scroll_y = 0
-        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
-            print("Probably not music m8.")
-            return
-
-        def play_song(root):
-            track = root.track
-            if track is not None and track.state == 'play':
-                track.stop()
-            try:
-                r = requests.get(url)
-            except requests.exceptions.MissingSchema:
-                print("Invalid url.")
-                return
-            f = open("temp.mp3", mode="wb")
-            f.write(r.content)
-            f.close()
-            track = SoundLoader.load("temp.mp3")
-            config_ = App.get_running_app().config
-            track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
-            track.loop = root.loop
-            track.play()
-            root.track = track
-
-        threading.Thread(target=play_song, args=(self,)).start()
-
-    def music_stop(self, local=True):
-        if self.track is not None:
-            if self.track.state == 'play':
-                self.track.stop()
-                main_screen = self.parent.parent
-                if local:
-                    main_screen.update_music("stop")
-                    main_screen.log_window.log.text += "You stopped the music.\n"
-                    config = App.get_running_app().config
-                    if config.getdefaultint('other', 'log_scrolling', 1):
-                        main_screen.log_window.log.scroll_y = 0
-
-    def on_loop(self, c, value):
-        self.loop = value
-
-    def reset_music(self, *args):
-        if self.track is not None:
-            self.track.stop()
