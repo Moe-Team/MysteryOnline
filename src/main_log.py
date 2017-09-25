@@ -32,15 +32,15 @@ class LogWindow(ScrollView):
 
     def add_entry(self, msg, username):
         if self.counter == 100:
-            self.counter = 0
-            self.log = LogLabel()
-            self.grid_l.add_widget(self.log)
-            self.log.bind(on_ref_press=self.copy_text)
+            self.add_new_label()
         self.log.text += "{0}: [ref={2}]{1}[/ref]\n".format(username, msg, self.remove_markup(msg))
         self.counter += 1
         config = App.get_running_app().config
         if config.getdefaultint('other', 'log_scrolling', 1):
             self.scroll_y = 0
+        self.write_text_log(msg, username)
+
+    def write_text_log(self, msg, username):
         now = datetime.now()
         cur_date = now.strftime("%d-%m-%Y")
         cur_time = now.strftime("%H:%M:%S")
@@ -48,6 +48,12 @@ class LogWindow(ScrollView):
         log_msg = "<{} {}> {}: {}\n".format(cur_time, cur_date, username, msg)
         with open('msg_log.txt', 'a', encoding='utf-8') as f:
             f.write(log_msg)
+
+    def add_new_label(self):
+        self.counter = 0
+        self.log = LogLabel()
+        self.grid_l.add_widget(self.log)
+        self.log.bind(on_ref_press=self.copy_text)
 
     def copy_text(self, inst, value):
         if 'www.' in value or 'http://' in value or 'https://' in value:
