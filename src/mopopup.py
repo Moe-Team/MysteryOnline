@@ -6,7 +6,7 @@ from kivy.uix.button import Button
 
 class MOPopup(Popup):
 
-    def __init__(self, title_, msg, btn_msg, dismissable=True, **kwargs):
+    def __init__(self, title_, msg, btn_msg, dismissable=True, *args, **kwargs):
         self.box_lay = BoxLayout(orientation='vertical')
         self.content = self.box_lay
         self.content.add_widget(Label(text=msg))
