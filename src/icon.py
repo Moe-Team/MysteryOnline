@@ -9,12 +9,12 @@ from kivy.uix.modalview import ModalView
 
 
 class Icon(Image):
-    def __init__(self, name, ic, **kwargs):
+    def __init__(self, name, texture, **kwargs):
         super(Icon, self).__init__(**kwargs)
-        self.texture = ic
         self.name = name
-        self.size_hint = (None, None)
-        self.size = (40, 40)
+        self.texture = texture
+        self.size_hint = None, None
+        self.size = 40, 40
         Window.bind(mouse_pos=self.on_mouse_pos)
 
     def on_touch_down(self, touch):
