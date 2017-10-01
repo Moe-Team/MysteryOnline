@@ -129,7 +129,7 @@ class TextBox(Label):
         if self.prev_user is not user:
             self.text = ""
         self.prev_user = user
-        char_name = user.get_char().name
+        char_name = user.get_char().get_display_name()
         self.char_name.text = char_name
         self.msg = msg
         user.color = color

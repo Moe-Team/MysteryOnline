@@ -37,6 +37,9 @@ class Character:
         self.icons_path = self.path + char['icons']
         self.avatar = self.path + "avatar.png"
 
+    def get_display_name(self):
+        return self.display_name
+
     def load(self):
         if self.loaded_icons and self.loaded_sprites:
             return
