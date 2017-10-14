@@ -49,6 +49,8 @@ class Message:
             return 'music'
         if self.msg.startswith('l#'):
             return 'loc'
+        if self.msg.startswith('r#'):
+            return 'roll'
 
         return None
 
@@ -151,10 +153,10 @@ class IrcConnection:
         self.connection.privmsg(receiver, msg)
 
     def send_special(self, kind, value):
-        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#'}
+        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#', 'roll': 'r#'}
         msg = kinds[kind] + value
         self.connection.privmsg(self.channel, msg)
-        if kind == 'OOC':
+        if kind == 'OOC' or kind == 'roll':
             message = Message(msg)
             self.msg_q.messages.insert(0, message)
 
@@ -223,6 +225,9 @@ class ConnectionManger:
     def send_music_to_all(self, music_url):
         self.irc_connection.send_special('music', music_url)
 
+    def send_roll_to_all(self, roll_result):
+        self.irc_connection.send_special('roll', roll_result)
+
     def send_msg(self, msg, *args):
         self.irc_connection.send_msg(msg, *args)
 
@@ -245,6 +250,8 @@ class ConnectionManger:
                 self.on_ooc_message(main_scr, msg)
             elif msg.identify() == 'music':
                 self.on_music_message(main_scr, config, msg)
+            elif msg.identify() == 'roll':
+                self.on_roll_message(main_scr, msg)
 
     def on_music_message(self, main_scr, config, msg):
         dcd = msg.decode_other()
@@ -275,6 +282,14 @@ class ConnectionManger:
     def on_char_message(self, main_scr, msg):
         dcd = msg.decode_other()
         self.update_char(main_scr, *dcd)
+
+    def on_roll_message(self, main_scr, msg):
+        dcd = msg.decode_other()
+        username = dcd[1]
+        roll_result = dcd[0]
+        if username == 'default':
+            username = "You"
+        main_scr.log_window.add_special_entry("{} rolled {}.\n".format(username, roll_result))
 
     def on_chat_message(self, main_scr, msg, user_handler):
         dcd = msg.decode()

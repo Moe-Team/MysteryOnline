@@ -1,6 +1,3 @@
-import random
-import re
-
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
@@ -10,6 +7,9 @@ from kivy.properties import ObjectProperty
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.utils import escape_markup
+
+import re
+from commands import command_processor
 
 
 class TextBox(Label):
@@ -152,15 +152,26 @@ class MainTextInput(TextInput):
         main_scr = App.get_running_app().get_main_screen()
         Clock.schedule_once(main_scr.refocus_text)
         msg = escape_markup(self.text)
-        if not self.is_message_valid(msg):
+        if not self.message_is_valid(msg):
             return
         self.text = ""
-        user_handler = App.get_running_app().get_user_handler()
-        user_handler.send_message(msg)
+        if self.message_is_command(msg):
+            self.handle_command(msg)
+        else:
+            user_handler = App.get_running_app().get_user_handler()
+            user_handler.send_message(msg)
 
-    def is_message_valid(self, msg):
+    def message_is_valid(self, msg):
         pattern = re.compile(r'\s+')
         match = re.fullmatch(pattern, msg)
         if msg == '' or match:
             return False
         return True
+
+    def message_is_command(self, msg):
+        return msg.startswith('/')
+
+    def handle_command(self, msg):
+        cmd_name, cmd = msg.split(' ', 1)
+        cmd_name = cmd_name[1:]
+        command_processor.process_command(cmd_name, cmd)

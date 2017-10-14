@@ -1,4 +1,5 @@
 import re
+from dicegame import dice_game
 
 
 class CommandError(Exception):
@@ -32,6 +33,9 @@ class Command:
 
     def __repr__(self):
         return str(self)
+
+    def get_name(self):
+        return self.cmd_name
 
 
 class CommandHandler:
@@ -111,7 +115,7 @@ class CommandProcessor:
     def __init__(self):
         self.commands = ['roll']
         self.handlers = {
-            'roll': RegexCommandHandler('roll', ['no_of_dice', 'dice_type', 'mod'], r'(\d*)?\s*(d\d*)\s*([+-]\s*\d*)?')
+            'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'], r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -120,4 +124,9 @@ class CommandProcessor:
         else:
             return None
         args = cmd_handler.parse_command(cmd)
-        return Command(cmd_name, args)
+        command = Command(cmd_name, args)
+        if cmd_name == 'roll':
+            dice_game.process_input(command)
+
+
+command_processor = CommandProcessor()
