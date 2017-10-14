@@ -1,3 +1,6 @@
+import re
+
+
 class CommandError(Exception):
     pass
 
@@ -17,8 +20,8 @@ class CommandUnknownArgumentTypeError(CommandError):
 
 class Command:
 
-    def __init__(self, cmd, args):
-        self.cmd = cmd
+    def __init__(self, cmd_name, args):
+        self.cmd_name = cmd_name
         self.args = args
 
     def __getitem__(self, item):
@@ -89,3 +92,22 @@ class CommandHandler:
             else:
                 args.append(w)
         return args
+
+
+class RegexCommandHandler:
+
+    def __init__(self, cmd_name, arg_names, pattern, prefix='/'):
+        self.cmd_name = cmd_name
+        self.pattern = re.compile(pattern)
+        self.prefix = prefix
+        self.arg_names = arg_names
+
+    def parse_command(self, cmd):
+        found = re.search(self.pattern, cmd)
+        arg_number = len(self.arg_names)
+        args = {}
+        cmd = cmd.lstrip("/" + self.cmd_name + " ")
+        for i in range(arg_number):
+            group_number = i + 1  # Offset by 1 because group 0 is the whole string
+            args[self.arg_names[i]] = found.group(group_number)
+        return Command(self.cmd_name, args)

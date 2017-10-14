@@ -22,10 +22,26 @@ class TextBox(Label):
         self.is_displaying_msg = False
         self.markup = True
         self.gen = None
-        self.blip = SoundLoader.load('sounds/general/blip.wav')
-        self.red_sfx = SoundLoader.load('sounds/general/red.wav')
-        self.blue_sfx = SoundLoader.load('sounds/general/blue.wav')
-        self.gold_sfx = SoundLoader.load('sounds/general/gold.wav')
+        self.blip = None
+        self.red_sfx = None
+        self.blue_sfx = None
+        self.gold_sfx = None
+        self.char_name_color = None
+        self.char_name_rect = None
+        self.textbox_color = None
+        self.textbox_rect = None
+        self.load_sounds()
+        self.setup_volume()
+        self.setup_textbox()
+
+    def setup_textbox(self):
+        with self.canvas.before:
+            self.textbox_color = Color(rgba=[1, 1, 1, 0.6])
+            self.textbox_rect = Rectangle(size=self.size, pos=self.pos, source="misc_img\\TextBox.png")
+        Clock.schedule_once(self.update_ui, 0)
+        self.bind(pos=self.update_rect, size=self.update_rect)
+
+    def setup_volume(self):
         config = App.get_running_app().config  # The main config
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
         config.add_callback(self.on_trans_change, 'other', 'textbox_transparency')
@@ -34,13 +50,12 @@ class TextBox(Label):
         self.red_sfx.volume = vol * 0.5
         self.blue_sfx.volume = vol * 0.5
         self.gold_sfx.volume = vol * 0.5
-        self.char_name_color = None
-        self.char_name_rect = None
-        with self.canvas.before:
-            self.textbox_color = Color(rgba=[1, 1, 1, 0.6])
-            self.textbox_rect = Rectangle(size=self.size, pos=self.pos, source="misc_img\\TextBox.png")
-        Clock.schedule_once(self.update_ui, 0)
-        self.bind(pos=self.update_rect, size=self.update_rect)
+
+    def load_sounds(self):
+        self.blip = SoundLoader.load('sounds/general/blip.wav')
+        self.red_sfx = SoundLoader.load('sounds/general/red.wav')
+        self.blue_sfx = SoundLoader.load('sounds/general/blue.wav')
+        self.gold_sfx = SoundLoader.load('sounds/general/gold.wav')
 
     def update_ui(self, dt):
         with self.char_name.canvas.before:
@@ -57,72 +72,6 @@ class TextBox(Label):
     def on_trans_change(self, s, k, v):
         self.textbox_color.rgba = [1, 1, 1, v / 100]
         self.char_name_color.rgba = [1, 1, 1, v / 100]
-
-    def command_identifier(self, msg):
-        msg = msg[1:]
-        command = msg.split(' ')[0]
-        if command != ' ':
-            return command
-
-    def int_to_str_in_box(self, num):
-        boxed = '(' + str(num) + ') '
-        return boxed
-
-    def fate_calculator(self, fate):
-        result = 0
-        for x in range(len(fate)):
-            if fate[x] == '(+)':
-                result = result + 1
-            if fate[x] == '(-)':
-                result = result - 1
-        return result
-
-    def command_handler(self, msg, command):
-        main_scr = self.parent.parent
-        user = main_scr.user
-        if command == 'roll':
-            modifier_flag = False
-            roll_regex = re.compile(r'(\d)d(\d*)\+*(\d+)')
-            fate_regex = re.compile(r'(\d)df')
-            roll_search = roll_regex.search(msg)
-            fate_search = fate_regex.search(msg)
-            if roll_search is None:
-                if fate_search is None:
-                    return
-                else:
-                    fate_values = fate_search.group(0).split('d', 1)
-                    fate_number = fate_values[0]
-                    fates = '(0)', '(+)', '(-)'
-                    fate_results = []
-                    for unused in range(int(fate_number)):
-                        fate_results.append(random.choice(fates))
-                    fate_results_str = ''.join(str(e) for e in fate_results)
-                    main_scr.log_window.add_entry('Rolled ' + fate_number + 'df ' 'and got: ' +
-                                                  fate_results_str + '= ' + str(self.fate_calculator(fate_results)),
-                                                  '[' + user.username + ']')
-            else:
-                dice_values = roll_search.group(0).split('d', 1)
-                dice_number = dice_values[0]
-                if '+' in dice_values[1]:
-                    dice_values = dice_values[1].split('+', 1)
-                    dice_sides = dice_values[0]
-                    dice_modifier = dice_values[1]
-                    modifier_flag = True
-                else:
-                    dice_sides = dice_values[1]
-                dice_results = []
-                for unused in range(0, int(dice_number)):
-                    dice_results.append(random.randint(1, int(dice_sides)))
-                dice_results_on_str = ''.join(self.int_to_str_in_box(e) for e in dice_results)
-                if modifier_flag:
-                    main_scr.log_window.add_entry('Rolled ' + dice_number + 'd' + dice_sides + ' and got: '
-                                                  + dice_results_on_str + '+' + dice_modifier + '= ' +
-                                                  str(sum(dice_results) + int(dice_modifier)),
-                                                  '[' + user.username + ']')
-                else:
-                    main_scr.log_window.add_entry('Rolled ' + dice_number + 'd' + dice_sides + ' and got: '
-                                                  + dice_results_on_str + '= ' + str(sum(dice_results)),
-                                                  '[' + user.username + ']')
 
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
@@ -201,7 +150,7 @@ class MainTextInput(TextInput):
 
     def send_message(self, *args):
         main_scr = App.get_running_app().get_main_screen()
-        Clock.schedule_once(main_scr.refocus_text, 0.2)
+        Clock.schedule_once(main_scr.refocus_text)
         msg = escape_markup(self.text)
         if not self.is_message_valid(msg):
             return
