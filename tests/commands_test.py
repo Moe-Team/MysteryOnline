@@ -6,7 +6,7 @@ class CommandHandlerTests(unittest.TestCase):
 
     def set_up_command_handler(self, form, test_value):
         ch = CommandHandler('test', form)
-        cmd = ch.parse_command('/test {}'.format(test_value))
+        cmd = ch.parse_command('{}'.format(test_value))
         return cmd['test_arg']
 
     def test_single_int_argument(self):
@@ -32,7 +32,7 @@ class CommandHandlerTests(unittest.TestCase):
         test_value_2 = 32.5
         test_value_3 = 'add'
         ch = CommandHandler('test', 'int:1 float:2 str:3')
-        cmd = ch.parse_command('/test {} {} {}'.format(test_value_1, test_value_2, test_value_3))
+        cmd = ch.parse_command('{} {} {}'.format(test_value_1, test_value_2, test_value_3))
         test_arg_1 = cmd['1']
         test_arg_2 = cmd['2']
         test_arg_3 = cmd['3']
@@ -55,7 +55,7 @@ class CommandHandlerTests(unittest.TestCase):
         test_value_2 = 10
         test_value_3 = "another test value"
         ch = CommandHandler('test', 'str:1 int:2 str:3')
-        cmd = ch.parse_command('/test "{}" {} "{}"'.format(test_value_1, test_value_2, test_value_3))
+        cmd = ch.parse_command('"{}" {} "{}"'.format(test_value_1, test_value_2, test_value_3))
         test_arg_1 = cmd['1']
         test_arg_2 = cmd['2']
         test_arg_3 = cmd['3']
@@ -65,3 +65,7 @@ class CommandHandlerTests(unittest.TestCase):
         self.assertIsInstance(test_arg_1, str)
         self.assertIsInstance(test_arg_2, int)
         self.assertIsInstance(test_arg_3, str)
+
+
+if __name__ == '__main__':
+    unittest.main()
