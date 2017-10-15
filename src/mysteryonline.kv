@@ -164,13 +164,31 @@
         on_active: root.on_checked_flip_h(self.active)
 
 
+<TrackLabel>:
+    size_hint: 1, None
+    height: 30
+
+
+<MusicList>:
+    music_lay: music_lay
+    text: "Music list"
+
+    ScrollView:
+
+        BoxLayout:
+            id: music_lay
+            orientation: 'vertical'
+            size_hint_y: None
+
+
 <LeftTab>:
     sprite_preview: sprite_preview
     sprite_settings: sprite_settings
     trans_slider: trans_slider
     speed_slider: speed_slider
+    music_list: music_list
     do_default_tab: False
-    tab_width: 60
+    tab_width: 80
 
     TabbedPanelItem:
         text: "Preview"
@@ -215,6 +233,10 @@
                 min: 1
                 max: 60
                 on_value: root.on_speed_slider_value()
+
+    MusicList:
+        id: music_list
+
 
 <IconsLayout>:
 
