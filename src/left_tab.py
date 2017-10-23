@@ -52,17 +52,20 @@ class MusicList(TabbedPanelItem):
     def build_from_line(self, line):
         if line.startswith('['):
             section = line[1:-2]
-            prop_dict = {'text': section, 'color': [1, 0, 0, 1]}
+            prop_dict = {'text': section, 'color': [0.8, 0, 0, 1]}
         elif line.startswith('<'):
             subsection = line[1:-2]
-            prop_dict = {'text': subsection, 'color': [0, 1, 0, 1]}
+            prop_dict = {'text': subsection, 'color': [0, 0.8, 0, 1]}
         elif line.startswith('\\'):
             subsubsection = line[1:-2]
-            prop_dict = {'text': subsubsection, 'color': [0, 0, 1, 1]}
+            prop_dict = {'text': subsubsection, 'color': [0, 0, 0.8, 1]}
         else:
             track_name, track_url = line.split(':', 1)
             track_url = track_url.strip()
-            prop_dict = {'text': track_name, 'track_url': track_url}
+            prop_dict = {'text': track_name, 'track_url': track_url, 'color': [1, 1, 1, 1]}
+        prop_dict['size_hint_x'] = 1
+        prop_dict['size_hint_y'] = None
+        prop_dict['height'] = 30
         self.temp_data.append(prop_dict)
 
 
