@@ -2,6 +2,7 @@ from kivy.app import App
 from kivy.properties import ObjectProperty
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
+from kivy.logger import Logger
 
 
 class TrackLabel(Label):
@@ -38,7 +39,7 @@ class MusicList(TabbedPanelItem):
                     track_name, track_url = line.split(':', 1)
                     self.music_lay.add_widget(TrackLabel(track_name, track_url))
         except FileNotFoundError:
-            print("No music list found")
+            Logger.warning('Music: musiclist.txt not found')
 
 
 class LeftTab(TabbedPanel):

@@ -2,6 +2,7 @@ import irc.client
 from mopopup import MOPopup
 from kivy.uix.textinput import TextInput
 from kivy.app import App
+from kivy.logger import Logger
 
 from character import characters
 from user import User
@@ -125,7 +126,7 @@ class IrcConnection:
         try:
             self.connection = self.reactor.server().connect(server, port, username)
         except irc.client.ServerConnectionError:
-            print("Something went wrong m8")
+            Logger.warning('IRC: Could not connect to server')
             raise
 
         events = ["welcome", "join", "quit", "pubmsg", "nicknameinuse", "namreply", "privnotice", "privmsg"]

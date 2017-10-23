@@ -1,5 +1,6 @@
 from kivy.config import ConfigParser
 from kivy.atlas import Atlas
+from kivy.logger import Logger
 from icarus import Icarus
 import os
 
@@ -64,14 +65,14 @@ class Character:
         try:
             return self.icons
         except AttributeError:
-            print("The icons aren't loaded into memory.")
+            Logger.error("Icons: The icons aren't loaded into memory")
             raise
 
     def get_sprite(self, num):
         try:
             return self.sprites[num]
         except AttributeError:
-            print("The sprites aren't loaded into memory.")
+            Logger.error("Sprites: The sprites aren't loaded into memory")
             raise
 
 

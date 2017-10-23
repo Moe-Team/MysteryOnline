@@ -9,6 +9,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.label import Label
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.utils import escape_markup
+from kivy.logger import Logger
 
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
@@ -40,7 +41,7 @@ class MusicTab(TabbedPanelItem):
             if config.getdefaultint('other', 'log_scrolling', 1):
                 main_screen.log_window.log.scroll_y = 0
         if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
-            print("Probably not music m8.")
+            Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
             return
 
         def play_song(root):
@@ -50,7 +51,7 @@ class MusicTab(TabbedPanelItem):
             try:
                 r = requests.get(url)
             except requests.exceptions.MissingSchema:
-                print("Invalid url.")
+                Logger.warning('Music: Invalid URL')
                 return
             f = open("temp.mp3", mode="wb")
             f.write(r.content)
