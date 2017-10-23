@@ -29,9 +29,10 @@ class MusicTab(TabbedPanelItem):
         self.track = None
         self.loop = True
 
-    def on_music_play(self, url=None):
+    def on_music_play(self, url=None, send_to_all=True):
         if url is None:
             url = self.url_input.text
+        if send_to_all:
             self.url_input.text = ""
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
             connection_manager.update_music(url)
@@ -69,10 +70,11 @@ class MusicTab(TabbedPanelItem):
         if self.track is not None:
             if self.track.state == 'play':
                 self.track.stop()
-                main_screen = self.parent.parent
+                main_screen = App.get_running_app().get_main_screen()
                 if local:
-                    main_screen.update_music("stop")
-                    main_screen.log_window.log.text += "You stopped the music.\n"
+                    connection = App.get_running_app().get_user_handler().get_connection_manager()
+                    connection.update_music("stop")
+                    main_screen.log_window.add_special_entry("You stopped the music.\n")
                     config = App.get_running_app().config
                     if config.getdefaultint('other', 'log_scrolling', 1):
                         main_screen.log_window.log.scroll_y = 0

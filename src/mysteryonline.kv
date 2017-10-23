@@ -169,16 +169,21 @@
     height: 30
 
 
+<MusicListView>:
+    viewclass: 'TrackLabel'
+    RecycleBoxLayout:
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+
+
 <MusicList>:
-    music_lay: music_lay
+    music_list_view: music_list_view
     text: "Music list"
-
-    ScrollView:
-
-        BoxLayout:
-            id: music_lay
-            orientation: 'vertical'
-            size_hint_y: None
+    MusicListView:
+        id: music_list_view
 
 
 <LeftTab>:

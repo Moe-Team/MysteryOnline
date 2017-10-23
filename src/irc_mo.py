@@ -260,12 +260,12 @@ class ConnectionManger:
             main_scr.log_window.add_special_entry("{} stopped the music.\n".format(dcd[1]))
             if config.getdefaultint('other', 'log_scrolling', 1):
                 main_scr.log_window.scroll_y = 0
-            main_scr.ooc_window.music_stop(False)
+            main_scr.ooc_window.music_tab.music_stop(False)
         else:
             main_scr.log_window.add_special_entry("{} changed the music.\n".format(dcd[1]))
             if config.getdefaultint('other', 'log_scrolling', 1):
                 main_scr.log_window.scroll_y = 0
-            main_scr.ooc_window.on_music_play(dcd[0])
+            main_scr.ooc_window.music_tab.on_music_play(dcd[0], send_to_all=False)
 
     def on_ooc_message(self, main_scr, msg):
         dcd = msg.decode_other()

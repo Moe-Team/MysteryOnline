@@ -3,14 +3,14 @@ from kivy.properties import ObjectProperty
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
 from kivy.logger import Logger
+from kivy.uix.recycleview import RecycleView
 
 
 class TrackLabel(Label):
 
-    def __init__(self, track_name, track_url, **kwargs):
+    def __init__(self, **kwargs):
         super(TrackLabel, self).__init__(**kwargs)
-        self.text = track_name
-        self.track_url = track_url
+        self.track_url = None
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
@@ -18,28 +18,52 @@ class TrackLabel(Label):
                 self.on_selected()
 
     def on_selected(self):
-        main_scr = App.get_running_app().get_main_screen()
-        main_scr.ooc_window.music_tab.on_music_play(self.track_url)
+        if self.track_url:
+            main_scr = App.get_running_app().get_main_screen()
+            main_scr.ooc_window.music_tab.on_music_play(self.track_url)
+
+
+class MusicListView(RecycleView):
+
+    def __init__(self, **kwargs):
+        super(MusicListView, self).__init__(**kwargs)
 
 
 class MusicList(TabbedPanelItem):
-    music_lay = ObjectProperty(None)
+    music_list_view = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(MusicList, self).__init__(**kwargs)
+        self.temp_data = []
 
     def ready(self):
-        self.music_lay.bind(minimum_height=self.music_lay.setter('height'))
         self.load_tracks()
 
     def load_tracks(self):
         try:
             with open('musiclist.txt', mode='r') as f:
                 for line in f:
-                    track_name, track_url = line.split(':', 1)
-                    self.music_lay.add_widget(TrackLabel(track_name, track_url))
+                    self.build_from_line(line)
         except FileNotFoundError:
             Logger.warning('Music: musiclist.txt not found')
+            return
+        self.music_list_view.data = self.temp_data
+
+    def build_from_line(self, line):
+        if line.startswith('['):
+            section = line[1:-2]
+            prop_dict = {'text': section, 'color': [1, 0, 0, 1]}
+        elif line.startswith('<'):
+            subsection = line[1:-2]
+            prop_dict = {'text': subsection, 'color': [0, 1, 0, 1]}
+        elif line.startswith('\\'):
+            subsubsection = line[1:-2]
+            prop_dict = {'text': subsubsection, 'color': [0, 0, 1, 1]}
+        else:
+            track_name, track_url = line.split(':', 1)
+            track_url = track_url.strip()
+            prop_dict = {'text': track_name, 'track_url': track_url}
+        self.temp_data.append(prop_dict)
 
 
 class LeftTab(TabbedPanel):
