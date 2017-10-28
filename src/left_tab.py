@@ -41,9 +41,10 @@ class MusicList(TabbedPanelItem):
 
     def load_tracks(self):
         try:
-            with open('musiclist.txt', mode='r') as f:
+            with open('musiclist.txt', mode='r', encoding='utf-16') as f:
                 for line in f:
-                    self.build_from_line(line)
+                    if len(line) > 2:
+                        self.build_from_line(line)
         except FileNotFoundError:
             Logger.warning('Music: musiclist.txt not found')
             return
