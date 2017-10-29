@@ -62,7 +62,7 @@ class Toolbar(BoxLayout):
 
     def on_loc_select(self, inst, loc_name):
         self.main_loc_btn.text = loc_name
-        main_scr = self.parent.parent  # fug u
+        main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
         loc = locations[loc_name]
         user_handler.set_current_loc(loc)
@@ -80,7 +80,7 @@ class Toolbar(BoxLayout):
 
     def on_pos_select(self, inst, pos):
         self.pos_btn.text = pos
-        main_scr = self.parent.parent  # I will never forgive Kivy
+        main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
         user_handler.set_current_pos_name(pos)
         main_scr.refocus_text()

@@ -3,12 +3,10 @@ from os.path import dirname, join
 from kivy.event import EventDispatcher
 from kivy.logger import Logger
 from kivy.properties import AliasProperty, DictProperty
-from kivy.core.image import Image as CoreImage
 import os
 
-
 # late import to prevent recursion
-# CoreImage = None
+CoreImage = None
 
 
 class Icarus(EventDispatcher):
@@ -37,9 +35,9 @@ class Icarus(EventDispatcher):
 
     def load(self, image_name):
         # late import to prevent recursive import.
-        # global CoreImage
-        # if CoreImage is None:
-        #     from kivy.core.image import Image as CoreImage
+        global CoreImage
+        if CoreImage is None:
+            from kivy.core.image import Image as CoreImage
 
         # must be a name finished by .atlas ?
         filename = self._filename
