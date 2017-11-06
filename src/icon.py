@@ -6,6 +6,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.modalview import ModalView
+import gc
 
 
 class Icon(Image):
@@ -115,6 +116,7 @@ class IconsLayout(BoxLayout):
     def on_hover_in(self, sprite_name):
         if self.hover_popup.get_parent_window():
             return
+        gc.collect()
         main_scr = self.parent.parent
         char = main_scr.user.get_char()
         sprite = char.get_sprite(sprite_name)
