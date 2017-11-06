@@ -2,6 +2,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.modalview import ModalView
 
 from tooltip import TooltipBehavior
+import gc
 
 
 class UserBox(TooltipBehavior):
@@ -17,6 +18,8 @@ class UserBox(TooltipBehavior):
         self.loc_lbl_text = ""
 
     def set_new_popup(self):
+        gc.collect()
+        del self.popup
         self.popup = UserBoxPopup()
         self.popup.char_lbl.text = self.char_lbl_text
         self.popup.sub_lbl.text = self.sub_lbl_text

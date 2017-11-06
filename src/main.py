@@ -10,6 +10,8 @@
 
 
 import set_kivy_config
+# import irc.client
+# import requests
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
