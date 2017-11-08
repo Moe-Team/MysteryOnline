@@ -166,12 +166,13 @@
 
 <MusicListView>:
     viewclass: 'TrackLabel'
+    scroll_type: ['content', 'bars']
+    bar_width: 10
     RecycleBoxLayout:
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
-
 
 
 <MusicList>:
