@@ -43,3 +43,6 @@ class UserBoxPopup(ModalView):
     def __init__(self, **kwargs):
         super(UserBoxPopup, self).__init__(**kwargs)
         self.background_color = [0, 0, 0, 0]
+
+    def on_touch_down(self, touch):
+        pass

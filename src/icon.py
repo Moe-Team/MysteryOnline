@@ -48,6 +48,15 @@ class Icon(Image):
         self.parent.parent.on_hover_out()
 
 
+class IconModal(ModalView):
+
+    def __init__(self, **kwargs):
+        super(IconModal, self).__init__(**kwargs)
+
+    def on_touch_down(self, touch):
+        pass
+
+
 class IconsLayout(BoxLayout):
     current_page = NumericProperty(1)
 
@@ -56,7 +65,7 @@ class IconsLayout(BoxLayout):
         self.orientation = 'vertical'
         self.grids = []
         self.current_icon = None
-        self.hover_popup = ModalView(size_hint=(None, None), background_color=[0, 0, 0, 0],
+        self.hover_popup = IconModal(size_hint=(None, None), background_color=[0, 0, 0, 0],
                                      background='misc_img/transparent.png')
         self.scheduled_icon = None
         self.max_pages = 0
