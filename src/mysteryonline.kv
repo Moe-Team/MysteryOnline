@@ -175,11 +175,41 @@
         orientation: 'vertical'
 
 
+<SearchResults>:
+    size_hint: 1, 1
+
+    BoxLayout:
+        orientation: 'vertical'
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+
+
 <MusicList>:
     music_list_view: music_list_view
+    search_bar: search_bar
     text: "Music list"
-    MusicListView:
-        id: music_list_view
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        MusicListView:
+            id: music_list_view
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 30
+
+            TextInput:
+                id: search_bar
+                size_hint: 0.8, 1
+                multiline: False
+                on_text_validate: root.search(self.text)
+
+            Button:
+                text: "Clear"
+                size_hint: 0.2, 1
+                on_release: root.clear_search()
 
 
 <LeftTab>:

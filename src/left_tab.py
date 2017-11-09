@@ -4,6 +4,10 @@ from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
 from kivy.logger import Logger
 from kivy.uix.recycleview import RecycleView
+from utils import binary_search
+from kivy.clock import Clock
+from kivy.uix.scrollview import ScrollView
+import gc
 
 
 class TrackLabel(Label):
@@ -29,12 +33,30 @@ class MusicListView(RecycleView):
         super(MusicListView, self).__init__(**kwargs)
 
 
+class SearchResults(ScrollView):
+
+    def __init__(self, **kwargs):
+        super(SearchResults, self).__init__(**kwargs)
+
+    def add_label(self, label):
+        self.children[0].add_widget(label)
+
+    def clear_labels(self):
+        self.children[0].clear_widgets()
+
+
 class MusicList(TabbedPanelItem):
     music_list_view = ObjectProperty(None)
+    search_bar = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(MusicList, self).__init__(**kwargs)
         self.temp_data = []
+        self.tracks = {}
+        self.track_list = []
+        self.search_results = SearchResults()
+        self.search_done = False
+        self.view_temp = None
 
     def ready(self):
         self.load_tracks()
@@ -49,6 +71,8 @@ class MusicList(TabbedPanelItem):
             Logger.warning('Music: musiclist.txt not found')
             return
         self.music_list_view.data = self.temp_data
+        self.track_list = list(self.tracks.keys())
+        self.track_list.sort(key=str.lower)
 
     def build_from_line(self, line):
         if line.startswith('['):
@@ -64,10 +88,52 @@ class MusicList(TabbedPanelItem):
             track_name, track_url = line.split(':', 1)
             track_url = track_url.strip()
             prop_dict = {'text': track_name, 'track_url': track_url, 'color': [1, 1, 1, 1]}
+            self.tracks[track_name.lower()] = [track_name, track_url]
         prop_dict['size_hint_x'] = 1
         prop_dict['size_hint_y'] = None
         prop_dict['height'] = 30
         self.temp_data.append(prop_dict)
+
+    def search(self, target):
+        if self.search_done:
+            self.clear_search()
+        self.search_bar.text = ""
+        Clock.schedule_once(self.refocus)
+        found = binary_search(self.track_list, target)
+        if found is None:
+            return
+        self.search_done = True
+        rest = target.lower()
+        result = []
+        i = found
+        while rest.startswith(target.lower()):
+            result.append(rest)
+            if i == len(self.track_list):
+                break
+            i += 1
+            rest = self.track_list[i].lower()
+        for track in result:
+            track_label = TrackLabel(size_hint_x=1, size_hint_y=None, height=30)
+            track_label.text = self.tracks[track.lower()][0]
+            track_label.track_url = self.tracks[track.lower()][1]
+            self.search_results.add_label(track_label)
+        layout = self.content
+        self.view_temp = self.music_list_view
+        layout.remove_widget(self.music_list_view)
+        layout.add_widget(self.search_results, index=1)
+
+    def refocus(self, *args):
+        self.search_bar.focus = True
+
+    def clear_search(self):
+        if not self.search_done:
+            return
+        self.search_done = False
+        self.search_results.clear_labels()
+        layout = self.content
+        layout.remove_widget(self.search_results)
+        layout.add_widget(self.view_temp, index=1)
+        gc.collect()
 
 
 class LeftTab(TabbedPanel):
