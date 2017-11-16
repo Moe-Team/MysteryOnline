@@ -60,6 +60,7 @@ class MusicList(TabbedPanelItem):
 
     def ready(self):
         self.load_tracks()
+        self.view_temp = self.music_list_view
 
     def load_tracks(self):
         try:
@@ -118,8 +119,7 @@ class MusicList(TabbedPanelItem):
             track_label.track_url = self.tracks[track.lower()][1]
             self.search_results.add_label(track_label)
         layout = self.content
-        self.view_temp = self.music_list_view
-        layout.remove_widget(self.music_list_view)
+        layout.remove_widget(self.view_temp)
         layout.add_widget(self.search_results, index=1)
 
     def refocus(self, *args):
