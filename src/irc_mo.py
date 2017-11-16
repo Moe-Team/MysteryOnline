@@ -250,12 +250,16 @@ class ConnectionManger:
             elif msg.identify() == 'OOC':
                 self.on_ooc_message(main_scr, msg)
             elif msg.identify() == 'music':
-                self.on_music_message(main_scr, config, msg)
+                self.on_music_message(main_scr, config, msg, user_handler)
             elif msg.identify() == 'roll':
                 self.on_roll_message(main_scr, msg)
 
-    def on_music_message(self, main_scr, config, msg):
+    def on_music_message(self, main_scr, config, msg, user_handler):
         dcd = msg.decode_other()
+        username = dcd[1]
+        user = main_scr.users[username]
+        if user.get_loc().name != user_handler.get_current_loc().name:
+            return
         if dcd[0] == "stop":
             main_scr.log_window.add_special_entry("{} stopped the music.\n".format(dcd[1]))
             if config.getdefaultint('other', 'log_scrolling', 1):
