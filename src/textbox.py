@@ -1,12 +1,13 @@
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.core.audio import SoundLoader
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Rectangle
 from kivy.properties import ObjectProperty
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.utils import escape_markup
+from kivy.resources import resource_find
+from kivy.core.audio.audio_sdl2 import SoundSDL2
 
 import re
 from commands import command_processor
@@ -52,10 +53,17 @@ class TextBox(Label):
         self.gold_sfx.volume = vol * 0.5
 
     def load_sounds(self):
-        self.blip = SoundLoader.load('sounds/general/blip.wav')
-        self.red_sfx = SoundLoader.load('sounds/general/red.wav')
-        self.blue_sfx = SoundLoader.load('sounds/general/blue.wav')
-        self.gold_sfx = SoundLoader.load('sounds/general/gold.wav')
+        self.blip = self.load_wav('sounds/general/blip.wav')
+        self.red_sfx = self.load_wav('sounds/general/red.wav')
+        self.blue_sfx = self.load_wav('sounds/general/blue.wav')
+        self.gold_sfx = self.load_wav('sounds/general/gold.wav')
+
+    def load_wav(self, filename):
+        """Use SDL2 to load wav files cuz it's better"""
+        rfn = resource_find(filename)
+        if rfn is not None:
+            filename = rfn
+        return SoundSDL2(source=filename)
 
     def update_ui(self, dt):
         with self.char_name.canvas.before:
