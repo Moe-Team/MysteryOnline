@@ -234,14 +234,14 @@ class ConnectionManger:
 
     def update_chat(self, dt):
         main_scr = App.get_running_app().get_main_screen()
-        if main_scr.text_box.is_displaying_msg:
-            return
 
         config = App.get_running_app().config
         user_handler = App.get_running_app().get_user_handler()
         msg = self.irc_connection.get_msg()
         if msg is not None:
             if msg.identify() == 'chat':
+                if main_scr.text_box.is_displaying_msg:
+                    return
                 self.on_chat_message(main_scr, msg, user_handler)
             elif msg.identify() == 'char':
                 self.on_char_message(main_scr, msg)
