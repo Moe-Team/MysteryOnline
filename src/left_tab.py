@@ -95,6 +95,9 @@ class MusicList(TabbedPanelItem):
         self.temp_data.append(prop_dict)
 
     def search(self, target):
+        if target == "":
+            self.clear_search()
+            return
         if self.search_done:
             self.clear_search()
         self.search_bar.text = ""
@@ -103,15 +106,24 @@ class MusicList(TabbedPanelItem):
         if found is None:
             return
         self.search_done = True
-        rest = target.lower()
-        result = []
         i = found
+        rest = self.track_list[i].lower()
+        result = []
         while rest.startswith(target.lower()):
             result.append(rest)
             if i == len(self.track_list):
                 break
             i += 1
             rest = self.track_list[i].lower()
+        i = found
+        if i > 0:
+            rest = self.track_list[i-1].lower()
+            while rest.startswith(target.lower()):
+                result.append(rest)
+                if i == 0:
+                    break
+                i -= 1
+                rest = self.track_list[i].lower()
         for track in result:
             track_label = TrackLabel(size_hint_x=1, size_hint_y=None, height=30)
             track_label.text = self.tracks[track.lower()][0]
