@@ -7,7 +7,6 @@ from kivy.uix.recycleview import RecycleView
 from utils import binary_search
 from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
-import gc
 
 
 class TrackLabel(Label):
@@ -133,7 +132,6 @@ class MusicList(TabbedPanelItem):
         layout = self.content
         layout.remove_widget(self.search_results)
         layout.add_widget(self.view_temp, index=1)
-        gc.collect()
 
 
 class LeftTab(TabbedPanel):
