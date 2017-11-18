@@ -56,7 +56,7 @@ class CharacterSelect(Popup):
             return
 
         grids = {}
-        for s in series_list:
+        for s in sorted(series_list):
             self.create_series_rows(grids, s)
 
         for g in grids:
