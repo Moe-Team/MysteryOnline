@@ -136,6 +136,9 @@ class IrcConnection:
     def get_msg(self):
         return self.msg_q.dequeue()
 
+    def put_back_msg(self, msg):
+        self.msg_q.messages.append(msg)
+
     def get_pm(self):
         return self.p_msg_q.dequeue()
 
@@ -241,6 +244,7 @@ class ConnectionManger:
         if msg is not None:
             if msg.identify() == 'chat':
                 if main_scr.text_box.is_displaying_msg:
+                    self.irc_connection.put_back_msg(msg)
                     return
                 self.on_chat_message(main_scr, msg, user_handler)
             elif msg.identify() == 'char':
