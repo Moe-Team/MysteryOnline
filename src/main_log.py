@@ -27,17 +27,17 @@ class LogWindow(ScrollView):
         self.grid_l.bind(minimum_height=self.grid_l.setter('height'))
         self.grid_l.add_widget(self.log)
 
-    def add_special_entry(self, msg):
+    def add_entry(self, msg):
         self.log.text += msg
-
-    def add_entry(self, msg, username):
-        if self.counter == 100:
-            self.add_new_label()
-        self.log.text += "{0}: [ref={2}]{1}[/ref]\n".format(username, msg, self.remove_markup(msg))
-        self.counter += 1
         config = App.get_running_app().config
         if config.getdefaultint('other', 'log_scrolling', 1):
             self.scroll_y = 0
+
+    def add_chat_entry(self, msg, username):
+        if self.counter == 100:
+            self.add_new_label()
+        self.add_entry("{0}: [ref={2}]{1}[/ref]\n".format(username, msg, self.remove_markup(msg)))
+        self.counter += 1
         self.write_text_log(msg, username)
 
     def write_text_log(self, msg, username):

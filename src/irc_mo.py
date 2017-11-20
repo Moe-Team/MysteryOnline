@@ -254,25 +254,21 @@ class ConnectionManger:
             elif msg.identify() == 'OOC':
                 self.on_ooc_message(main_scr, msg)
             elif msg.identify() == 'music':
-                self.on_music_message(main_scr, config, msg, user_handler)
+                self.on_music_message(main_scr, msg, user_handler)
             elif msg.identify() == 'roll':
                 self.on_roll_message(main_scr, msg)
 
-    def on_music_message(self, main_scr, config, msg, user_handler):
+    def on_music_message(self, main_scr, msg, user_handler):
         dcd = msg.decode_other()
         username = dcd[1]
         user = main_scr.users[username]
         if user.get_loc().name != user_handler.get_current_loc().name:
             return
         if dcd[0] == "stop":
-            main_scr.log_window.add_special_entry("{} stopped the music.\n".format(dcd[1]))
-            if config.getdefaultint('other', 'log_scrolling', 1):
-                main_scr.log_window.scroll_y = 0
+            main_scr.log_window.add_entry("{} stopped the music.\n".format(dcd[1]))
             main_scr.ooc_window.music_tab.music_stop(False)
         else:
-            main_scr.log_window.add_special_entry("{} changed the music.\n".format(dcd[1]))
-            if config.getdefaultint('other', 'log_scrolling', 1):
-                main_scr.log_window.scroll_y = 0
+            main_scr.log_window.add_entry("{} changed the music.\n".format(dcd[1]))
             main_scr.ooc_window.music_tab.on_music_play(dcd[0], send_to_all=False)
 
     def on_ooc_message(self, main_scr, msg):
@@ -283,7 +279,7 @@ class ConnectionManger:
         dcd = msg.decode_other()
         user = dcd[1]
         loc = dcd[0]
-        main_scr.log_window.add_special_entry("{} moved to {}. \n".format(user, loc))
+        main_scr.log_window.add_entry("{} moved to {}. \n".format(user, loc))
         user = main_scr.users.get(user, None)
         user.set_loc(loc, True)
         main_scr.ooc_window.update_loc(user.username, loc)
@@ -298,7 +294,7 @@ class ConnectionManger:
         roll_result = dcd[0]
         if username == 'default':
             username = "You"
-        main_scr.log_window.add_special_entry("{} rolled {}.\n".format(username, roll_result))
+        main_scr.log_window.add_entry("{} rolled {}.\n".format(username, roll_result))
 
     def on_chat_message(self, main_scr, msg, user_handler):
         dcd = msg.decode()
@@ -340,10 +336,7 @@ class ConnectionManger:
         if username not in main_scr.users:
             main_scr.users[username] = User(username)
             main_scr.ooc_window.add_user(main_scr.users[username])
-        main_scr.log_window.add_special_entry("{} has joined.\n".format(username))
-        config = App.get_running_app().config
-        if config.getdefaultint('other', 'log_scrolling', 1):
-            main_scr.log_window.scroll_y = 0
+        main_scr.log_window.add_entry("{} has joined.\n".format(username))
         loc = user_handler.get_current_loc().name
         self.send_loc_to_all(loc)
         char = user.get_char()
@@ -352,10 +345,7 @@ class ConnectionManger:
 
     def on_disconnect(self, username):
         main_scr = App.get_running_app().get_main_screen()
-        main_scr.log_window.add_special_entry("{} has disconnected.\n".format(username))
-        config = App.get_running_app().config
-        if config.getdefaultint('other', 'log_scrolling', 1):
-            main_scr.log_window.scroll_y = 0
+        main_scr.log_window.add_entry("{} has disconnected.\n".format(username))
         main_scr.ooc_window.delete_user(username)
         try:
             main_scr.users[username].remove()

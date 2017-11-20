@@ -126,7 +126,7 @@ class TextBox(Label):
             self.text += " "
             self.is_displaying_msg = False
         main_scr = self.parent.parent  # BLAAAME KIVYYYY
-        main_scr.log_window.add_entry(self.msg, user.username)
+        main_scr.log_window.add_chat_entry(self.msg, user.username)
         if user.username == sender:
             main_scr.toolbar.text_col_btn.text = 'color'
         user.color = 'ffffff'

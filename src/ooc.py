@@ -37,10 +37,7 @@ class MusicTab(TabbedPanelItem):
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
             connection_manager.update_music(url)
             main_screen = App.get_running_app().get_main_screen()
-            main_screen.log_window.log.text += "You changed the music.\n"
-            config = App.get_running_app().config
-            if config.getdefaultint('other', 'log_scrolling', 1):
-                main_screen.log_window.log.scroll_y = 0
+            main_screen.log_window.add_entry("You changed the music.\n")
         if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
             Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
             return
@@ -74,10 +71,7 @@ class MusicTab(TabbedPanelItem):
                 if local:
                     connection = App.get_running_app().get_user_handler().get_connection_manager()
                     connection.update_music("stop")
-                    main_screen.log_window.add_special_entry("You stopped the music.\n")
-                    config = App.get_running_app().config
-                    if config.getdefaultint('other', 'log_scrolling', 1):
-                        main_screen.log_window.log.scroll_y = 0
+                    main_screen.log_window.add_entry("You stopped the music.\n")
 
     def on_loop(self, c, value):
         self.loop = value
