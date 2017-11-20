@@ -8,8 +8,6 @@ from kivy.uix.textinput import TextInput
 from kivy.utils import escape_markup
 from kivy.resources import resource_find
 from kivy.core.audio.audio_sdl2 import SoundSDL2
-import time
-import threading
 
 import re
 from commands import command_processor
@@ -85,7 +83,7 @@ class TextBox(Label):
 
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
-        if self.prev_user is not user:
+        if self.prev_user is not user or (len(self.text) + len(msg) > 400):
             self.text = ""
         self.prev_user = user
         char_name = user.get_char().get_display_name()
@@ -101,8 +99,7 @@ class TextBox(Label):
             self.gen = text_gen(self.msg)
             config = App.get_running_app().config
             speed = config.getdefaultint('other', 'textbox_speed', 60)
-            t = threading.Thread(target=self._animate, args=(speed, ))
-            t.start()
+            Clock.schedule_interval(self._animate, 1.0 / speed)
         else:
             if user.color != 'rainbow':
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
@@ -135,16 +132,14 @@ class TextBox(Label):
         user.color = 'ffffff'
         user.colored = False
 
-    def _animate(self, speed):
-        while True:
-            try:
-                self.blip.play()
-                self.text += next(self.gen)
-                time.sleep(1.0 / speed)
-            except StopIteration:
-                self.text += " "
-                self.is_displaying_msg = False
-                break
+    def _animate(self, dt):
+        try:
+            self.blip.play()
+            self.text += next(self.gen)
+        except StopIteration:
+            self.text += " "
+            self.is_displaying_msg = False
+            return False
 
     def on_volume_change(self, s, k, v):
         vol = int(v) / 100
