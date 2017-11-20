@@ -121,9 +121,10 @@ class OOCWindow(TabbedPanel):
         self.effect_slider.value = config.getdefaultint('sound', 'effect_volume', 100)
         self.ooc_chat_header.bind(on_press=self.on_ooc_checked)
         self.chat.ready()
+        main_scr = App.get_running_app().get_main_screen()
         if self.chat.irc is None:
-            self.chat.irc = self.parent.parent.manager.irc_connection
-        self.chat.username = self.parent.parent.user.username
+            self.chat.irc = main_scr.manager.irc_connection
+        self.chat.username = main_scr.user.username
         Clock.schedule_interval(self.update_private_messages, 1.0 / 60.0)
         v = config.getdefaultint('sound', 'effect_volume', 100)
         self.ooc_notif.volume = v / 100
@@ -161,7 +162,7 @@ class OOCWindow(TabbedPanel):
 
     def add_user(self, user):
         char = user.get_char()
-        main_screen = self.parent.parent
+        main_screen = App.get_running_app().get_main_screen()
         if char is None:
             char = ""
         else:
@@ -208,7 +209,7 @@ class OOCWindow(TabbedPanel):
         return False
 
     def update_private_messages(self, *args):  # Acts on arrival of PMs
-        main_scr = self.parent.parent
+        main_scr = App.get_running_app().get_main_screen()
         irc = main_scr.manager.irc_connection
         pm = irc.get_pm()
         if pm is not None:
@@ -256,7 +257,7 @@ class OOCWindow(TabbedPanel):
             self.counter = 0
             self.ooc_chat = OOCLogLabel()
             self.chat_grid.add_widget(self.ooc_chat)
-            main_scr = self.parent.parent
+            main_scr = App.get_running_app().get_main_screen()
             self.ooc_chat.bind(on_ref_press=main_scr.log_window.copy_text)
         self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
         self.counter += 1
@@ -287,7 +288,7 @@ class OOCWindow(TabbedPanel):
     def send_ooc(self):
         Clock.schedule_once(self.refocus_text)
         msg = self.ooc_input.text
-        main_scr = self.parent.parent
+        main_scr = App.get_running_app().get_main_screen()
         irc = main_scr.manager.irc_connection
         irc.send_special('OOC', msg)
         self.ooc_input.text = ""

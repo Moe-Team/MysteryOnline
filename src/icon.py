@@ -109,7 +109,7 @@ class IconsLayout(BoxLayout):
     def sprite_picked(self, icon, sprite_name=None):
         if sprite_name is None:
             sprite_name = icon.name
-        main_scr = self.parent.parent  # blame kivy
+        main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
         user_handler.set_current_sprite_name(sprite_name)
         sprite = user_handler.get_current_sprite()
@@ -126,7 +126,7 @@ class IconsLayout(BoxLayout):
         if self.hover_popup.get_parent_window():
             return
         gc.collect()
-        main_scr = self.parent.parent
+        main_scr = App.get_running_app().get_main_screen()
         char = main_scr.user.get_char()
         sprite = char.get_sprite(sprite_name)
         sprite_size = sprite.size

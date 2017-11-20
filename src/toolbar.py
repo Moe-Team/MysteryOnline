@@ -87,9 +87,9 @@ class Toolbar(BoxLayout):
 
     def on_col_select(self, inst, col, user=None):
         self.text_col_btn.text = col
-        main_scr = self.parent.parent  # I will never forgive Kivy either
+        main_scr = App.get_running_app().get_main_screen()
         if user is None:
-            user = self.parent.parent.user
+            user = main_scr.user
         user.set_color(col)
         if user.color != 'ffffff':
             user.colored = True

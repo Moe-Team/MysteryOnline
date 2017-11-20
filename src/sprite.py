@@ -102,7 +102,7 @@ class SpriteWindow(Widget):
         if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
             option = subloc.get_c_user().get_sprite_option()
-            main_scr = self.parent.parent
+            main_scr = App.get_running_app().get_main_screen()
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.center_sprite.texture = None
@@ -115,7 +115,7 @@ class SpriteWindow(Widget):
         if subloc.l_users:
             sprite = subloc.get_l_user().get_current_sprite()
             option = subloc.get_l_user().get_sprite_option()
-            main_scr = self.parent.parent
+            main_scr = App.get_running_app().get_main_screen()
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.left_sprite.texture = None
@@ -128,7 +128,7 @@ class SpriteWindow(Widget):
         if subloc.r_users:
             sprite = subloc.get_r_user().get_current_sprite()
             option = subloc.get_r_user().get_sprite_option()
-            main_scr = self.parent.parent
+            main_scr = App.get_running_app().get_main_screen()
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.right_sprite.texture = None
