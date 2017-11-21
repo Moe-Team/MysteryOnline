@@ -180,6 +180,9 @@ class MainTextInput(TextInput):
         return msg.startswith('/')
 
     def handle_command(self, msg):
-        cmd_name, cmd = msg.split(' ', 1)
+        try:
+            cmd_name, cmd = msg.split(' ', 1)
+        except ValueError:
+            return
         cmd_name = cmd_name[1:]
         command_processor.process_command(cmd_name, cmd)
