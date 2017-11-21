@@ -11,6 +11,7 @@ from kivy.core.audio.audio_sdl2 import SoundSDL2
 
 import re
 from commands import command_processor
+from mopopup import MOPopup
 
 
 class TextBox(Label):
@@ -157,6 +158,10 @@ class MainTextInput(TextInput):
         Clock.schedule_once(main_screen.refocus_text)
 
     def send_message(self, *args):
+        if len(self.text) > 400:
+            popup = MOPopup("Warning", "Message too long", "OK")
+            popup.open()
+            return
         main_scr = App.get_running_app().get_main_screen()
         Clock.schedule_once(main_scr.refocus_text)
         msg = escape_markup(self.text)
@@ -186,3 +191,16 @@ class MainTextInput(TextInput):
             return
         cmd_name = cmd_name[1:]
         command_processor.process_command(cmd_name, cmd)
+
+    def cursor_offset(self):
+        """Fix weird kivy bug when col sometimes isn't an int"""
+        offset = 0
+        row = self.cursor_row
+        col = self.cursor_col
+        col = int(col)
+        _lines = self._lines
+        if col and row < len(_lines):
+            offset = self._get_text_width(
+                _lines[row][:col], self.tab_width,
+                self._label_cached)
+        return offset
