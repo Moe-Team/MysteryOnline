@@ -54,6 +54,11 @@ class MusicTab(TabbedPanelItem):
                 r = requests.get(url)
             except requests.exceptions.MissingSchema:
                 Logger.warning('Music: Invalid URL')
+                root.is_loading_music = False
+                return
+            except:
+                Logger.warning('Music: Unexpected error occurred while loading music')
+                root.is_loading_music = False
                 return
             f = open("temp.mp3", mode="wb")
             f.write(r.content)
