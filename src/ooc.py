@@ -28,8 +28,12 @@ class MusicTab(TabbedPanelItem):
         super(MusicTab, self).__init__(**kwargs)
         self.track = None
         self.loop = True
+        self.is_loading_music = False
 
     def on_music_play(self, url=None, send_to_all=True):
+        if self.is_loading_music:
+            return
+        self.is_loading_music = True
         if url is None:
             url = self.url_input.text
         if send_to_all:
@@ -60,6 +64,7 @@ class MusicTab(TabbedPanelItem):
             track.loop = root.loop
             track.play()
             root.track = track
+            root.is_loading_music = False
 
         threading.Thread(target=play_song, args=(self,)).start()
 
