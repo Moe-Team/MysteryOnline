@@ -45,6 +45,12 @@ class Sprite:
     def set_nsfw(self):
         self.nsfw = True
 
+    def unset_nsfw(self):
+        self.nsfw = False
+
+    def unset_spoiler(self):
+        self.spoiler = False
+
     def set_spoiler(self):
         self.spoiler = True
 

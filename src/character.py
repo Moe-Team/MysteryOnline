@@ -2,6 +2,7 @@ from kivy.config import ConfigParser
 from kivy.atlas import Atlas
 from kivy.logger import Logger
 from icarus import Icarus
+from kivy.app import App
 import os
 
 
@@ -94,10 +95,14 @@ class Character:
     def get_sprite(self, num):
         try:
             sprite = self.sprites[num]
-            if num in self.nsfw_sprites:
+            config = App.get_running_app().config
+            if config.getdefaultint('other', 'nsfw_mode', 1) and num in self.nsfw_sprites:
                 sprite.set_nsfw()
-            elif num in self.spoiler_sprites:
+            elif config.getdefaultint('other', 'spoiler_mode', 1) and num in self.spoiler_sprites:
                 sprite.set_spoiler()
+            else:
+                sprite.unset_nsfw()
+                sprite.unset_spoiler()
             return sprite
         except AttributeError:
             Logger.error("Sprites: The sprites aren't loaded into memory")

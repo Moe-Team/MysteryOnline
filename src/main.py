@@ -106,7 +106,9 @@ class MysteryOnlineApp(App):
             'ooc_scrolling': 1,
             'last_username': 'YourUsernameHere',
             'textbox_speed': 60,
-            'textbox_transparency': 60
+            'textbox_transparency': 60,
+            'nsfw_mode': 1,
+            'spoiler_mode': 1
         })
 
     def build_settings(self, settings):
