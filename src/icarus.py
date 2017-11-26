@@ -3,6 +3,7 @@ from os.path import dirname, join
 from kivy.event import EventDispatcher
 from kivy.logger import Logger
 from kivy.properties import AliasProperty, DictProperty
+from sprite import Sprite
 import os
 
 # late import to prevent recursion
@@ -69,6 +70,6 @@ class Icarus(EventDispatcher):
         # it in our dict.
         for meta_id, meta_coords in ids_found.items():
             x, y, w, h = meta_coords
-            textures[meta_id] = atlas_texture.get_region(*meta_coords)
+            textures[meta_id] = Sprite(meta_id, atlas_texture.get_region(*meta_coords))
 
         self.textures = textures

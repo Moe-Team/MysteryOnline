@@ -6,6 +6,19 @@ from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 
 
+class Sprite:
+
+    def __init__(self, name, texture):
+        self.name = name
+        self.texture = texture
+
+    def get_texture(self):
+        return self.texture
+
+    def get_name(self):
+        return self.name
+
+
 class SpriteSettings(BoxLayout):
     check_flip_h = ObjectProperty(None)
 
@@ -18,16 +31,16 @@ class SpriteSettings(BoxLayout):
     def apply_post_processing(self, sprite, setting):
         if setting == 0:
             if sprite not in self.flipped:
-                self.flip_sprite(sprite)
+                self.flip_sprite(sprite.texture)
                 self.flipped.append(sprite)
         else:
             if sprite in self.flipped:
-                self.flip_sprite(sprite)
+                self.flip_sprite(sprite.texture)
                 self.flipped.remove(sprite)
         return sprite
 
-    def flip_sprite(self, sprite):
-        sprite.flip_horizontal()
+    def flip_sprite(self, sprite_texture):
+        sprite_texture.flip_horizontal()
 
     def on_checked_flip_h(self, value):
         user_handler = App.get_running_app().get_user_handler()
@@ -54,7 +67,7 @@ class SpritePreview(Image):
 
     def set_sprite(self, sprite):
         self.center_sprite.texture = None
-        self.center_sprite.texture = sprite
+        self.center_sprite.texture = sprite.get_texture()
         self.center_sprite.opacity = 1
         self.center_sprite.size = (self.center_sprite.texture.width / 3,
                                    self.center_sprite.texture.height / 3)
@@ -106,7 +119,7 @@ class SpriteWindow(Widget):
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.center_sprite.texture = None
-                self.center_sprite.texture = sprite
+                self.center_sprite.texture = sprite.get_texture()
                 self.center_sprite.opacity = 1
                 self.center_sprite.size = self.center_sprite.texture.size
         else:
@@ -119,7 +132,7 @@ class SpriteWindow(Widget):
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.left_sprite.texture = None
-                self.left_sprite.texture = sprite
+                self.left_sprite.texture = sprite.get_texture()
                 self.left_sprite.opacity = 1
                 self.left_sprite.size = self.left_sprite.texture.size
         else:
@@ -132,7 +145,7 @@ class SpriteWindow(Widget):
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.right_sprite.texture = None
-                self.right_sprite.texture = sprite
+                self.right_sprite.texture = sprite.get_texture()
                 self.right_sprite.opacity = 1
                 self.right_sprite.size = self.right_sprite.texture.size
         else:

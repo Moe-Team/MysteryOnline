@@ -128,15 +128,15 @@ class IconsLayout(BoxLayout):
         gc.collect()
         main_scr = App.get_running_app().get_main_screen()
         char = main_scr.user.get_char()
-        sprite = char.get_sprite(sprite_name)
-        sprite_size = sprite.size
+        sprite_texture = char.get_sprite(sprite_name).get_texture()
+        sprite_size = sprite_texture.size
         # Can't use absolute position so it uses a workaround
         hover_x = self.right / Window.width
         hover_y = self.y / Window.height
         sprite_size = sprite_size[0] * 0.8, sprite_size[1] * 0.8
         im = Image()
-        im.texture = sprite
-        im.size = sprite.size
+        im.texture = sprite_texture
+        im.size = sprite_texture.size
         self.hover_popup.add_widget(im)
         self.hover_popup.size = sprite_size
         self.hover_popup.pos_hint = {'x': hover_x, 'y': hover_y}
