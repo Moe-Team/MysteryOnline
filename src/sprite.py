@@ -11,12 +11,45 @@ class Sprite:
     def __init__(self, name, texture):
         self.name = name
         self.texture = texture
+        self.nsfw = False
+        self.spoiler = False
 
     def get_texture(self):
-        return self.texture
+        texture = self.texture
+        if self.is_nsfw():
+            texture = self.return_nsfw_texture()
+        elif self.is_spoiler():
+            texture = self.return_spoiler_texture()
+        return texture
+
+    def return_nsfw_texture(self):
+        spoiler_sprite = self.load_dummy_character_sprite('5')
+        return spoiler_sprite.get_texture()
+
+    def return_spoiler_texture(self):
+        spoiler_sprite = self.load_dummy_character_sprite('4')
+        return spoiler_sprite.get_texture()
+
+    def load_dummy_character_sprite(self, sprite_name):
+        from character import characters
+        red_herring = characters['RedHerring']
+        red_herring.load()
+        return red_herring.get_sprite(sprite_name)
 
     def get_name(self):
         return self.name
+
+    def is_nsfw(self):
+        return self.nsfw
+
+    def set_nsfw(self):
+        self.nsfw = True
+
+    def set_spoiler(self):
+        self.spoiler = True
+
+    def is_spoiler(self):
+        return self.spoiler
 
 
 class SpriteSettings(BoxLayout):

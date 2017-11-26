@@ -22,6 +22,9 @@ class Character:
         self.loaded_icons = False
         self.sprites = None
         self.icons = None
+        # Hash tables for faster membership checking
+        self.nsfw_sprites = {}
+        self.spoiler_sprites = {}
         self.config = ConfigParser(self.name)
         self.read_config()
 
@@ -37,6 +40,26 @@ class Character:
         self.sprites_path = self.path + char['sprites']
         self.icons_path = self.path + char['icons']
         self.avatar = self.path + "avatar.png"
+        self.read_nsfw_sprites()
+        self.read_spoiler_sprites()
+
+    def read_nsfw_sprites(self):
+        try:
+            nsfw_list = self.config['nsfw']['sprites']
+        except KeyError:
+            return
+        nsfw_list = nsfw_list.split(',')
+        for sprite_name in nsfw_list:
+            self.nsfw_sprites[sprite_name] = None
+
+    def read_spoiler_sprites(self):
+        try:
+            spoiler_list = self.config['spoiler']['sprites']
+        except KeyError:
+            return
+        spoiler_list = spoiler_list.split(',')
+        for sprite_name in spoiler_list:
+            self.spoiler_sprites[sprite_name] = None
 
     def get_display_name(self):
         return self.display_name
@@ -70,7 +93,12 @@ class Character:
 
     def get_sprite(self, num):
         try:
-            return self.sprites[num]
+            sprite = self.sprites[num]
+            if num in self.nsfw_sprites:
+                sprite.set_nsfw()
+            elif num in self.spoiler_sprites:
+                sprite.set_spoiler()
+            return sprite
         except AttributeError:
             Logger.error("Sprites: The sprites aren't loaded into memory")
             raise
