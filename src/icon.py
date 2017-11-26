@@ -85,7 +85,10 @@ class IconsLayout(BoxLayout):
             grid_index = self.current_page - 1
             self.add_widget(self.grids[grid_index], index=1)
 
-    def load_icons(self, icons):
+    def load_icons(self, char):
+        icons = char.get_icons()
+        spoiler_icons = char.get_spoiler_icons()
+        config = App.get_running_app().config
         if len(self.children) > 1:
             self.remove_widget(self.children[1])
         for g in self.grids:
@@ -97,7 +100,14 @@ class IconsLayout(BoxLayout):
             if counter % 48 == 0:
                 g = GridLayout(cols=6)
                 self.grids.append(g)
-            g.add_widget(Icon(i, icons[i]))
+            if config.getdefaultint('other', 'spoiler_mode', 1) and i in spoiler_icons:
+                from character import characters
+                red_herring = characters['RedHerring']
+                red_herring.load()
+                spoiler_icon = red_herring.get_icons()['4']
+                g.add_widget(Icon(i, spoiler_icon))
+            else:
+                g.add_widget(Icon(i, icons[i]))
             counter += 1
         self.max_pages = len(self.grids)
         self.loading = True

@@ -96,7 +96,7 @@ class MainScreen(Screen):
 
     def on_new_char(self, char):
         self.msg_input.readonly = False
-        self.icons_layout.load_icons(char.get_icons())
+        self.icons_layout.load_icons(char)
         self.set_first_sprite(char)
         user_handler = App.get_running_app().get_user_handler()
         connection_manager = user_handler.get_connection_manager()

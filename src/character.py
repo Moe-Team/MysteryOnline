@@ -121,5 +121,8 @@ class Character:
             Logger.error("Sprites: The sprites aren't loaded into memory")
             raise
 
+    def get_spoiler_icons(self):
+        return self.spoiler_sprites
+
 
 characters = {name: Character(name) for name in os.listdir("characters") if os.path.isdir("characters/" + name)}
