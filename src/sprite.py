@@ -13,6 +13,7 @@ class Sprite:
         self.texture = texture
         self.nsfw = False
         self.spoiler = False
+        self.cg = False
 
     def get_texture(self):
         texture = self.texture
@@ -56,6 +57,12 @@ class Sprite:
 
     def is_spoiler(self):
         return self.spoiler
+
+    def set_cg(self):
+        self.cg = True
+
+    def is_cg(self):
+        return self.cg
 
 
 class SpriteSettings(BoxLayout):
@@ -118,14 +125,19 @@ class SpriteWindow(Widget):
 
     def __init__(self, **kwargs):
         super(SpriteWindow, self).__init__(**kwargs)
-        self.center_sprite = Image(opacity=0, size_hint=(None, None), size=(600, 600),
+        self.center_sprite = Image(allow_stretch=True, keep_ratio=False,
+                                   opacity=0, size_hint=(None, None), size=(800, 600),
                                    pos_hint={'center_x': 0.5, 'y': 0})
-        self.left_sprite = Image(opacity=0, size_hint=(None, None), size=(600, 600),
+        self.left_sprite = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                                  pos_hint={'center_x': 0.25, 'y': 0})
-        self.right_sprite = Image(opacity=0, size_hint=(None, None), size=(600, 600),
+        self.right_sprite = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                                   pos_hint={'center_x': 0.75, 'y': 0})
 
     def set_sprite(self, user):
+        sprite = user.get_current_sprite()
+        if sprite.is_cg():
+            self.set_cg(sprite)
+            return
         subloc = user.get_subloc()
         pos = user.get_pos()
         self.sprite_layout.clear_widgets()
@@ -147,10 +159,19 @@ class SpriteWindow(Widget):
 
         self.display_sub(subloc)
 
+    def set_cg(self, sprite):
+        self.sprite_layout.clear_widgets()
+        self.sprite_layout.add_widget(self.center_sprite, index=0)
+        self.center_sprite.texture = None
+        self.center_sprite.texture = sprite.get_texture()
+        self.center_sprite.opacity = 1
+        self.center_sprite.size = 800, 600
+
     def set_subloc(self, subloc):
         self.background.texture = subloc.get_img().texture
 
     def display_sub(self, subloc):
+
         if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
             option = subloc.get_c_user().get_sprite_option()

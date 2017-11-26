@@ -26,6 +26,7 @@ class Character:
         # Hash tables for faster membership checking
         self.nsfw_sprites = {}
         self.spoiler_sprites = {}
+        self.cg_sprites = {}
         self.config = ConfigParser(self.name)
         self.read_config()
 
@@ -43,6 +44,7 @@ class Character:
         self.avatar = self.path + "avatar.png"
         self.read_nsfw_sprites()
         self.read_spoiler_sprites()
+        self.read_cg_sprites()
 
     def read_nsfw_sprites(self):
         try:
@@ -61,6 +63,15 @@ class Character:
         spoiler_list = spoiler_list.split(',')
         for sprite_name in spoiler_list:
             self.spoiler_sprites[sprite_name] = None
+
+    def read_cg_sprites(self):
+        try:
+            cg_list = self.config['CG']['sprites']
+        except KeyError:
+            return
+        cg_list = cg_list.split(',')
+        for sprite_name in cg_list:
+            self.cg_sprites[sprite_name] = None
 
     def get_display_name(self):
         return self.display_name
@@ -100,6 +111,8 @@ class Character:
                 sprite.set_nsfw()
             elif config.getdefaultint('other', 'spoiler_mode', 1) and num in self.spoiler_sprites:
                 sprite.set_spoiler()
+            elif num in self.cg_sprites:
+                sprite.set_cg()
             else:
                 sprite.unset_nsfw()
                 sprite.unset_spoiler()
