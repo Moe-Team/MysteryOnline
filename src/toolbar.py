@@ -32,6 +32,15 @@ class Toolbar(BoxLayout):
         self.add_widget(self.pos_btn)
         self.pos_drop.bind(on_select=self.on_pos_select)
         self.loc_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        self.item_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        for item in ('no item', ):
+            btn = Button(text=item, size_hint=(None, None), size=(200, 30))
+            btn.bind(on_release=lambda btn_: self.item_drop.select(btn_.text))
+            self.item_drop.add_widget(btn)
+        self.text_item_btn = Button(text='select item', size_hint=(None, None), size=(200, 30))
+        self.text_item_btn.bind(on_release=self.item_drop.open)
+        self.add_widget(self.text_item_btn)
+        self.item_drop.bind(on_select=self.on_item_select)
 
     def update_sub(self, loc):
         if self.main_btn is not None:
@@ -96,3 +105,7 @@ class Toolbar(BoxLayout):
         else:
             user.colored = False
         main_scr.refocus_text()
+
+    def on_item_select(self, inst, item):
+        self.text_item_btn.text = item
+

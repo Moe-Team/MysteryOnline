@@ -5,6 +5,7 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 
 from character_select import CharacterSelect
+from inventory import UserInventory
 from location import locations
 
 
@@ -14,6 +15,7 @@ class RightClickMenu(ModalView):
     def __init__(self, **kwargs):
         super(RightClickMenu, self).__init__(**kwargs)
         self.background_color = [0, 0, 0, 0]
+        self.inventory = None
 
     def on_char_select_clicked(self, *args):
         cs = CharacterSelect()
@@ -24,6 +26,12 @@ class RightClickMenu(ModalView):
     def on_settings_clicked(self, *args):
         App.get_running_app().open_settings()
         self.dismiss(animation=False)
+
+    def on_inventory_clicked(self, *args):
+        if self.inventory is None:
+            self.inventory = UserInventory()
+        self.inventory.open()
+
 
     def on_picked(self, inst):
         user = App.get_running_app().get_user()
