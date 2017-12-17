@@ -5,7 +5,6 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 
 from character_select import CharacterSelect
-from inventory import UserInventory
 from location import locations
 
 
@@ -15,7 +14,6 @@ class RightClickMenu(ModalView):
     def __init__(self, **kwargs):
         super(RightClickMenu, self).__init__(**kwargs)
         self.background_color = [0, 0, 0, 0]
-        self.inventory = None
 
     def on_char_select_clicked(self, *args):
         cs = CharacterSelect()
@@ -28,10 +26,11 @@ class RightClickMenu(ModalView):
         self.dismiss(animation=False)
 
     def on_inventory_clicked(self, *args):
-        if self.inventory is None:
-            self.inventory = UserInventory()
-        self.inventory.open()
-
+        main_scr = App.get_running_app().get_main_screen()
+        user = App.get_running_app().get_user()
+        user.inventory.open()
+        toolbar = main_scr.get_toolbar()
+        toolbar.text_item_btn.text = "no item"
 
     def on_picked(self, inst):
         user = App.get_running_app().get_user()
@@ -97,6 +96,7 @@ class MainScreen(Screen):
         user_handler.set_current_loc(locations['Hakuryou'])
         self.toolbar.update_loc()
         self.toolbar.update_sub(locations['Hakuryou'])
+        self.toolbar.set_user(self.user)
         self.sprite_preview.set_subloc(user_handler.get_current_subloc())
         char = self.user.get_char()
         if char is not None:
@@ -119,3 +119,6 @@ class MainScreen(Screen):
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
         self.msg_input.focus = True
+
+    def get_toolbar(self):
+        return self.toolbar
