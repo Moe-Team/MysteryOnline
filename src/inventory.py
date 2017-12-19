@@ -21,7 +21,6 @@ class UserInventory(Popup):
         self.item_list = GridLayout(cols=1, spacing=10, size_hint_y=0.9, id="item_list")
         self.construct_widget(self)
         self.item_dictionary_logic = {}
-        #self.add_item("itemtest", "desc", "no")
 
     def construct_widget(self, pos):
         close_btn = Button(text="Close", size_hint=(1, 0.1), height=40, pos_hint={'y': 0, 'x': 0})
@@ -67,7 +66,7 @@ class UserInventory(Popup):
 
 
 class Item(GridLayout):
-    def __init__(self, name, description, image_link, inventory: UserInventory, user, **kwargs):
+    def __init__(self, name, description, image_link, inventory: UserInventory, username, **kwargs):
         super(Item, self).__init__(**kwargs)
         self.inventory = inventory
         self.cols = 3
@@ -75,7 +74,7 @@ class Item(GridLayout):
         self.add_widget(self.name)
         self.description = Label(text=description)
         self.image = AsyncImage(source=image_link, pos_hint={'left': 1})
-        self.owner = user
+        self.owner_username = username
         delete_btn = Button(text="X")
         delete_btn.bind(on_press=lambda x: self.delete_item())
         self.add_widget(delete_btn)
@@ -111,14 +110,14 @@ class Item(GridLayout):
             main_grid = GridLayout(cols=2)
             main_grid.add_widget(self.image)
             main_grid.add_widget(self.description)
-            self.popup = Popup(title=self.name.text + " presented by " + self.owner.username, content=main_grid,
+            self.popup = Popup(title=self.name.text + " created by " + self.owner_username, content=main_grid,
                                size_hint=(.6, .2), pos_hint={'left': .1,
                                                              'top': 1})
         return self.popup
 
     # Encoded by: name#description#image_link#owner_name
     def encode(self):
-        return self.name.text+'#'+self.description.text+'#'+self.image.source+'#'+self.owner.username
+        return self.name.text+'#'+self.description.text+'#'+self.image.source+'#'+self.owner_username
 
 
 class ItemCreator(Popup):
@@ -140,7 +139,7 @@ class ItemCreator(Popup):
         close_btn.bind(on_release=self.dismiss)
         create_btn = Button(text="Create", size_hint=(1, 0.1), height=40, pos_hint={'y': 0, 'x': 0})
         create_btn.bind(on_release=lambda x: self.create_item(self.name.text, self.description.text,
-                                                              self.image_link.text, self.user))
+                                                              self.image_link.text, self.user.username))
         create_btn.bind(on_release=self.dismiss)
         button_grid.add_widget(create_btn)
         button_grid.add_widget(close_btn)
