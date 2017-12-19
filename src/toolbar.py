@@ -122,7 +122,7 @@ class Toolbar(BoxLayout):
         self.text_item_btn.text = item
         if item != "no item":
             item = self.user.inventory.get_item_by_name(item)
-            popup = item.build_item_window()
             self.user.inventory.send_item(item)
+            popup = item.build_item_window()
             popup.open()
 

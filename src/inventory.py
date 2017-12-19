@@ -40,9 +40,18 @@ class UserInventory(Popup):
         return string_list
 
     def add_item(self, name, description, image_link, user):
-        item = Item(name, description, image_link, self, user)
-        self.item_dictionary_logic[name] = item
-        self.item_list.add_widget(item)
+        if self.get_item_by_name(name) is None:
+            item = Item(name, description, image_link, self, user)
+            self.item_dictionary_logic[name] = item
+            self.item_list.add_widget(item)
+
+    def receive_item(self, name, description, image_link, user):
+        if self.get_item_by_name(name) is None:
+            item = Item(name, description, image_link, self, user)
+            self.item_dictionary_logic[name] = item
+            self.item_list.add_widget(item)
+            popup = item.build_item_window()
+            popup.open()
 
     def delete_item(self, name):
         if name in self.item_dictionary_logic:

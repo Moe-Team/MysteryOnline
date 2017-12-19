@@ -311,12 +311,13 @@ class ConnectionManger:
         dcdi = item_string.split("#", 3)
         user = App.get_running_app().get_user()
         username = dcd[1]
+        entry_text = ''
         if username != 'default':
-            user.inventory.add_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
+            user.inventory.receive_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
+            entry_text = ' and it was added to your inventory'
         if username == 'default':
             username = 'You'
-        main_scr.log_window.add_entry("{} presented {} and it was added to your inventory.\n"
-                                      .format(username, dcdi[0]))
+        main_scr.log_window.add_entry("{} presented {}{}.\n".format(username, dcdi[0], entry_text))
 
     def on_chat_message(self, main_scr, msg, user_handler):
         dcd = msg.decode()
