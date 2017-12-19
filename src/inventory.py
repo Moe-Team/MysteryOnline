@@ -6,6 +6,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.image import AsyncImage
+from kivy.app import App
 
 
 class UserInventory(Popup):
@@ -56,6 +57,13 @@ class UserInventory(Popup):
     def get_item_by_name(self, name):
         if name in self.item_dictionary_logic:
             return self.item_dictionary_logic[name]
+        else:
+            return None
+
+    def send_item(self, item):
+        con = App.get_running_app().get_user_handler().get_connection_manager()
+        item_on_str = item.encode()
+        con.send_item_to_all(item_on_str)
 
 
 class Item(GridLayout):
@@ -104,9 +112,13 @@ class Item(GridLayout):
             main_grid.add_widget(self.image)
             main_grid.add_widget(self.description)
             self.popup = Popup(title=self.name.text + " presented by " + self.owner.username, content=main_grid,
-                                size_hint=(.6, .2), pos_hint={'left': .1,
-                                                              'top': 1})
+                               size_hint=(.6, .2), pos_hint={'left': .1,
+                                                             'top': 1})
         return self.popup
+
+    # Encoded by: name#description#image_link#owner_name
+    def encode(self):
+        return self.name.text+'#'+self.description.text+'#'+self.image.source+'#'+self.owner.username
 
 
 class ItemCreator(Popup):

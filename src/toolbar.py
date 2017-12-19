@@ -2,9 +2,6 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
-from kivy.uix.image import Image
 
 from location import locations
 
@@ -126,5 +123,6 @@ class Toolbar(BoxLayout):
         if item != "no item":
             item = self.user.inventory.get_item_by_name(item)
             popup = item.build_item_window()
+            self.user.inventory.send_item(item)
             popup.open()
 
