@@ -25,6 +25,13 @@ class RightClickMenu(ModalView):
         App.get_running_app().open_settings()
         self.dismiss(animation=False)
 
+    def on_inventory_clicked(self, *args):
+        main_scr = App.get_running_app().get_main_screen()
+        user = App.get_running_app().get_user()
+        user.inventory.open()
+        toolbar = main_scr.get_toolbar()
+        toolbar.text_item_btn.text = "no item"
+
     def on_picked(self, inst):
         user = App.get_running_app().get_user()
         if inst.picked_char is not None:
@@ -89,6 +96,7 @@ class MainScreen(Screen):
         user_handler.set_current_loc(locations['Hakuryou'])
         self.toolbar.update_loc()
         self.toolbar.update_sub(locations['Hakuryou'])
+        self.toolbar.set_user(self.user)
         self.sprite_preview.set_subloc(user_handler.get_current_subloc())
         char = self.user.get_char()
         if char is not None:
@@ -111,3 +119,6 @@ class MainScreen(Screen):
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
         self.msg_input.focus = True
+
+    def get_toolbar(self):
+        return self.toolbar

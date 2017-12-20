@@ -39,6 +39,7 @@ class Message:
         res.append(self.sender)
         return res[1], res[2]
 
+
     def identify(self):
         if self.msg.count('#') >= 7:
             return 'chat'
@@ -52,6 +53,8 @@ class Message:
             return 'loc'
         if self.msg.startswith('r#'):
             return 'roll'
+        if self.msg.startswith('i#'):
+            return "item"
 
         return None
 
@@ -157,10 +160,10 @@ class IrcConnection:
         self.connection.privmsg(receiver, msg)
 
     def send_special(self, kind, value):
-        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#', 'roll': 'r#'}
+        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#', 'roll': 'r#', 'item': 'i#'}
         msg = kinds[kind] + value
         self.connection.privmsg(self.channel, msg)
-        if kind == 'OOC' or kind == 'roll':
+        if kind == 'OOC' or kind == 'roll' or kind == 'item':
             message = Message(msg)
             self.msg_q.messages.insert(0, message)
 
@@ -232,6 +235,9 @@ class ConnectionManger:
     def send_roll_to_all(self, roll_result):
         self.irc_connection.send_special('roll', roll_result)
 
+    def send_item_to_all(self, item):
+        self.irc_connection.send_special('item', item)
+
     def send_msg(self, msg, *args):
         self.irc_connection.send_msg(msg, *args)
 
@@ -257,6 +263,9 @@ class ConnectionManger:
                 self.on_music_message(main_scr, msg, user_handler)
             elif msg.identify() == 'roll':
                 self.on_roll_message(main_scr, msg)
+            elif msg.identify() == 'item':
+                self.on_item_message(main_scr, msg)
+
 
     def on_music_message(self, main_scr, msg, user_handler):
         dcd = msg.decode_other()
@@ -296,6 +305,20 @@ class ConnectionManger:
             username = "You"
         main_scr.log_window.add_entry("{} rolled {}.\n".format(username, roll_result))
 
+    def on_item_message(self, main_scr, msg):
+        dcd = msg.decode_other()
+        item_string = dcd[0]
+        dcdi = item_string.split("#", 3)
+        user = App.get_running_app().get_user()
+        username = dcd[1]
+        entry_text = ''
+        if username != 'default':
+            user.inventory.receive_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
+            entry_text = ' and it was added to your inventory'
+        if username == 'default':
+            username = 'You'
+        main_scr.log_window.add_entry("{} presented {}{}.\n".format(username, dcdi[0], entry_text))
+
     def on_chat_message(self, main_scr, msg, user_handler):
         dcd = msg.decode()
         if dcd[0] == "default":
@@ -312,6 +335,7 @@ class ConnectionManger:
             col = user.color_ids[int(dcd[6])]
             main_scr.text_box.display_text(dcd[8], user, col, user.username)
             main_scr.ooc_window.update_subloc(user.username, user.subloc.name)
+
 
     def update_music(self, url):
         self.send_music_to_all(url)

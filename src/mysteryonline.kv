@@ -616,6 +616,12 @@
             text: 'Settings'
             on_release: root.on_settings_clicked()
 
+        Button:
+            id: inventory
+            size_hint: None, None
+            size: 100, 30
+            text: 'Inventory'
+            on_release: root.on_inventory_clicked()
 
 <CharacterSelect>:
     button_lay: button_lay
@@ -637,6 +643,7 @@
             scroll_type: ['content', 'bars']
             bar_width: 5
             id: scroll_lay
+
 
 
 <MainScreenManager>:

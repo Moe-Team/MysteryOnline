@@ -1,5 +1,6 @@
 from character import characters
 from location import locations
+from inventory import UserInventory
 
 
 class User:
@@ -15,6 +16,7 @@ class User:
         self.colored = None  # True for a color selected
         self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow']  # Color code for text
         self.sprite_option = -1
+        self.inventory = UserInventory(self)
 
     def set_from_msg(self, *args):
         args = list(args)
@@ -40,7 +42,7 @@ class User:
             self.color = 'ffd700'
         elif col == 'green':
             self.color = '00cd00'
-        elif col == 'FUCKING RAINBOW':
+        elif col == 'rainbow':
             self.color = 'rainbow'
         elif col == 'normal':
             self.color = 'ffffff'
@@ -103,6 +105,9 @@ class User:
 
     def get_sprite_option(self):
         return self.sprite_option
+
+    def get_inventory(self):
+        return self.inventory
 
     def remove(self):
         if self.pos is None or self.subloc is None:

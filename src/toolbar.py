@@ -9,6 +9,7 @@ from location import locations
 class Toolbar(BoxLayout):
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
+        self.user = None
         self.main_btn = None
         self.main_loc_btn = None
         self.subloc_drop = DropDown(size_hint=(None, None), size=(200, 30))
@@ -18,7 +19,7 @@ class Toolbar(BoxLayout):
             btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
             self.pos_drop.add_widget(btn)
         self.color_drop = DropDown(size_hint=(None, None), size=(200, 30))
-        for col in ('red', 'blue', 'golden', 'green', 'FUCKING RAINBOW', 'normal'):
+        for col in ('red', 'blue', 'golden', 'green', 'rainbow', 'normal'):
             btn = Button(text=col, size_hint=(None, None), size=(200, 30))
             btn.bind(on_release=lambda btn_: self.color_drop.select(btn_.text))
             self.color_drop.add_widget(btn)
@@ -32,6 +33,26 @@ class Toolbar(BoxLayout):
         self.add_widget(self.pos_btn)
         self.pos_drop.bind(on_select=self.on_pos_select)
         self.loc_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        self.item_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        self.text_item_btn = Button(text='no item', size_hint=(None, None), size=(200, 30))
+        self.text_item_btn.bind(on_release=self.build_item_drop)
+        self.text_item_btn.bind(on_release=self.item_drop.open)
+        self.add_widget(self.text_item_btn)
+        self.item_drop.bind(on_select=self.on_item_select)
+
+    def build_item_drop(self, pos):
+        self.item_drop.clear_widgets()
+        item_list = self.user.inventory.get_item_string_list()
+        default_btn = Button(text="no item", size_hint=(None, None), size=(200, 30))
+        default_btn.bind(on_release=lambda btn_: self.item_drop.select(btn_.text))
+        self.item_drop.add_widget(default_btn)
+        for item in item_list:
+            btn = Button(text=item, size_hint=(None, None), size=(200, 30))
+            btn.bind(on_release=lambda btn_: self.item_drop.select(btn_.text))
+            self.item_drop.add_widget(btn)
+
+    def set_user(self, user):
+        self.user = user
 
     def update_sub(self, loc):
         if self.main_btn is not None:
@@ -96,3 +117,12 @@ class Toolbar(BoxLayout):
         else:
             user.colored = False
         main_scr.refocus_text()
+
+    def on_item_select(self, inst, item):
+        self.text_item_btn.text = item
+        if item != "no item":
+            item = self.user.inventory.get_item_by_name(item)
+            self.user.inventory.send_item(item)
+            popup = item.build_item_window()
+            popup.open()
+
