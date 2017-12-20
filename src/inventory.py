@@ -7,6 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.image import AsyncImage
 from kivy.app import App
+import webbrowser
 
 
 class UserInventory(Popup):
@@ -16,8 +17,8 @@ class UserInventory(Popup):
         self.user = user
         self.title = "Inventory"
         self.size_hint = (1, 1)
-        self.main_lay = BoxLayout(orientation='vertical', size_hint=(1, None), height=self.height)
-        self.scroll = ScrollView(size_hint=(1, None), size=(self.width, self.height - 50))
+        self.main_lay = BoxLayout(orientation='vertical', size_hint=(1, 1))
+        self.scroll = ScrollView(size_hint=(1, 1), size=(self.width, self.height - 50))
         self.item_list = GridLayout(cols=1, spacing=10, size_hint_y=0.9, id="item_list")
         self.construct_widget(self)
         self.item_dictionary_logic = {}
@@ -77,12 +78,14 @@ class UserInventory(Popup):
 class Item(GridLayout):
     def __init__(self, name, description, image_link, inventory: UserInventory, username, **kwargs):
         super(Item, self).__init__(**kwargs)
-        self.inventory = inventory
+        #self.on_touch_down = lambda x: self.open_popup() opens every item
         self.cols = 3
+        self.inventory = inventory
         self.name = Label(text=name)
         self.add_widget(self.name)
         self.description = Label(text=description)
         self.image = AsyncImage(source=image_link, pos_hint={'left': 1})
+        #self.image.bind(on_touch_down=lambda x: self.open_image())
         self.owner_username = username
         delete_btn = Button(text="X")
         delete_btn.bind(on_press=lambda x: self.delete_item())
@@ -110,6 +113,10 @@ class Item(GridLayout):
     def set_image_link(self, image_link):
         self.image = image_link
 
+    def open_image(self):
+        print(self.image.source)
+        webbrowser.open("https://kivy.org/docs/api-kivy.uix.layout.html")
+
     def delete_item(self):
         if self.inventory is not None:
             self.inventory.delete_item(self.name.text)
@@ -120,9 +127,13 @@ class Item(GridLayout):
             main_grid.add_widget(self.image)
             main_grid.add_widget(self.description)
             self.popup = Popup(title=self.name.text + " created by " + self.owner_username, content=main_grid,
-                               size_hint=(.6, .2), pos_hint={'left': .1,
+                               size_hint=(.5, .3), pos_hint={'left': .1,
                                                              'top': 1})
         return self.popup
+
+    def open_popup(self):
+        popup = self.build_item_window()
+        popup.open()
 
     # Encoded by: name#description#image_link#owner_name
     def encode(self):
@@ -141,22 +152,22 @@ class ItemCreator(Popup):
         self.construct_widget(self)
 
     def construct_widget(self, pos):
-        button_grid = GridLayout(cols=2, spacing=10, size_hint_y=0.9)
-        text_input_grid = GridLayout(rows=3, spacing=10)
+        button_grid = GridLayout(cols=2, spacing=50, size_hint_y=0.2)
+        text_input_grid = GridLayout(rows=3, spacing=80)
         main_grid = GridLayout(rows=2, spacing=30)
-        close_btn = Button(text="Close", size_hint=(1, 0.1), height=40, pos_hint={'y': 0, 'x': 0})
+        close_btn = Button(text="Close", pos_hint={'y': 0, 'x': 0})
         close_btn.bind(on_release=self.dismiss)
-        create_btn = Button(text="Create", size_hint=(1, 0.1), height=40, pos_hint={'y': 0, 'x': 0})
+        create_btn = Button(text="Create", pos_hint={'y': 0, 'x': 0})
         create_btn.bind(on_release=lambda x: self.create_item(self.name.text, self.description.text,
                                                               self.image_link.text, self.user.username))
         create_btn.bind(on_release=self.dismiss)
         button_grid.add_widget(create_btn)
         button_grid.add_widget(close_btn)
-        text_input_grid.add_widget(Label(text="Name: "))
+        text_input_grid.add_widget(Label(text="Name: ", size_hint=(None, 0.3)))
         text_input_grid.add_widget(self.name)
-        text_input_grid.add_widget(Label(text="Description: "))
+        text_input_grid.add_widget(Label(text="Description: ", size_hint=(None, 0.3)))
         text_input_grid.add_widget(self.description)
-        text_input_grid.add_widget(Label(text="Link: "))
+        text_input_grid.add_widget(Label(text="Link: ", size_hint=(None, 0.3)))
         text_input_grid.add_widget(self.image_link)
         self.add_widget(main_grid)
         main_grid.add_widget(button_grid)
