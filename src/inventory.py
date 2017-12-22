@@ -7,32 +7,19 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.image import AsyncImage
 from kivy.app import App
+from kivy.properties import ObjectProperty
 import webbrowser
 
 
 class UserInventory(Popup):
+    main_lay = ObjectProperty(None)
+    scroll = ObjectProperty(None)
+    item_list = ObjectProperty(None)
 
     def __init__(self, user,  **kwargs):
         super(UserInventory, self).__init__(**kwargs)
         self.user = user
-        self.title = "Inventory"
-        self.size_hint = (1, 1)
-        self.main_lay = BoxLayout(orientation='vertical', size_hint=(1, 1))
-        self.scroll = ScrollView(size_hint=(1, 1), size=(self.width, self.height - 50))
-        self.item_list = GridLayout(cols=1, spacing=10, size_hint_y=0.9, id="item_list")
-        self.construct_widget(self)
         self.item_dictionary_logic = {}
-
-    def construct_widget(self, pos):
-        close_btn = Button(text="Close", size_hint=(1, 0.1), height=40, pos_hint={'y': 0, 'x': 0})
-        close_btn.bind(on_release=self.dismiss)
-        add_item_btn = Button(text="+", size_hint=(1, 0.1), height=40, pos_hint={'y': 0, 'x': 0})
-        add_item_btn.bind(on_release=lambda x: self.display_item_creator())
-        self.scroll.add_widget(self.item_list)
-        self.main_lay.add_widget(self.scroll)
-        self.main_lay.add_widget(add_item_btn)
-        self.main_lay.add_widget(close_btn)
-        self.add_widget(self.main_lay)
 
     def get_item_string_list(self):
         string_list = []

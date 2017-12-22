@@ -45,6 +45,7 @@ Builder.load_file(KV_DIR + 'private_message_screen.kv')
 Builder.load_file(KV_DIR + 'sprite.kv')
 Builder.load_file(KV_DIR + 'textbox.kv')
 Builder.load_file(KV_DIR + 'user_box.kv')
+Builder.load_file(KV_DIR + 'inventory.kv')
 
 
 class MainScreenManager(ScreenManager):

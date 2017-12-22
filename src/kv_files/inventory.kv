@@ -1,0 +1,37 @@
+<UserInventory>:
+    title: "Inventory"
+    size_hint: 1, 1
+
+    main_lay: _main_lay
+    scroll: _scroll
+    item_list: item_list
+
+    BoxLayout:
+        id: _main_lay
+        orientation: 'vertical'
+        size_hint: 1, 1
+
+        ScrollView:
+            id: _scroll
+            size_hint: 1, 1
+            size: root.width, root.height - 50
+
+            GridLayout:
+                id: item_list
+                cols: 1
+                spacing: 10
+                size_hint_y: 0.9
+
+        Button:
+            text: "+"
+            size_hint: 1, None
+            height: 40
+            pos_hint: {'y': 0, 'x': 0}
+            on_release: root.display_item_creator()
+
+        Button:
+            text: "Close"
+            size_hint: 1, None
+            height: 40
+            pos_hint: {'y': 0, 'x': 0}
+            on_release: root.dismiss()
