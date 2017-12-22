@@ -1,7 +1,5 @@
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
-from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
@@ -128,37 +126,14 @@ class Item(GridLayout):
 
 
 class ItemCreator(Popup):
+    name = ObjectProperty(None)
+    description = ObjectProperty(None)
+    image_link = ObjectProperty(None)
 
     def __init__(self, inventory: UserInventory, user, **kwargs):
         super(ItemCreator, self).__init__(**kwargs)
         self.inventory = inventory
         self.user = user
-        self.name = TextInput(text='', multiline=False)
-        self.description = TextInput(text='')
-        self.image_link = TextInput(text='', multiline=False)
-        self.construct_widget(self)
-
-    def construct_widget(self, pos):
-        button_grid = GridLayout(cols=2, spacing=50, size_hint_y=0.2)
-        text_input_grid = GridLayout(rows=3, spacing=80)
-        main_grid = GridLayout(rows=2, spacing=30)
-        close_btn = Button(text="Close", pos_hint={'y': 0, 'x': 0})
-        close_btn.bind(on_release=self.dismiss)
-        create_btn = Button(text="Create", pos_hint={'y': 0, 'x': 0})
-        create_btn.bind(on_release=lambda x: self.create_item(self.name.text, self.description.text,
-                                                              self.image_link.text, self.user.username))
-        create_btn.bind(on_release=self.dismiss)
-        button_grid.add_widget(create_btn)
-        button_grid.add_widget(close_btn)
-        text_input_grid.add_widget(Label(text="Name: ", size_hint=(None, 0.3)))
-        text_input_grid.add_widget(self.name)
-        text_input_grid.add_widget(Label(text="Description: ", size_hint=(None, 0.3)))
-        text_input_grid.add_widget(self.description)
-        text_input_grid.add_widget(Label(text="Link: ", size_hint=(None, 0.3)))
-        text_input_grid.add_widget(self.image_link)
-        self.add_widget(main_grid)
-        main_grid.add_widget(button_grid)
-        main_grid.add_widget(text_input_grid)
 
     def create_item(self, name, description, image_link, user):
         self.inventory.add_item(name, description, image_link, user)

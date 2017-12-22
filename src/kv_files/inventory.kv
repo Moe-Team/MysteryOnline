@@ -35,3 +35,56 @@
             height: 40
             pos_hint: {'y': 0, 'x': 0}
             on_release: root.dismiss()
+
+
+<ItemCreator>:
+    name: _name
+    description: _description
+    image_link: _image_link
+
+    GridLayout:
+        rows: 2
+        spacing: 30
+
+        GridLayout:
+            cols: 2
+            spacing: 50
+            size_hint_y: 0.2
+
+            Button:
+                text: "Create"
+                pos_hint: {'y': 0, 'x': 0}
+                on_release: root.create_item(_name.text, _description.text, _image_link.text, root.user.username)
+                on_release: root.dismiss()
+
+            Button:
+                text: "Close"
+                pos_hint: {'y': 0, 'x': 0}
+                on_release: root.dismiss()
+
+        GridLayout:
+            rows: 3
+            spacing: 80
+
+            Label:
+                text: "Name"
+                size_hint: None, 0.3
+
+            TextInput:
+                id: _name
+                multiline: False
+
+            Label:
+                text: "Description"
+                size_hint: None, 0.3
+
+            TextInput:
+                id: _description
+
+            Label:
+                text: "Link"
+                size_hint: None, 0.3
+
+            TextInput:
+                id: _image_link
+                multiline: False
