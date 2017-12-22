@@ -1,0 +1,103 @@
+<MusicListView>:
+    viewclass: 'TrackLabel'
+    scroll_type: ['content', 'bars']
+    bar_width: 10
+    RecycleBoxLayout:
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+
+<SearchResults>:
+    size_hint: 1, 1
+
+    BoxLayout:
+        orientation: 'vertical'
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+
+
+<MusicList>:
+    music_list_view: music_list_view.__self__
+    search_bar: search_bar
+    text: "Music list"
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        MusicListView:
+            id: music_list_view
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 30
+
+            TextInput:
+                id: search_bar
+                size_hint: 0.8, 1
+                multiline: False
+                on_text_validate: root.search(self.text)
+
+            Button:
+                text: "Clear"
+                size_hint: 0.2, 1
+                on_release: root.clear_search()
+
+
+<LeftTab>:
+    sprite_preview: sprite_preview
+    sprite_settings: sprite_settings
+    trans_slider: trans_slider
+    speed_slider: speed_slider
+    music_list: music_list
+    do_default_tab: False
+    tab_width: 80
+
+    TabbedPanelItem:
+        text: "Preview"
+
+        BoxLayout:
+            size: root.size
+            pos: root.pos
+            orientation: 'vertical'
+
+            SpritePreview:
+                id: sprite_preview
+                size_hint: None, None
+                size: 800 / 3, 600 / 3
+
+            SpriteSettings:
+                id: sprite_settings
+                size_hint: None, None
+                size: 800 / 3, 60
+
+    TabbedPanelItem:
+        text: "Other"
+
+        BoxLayout:
+            size: root.size
+            pos: root.pos
+            orientation: 'vertical'
+
+            Label:
+                text: "Textbox transparency"
+
+            Slider:
+                id: trans_slider
+                min: 0
+                max: 100
+                on_value: root.on_trans_slider_value()
+
+            Label:
+                text: "Textbox speed"
+
+            Slider:
+                id: speed_slider
+                min: 1
+                max: 60
+                on_value: root.on_speed_slider_value()
+
+    MusicList:
+        id: music_list

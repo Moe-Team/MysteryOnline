@@ -16,6 +16,7 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.clock import Clock
+from kivy.lang.builder import Builder
 
 from loginscreen import LoginScreen
 from mainscreen import MainScreen
@@ -29,6 +30,19 @@ from left_tab import LeftTab
 
 from mopopup import MOPopup
 from location import locations
+
+
+Builder.load_file('character_select.kv')
+Builder.load_file('icon.kv')
+Builder.load_file('left_tab.kv')
+Builder.load_file('loginscreen.kv')
+Builder.load_file('main_log.kv')
+Builder.load_file('mainscreen.kv')
+Builder.load_file('ooc.kv')
+Builder.load_file('private_message_screen.kv')
+Builder.load_file('sprite.kv')
+Builder.load_file('textbox.kv')
+Builder.load_file('user_box.kv')
 
 
 class MainScreenManager(ScreenManager):

@@ -1,0 +1,20 @@
+<CharacterSelect>:
+    button_lay: button_lay
+    scroll_lay: scroll_lay
+
+    title: 'Select your character'
+    size_hint: 0.7, 0.7
+    auto_dismiss: False
+    background_color: [0, 0, 0, 0]
+
+    FloatLayout:
+        orientation: 'vertical'
+        id: button_lay
+
+        ScrollView:
+            pos_hint: {'top': 1, 'x': 0}
+            size_hint: 1, None
+            height: root.height - 100
+            scroll_type: ['content', 'bars']
+            bar_width: 5
+            id: scroll_lay

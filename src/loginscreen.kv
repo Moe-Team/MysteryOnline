@@ -1,0 +1,36 @@
+<LoginScreen>:
+    username: username_input.text
+
+    Image:
+        source: "misc_img/MOTitle.png"
+        pos_hint: {'center_y': 0.8, 'center_x': 0.5}
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: None, None
+        size: 300, 150
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+        Label:
+            text: "Username"
+            font_size: 20
+            outline_color: 0, 0, 0
+            outline_width: 2
+
+        TextInput:
+            id: username_input
+            on_text_validate: root.on_login_clicked()
+            multiline: False
+            text: app.config.get('other', 'last_username')
+
+        Button:
+            text: "Log in"
+            on_release: root.on_login_clicked()
+
+        Button:
+            text: "Choose character"
+            on_release: root.on_select_clicked()
+
+        Button:
+            text: "Settings"
+            on_release: app.open_settings()

@@ -1,0 +1,48 @@
+<SpriteSettings>:
+    check_flip_h: check_flip_h
+    orientation: 'horizontal'
+
+    Label:
+        text: "Flip horizontally"
+
+    CheckBox:
+        id: check_flip_h
+        on_active: root.on_checked_flip_h(self.active)
+
+
+<SpritePreview>:
+    center_sprite: center_s
+
+    StencilView:
+        size: root.size
+        pos: root.pos
+
+        FloatLayout:
+            size: root.size
+            pos: root.pos
+
+            Image:
+                id: center_s
+                opacity: 0
+                size_hint: None, None
+                size: 200, 200
+                pos_hint: {'center_x': 0.5, 'y': 0}
+
+
+<SpriteWindow>:
+    background: background
+    sprite_layout: sprite_layout
+
+    Image:
+        id: background
+        size: root.size
+        pos: root.pos
+
+        StencilView:
+            size: root.size
+            pos: root.pos
+
+            FloatLayout:
+                id: sprite_layout
+                size: root.size
+                pos: root.pos
