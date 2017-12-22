@@ -2,7 +2,6 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
 from kivy.uix.image import AsyncImage
 from kivy.app import App
 from kivy.properties import ObjectProperty
@@ -63,14 +62,14 @@ class UserInventory(Popup):
 class Item(GridLayout):
     def __init__(self, name, description, image_link, inventory: UserInventory, username, **kwargs):
         super(Item, self).__init__(**kwargs)
-        #self.on_touch_down = lambda x: self.open_popup() opens every item
+        # self.on_touch_down = lambda x: self.open_popup() opens every item
         self.cols = 3
         self.inventory = inventory
         self.name = Label(text=name)
         self.add_widget(self.name)
         self.description = Label(text=description)
         self.image = AsyncImage(source=image_link, pos_hint={'left': 1})
-        #self.image.bind(on_touch_down=lambda x: self.open_image())
+        self.image.bind(on_touch_down=self.open_image)
         self.owner_username = username
         delete_btn = Button(text="X")
         delete_btn.bind(on_press=lambda x: self.delete_item())
@@ -98,9 +97,9 @@ class Item(GridLayout):
     def set_image_link(self, image_link):
         self.image = image_link
 
-    def open_image(self):
-        print(self.image.source)
-        webbrowser.open("https://kivy.org/docs/api-kivy.uix.layout.html")
+    def open_image(self, inst, touch):
+        if self.image.collide_point(*touch.pos):
+            webbrowser.open(self.image.source)
 
     def delete_item(self):
         if self.inventory is not None:
