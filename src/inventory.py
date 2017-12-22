@@ -62,7 +62,6 @@ class UserInventory(Popup):
 class Item(GridLayout):
     def __init__(self, name, description, image_link, inventory: UserInventory, username, **kwargs):
         super(Item, self).__init__(**kwargs)
-        # self.on_touch_down = lambda x: self.open_popup() opens every item
         self.cols = 3
         self.inventory = inventory
         self.name = Label(text=name)
@@ -75,6 +74,10 @@ class Item(GridLayout):
         delete_btn.bind(on_press=lambda x: self.delete_item())
         self.add_widget(delete_btn)
         self.popup = None
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self.open_popup()
 
     def get_name(self):
         return self.name.text
