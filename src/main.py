@@ -32,17 +32,19 @@ from mopopup import MOPopup
 from location import locations
 
 
-Builder.load_file('character_select.kv')
-Builder.load_file('icon.kv')
-Builder.load_file('left_tab.kv')
-Builder.load_file('loginscreen.kv')
-Builder.load_file('main_log.kv')
-Builder.load_file('mainscreen.kv')
-Builder.load_file('ooc.kv')
-Builder.load_file('private_message_screen.kv')
-Builder.load_file('sprite.kv')
-Builder.load_file('textbox.kv')
-Builder.load_file('user_box.kv')
+KV_DIR = "kv_files/"
+
+Builder.load_file(KV_DIR + 'character_select.kv')
+Builder.load_file(KV_DIR + 'icon.kv')
+Builder.load_file(KV_DIR + 'left_tab.kv')
+Builder.load_file(KV_DIR + 'loginscreen.kv')
+Builder.load_file(KV_DIR + 'main_log.kv')
+Builder.load_file(KV_DIR + 'mainscreen.kv')
+Builder.load_file(KV_DIR + 'ooc.kv')
+Builder.load_file(KV_DIR + 'private_message_screen.kv')
+Builder.load_file(KV_DIR + 'sprite.kv')
+Builder.load_file(KV_DIR + 'textbox.kv')
+Builder.load_file(KV_DIR + 'user_box.kv')
 
 
 class MainScreenManager(ScreenManager):
