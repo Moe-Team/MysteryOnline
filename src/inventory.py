@@ -31,12 +31,13 @@ class UserInventory(Popup):
             self.item_list.add_widget(item)
 
     def receive_item(self, name, description, image_link, user):
-        if self.get_item_by_name(name) is None:
+        item = self.get_item_by_name(name)
+        if item is None:
             item = Item(name, description, image_link, self, user)
             self.item_dictionary_logic[name] = item
             self.item_list.add_widget(item)
-            popup = item.build_item_window()
-            popup.open()
+        popup = item.build_item_window()
+        popup.open()
 
     def delete_item(self, name):
         if name in self.item_dictionary_logic:
@@ -65,6 +66,7 @@ class Item(GridLayout):
         self.cols = 3
         self.inventory = inventory
         self.name = Label(text=name)
+        self.name.bind(on_touch_down=self.on_item_pressed)
         self.add_widget(self.name)
         self.description = Label(text=description)
         self.image = AsyncImage(source=image_link, pos_hint={'left': 1})
@@ -75,8 +77,8 @@ class Item(GridLayout):
         self.add_widget(delete_btn)
         self.popup = None
 
-    def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos):
+    def on_item_pressed(self, inst, touch):
+        if self.name.collide_point(*touch.pos):
             self.open_popup()
 
     def get_name(self):

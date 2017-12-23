@@ -39,7 +39,6 @@ class Message:
         res.append(self.sender)
         return res[1], res[2]
 
-
     def identify(self):
         if self.msg.count('#') >= 7:
             return 'chat'
@@ -266,7 +265,6 @@ class ConnectionManger:
             elif msg.identify() == 'item':
                 self.on_item_message(main_scr, msg)
 
-
     def on_music_message(self, main_scr, msg, user_handler):
         dcd = msg.decode_other()
         username = dcd[1]
@@ -313,10 +311,10 @@ class ConnectionManger:
         username = dcd[1]
         entry_text = ''
         if username != 'default':
-            user.inventory.receive_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
             entry_text = ' and it was added to your inventory'
         if username == 'default':
             username = 'You'
+        user.inventory.receive_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
         main_scr.log_window.add_entry("{} presented {}{}.\n".format(username, dcdi[0], entry_text))
 
     def on_chat_message(self, main_scr, msg, user_handler):
@@ -335,7 +333,6 @@ class ConnectionManger:
             col = user.color_ids[int(dcd[6])]
             main_scr.text_box.display_text(dcd[8], user, col, user.username)
             main_scr.ooc_window.update_subloc(user.username, user.subloc.name)
-
 
     def update_music(self, url):
         self.send_music_to_all(url)

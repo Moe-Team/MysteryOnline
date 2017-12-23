@@ -31,6 +31,7 @@ class RightClickMenu(ModalView):
         user.inventory.open()
         toolbar = main_scr.get_toolbar()
         toolbar.text_item_btn.text = "no item"
+        self.dismiss(animation=False)
 
     def on_picked(self, inst):
         user = App.get_running_app().get_user()
