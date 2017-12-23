@@ -30,22 +30,13 @@ from left_tab import LeftTab
 
 from mopopup import MOPopup
 from location import locations
+from os import listdir
 
 
 KV_DIR = "kv_files/"
 
-Builder.load_file(KV_DIR + 'character_select.kv')
-Builder.load_file(KV_DIR + 'icon.kv')
-Builder.load_file(KV_DIR + 'left_tab.kv')
-Builder.load_file(KV_DIR + 'loginscreen.kv')
-Builder.load_file(KV_DIR + 'main_log.kv')
-Builder.load_file(KV_DIR + 'mainscreen.kv')
-Builder.load_file(KV_DIR + 'ooc.kv')
-Builder.load_file(KV_DIR + 'private_message_screen.kv')
-Builder.load_file(KV_DIR + 'sprite.kv')
-Builder.load_file(KV_DIR + 'textbox.kv')
-Builder.load_file(KV_DIR + 'user_box.kv')
-Builder.load_file(KV_DIR + 'inventory.kv')
+for kv_file in listdir(KV_DIR):
+    Builder.load_file(KV_DIR + kv_file)
 
 
 class MainScreenManager(ScreenManager):
