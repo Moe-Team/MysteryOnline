@@ -5,6 +5,7 @@ from kivy.uix.label import Label
 from kivy.uix.image import AsyncImage
 from kivy.app import App
 from kivy.properties import ObjectProperty
+from mopopup import MOPopup
 import webbrowser
 
 
@@ -140,4 +141,12 @@ class ItemCreator(Popup):
         self.user = user
 
     def create_item(self, name, description, image_link, user):
+        message_len = len(name) + len(description) + len(image_link) + len(user)
+        if message_len > 480:
+            error_popup = MOPopup("Character limit exceeded", "IRC has a character limit of roughly 500, please make"
+                                                              " sure your item's combined description, name, and image"
+                                                              " link don't exceed it.", "Close")
+            error_popup.size = (900, 200)
+            error_popup.open()
+            return
         self.inventory.add_item(name, description, image_link, user)
