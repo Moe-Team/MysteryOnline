@@ -20,15 +20,16 @@ class User:
 
     def set_from_msg(self, *args):
         args = list(args)
-        self.location = locations[args[1]]
-        self.set_subloc(self.location.get_sub(args[2]))
+        self.set_loc(args[1], True)
+        if self.location is not None:
+            self.set_subloc(self.location.get_sub(args[2]))
+            self.set_pos(args[5])
         self.set_current_sprite(args[4])
         self.character = characters.get(args[3])
         if self.character is None:
             self.character = characters['RedHerring']
             self.set_current_sprite('4')
         self.character.load_without_icons()
-        self.set_pos(args[5])
 
     def get_color(self):
         return self.color
