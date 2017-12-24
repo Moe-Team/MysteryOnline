@@ -286,8 +286,9 @@ class ConnectionManger:
         dcd = msg.decode_other()
         user = dcd[1]
         loc = dcd[0]
-        main_scr.log_window.add_entry("{} moved to {}. \n".format(user, loc))
         user = main_scr.users.get(user, None)
+        if user.get_loc() is not None:
+            main_scr.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
         user.set_loc(loc, True)
         main_scr.ooc_window.update_loc(user.username, loc)
 
