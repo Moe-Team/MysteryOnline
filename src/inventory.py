@@ -37,8 +37,7 @@ class UserInventory(Popup):
             item = Item(name, description, image_link, self, user)
             self.item_dictionary_logic[name] = item
             self.item_list.add_widget(item)
-        popup = item.build_item_window()
-        popup.open()
+        item.open_popup()
 
     def delete_item(self, name):
         if name in self.item_dictionary_logic:

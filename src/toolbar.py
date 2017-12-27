@@ -123,3 +123,4 @@ class Toolbar(BoxLayout):
         if item != "no item":
             item = self.user.inventory.get_item_by_name(item)
             self.user.inventory.send_item(item)
+        self.text_item_btn.text = "no item"
