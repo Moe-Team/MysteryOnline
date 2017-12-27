@@ -54,7 +54,7 @@
             CheckBox:
                 id: loop_checkbox
                 active: True
-                on_active: self.on_loop()
+                on_active: root.on_loop(self.active)
 
         BoxLayout:
             size_hint: 1, None

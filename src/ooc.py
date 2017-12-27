@@ -83,7 +83,7 @@ class MusicTab(TabbedPanelItem):
                     connection.update_music("stop")
                     main_screen.log_window.add_entry("You stopped the music.\n")
 
-    def on_loop(self, c, value):
+    def on_loop(self, value):
         self.loop = value
 
     def reset_music(self, *args):
