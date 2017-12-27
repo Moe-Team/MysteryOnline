@@ -263,7 +263,7 @@ class ConnectionManger:
             elif msg.identify() == 'roll':
                 self.on_roll_message(main_scr, msg)
             elif msg.identify() == 'item':
-                self.on_item_message(main_scr, msg)
+                self.on_item_message(main_scr, msg, user_handler)
 
     def on_music_message(self, main_scr, msg, user_handler):
         dcd = msg.decode_other()
@@ -304,7 +304,7 @@ class ConnectionManger:
             username = "You"
         main_scr.log_window.add_entry("{} rolled {}.\n".format(username, roll_result))
 
-    def on_item_message(self, main_scr, msg):
+    def on_item_message(self, main_scr, msg, user_handler):
         dcd = msg.decode_other()
         item_string = dcd[0]
         dcdi = item_string.split("#", 3)
@@ -312,6 +312,9 @@ class ConnectionManger:
         username = dcd[1]
         entry_text = ''
         if username != 'default':
+            sender = main_scr.users[username]
+            if sender.get_loc().name != user_handler.get_current_loc().name:
+                return
             entry_text = ' and it was added to your inventory'
         if username == 'default':
             username = 'You'
