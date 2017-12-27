@@ -142,7 +142,7 @@ class ItemCreator(Popup):
 
     def create_item(self, name, description, image_link, user):
         message_len = len(name) + len(description) + len(image_link) + len(user)
-        if message_len > 480:
+        if message_len > 420:
             error_popup = MOPopup("Character limit exceeded", "IRC has a character limit of roughly 500, please make"
                                                               " sure your item's combined description, name, and image"
                                                               " link don't exceed it.", "Close")
