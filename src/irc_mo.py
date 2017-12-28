@@ -323,10 +323,13 @@ class ConnectionManger:
 
     def on_chat_message(self, main_scr, msg, user_handler):
         dcd = msg.decode()
-        if dcd[0] == "default":
+        username = dcd[0]
+        if username == "default":
             user = App.get_running_app().get_user()
         else:
-            user = main_scr.users[dcd[0]]
+            user = main_scr.users.get(username, None)
+            if user is None:
+                self.on_join(username)
             user.set_from_msg(*dcd)
         loc = dcd[1]
         if loc == user_handler.get_current_loc().name and user not in main_scr.ooc_window.muted_users:
