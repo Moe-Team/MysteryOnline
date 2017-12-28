@@ -74,5 +74,8 @@ class Location:
     def get_first_sub(self):
         return self.list_sub()[0]
 
+    def get_name(self):
+        return self.name
+
 
 locations = {name: Location(name) for name in os.listdir("locations") if os.path.isdir("locations/" + name)}

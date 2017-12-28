@@ -287,7 +287,7 @@ class ConnectionManger:
         user = dcd[1]
         loc = dcd[0]
         user = main_scr.users.get(user, None)
-        if user.get_loc() is not None:
+        if user.get_loc() is not None and user.get_loc().get_name() != loc:
             main_scr.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
         user.set_loc(loc, True)
         main_scr.ooc_window.update_loc(user.username, loc)
