@@ -66,7 +66,7 @@ class LogWindow(ScrollView):
         return 'www.' in message or 'http://' in message or 'https://' in message
 
     def open_url(self, value):
-        pattern = re.compile(r'(https?://)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)')
+        pattern = re.compile(r'(https?://)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=!]*)')
         url = re.search(pattern, value)
         if url:
             webbrowser.open(url.group(0))
