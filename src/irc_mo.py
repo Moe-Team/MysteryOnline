@@ -19,6 +19,12 @@ class Message:
     def __init__(self, message, sender="default"):
         self.msg = message
         self.sender = sender
+        self.remove_line_breaks()
+
+    def remove_line_breaks(self):
+        if '\n' in self.msg or '\r' in self.msg:
+            self.msg = self.msg.replace('\n', ' ')
+            self.msg = self.msg.replace('\r', ' ')
 
     def __str__(self):
         return self.msg
@@ -161,6 +167,9 @@ class IrcConnection:
     def send_special(self, kind, value):
         kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#', 'roll': 'r#', 'item': 'i#'}
         msg = kinds[kind] + value
+        if '\n' in msg or '\r' in msg:
+            msg = msg.replace('\n', ' ')
+            msg = msg.replace('\r', ' ')
         self.connection.privmsg(self.channel, msg)
         if kind == 'OOC' or kind == 'roll' or kind == 'item':
             message = Message(msg)
