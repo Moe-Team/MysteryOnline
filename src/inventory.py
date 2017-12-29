@@ -117,7 +117,7 @@ class Item(GridLayout):
             main_grid.add_widget(self.description)
             self.popup = Popup(title=self.name.text + " created by " + self.owner_username, content=main_grid,
                                size_hint=(.5, .3), pos_hint={'left': .1,
-                                                             'top': 1})
+                                                             'top': 1}, background_color=[0, 0, 0, 0])
         return self.popup
 
     def open_popup(self):
