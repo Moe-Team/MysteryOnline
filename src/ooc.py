@@ -44,6 +44,7 @@ class MusicTab(TabbedPanelItem):
             main_screen.log_window.add_entry("You changed the music.\n")
         if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
             Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
+            self.is_loading_music = False
             return
 
         def play_song(root):
@@ -87,6 +88,7 @@ class MusicTab(TabbedPanelItem):
         self.loop = value
 
     def reset_music(self, *args):
+        self.is_loading_music = False
         if self.track is not None:
             self.track.stop()
 
