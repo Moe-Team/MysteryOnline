@@ -21,6 +21,8 @@ class PrivateMessageScreen(ModalView):
         self.conversation_list = getattr(self.ids, 'prv_users_list')
         self.text_box = getattr(self.ids, 'pm_input')
         self.pm_close_sound = SoundLoader.load('sounds/general/codecover.wav')
+        self.pm_window_open_flag = False
+        self.pm_flag = False
 
     def ready(self):
         main_scr = App.get_running_app().get_main_screen()
@@ -50,6 +52,8 @@ class PrivateMessageScreen(ModalView):
         vol = App.get_running_app().config.getdefaultint('sound', 'effect_volume', 100)
         self.pm_close_sound.volume = vol / 100
         self.pm_close_sound.play()
+        self.pm_window_open_flag = False
+        self.pm_flag = False
         self.dismiss()
 
     def build_conversation(self, username):

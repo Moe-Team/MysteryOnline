@@ -111,8 +111,6 @@ class OOCWindow(TabbedPanel):
         self.chat = PrivateMessageScreen()
         self.muted_users = []
         self.pm_buttons = []
-        self.pm_flag = False
-        self.pm_window_open_flag = False
         self.ooc_chat = OOCLogLabel()
         self.counter = 0
 
@@ -205,7 +203,7 @@ class OOCWindow(TabbedPanel):
         user_box.set_sub_label(subloc)
 
     def open_private_msg_screen(self, username, pm):  # Opens the PM window
-        self.pm_window_open_flag = True
+        self.chat.pm_window_open_flag = True
         pm.background_color = (1, 1, 1, 1)
         self.chat.build_conversation(username)
         self.chat.set_current_conversation_user(username)
@@ -225,14 +223,14 @@ class OOCWindow(TabbedPanel):
         if pm is not None:
             if pm.sender != self.chat.username:
                 if not self.muted_sender(pm, self.muted_users):
-                    if not self.pm_window_open_flag:
+                    if not self.chat.pm_window_open_flag:
                         for x in range(len(self.online_users)):
                             if pm.sender == self.pm_buttons[x].id:
                                 self.pm_buttons[x].background_color = (1, 0, 0, 1)
                                 break
-                        if not self.pm_flag:
+                        if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             self.pm_notif.play()
-                    self.pm_flag = True
+                    self.chat.pm_flag = True
                     self.chat.build_conversation(pm.sender)
                     self.chat.set_current_conversation_user(pm.sender)
                     self.chat.update_conversation(pm.sender, pm.msg)
