@@ -178,6 +178,7 @@ class OOCWindow(TabbedPanel):
         if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
             user_box = UserBox(size_hint_y=None, height=40)
             user_box.lbl.text = "{}: {}\n".format(user.username, char)
+            user_box.pm.id = user.username
             user_box.pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, user_box.pm))
             self.pm_buttons.append(user_box.pm)
             user_box.mute.bind(on_press=lambda x: self.mute_user(user, user_box.mute))
