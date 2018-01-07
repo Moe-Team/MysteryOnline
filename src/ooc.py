@@ -14,6 +14,23 @@ from kivy.logger import Logger
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
 
+import youtube_dl
+import os
+
+ytdl_format_options = {
+    'format': 'bestaudio/best',
+    'outtmpl': 'temp.mp3',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0'
+}
+#this thing let's you declare what shit you want ur download to be, neat!!
 
 class OOCLogLabel(Label):
     def __init__(self, **kwargs):
@@ -42,7 +59,7 @@ class MusicTab(TabbedPanelItem):
             connection_manager.update_music(url)
             main_screen = App.get_running_app().get_main_screen()
             main_screen.log_window.add_entry("You changed the music.\n")
-        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
+        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):#watch is for yt links
             Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
             return
 
@@ -50,19 +67,27 @@ class MusicTab(TabbedPanelItem):
             track = root.track
             if track is not None and track.state == 'play':
                 track.stop()
-            try:
-                r = requests.get(url)
-            except requests.exceptions.MissingSchema:
-                Logger.warning('Music: Invalid URL')
-                root.is_loading_music = False
-                return
-            except:
-                Logger.warning('Music: Unexpected error occurred while loading music')
-                root.is_loading_music = False
-                return
-            f = open("temp.mp3", mode="wb")
-            f.write(r.content)
-            f.close()
+            if url.find("youtube") == -1:#checks if youtube is not in url string
+                try:#does the normal stuff
+                    r = requests.get(url)
+                except requests.exceptions.MissingSchema:
+                    Logger.warning('Music: Invalid URL')
+                    root.is_loading_music = False
+                    return
+                except:
+                    Logger.warning('Music: Unexpected error occurred while loading music')
+                    root.is_loading_music = False
+                    return
+                f = open("temp.mp3", mode="wb")
+                f.write(r.content)
+                f.close()
+            else:
+                try:
+                    os.remove("temp.mp3")#for some reason my ytdl didn't overwrite the temp.mp3, this is a roundabout way
+                except FileNotFoundError:
+                    print("No temp in directory.")#if the first thing they play when joining MO is a yt link
+                with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:#the actual downloading
+                    ydl.download([url])
             track = SoundLoader.load("temp.mp3")
             config_ = App.get_running_app().config
             track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
