@@ -34,7 +34,8 @@ class User:
     def get_color(self):
         return self.color
 
-    def set_color(self, col):
+    def set_color(self, col, color_button):
+        color_button.text = col
         if col == 'red':
             self.color = 'ff3333'
         elif col == 'blue':

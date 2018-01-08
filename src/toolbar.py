@@ -107,11 +107,10 @@ class Toolbar(BoxLayout):
         main_scr.refocus_text()
 
     def on_col_select(self, inst, col, user=None):
-        self.text_col_btn.text = col
         main_scr = App.get_running_app().get_main_screen()
         if user is None:
             user = main_scr.user
-        user.set_color(col)
+        user.set_color(col, self.text_col_btn)
         if user.color != 'ffffff':
             user.colored = True
         else:

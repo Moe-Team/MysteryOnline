@@ -328,11 +328,12 @@ class ConnectionManger:
         loc = dcd[1]
         if loc == user_handler.get_current_loc().name and user not in main_scr.ooc_window.muted_users:
             option = int(dcd[7])
+            sender = dcd[0]
             user.set_sprite_option(option)
             main_scr.sprite_window.set_subloc(user.get_subloc())
             main_scr.sprite_window.set_sprite(user)
             col = user.color_ids[int(dcd[6])]
-            main_scr.text_box.display_text(dcd[8], user, col, user.username)
+            main_scr.text_box.display_text(dcd[8], user, col, sender)
             main_scr.ooc_window.update_subloc(user.username, user.subloc.name)
 
     def update_music(self, url):
