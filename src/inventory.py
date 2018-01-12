@@ -18,6 +18,7 @@ class UserInventory(Popup):
         super(UserInventory, self).__init__(**kwargs)
         self.user = user
         self.item_dictionary_logic = {}
+        self.number_of_items = len(self.item_dictionary_logic)
 
     def get_item_string_list(self):
         string_list = []
@@ -30,6 +31,8 @@ class UserInventory(Popup):
             item = Item(name, description, image_link, self, user)
             self.item_dictionary_logic[name] = item
             self.item_list.add_widget(item)
+            self.number_of_items += 1
+            self.item_list.height = self.number_of_items * 60
 
     def receive_item(self, name, description, image_link, user):
         item = self.get_item_by_name(name)
@@ -44,6 +47,8 @@ class UserInventory(Popup):
         if name in self.item_dictionary_logic:
             self.item_list.remove_widget(self.item_dictionary_logic[name])
             del self.item_dictionary_logic[name]
+            self.number_of_items -= 1
+            self.item_list.height = self.number_of_items * 60
 
     def display_item_creator(self):
         item_creator = ItemCreator(self, self.user)
@@ -64,6 +69,8 @@ class UserInventory(Popup):
 class Item(GridLayout):
     def __init__(self, name, description, image_link, inventory: UserInventory, username, **kwargs):
         super(Item, self).__init__(**kwargs)
+        self.size_hint_y = None
+        self.height = 50
         self.cols = 3
         self.inventory = inventory
         self.name = Label(text=name)
