@@ -18,9 +18,10 @@
 
             GridLayout:
                 id: item_list
+                size_hint_y: None
                 cols: 1
                 spacing: 10
-                size_hint_y: 0.9
+                size: root.width, root.height
 
         Button:
             text: "+"
@@ -46,21 +47,6 @@
         rows: 2
         spacing: 30
 
-        GridLayout:
-            cols: 2
-            spacing: 50
-            size_hint_y: 0.2
-
-            Button:
-                text: "Create"
-                pos_hint: {'y': 0, 'x': 0}
-                on_release: root.create_item(_name.text, _description.text, _image_link.text, root.user.username)
-                on_release: root.dismiss()
-
-            Button:
-                text: "Close"
-                pos_hint: {'y': 0, 'x': 0}
-                on_release: root.dismiss()
 
         GridLayout:
             rows: 3
@@ -90,3 +76,20 @@
             TextInput:
                 id: _image_link
                 multiline: False
+
+        GridLayout:
+            cols: 2
+            spacing: 50
+            size_hint_y: 0.2
+
+            Button:
+                text: "Close"
+                pos_hint: {'y': 0, 'x': 0}
+                on_release: root.dismiss()
+
+            Button:
+                text: "Create"
+                pos_hint: {'y': 0, 'x': 0}
+                on_release: root.create_item(_name.text, _description.text, _image_link.text, root.user.username)
+                on_release: root.dismiss()
+

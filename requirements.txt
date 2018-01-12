@@ -3,3 +3,4 @@ kivy
 irc
 pillow
 requests
+youtube_dl

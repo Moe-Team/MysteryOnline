@@ -113,10 +113,9 @@ class TextBox(Label):
             else:
                 msg_array = list(self.msg)
                 self.msg = ''
-                why_wont_you_let_me_do_this_in_a_single_function_python_pls = len(msg_array)
                 color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '00adfc', '8b6fba', 'ee82ee']
                 y = 0
-                for x in range(why_wont_you_let_me_do_this_in_a_single_function_python_pls):
+                for x in range(len(msg_array)):
                     if y == 7:
                         y = 0
                     col = color_spectrum[y]
@@ -128,7 +127,7 @@ class TextBox(Label):
             self.is_displaying_msg = False
         main_scr = App.get_running_app().get_main_screen()  # BLAAAME KIVYYYY
         main_scr.log_window.add_chat_entry(self.msg, user.username)
-        if user.username == sender:
+        if sender == "default":
             main_scr.toolbar.text_col_btn.text = 'color'
         user.color = 'ffffff'
         user.colored = False

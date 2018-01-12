@@ -14,6 +14,23 @@ from kivy.logger import Logger
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
 
+import youtube_dl
+import os
+
+ytdl_format_options = {
+    'format': 'bestaudio/best',
+    'outtmpl': 'temp.mp3',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0'
+}
+#this thing let's you declare what shit you want ur download to be, neat!!
 
 class OOCLogLabel(Label):
     def __init__(self, **kwargs):
@@ -42,7 +59,7 @@ class MusicTab(TabbedPanelItem):
             connection_manager.update_music(url)
             main_screen = App.get_running_app().get_main_screen()
             main_screen.log_window.add_entry("You changed the music.\n")
-        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac')):
+        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):#watch is for yt links
             Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
             self.is_loading_music = False
             return
@@ -51,19 +68,27 @@ class MusicTab(TabbedPanelItem):
             track = root.track
             if track is not None and track.state == 'play':
                 track.stop()
-            try:
-                r = requests.get(url)
-            except requests.exceptions.MissingSchema:
-                Logger.warning('Music: Invalid URL')
-                root.is_loading_music = False
-                return
-            except:
-                Logger.warning('Music: Unexpected error occurred while loading music')
-                root.is_loading_music = False
-                return
-            f = open("temp.mp3", mode="wb")
-            f.write(r.content)
-            f.close()
+            if url.find("youtube") == -1:#checks if youtube is not in url string
+                try:#does the normal stuff
+                    r = requests.get(url)
+                except requests.exceptions.MissingSchema:
+                    Logger.warning('Music: Invalid URL')
+                    root.is_loading_music = False
+                    return
+                except:
+                    Logger.warning('Music: Unexpected error occurred while loading music')
+                    root.is_loading_music = False
+                    return
+                f = open("temp.mp3", mode="wb")
+                f.write(r.content)
+                f.close()
+            else:
+                try:
+                    os.remove("temp.mp3")#for some reason my ytdl didn't overwrite the temp.mp3, this is a roundabout way
+                except FileNotFoundError:
+                    print("No temp in directory.")#if the first thing they play when joining MO is a yt link
+                with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:#the actual downloading
+                    ydl.download([url])
             track = SoundLoader.load("temp.mp3")
             config_ = App.get_running_app().config
             track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
@@ -113,8 +138,6 @@ class OOCWindow(TabbedPanel):
         self.chat = PrivateMessageScreen()
         self.muted_users = []
         self.pm_buttons = []
-        self.pm_flag = False
-        self.pm_window_open_flag = False
         self.ooc_chat = OOCLogLabel()
         self.counter = 0
 
@@ -182,6 +205,7 @@ class OOCWindow(TabbedPanel):
         if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
             user_box = UserBox(size_hint_y=None, height=40)
             user_box.lbl.text = "{}: {}\n".format(user.username, char)
+            user_box.pm.id = user.username
             user_box.pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, user_box.pm))
             self.pm_buttons.append(user_box.pm)
             user_box.mute.bind(on_press=lambda x: self.mute_user(user, user_box.mute))
@@ -207,7 +231,7 @@ class OOCWindow(TabbedPanel):
         user_box.set_sub_label(subloc)
 
     def open_private_msg_screen(self, username, pm):  # Opens the PM window
-        self.pm_window_open_flag = True
+        self.chat.pm_window_open_flag = True
         pm.background_color = (1, 1, 1, 1)
         self.chat.build_conversation(username)
         self.chat.set_current_conversation_user(username)
@@ -227,14 +251,14 @@ class OOCWindow(TabbedPanel):
         if pm is not None:
             if pm.sender != self.chat.username:
                 if not self.muted_sender(pm, self.muted_users):
-                    if not self.pm_window_open_flag:
+                    if not self.chat.pm_window_open_flag:
                         for x in range(len(self.online_users)):
                             if pm.sender == self.pm_buttons[x].id:
                                 self.pm_buttons[x].background_color = (1, 0, 0, 1)
                                 break
-                        if not self.pm_flag:
+                        if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             self.pm_notif.play()
-                    self.pm_flag = True
+                    self.chat.pm_flag = True
                     self.chat.build_conversation(pm.sender)
                     self.chat.set_current_conversation_user(pm.sender)
                     self.chat.update_conversation(pm.sender, pm.msg)
