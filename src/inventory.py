@@ -145,6 +145,8 @@ class ItemCreator(Popup):
         super(ItemCreator, self).__init__(**kwargs)
         self.inventory = inventory
         self.user = user
+        self.name.pos_hint = {'center_x': 0.5}
+        self.description.pos_hint = {'center_x': 0.5}
 
     def create_item(self, name, description, image_link, user):
         message_len = len(name) + len(description) + len(image_link) + len(user)

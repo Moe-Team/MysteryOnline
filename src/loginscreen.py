@@ -9,9 +9,15 @@ import re
 from irc_mo import IrcConnection, ConnectionManger
 from user import User, CurrentUserHandler
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read('irc_channel_name.ini')
+channel_in_config = config.get("Channel name", 'Channel')
+
 SERVER = "chat.freenode.net"
 PORT = 6665
-CHANNEL = "##mysteryonlinetest"
+CHANNEL = channel_in_config
 
 
 class LoginScreen(Screen):
