@@ -6,6 +6,7 @@ from kivy.uix.screenmanager import Screen
 
 from character_select import CharacterSelect
 from location import locations
+from debug_mode import DebugModePopup
 
 
 class RightClickMenu(ModalView):
@@ -32,6 +33,11 @@ class RightClickMenu(ModalView):
         toolbar = main_scr.get_toolbar()
         toolbar.text_item_btn.text = "no item"
         self.dismiss(animation=False)
+
+    def on_debug_menu_clicked(self, *args):
+        popup = DebugModePopup()
+        self.dismiss(animation=False)
+        popup.open()
 
     def on_picked(self, inst):
         user = App.get_running_app().get_user()

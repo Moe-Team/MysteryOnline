@@ -64,6 +64,11 @@
             pos: msg_input.x, msg_input.y - 30
 
 
+<RightClickMenuButton@Button>:
+    size_hint: None, None
+    size: 100, 30
+
+
 <RightClickMenu>:
     char_select: char_select
     size_hint: None, None
@@ -72,23 +77,22 @@
     BoxLayout:
         orientation: 'vertical'
 
-        Button:
+        RightClickMenuButton:
             id: char_select
-            size_hint: None, None
-            size: 100, 30
             text: 'Character'
             on_release: root.on_char_select_clicked()
 
-        Button:
+        RightClickMenuButton:
             id: settings
-            size_hint: None, None
-            size: 100, 30
             text: 'Settings'
             on_release: root.on_settings_clicked()
 
-        Button:
+        RightClickMenuButton:
             id: inventory
-            size_hint: None, None
-            size: 100, 30
             text: 'Inventory'
             on_release: root.on_inventory_clicked()
+
+        RightClickMenuButton:
+            id: debug_menu
+            text: "Debug"
+            on_release: root.on_debug_menu_clicked()
