@@ -3,7 +3,7 @@ from os.path import dirname, join
 from kivy.event import EventDispatcher
 from kivy.logger import Logger
 from kivy.properties import AliasProperty, DictProperty
-from sprite import Sprite
+from sprite import Sprite, NullSprite
 import os
 
 # late import to prevent recursion
@@ -59,6 +59,7 @@ class Icarus(EventDispatcher):
                 ids_found = ids
         if found is None:
             Logger.error('Icarus: ' + image_name + ' not found')
+            self.textures[image_name] = NullSprite(image_name)
         subfilename = join(d, found)
         Logger.debug('Atlas: Load <%s>' % subfilename)
 
