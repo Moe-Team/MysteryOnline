@@ -78,6 +78,8 @@ class DebugMode:
         self.add_location_to_user(user, location_name)
         self.add_sublocation_to_user(user, sublocation_name)
         self.add_position_to_user(user, position)
+        ooc_window = App.get_running_app().get_main_screen().ooc_window
+        ooc_window.add_user(user)
 
     def add_character_to_user(self, user, character_name):
         character = characters.get(character_name, None)
