@@ -157,6 +157,12 @@ class IrcConnection:
         self.msg_q.messages.insert(0, message)
         self.connection.privmsg(self.channel, message.msg)
 
+    def send_local_msg(self, msg, username, *args):
+        args = tuple(args)
+        message = Message(msg, username)
+        message.encode(*args)
+        self.msg_q.messages.insert(0, message)
+
     def send_private_msg(self, receiver, sender, msg):
         pm = PrivateMessage(msg, sender, receiver)
         self.p_msg_q.private_messages.insert(0, pm)

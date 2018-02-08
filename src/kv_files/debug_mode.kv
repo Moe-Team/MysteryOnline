@@ -16,6 +16,10 @@
         text: "Create user"
         on_release: root.open_user_creation()
 
+    DebugModeInterfaceButton:
+        text: "Manage created users"
+        on_release: root.open_user_management()
+
 
 <UserCreationRow@BoxLayout>:
     orientation: 'horizontal'
@@ -120,3 +124,56 @@
             UserCreationButton:
                 text: "Create"
                 on_release: root.on_create()
+
+
+<UserManagementTextInput@TextInput>:
+    multiline: False
+    size_hint: 1, None
+    height: 40
+
+
+<UserManagementInterface>:
+    message_input: message_input
+    sprite_input: sprite_input
+    delay_input: delay_input
+    user_dropdown_button: user_dropdown_button
+
+    size_hint: 0.3, 0.3
+    padding: 10
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        UserManagementTextInput:
+            id: message_input
+            hint_text: "Something to say"
+            multiline: False
+
+        UserManagementTextInput:
+            id: sprite_input
+            hint_text: "Random if left blank"
+            multiline: False
+
+        UserManagementTextInput:
+            id: delay_input
+            hint_text: "Delay in seconds"
+            multiline: False
+
+        Button:
+            id: user_dropdown_button
+            size_hint: 1, None
+            height: 40
+
+        BoxLayout:
+
+            Button:
+                size_hint: 0.5, None
+                height: 40
+                text: "Cancel"
+                on_release: root.dismiss()
+
+            Button:
+                size_hint: 0.5, None
+                height: 40
+                text: "Send"
+                on_release: root.send_message()
