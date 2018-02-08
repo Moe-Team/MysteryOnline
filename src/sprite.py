@@ -31,6 +31,7 @@ class NullSprite:
 
     def get_texture(self):
         texture = self.return_spoiler_texture()
+        return texture
 
     def return_spoiler_texture(self):
         spoiler_sprite = self.load_dummy_character_sprite('4')

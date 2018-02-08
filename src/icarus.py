@@ -60,6 +60,7 @@ class Icarus(EventDispatcher):
         if found is None:
             Logger.error('Icarus: ' + image_name + ' not found')
             self.textures[image_name] = NullSprite(image_name)
+            return
         subfilename = join(d, found)
         Logger.debug('Atlas: Load <%s>' % subfilename)
 
