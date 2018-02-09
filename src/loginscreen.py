@@ -22,6 +22,8 @@ class LoginScreen(Screen):
         self.picked_char = None
 
     def on_login_clicked(self, *args):
+            if self.username == '':
+                return
             self.validate_username()
             self.set_username_as_last_used()
             self.set_current_user()

@@ -377,6 +377,8 @@ class ConnectionManger:
         main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
         user = user_handler.get_user()
+        if user.username == username:
+            return
         if username not in main_scr.users:
             main_scr.users[username] = User(username)
             main_scr.ooc_window.add_user(main_scr.users[username])
