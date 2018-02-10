@@ -100,28 +100,9 @@ class MusicList(TabbedPanelItem):
             self.clear_search()
         self.search_bar.text = ""
         Clock.schedule_once(self.refocus)
-        found = binary_search(self.track_list, target)
-        if found is None:
+        result = self.find_track(target)
+        if result is None:
             return
-        self.search_done = True
-        i = found
-        rest = self.track_list[i].lower()
-        result = []
-        while rest.startswith(target.lower()):
-            result.append(rest)
-            if i == len(self.track_list):
-                break
-            i += 1
-            rest = self.track_list[i].lower()
-        i = found
-        if i > 0:
-            rest = self.track_list[i-1].lower()
-            while rest.startswith(target.lower()):
-                result.append(rest)
-                if i == 0:
-                    break
-                i -= 1
-                rest = self.track_list[i].lower()
         for track in result:
             track_label = TrackLabel(size_hint_x=1, size_hint_y=None, height=30)
             track_label.text = self.tracks[track.lower()][0]
@@ -130,6 +111,32 @@ class MusicList(TabbedPanelItem):
         layout = self.content
         layout.remove_widget(self.music_list_view)
         layout.add_widget(self.search_results, index=1)
+
+    def find_track(self, target):
+        found_index = binary_search(self.track_list, target)
+        if found_index is None:
+            return None
+        self.search_done = True
+        i = found_index
+        current_track = self.track_list[i].lower()
+        result = []
+        while current_track.startswith(target.lower()):
+            result.append(current_track)
+            if i == len(self.track_list) - 1:
+                break
+            i += 1
+            current_track = self.track_list[i].lower()
+        i = found_index
+        if i > 0:
+            i -= 1
+            current_track = self.track_list[i].lower()
+            while current_track.startswith(target.lower()):
+                result.append(current_track)
+                if i == 0:
+                    break
+                i -= 1
+                current_track = self.track_list[i].lower()
+        return result
 
     def refocus(self, *args):
         self.search_bar.focus = True

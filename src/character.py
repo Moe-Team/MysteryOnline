@@ -103,15 +103,15 @@ class Character:
             Logger.error("Icons: The icons aren't loaded into memory")
             raise
 
-    def get_sprite(self, num):
+    def get_sprite(self, sprite_name):
         try:
-            sprite = self.sprites[num]
+            sprite = self.sprites[sprite_name]
             config = App.get_running_app().config
-            if config.getdefaultint('other', 'nsfw_mode', 1) and num in self.nsfw_sprites:
+            if config.getdefaultint('other', 'nsfw_mode', 1) and sprite_name in self.nsfw_sprites:
                 sprite.set_nsfw()
-            elif config.getdefaultint('other', 'spoiler_mode', 1) and num in self.spoiler_sprites:
+            elif config.getdefaultint('other', 'spoiler_mode', 1) and sprite_name in self.spoiler_sprites:
                 sprite.set_spoiler()
-            elif num in self.cg_sprites:
+            elif sprite_name in self.cg_sprites:
                 sprite.set_cg()
             else:
                 sprite.unset_nsfw()

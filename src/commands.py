@@ -115,7 +115,8 @@ class CommandProcessor:
     def __init__(self):
         self.commands = ['roll']
         self.handlers = {
-            'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'], r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?')
+            'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
+                                        r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?')
         }
 
     def process_command(self, cmd_name, cmd):

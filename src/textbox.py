@@ -192,7 +192,7 @@ class MainTextInput(TextInput):
         try:
             command_processor.process_command(cmd_name, cmd)
         except:
-            pass # TODO Better error handling
+            pass  # TODO Better error handling
 
     def cursor_offset(self):
         """Fix weird kivy bug when col sometimes isn't an int"""
