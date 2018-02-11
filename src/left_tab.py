@@ -9,6 +9,18 @@ from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
 
 
+class SectionLabel(Label):
+
+    def __init__(self, **kwargs):
+        super(SectionLabel, self).__init__(**kwargs)
+
+
+class SubSectionLabel(Label):
+
+    def __init__(self, **kwargs):
+        super(SubSectionLabel, self).__init__(**kwargs)
+
+
 class TrackSection:
 
     def __init__(self, name):
@@ -182,38 +194,38 @@ class MusicList(TabbedPanelItem):
         for track in result:
             if is_section and track in self.sections:
                 section = self.sections[track]
-                section_label = Label(size_hint_x=1, size_hint_y=None, height=30, color=[0.8, 0, 0, 1])
-                section_label.text = section.get_name()
-                self.search_results.add_label(section_label)
+                self.add_section_to_search_result(section)
                 for section_track in section.get_tracks():
                     self.add_track_to_search_result(section_track)
                 for subsection_name, subsection in section.get_subsections().items():
-                    subsection_label = Label(size_hint_x=1, size_hint_y=None, height=30, color=[0, 0.8, 0, 1])
-                    subsection_label.text = subsection.get_name()
-                    self.search_results.add_label(subsection_label)
+                    self.add_subsection_to_search_result(subsection)
                     for track_name in subsection.get_tracks():
                         self.add_track_to_search_result(track_name)
             elif is_subsection and track in self.subsections:
                 subsection = self.subsections[track]
-                subsection_label = Label(size_hint_x=1, size_hint_y=None, height=30, color=[0, 0.8, 0, 1])
-                subsection_label.text = subsection.get_name()
-                self.search_results.add_label(subsection_label)
+                self.add_subsection_to_search_result(subsection)
                 for track_name in subsection.get_tracks():
                     self.add_track_to_search_result(track_name)
             elif not is_subsection and not is_section:
                 track_section = self.tracks[track.lower()][2]
-                section_label = Label(size_hint_x=1, size_hint_y=None, height=30, color=[0.8, 0, 0, 1])
-                section_label.text = track_section.get_name()
-                self.search_results.add_label(section_label)
+                self.add_section_to_search_result(track_section)
                 track_subsection = self.tracks[track.lower()][3]
                 if track_subsection is not None:
-                    subsection_label = Label(size_hint_x=1, size_hint_y=None, height=30, color=[0, 0.8, 0, 1])
-                    subsection_label.text = track_subsection.get_name()
-                    self.search_results.add_label(subsection_label)
+                    self.add_subsection_to_search_result(track_subsection)
                 self.add_track_to_search_result(track)
         layout = self.content
         layout.remove_widget(self.music_list_view)
         layout.add_widget(self.search_results, index=1)
+
+    def add_subsection_to_search_result(self, subsection):
+        subsection_label = SubSectionLabel()
+        subsection_label.text = subsection.get_name()
+        self.search_results.add_label(subsection_label)
+
+    def add_section_to_search_result(self, section):
+        section_label = SectionLabel()
+        section_label.text = section.get_name()
+        self.search_results.add_label(section_label)
 
     def add_track_to_search_result(self, track):
         track_label = TrackLabel(size_hint_x=1, size_hint_y=None, height=30)
