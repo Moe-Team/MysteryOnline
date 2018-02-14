@@ -73,13 +73,14 @@ class Dice:
             value += mod
         else:
             value -= mod
-        return rolls, mod_op, mod, value
+        return die_type, rolls, mod_op, mod, value
 
     def format(self, result):
-        rolls, mod_op, mod, value = result
+        die_type, rolls, mod_op, mod, value = result
+        no_of_rolls = len(rolls)
         rolls = map(str, rolls)
         rolls = ", ".join(rolls)
-        msg = "({}) {} {} = {}".format(rolls, mod_op, mod, value)
+        msg = "{} {} ({}) {} {} = {}".format(no_of_rolls, die_type, rolls, mod_op, mod, value)
         return msg
 
 
@@ -106,8 +107,9 @@ class FateDice(Dice):
 
     def format(self, result):
         rolls, mod_op, mod, value = result
+        no_of_rolls = len(rolls)
         rolls = ", ".join(rolls)
-        msg = "({}) {} {} = {}".format(rolls, mod_op, mod, value)
+        msg = "{} Fate dice ({}) {} {} = {}".format(no_of_rolls, rolls, mod_op, mod, value)
         return msg
 
 
