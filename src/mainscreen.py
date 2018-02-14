@@ -59,6 +59,7 @@ class MainScreen(Screen):
     ooc_window = ObjectProperty(None)
     left_tab = ObjectProperty(None)
     sprite_settings = ObjectProperty(None)
+    music_name_display = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)

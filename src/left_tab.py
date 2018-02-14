@@ -74,7 +74,8 @@ class TrackLabel(Label):
     def on_selected(self):
         if self.track_url:
             main_scr = App.get_running_app().get_main_screen()
-            main_scr.ooc_window.music_tab.on_music_play(self.track_url)
+            encoded_url = self.text + ";" + self.track_url
+            main_scr.ooc_window.music_tab.on_music_play(encoded_url)
 
 
 class MusicListView(RecycleView):

@@ -7,6 +7,7 @@
     log_window: log_window
     ooc_window: ooc_window
     left_tab: left_tab
+    music_name_display: music_name_display
 
     FloatLayout:
 
@@ -62,6 +63,14 @@
             size_hint: None, None
             size: 800, 30
             pos: msg_input.x, msg_input.y - 30
+
+        Label:
+            id: music_name_display
+            size_hint: None, None
+            height: 40
+            pos: sprite_window.x, sprite_window.top + 5
+            text: "Playing: "
+            width: self.texture_size[0]
 
 
 <RightClickMenuButton@Button>:

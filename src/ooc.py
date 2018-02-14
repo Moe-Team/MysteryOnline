@@ -30,7 +30,8 @@ ytdl_format_options = {
     'default_search': 'auto',
     'source_address': '0.0.0.0'
 }
-#this thing let's you declare what shit you want ur download to be, neat!!
+# this thing let's you declare what shit you want ur download to be, neat!!
+
 
 class OOCLogLabel(Label):
     def __init__(self, **kwargs):
@@ -51,15 +52,21 @@ class MusicTab(TabbedPanelItem):
         if self.is_loading_music:
             return
         self.is_loading_music = True
+        main_screen = App.get_running_app().get_main_screen()
         if url is None:
             url = self.url_input.text
+        encoded_url = url
+        if ';' in url:
+            track_name, url = url.split(';')
+            main_screen.music_name_display.text = "Playing: {}".format(track_name)
+        else:
+            main_screen.music_name_display.text = "Playing: URL Track"
         if send_to_all:
             self.url_input.text = ""
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-            connection_manager.update_music(url)
-            main_screen = App.get_running_app().get_main_screen()
+            connection_manager.update_music(encoded_url)
             main_screen.log_window.add_entry("You changed the music.\n")
-        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):#watch is for yt links
+        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):  # watch is for yt links
             Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
             self.is_loading_music = False
             return
@@ -68,8 +75,8 @@ class MusicTab(TabbedPanelItem):
             track = root.track
             if track is not None and track.state == 'play':
                 track.stop()
-            if url.find("youtube") == -1:#checks if youtube is not in url string
-                try:#does the normal stuff
+            if url.find("youtube") == -1:  # checks if youtube is not in url string
+                try:  # does the normal stuff
                     r = requests.get(url)
                 except requests.exceptions.MissingSchema:
                     Logger.warning('Music: Invalid URL')
@@ -84,10 +91,10 @@ class MusicTab(TabbedPanelItem):
                 f.close()
             else:
                 try:
-                    os.remove("temp.mp3")#for some reason my ytdl didn't overwrite the temp.mp3, this is a roundabout way
+                    os.remove("temp.mp3")  # ytdl doesn't overwrite the temp.mp3, this is a roundabout way
                 except FileNotFoundError:
-                    print("No temp in directory.")#if the first thing they play when joining MO is a yt link
-                with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:#the actual downloading
+                    print("No temp in directory.")  # if the first thing they play when joining MO is a yt link
+                with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
                     ydl.download([url])
             track = SoundLoader.load("temp.mp3")
             config_ = App.get_running_app().config
@@ -104,6 +111,7 @@ class MusicTab(TabbedPanelItem):
             if self.track.state == 'play':
                 self.track.stop()
                 main_screen = App.get_running_app().get_main_screen()
+                main_screen.music_name_display.text = "Playing: "
                 if local:
                     connection = App.get_running_app().get_user_handler().get_connection_manager()
                     connection.update_music("stop")
