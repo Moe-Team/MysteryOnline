@@ -50,9 +50,9 @@ class SubLocation:
 
 class Location:
 
-    def __init__(self, name):
+    def __init__(self, name, directory="locations"):
         self.name = name
-        self.path = "locations/{0}/".format(self.name)
+        self.path = "{0}/{1}/".format(directory, self.name)
         self.sublocations = {}
 
     def load(self):
