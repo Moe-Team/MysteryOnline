@@ -12,6 +12,7 @@
 import set_kivy_config
 # import irc.client
 # import requests
+# import youtube_dl
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
@@ -116,7 +117,8 @@ class MysteryOnlineApp(App):
             'textbox_speed': 60,
             'textbox_transparency': 60,
             'nsfw_mode': 1,
-            'spoiler_mode': 1
+            'spoiler_mode': 1,
+            'sprite_tooltips': 1
         })
 
     def build_settings(self, settings):
