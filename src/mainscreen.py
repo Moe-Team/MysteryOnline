@@ -5,7 +5,7 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 
 from character_select import CharacterSelect
-from location import locations
+from location import location_manager
 from debug_mode import DebugModePopup
 
 
@@ -101,6 +101,7 @@ class MainScreen(Screen):
         self.ooc_window.ready(self)
         self.log_window.ready()
         user_handler = App.get_running_app().get_user_handler()
+        locations = location_manager.get_locations()
         user_handler.set_current_loc(locations['Hakuryou'])
         self.toolbar.update_loc()
         self.toolbar.update_sub(locations['Hakuryou'])

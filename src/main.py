@@ -30,7 +30,7 @@ from toolbar import Toolbar
 from left_tab import LeftTab
 
 from mopopup import MOPopup
-from location import locations
+from location import location_manager
 from os import listdir
 
 
@@ -96,8 +96,7 @@ class MysteryOnlineApp(App):
 
     def build(self):
         msm = MainScreenManager()
-        for l in locations:
-            locations[l].load()
+        location_manager.load_locations()
         return msm
 
     def build_config(self, config):
