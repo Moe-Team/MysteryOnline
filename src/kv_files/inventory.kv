@@ -47,35 +47,37 @@
         rows: 2
         spacing: 30
 
-
-        GridLayout:
-            rows: 3
-            spacing: 80
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 20
 
             Label:
                 text: "Name"
-                size_hint: None, 0.3
+                size_hint: 1, 0.1
 
             TextInput:
                 id: _name
                 multiline: False
+                size_hint: None, 0.1
+                width: 400
 
             Label:
                 text: "Description"
-                size_hint: None, 0.3
+                size_hint: 1, 0.1
 
             TextInput:
                 id: _description
-                # TODO Work on that multiple message thing m8
-                multiline: False
+                size_hint: None, 0.5
+                width: 400
 
             Label:
                 text: "Link"
-                size_hint: None, 0.3
+                size_hint: 1, 0.1
 
             TextInput:
                 id: _image_link
                 multiline: False
+                size_hint: 1, 0.1
 
         GridLayout:
             cols: 2
