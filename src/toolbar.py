@@ -19,7 +19,7 @@ class Toolbar(BoxLayout):
             btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
             self.pos_drop.add_widget(btn)
         self.color_drop = DropDown(size_hint=(None, None), size=(200, 30))
-        for col in ('red', 'blue', 'golden', 'green', 'rainbow', 'normal'):
+        for col in ('red', 'blue', 'golden', 'green', 'rainbow', 'purple', 'normal'):
             btn = Button(text=col, size_hint=(None, None), size=(200, 30))
             btn.bind(on_release=lambda btn_: self.color_drop.select(btn_.text))
             self.color_drop.add_widget(btn)

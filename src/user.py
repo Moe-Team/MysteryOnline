@@ -14,7 +14,7 @@ class User:
         self.prev_subloc = None
         self.color = 'ffffff'  # Default color for text
         self.colored = None  # True for a color selected
-        self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow']  # Color code for text
+        self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow', '8b6fba']  # Color code for text
         self.sprite_option = -1
         self.inventory = UserInventory(self)
 
@@ -46,6 +46,8 @@ class User:
             self.color = '00cd00'
         elif col == 'rainbow':
             self.color = 'rainbow'
+        elif col =='purple':
+            self.color = '8b6fba'
         elif col == 'normal':
             self.color = 'ffffff'
 
