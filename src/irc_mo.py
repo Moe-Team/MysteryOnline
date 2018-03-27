@@ -3,6 +3,7 @@ from mopopup import MOPopup
 from kivy.uix.textinput import TextInput
 from kivy.app import App
 from kivy.logger import Logger
+from kivy.clock import Clock
 
 from character import characters
 from user import User
@@ -123,6 +124,7 @@ class IrcConnection:
     def __init__(self, server, port, channel, username):
         self.reactor = irc.client.Reactor()
         self.username = username
+        self.server = server
         self.channel = channel
         self._joined = False
         self.msg_q = MessageQueue()
@@ -130,16 +132,20 @@ class IrcConnection:
         self.on_join_handler = None
         self.on_users_handler = None
         self.on_disconnect_handler = None
+        self.connection_manager = None
 
         try:
-            self.connection = self.reactor.server().connect(server, port, username)
+            self.connection = self.reactor.server().connect(self.server, port, username)
         except irc.client.ServerConnectionError:
             Logger.warning('IRC: Could not connect to server')
             raise
 
-        events = ["welcome", "join", "quit", "pubmsg", "nicknameinuse", "namreply", "privnotice", "privmsg"]
+        events = ["welcome", "join", "quit", "pubmsg", "nicknameinuse", "namreply", "privnotice", "privmsg", "pong"]
         for e in events:
             self.connection.add_global_handler(e, getattr(self, "on_" + e))
+
+    def set_connection_manager(self, connection_manager):
+        self.connection_manager = connection_manager
 
     def get_msg(self):
         return self.msg_q.dequeue()
@@ -183,6 +189,9 @@ class IrcConnection:
 
     def send_mode(self, username, msg):
         self.connection.mode(username, msg)
+
+    def send_ping(self):
+        self.connection.ping(self.server)
 
     def is_connected(self):
         return self._joined
@@ -231,29 +240,81 @@ class IrcConnection:
         msg = e.arguments[0]
         self.p_msg_q.enqueue(msg, e.source.nick)
 
+    def on_pong(self, c, e):
+        self.connection_manager.receive_pong()
+
 
 class ConnectionManger:
 
     def __init__(self, irc_connection):
         self.irc_connection = irc_connection
+        self.irc_connection.set_connection_manager(self)
+        self.ping_event = None
+        self.disconnected_event = None
+        self.reschedule_ping()
+
+    def reschedule_ping(self):
+        if self.ping_event is not None:
+            self.ping_event.cancel()
+        self.ping_event = Clock.schedule_interval(self.ping, 15)
+
+    def ping(self, dt):
+        try:
+            self.irc_connection.send_ping()
+        except irc.client.ServerNotConnectedError:
+            self.get_disconnected()
+        self.disconnected_event = Clock.schedule_once(self.get_disconnected, 10)
+
+    def get_disconnected(self, *args):
+        self.ping_event.cancel()
+        popup = MOPopup("Disconnected", "Seems you got disconnected from IRC :(", "RIP")
+        popup.bind(on_dismiss=self.close_app)
+        popup.open()
+        # TODO Implement reconnection strategy
+
+    def close_app(self, *args):
+        App.get_running_app().stop()
+
+    def receive_pong(self):
+        if self.disconnected_event is not None:
+            self.disconnected_event.cancel()
 
     def send_loc_to_all(self, loc_name):
-        self.irc_connection.send_special('loc', loc_name)
+        try:
+            self.irc_connection.send_special('loc', loc_name)
+        except irc.client.ServerNotConnectedError:
+            self.get_disconnected()
 
     def send_char_to_all(self, char_name):
-        self.irc_connection.send_special('char', char_name)
+        try:
+            self.irc_connection.send_special('char', char_name)
+        except irc.client.ServerNotConnectedError:
+            self.get_disconnected()
 
     def send_music_to_all(self, music_url):
-        self.irc_connection.send_special('music', music_url)
+        try:
+            self.irc_connection.send_special('music', music_url)
+        except irc.client.ServerNotConnectedError:
+            self.get_disconnected()
 
     def send_roll_to_all(self, roll_result):
-        self.irc_connection.send_special('roll', roll_result)
+        try:
+            self.irc_connection.send_special('roll', roll_result)
+        except irc.client.ServerNotConnectedError:
+            self.get_disconnected()
 
     def send_item_to_all(self, item):
-        self.irc_connection.send_special('item', item)
+        try:
+            self.irc_connection.send_special('item', item)
+        except irc.client.ServerNotConnectedError:
+            self.get_disconnected()
 
     def send_msg(self, msg, *args):
-        self.irc_connection.send_msg(msg, *args)
+        try:
+            self.irc_connection.send_msg(msg, *args)
+        except irc.client.ServerNotConnectedError:
+            self.get_disconnected()
+        self.reschedule_ping()
 
     def update_chat(self, dt):
         main_scr = App.get_running_app().get_main_screen()
@@ -342,6 +403,7 @@ class ConnectionManger:
         if username == "default":
             user = App.get_running_app().get_user()
         else:
+            self.reschedule_ping()
             user = main_scr.users.get(username, None)
             if user is None:
                 self.on_join(username)
