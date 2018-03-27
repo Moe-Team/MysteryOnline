@@ -3,7 +3,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 
-from location import locations
+from location import location_manager
 
 
 class Toolbar(BoxLayout):
@@ -69,7 +69,7 @@ class Toolbar(BoxLayout):
         self.main_btn.text = loc.get_first_sub()
 
     def update_loc(self):
-        for l in locations:
+        for l in location_manager.get_locations():
             btn = Button(text=l, size_hint=(None, None), size=(200, 30))
             btn.bind(on_release=lambda btn_: self.loc_drop.select(btn_.text))
             self.loc_drop.add_widget(btn)
@@ -85,7 +85,7 @@ class Toolbar(BoxLayout):
         self.main_loc_btn.text = loc_name
         main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
-        loc = locations[loc_name]
+        loc = location_manager.get_locations()[loc_name]
         user_handler.set_current_loc(loc)
         self.update_sub(loc)
         main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())

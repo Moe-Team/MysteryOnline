@@ -12,6 +12,7 @@
 import set_kivy_config
 # import irc.client
 # import requests
+# import youtube_dl
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
@@ -29,7 +30,7 @@ from toolbar import Toolbar
 from left_tab import LeftTab
 
 from mopopup import MOPopup
-from location import locations
+from location import location_manager
 from os import listdir
 
 
@@ -95,8 +96,7 @@ class MysteryOnlineApp(App):
 
     def build(self):
         msm = MainScreenManager()
-        for l in locations:
-            locations[l].load()
+        location_manager.load_locations()
         return msm
 
     def build_config(self, config):
@@ -116,7 +116,8 @@ class MysteryOnlineApp(App):
             'textbox_speed': 60,
             'textbox_transparency': 60,
             'nsfw_mode': 1,
-            'spoiler_mode': 1
+            'spoiler_mode': 1,
+            'sprite_tooltips': 1
         })
 
     def build_settings(self, settings):

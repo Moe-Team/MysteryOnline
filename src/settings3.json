@@ -34,5 +34,11 @@
   "desc": "Don't display NSFW sprites",
   "section": "other",
   "key": "nsfw_mode"
+  },
+  {"type": "bool",
+  "title": "Sprite Tooltips",
+  "desc": "Display sprite tooltips",
+  "section": "other",
+  "key": "sprite_tooltips"
   }
 ]

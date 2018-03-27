@@ -28,6 +28,9 @@ class Icon(Image):
             return
         if not self.get_root_window():
             return
+        config = App.get_running_app().config
+        if config.getdefaultint('other', 'sprite_tooltips', 1) == 0:
+            return
         pos = args[1]
         Clock.unschedule(self.display_tooltip)  # cancel scheduled event since I moved the cursor
         self.close_tooltip()  # close if it's opened

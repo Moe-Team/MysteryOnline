@@ -1,5 +1,5 @@
 from character import characters
-from location import locations
+from location import location_manager
 from inventory import UserInventory
 
 
@@ -62,6 +62,7 @@ class User:
 
     def set_loc(self, loc, from_string=False):
         if from_string:
+            locations = location_manager.get_locations()
             if loc in locations:
                 self.location = locations[loc]
             else:
