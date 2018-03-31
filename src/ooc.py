@@ -173,6 +173,7 @@ class OOCWindow(TabbedPanel):
         self.ooc_notif.volume = v / 100
         self.pm_notif.volume = v / 100
         self.pm_open_sound.volume = v / 100
+        self.user_list.bind(minimum_height=self.user_list.setter('height'))
 
     def on_blip_volume_change(self, s, k, v):
         self.blip_slider.value = v

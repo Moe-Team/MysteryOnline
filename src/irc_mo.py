@@ -223,7 +223,8 @@ class IrcConnection:
         self.on_users_handler(e.arguments[2])
 
     def on_privnotice(self, c, e):
-        print(e.arguments)
+        server_response = e.arguments[0]
+        Logger.info('IRC: {}'.format(server_response))
 
     def on_nicknameinuse(self, c, e):
         temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")
