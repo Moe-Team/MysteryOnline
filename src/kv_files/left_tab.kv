@@ -11,8 +11,9 @@
 
 
 <TrackLabel>:
-    text_size: self.size
-    halign: 'left'
+    text_size: self.width, None
+    size: self.texture_size
+    halign: 'center'
 
 
 <MusicListView>:
@@ -24,6 +25,7 @@
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
+        spacing: 5
 
 
 <SearchResults>:

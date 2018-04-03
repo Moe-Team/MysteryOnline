@@ -154,7 +154,7 @@ class MusicList(TabbedPanelItem):
             self.current_section.add_subsection(track_subsection)
         elif line.startswith('\\'):
             subsubsection = line[1:-2]
-            prop_dict = {'text': subsubsection, 'color': [0, 0, 0.8, 1]}
+            prop_dict = {'text': subsubsection, 'color': [0, 0.8, 0.8, 1]}
         else:
             track_name, track_url = line.split(':', 1)
             track_url = track_url.strip()
