@@ -61,6 +61,8 @@ class Message:
             return 'roll'
         if self.msg.startswith('i#'):
             return "item"
+        if self.msg.startswith('cl#'):
+            return "clear"
 
         return None
 
@@ -177,13 +179,13 @@ class IrcConnection:
         self.connection.privmsg(receiver, msg)
 
     def send_special(self, kind, value):
-        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#', 'roll': 'r#', 'item': 'i#'}
+        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#', 'roll': 'r#', 'item': 'i#', 'clear': 'cl#'}
         msg = kinds[kind] + value
         if '\n' in msg or '\r' in msg:
             msg = msg.replace('\n', ' ')
             msg = msg.replace('\r', ' ')
         self.connection.privmsg(self.channel, msg)
-        if kind == 'OOC' or kind == 'roll' or kind == 'item':
+        if kind == 'OOC' or kind == 'roll' or kind == 'item' or kind == 'clear':
             message = Message(msg)
             self.msg_q.messages.insert(0, message)
 
@@ -304,6 +306,12 @@ class ConnectionManger:
         except irc.client.ServerNotConnectedError:
             self.get_disconnected()
 
+    def send_clear_to_all(self):
+        try:
+            self.irc_connection.send_special('clear', '')
+        except irc.client.ServerNotConnectedError:
+            self.get_disconnected()
+
     def send_item_to_all(self, item):
         try:
             self.irc_connection.send_special('item', item)
@@ -341,6 +349,8 @@ class ConnectionManger:
                 self.on_roll_message(main_scr, msg)
             elif msg.identify() == 'item':
                 self.on_item_message(main_scr, msg, user_handler)
+            elif msg.identify() == 'clear':
+                self.on_clear_message(main_scr, msg)
 
     def on_music_message(self, main_scr, msg, user_handler):
         dcd = msg.decode_other()
@@ -380,6 +390,11 @@ class ConnectionManger:
         if username == 'default':
             username = "You"
         main_scr.log_window.add_entry("{} rolled {}.\n".format(username, roll_result))
+
+    def on_clear_message(self, main_scr, msg):
+        # TODO Make it work only for the person who is currently speaking
+        textbox = main_scr.text_box
+        textbox.clear_textbox()
 
     def on_item_message(self, main_scr, msg, user_handler):
         dcd = msg.decode_other()

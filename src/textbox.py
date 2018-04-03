@@ -85,7 +85,7 @@ class TextBox(Label):
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
         if self.prev_user is not user or (len(self.text) + len(msg) > 400):
-            self.text = ""
+            self.clear_textbox()
         self.prev_user = user
         char_name = user.get_char().get_display_name()
         self.char_name.text = char_name
@@ -141,6 +141,9 @@ class TextBox(Label):
             self.is_displaying_msg = False
             return False
 
+    def clear_textbox(self):
+        self.text = ""
+
     def on_volume_change(self, s, k, v):
         vol = int(v) / 100
         self.blip.volume = vol
@@ -187,7 +190,8 @@ class MainTextInput(TextInput):
         try:
             cmd_name, cmd = msg.split(' ', 1)
         except ValueError:
-            return
+            cmd_name = msg
+            cmd = None
         cmd_name = cmd_name[1:]
         try:
             command_processor.process_command(cmd_name, cmd)

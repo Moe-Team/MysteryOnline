@@ -1,5 +1,6 @@
 import re
 from dicegame import dice_game
+from kivy.app import App
 
 
 class CommandError(Exception):
@@ -21,7 +22,7 @@ class CommandUnknownArgumentTypeError(CommandError):
 
 class Command:
 
-    def __init__(self, cmd_name, args):
+    def __init__(self, cmd_name, args=None):
         self.cmd_name = cmd_name
         self.args = args
 
@@ -40,12 +41,15 @@ class Command:
 
 class CommandHandler:
 
-    def __init__(self, cmd_name, form):
-        self.num_of_args = None
+    def __init__(self, cmd_name, form=None):
         self.cmd_name = cmd_name
         self.types = []
         self.names = []
-        self.parse_format(form)
+        if form is not None:
+            self.num_of_args = None
+            self.parse_format(form)
+        else:
+            self.num_of_args = 0
 
     def parse_format(self, form):
         args = form.split(' ')
@@ -56,6 +60,8 @@ class CommandHandler:
             self.names.append(name)
 
     def parse_command(self, msg):
+        if self.num_of_args == 0:
+            return Command(self.cmd_name)
         args = self.split_msg_into_args(msg)
         args_processed = {}
         for i, arg in enumerate(args):
@@ -113,10 +119,11 @@ class RegexCommandHandler:
 class CommandProcessor:
 
     def __init__(self):
-        self.commands = ['roll']
+        self.commands = ['roll', 'clear']
         self.handlers = {
             'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
-                                        r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?')
+                                        r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?'),
+            'clear': CommandHandler('clear')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -128,6 +135,9 @@ class CommandProcessor:
         command = Command(cmd_name, args)
         if cmd_name == 'roll':
             dice_game.process_input(command)
+        if cmd_name == 'clear':
+            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+            connection_manager.send_clear_to_all()
 
 
 command_processor = CommandProcessor()
