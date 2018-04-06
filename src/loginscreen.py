@@ -28,13 +28,13 @@ class LoginScreen(Screen):
         self.picked_char = None
 
     def on_login_clicked(self, *args):
-            if self.username == '' or not self.is_username_valid():
-                popup = MOPopup("Error", "Invalid username", "Whatever you say, mate")
-                popup.open()
-                return
-            self.set_username_as_last_used()
-            self.set_current_user()
-            self.create_irc_connection()
+        if self.username == '' or not self.is_username_valid():
+            popup = MOPopup("Error", "Invalid username", "Whatever you say, mate")
+            popup.open()
+            return
+        self.set_username_as_last_used()
+        self.set_current_user()
+        self.create_irc_connection()
 
     def create_irc_connection(self):
         user_handler = App.get_running_app().get_user_handler()

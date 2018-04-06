@@ -33,6 +33,7 @@ from mopopup import MOPopup
 from location import location_manager
 from os import listdir
 
+import ungraceful_exit as ue
 
 KV_DIR = "kv_files/"
 
@@ -117,7 +118,8 @@ class MysteryOnlineApp(App):
             'textbox_transparency': 60,
             'nsfw_mode': 1,
             'spoiler_mode': 1,
-            'sprite_tooltips': 1
+            'sprite_tooltips': 1,
+            'graceful_exit': 'True'
         })
 
     def build_settings(self, settings):
@@ -144,15 +146,24 @@ class MysteryOnlineApp(App):
         return self.user_handler
 
     def on_stop(self):
+        config = self.config
+        ue.set_graceful_flag(config, True)
         if self.main_screen:
             self.main_screen.on_stop()
-        self.config.write()
+        config.write()
         super(MysteryOnlineApp, self).on_stop()
 
+    def on_start(self):
+        config = self.config      
+        if not ue.was_last_exit_graceful(config):
+            ue.show_ungraceful_exit_popup(config)
+        else:
+            ue.set_graceful_flag(config, False)
+            config.write()
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
-
+    
 
 __all__ = ['set_kivy_config', 'LoginScreen', 'MainScreen', 'Icon', 'IconsLayout', 'OOCWindow', 'OOCLogLabel',
            'LogLabel', 'LogWindow', 'SpriteSettings', 'SpriteWindow', 'SpritePreview', 'TextBox', 'MainTextInput',
