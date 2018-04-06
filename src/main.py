@@ -33,7 +33,7 @@ from mopopup import MOPopup
 from location import location_manager
 from os import listdir
 
-import ungraceful_exit as ue
+import configparser
 
 KV_DIR = "kv_files/"
 
@@ -147,7 +147,7 @@ class MysteryOnlineApp(App):
 
     def on_stop(self):
         config = self.config
-        ue.set_graceful_flag(config, True)
+        self.set_graceful_flag(True)
         if self.main_screen:
             self.main_screen.on_stop()
         config.write()
@@ -155,11 +155,25 @@ class MysteryOnlineApp(App):
 
     def on_start(self):
         config = self.config      
-        if not ue.was_last_exit_graceful(config):
-            ue.show_ungraceful_exit_popup(config)
+        if not self.was_last_exit_graceful():
+            self.show_ungraceful_exit_popup()
         else:
-            ue.set_graceful_flag(config, False)
+            self.set_graceful_flag(False)
             config.write()
+
+    def was_last_exit_graceful(self):
+        graceful_exit = self.config.getboolean('other', 'graceful_exit')
+        if graceful_exit:
+            return True
+        return False
+
+    def show_ungraceful_exit_popup(self):
+        popup = MOPopup('Ungraceful Exit','It seems MO closed unexpectedly last time.\n'
+                        'Do you wish to send us the error log?',"CAN'T DO THAT YET")
+        popup.open()
+
+    def set_graceful_flag(self, boolean):
+        self.config.set('other', 'graceful_exit', boolean)
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
