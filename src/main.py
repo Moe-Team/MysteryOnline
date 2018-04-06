@@ -169,11 +169,14 @@ class MysteryOnlineApp(App):
 
     def show_ungraceful_exit_popup(self):
         popup = MOPopup('Ungraceful Exit','It seems MO closed unexpectedly last time.\n'
-                        'Do you wish to send us the error log?',"CAN'T DO THAT YET")
+                        'Do you wish to send us the error log?',"CAN'T DO THAT YET", True, self.send_error_log)
         popup.open()
 
     def set_graceful_flag(self, boolean):
         self.config.set('other', 'graceful_exit', boolean)
+
+    def send_error_log(self, *args):
+        print("Waiting on that bot")
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
