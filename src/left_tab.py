@@ -192,6 +192,8 @@ class MusicList(TabbedPanelItem):
         result = self.find_track(target)
         if result is None:
             return
+        added_sections = []
+        added_subsections = []
         for track in result:
             if is_section and track in self.sections:
                 section = self.sections[track]
@@ -209,10 +211,14 @@ class MusicList(TabbedPanelItem):
                     self.add_track_to_search_result(track_name)
             elif not is_subsection and not is_section:
                 track_section = self.tracks[track.lower()][2]
-                self.add_section_to_search_result(track_section)
+                if track_section not in added_sections:
+                    self.add_section_to_search_result(track_section)
+                    added_sections.append(track_section)
                 track_subsection = self.tracks[track.lower()][3]
                 if track_subsection is not None:
-                    self.add_subsection_to_search_result(track_subsection)
+                    if track_subsection not in added_subsections:
+                        self.add_subsection_to_search_result(track_subsection)
+                        added_subsections.append(track_subsection)
                 self.add_track_to_search_result(track)
         layout = self.content
         layout.remove_widget(self.music_list_view)
