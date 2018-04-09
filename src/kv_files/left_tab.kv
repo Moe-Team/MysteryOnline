@@ -16,8 +16,14 @@
     halign: 'center'
 
 
+<MusicListLabel>:
+    text_size: self.width, None
+    size: self.texture_size
+    halign: 'center'
+
+
 <MusicListView>:
-    viewclass: 'TrackLabel'
+    viewclass: 'MusicListLabel'
     scroll_type: ['bars']
     bar_width: 10
     RecycleBoxLayout:

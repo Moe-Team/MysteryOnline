@@ -43,6 +43,9 @@ class TrackSection:
     def get_tracks(self):
         return self.tracks
 
+    def on_selected(self):
+        pass
+
 
 class TrackSubSection:
 
@@ -58,6 +61,38 @@ class TrackSubSection:
 
     def get_tracks(self):
         return self.tracks
+
+    def on_selected(self):
+        pass
+
+
+class Track:
+
+    def __init__(self, name, url, section, subsection):
+        self.name = name
+        self.url = url
+        self.section = section
+        self.subsection = subsection
+
+    def on_selected(self):
+        main_scr = App.get_running_app().get_main_screen()
+        encoded_url = self.name + ";" + self.url
+        main_scr.ooc_window.music_tab.on_music_play(encoded_url)
+
+
+class MusicListLabel(Label):
+
+    def __init(self, **kwargs):
+        super(MusicListLabel, self).__init__(**kwargs)
+        self.music_list_element = None
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'left' and touch.is_double_tap:
+                self.on_selected()
+
+    def on_selected(self):
+        self.music_list_element.on_selected()
 
 
 class TrackLabel(Label):
@@ -140,15 +175,15 @@ class MusicList(TabbedPanelItem):
     def build_from_line(self, line):
         if line.startswith('['):
             section = line[1:-2]
-            prop_dict = {'text': section, 'color': [0.8, 0, 0, 1]}
             track_section = TrackSection(section)
+            prop_dict = {'text': section, 'color': [0.8, 0, 0, 1], 'music_list_element': track_section}
             self.sections[section.lower()] = track_section
             self.current_section = track_section
             self.current_subsection = None
         elif line.startswith('<'):
             subsection = line[1:-2]
-            prop_dict = {'text': subsection, 'color': [0, 0.8, 0, 1]}
             track_subsection = TrackSubSection(subsection)
+            prop_dict = {'text': subsection, 'color': [0, 0.8, 0, 1], 'music_list_element': track_subsection}
             self.subsections[subsection.lower()] = track_subsection
             self.current_subsection = track_subsection
             self.current_section.add_subsection(track_subsection)
@@ -158,12 +193,13 @@ class MusicList(TabbedPanelItem):
         else:
             track_name, track_url = line.split(':', 1)
             track_url = track_url.strip()
-            prop_dict = {'text': track_name, 'track_url': track_url, 'color': [1, 1, 1, 1]}
-            self.tracks[track_name.lower()] = [track_name, track_url, self.current_section, self.current_subsection]
+            track = Track(track_name, track_url, self.current_section, self.current_subsection)
+            prop_dict = {'text': track_name, 'color': [1, 1, 1, 1], 'music_list_element': track}
+            self.tracks[track_name.lower()] = track
             if self.current_subsection is None:
-                self.current_section.add_track(track_name)
+                self.current_section.add_track(track)
             else:
-                self.current_subsection.add_track(track_name)
+                self.current_subsection.add_track(track)
         prop_dict['size_hint_x'] = 1
         prop_dict['size_hint_y'] = None
         prop_dict['height'] = 30
@@ -210,11 +246,11 @@ class MusicList(TabbedPanelItem):
                 for track_name in subsection.get_tracks():
                     self.add_track_to_search_result(track_name)
             elif not is_subsection and not is_section:
-                track_section = self.tracks[track.lower()][2]
+                track_section = self.tracks[track.lower()].section
                 if track_section not in added_sections:
                     self.add_section_to_search_result(track_section)
                     added_sections.append(track_section)
-                track_subsection = self.tracks[track.lower()][3]
+                track_subsection = self.tracks[track.lower()].subsection
                 if track_subsection is not None:
                     if track_subsection not in added_subsections:
                         self.add_subsection_to_search_result(track_subsection)
@@ -236,8 +272,8 @@ class MusicList(TabbedPanelItem):
 
     def add_track_to_search_result(self, track):
         track_label = TrackLabel(size_hint_x=1, size_hint_y=None, height=30)
-        track_label.text = self.tracks[track.lower()][0]
-        track_label.track_url = self.tracks[track.lower()][1]
+        track_label.text = self.tracks[track.lower()].name
+        track_label.track_url = self.tracks[track.lower()].url
         self.search_results.add_label(track_label)
 
     def find_track(self, target):
