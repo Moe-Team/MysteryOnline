@@ -30,6 +30,7 @@ from toolbar import Toolbar
 from left_tab import LeftTab
 
 from mopopup import MOPopup
+from mopopup import MOPopup_YN
 from location import location_manager
 from os import listdir
 
@@ -168,8 +169,8 @@ class MysteryOnlineApp(App):
         return False
 
     def show_ungraceful_exit_popup(self):
-        popup = MOPopup('Ungraceful Exit','It seems MO closed unexpectedly last time.\n'
-                        'Do you wish to send us the error log?',"CAN'T DO THAT YET", True, self.send_error_log)
+        popup = MOPopup_YN('Ungraceful Exit','It seems MO closed unexpectedly last time.\n'
+                        'Do you wish to send us the error log?', [self.send_error_log, None])
         popup.open()
 
     def set_graceful_flag(self, boolean):
