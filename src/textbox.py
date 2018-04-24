@@ -170,6 +170,7 @@ class MainTextInput(TextInput):
         if not self.message_is_valid(msg):
             return
         self.text = ""
+        msg = self.extend_message(msg)
         if self.message_is_command(msg):
             self.handle_command(msg)
         else:
@@ -185,6 +186,13 @@ class MainTextInput(TextInput):
 
     def message_is_command(self, msg):
         return msg.startswith('/')
+
+    def extend_message(self, msg):      # Used for command shortcuts, but there's probably a better way to do this
+        if msg.startswith('>'):
+            msg = "/color green '" + msg + "'"
+        elif msg.startswith('/true'):
+            msg = "/color red '" + msg + "'"      
+        return msg
 
     def handle_command(self, msg):
         try:

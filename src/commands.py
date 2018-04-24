@@ -119,11 +119,13 @@ class RegexCommandHandler:
 class CommandProcessor:
 
     def __init__(self):
-        self.commands = ['roll', 'clear']
+        self.commands = ['roll', 'clear', 'color']
         self.handlers = {
             'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
                                         r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?'),
-            'clear': CommandHandler('clear')
+            'clear': CommandHandler('clear'),
+
+            'color': CommandHandler('color', 'str:color str:text')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -138,6 +140,12 @@ class CommandProcessor:
         if cmd_name == 'clear':
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
             connection_manager.send_clear_to_all()
+        if cmd_name == 'color':
+            user_handler = App.get_running_app().get_user_handler()
+            user = user_handler.get_user()
+            user.set_color(command.__getitem__('color'))
+            user_handler.send_message(command.__getitem__('text'))
+            user.set_color('normal')
 
 
 command_processor = CommandProcessor()
