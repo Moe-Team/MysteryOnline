@@ -13,6 +13,160 @@ class ChannelConnectionError(Exception):
     pass
 
 
+class MessageFactory:
+
+    def __init__(self):
+        pass
+
+    def build_chat_message(self, **kwargs):
+        result = ChatMessage("default", **kwargs)
+        return result
+
+
+class ChatMessage:
+
+    def __init__(self, sender, **kwargs):
+        # TODO Try to reduce the number of arguments
+        self.components = kwargs
+        self.sender = sender
+        self.content = kwargs.get('content')
+        self.location = kwargs.get('location')
+        self.sublocation = kwargs.get('sublocation')
+        self.character = kwargs.get('character')
+        self.sprite = kwargs.get('sprite')
+        self.position = kwargs.get('position')
+        self.color_id = kwargs.get('color_id')
+        self.sprite_option = kwargs.get('sprite_option')
+        self.remove_line_breaks()
+
+    def remove_line_breaks(self):
+        if self.content is None:
+            return
+        if '\n' in self.content or '\r' in self.content:
+            self.content = self.content.replace('\n', ' ')
+            self.content = self.content.replace('\r', ' ')
+
+    def to_irc(self):
+        msg = "{0.location}#{0.sublocation}#{0.character}#{0.sprite}#" \
+              "{0.position}#{0.color_id}#{0.sprite_option}#{0.content}".format(self.components)
+        return msg
+
+    def from_irc(self, message):
+        arguments = tuple(message.split('#', len(self.components) - 1))
+        self.location, self.sublocation, self.character, self.sprite, self.position, \
+            self.color_id, self.sprite_option, self.content = arguments
+
+
+class CharacterMessage:
+
+    def __init__(self, sender, character=None):
+        self.sender = sender
+        self.character = character
+
+    def to_irc(self):
+        msg = "c#{0}".format(self.character)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.character = arguments[1]
+
+
+class LocationMessage:
+
+    def __init__(self, sender, location=None):
+        self.sender = sender
+        self.location = location
+
+    def to_irc(self):
+        msg = "l#{0}".format(self.location)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.location = arguments[1]
+
+
+class OOCMessage:
+
+    def __init__(self, sender, content=None):
+        self.sender = sender
+        self.content = content
+        self.remove_line_breaks()
+
+    def remove_line_breaks(self):
+        if self.content is None:
+            return
+        if '\n' in self.content or '\r' in self.content:
+            self.content = self.content.replace('\n', ' ')
+            self.content = self.content.replace('\r', ' ')
+
+    def to_irc(self):
+        msg = "OOC#{0}".format(self.content)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.content = arguments[1]
+
+
+class MusicMessage:
+
+    def __init__(self, sender, track_name=None, url=None):
+        self.sender = sender
+        self.track_name = track_name
+        self.url = url
+
+    def to_irc(self):
+        msg = "m#{0}#{1}".format(self.track_name, self.url)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 2)
+        self.track_name = arguments[1]
+        self.url = arguments[2]
+
+
+class RollMessage:
+
+    def __init__(self, sender, roll=None):
+        self.sender = sender
+        self.roll = roll
+
+    def to_irc(self):
+        msg = "r#{0}".format(self.roll)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.roll = arguments[1]
+
+
+class ItemMessage:
+
+    def __init__(self, sender, item=None):
+        self.sender = sender
+        self.item = item
+
+    def to_irc(self):
+        msg = "i#{0}".format(self.item)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.item = arguments[1]
+
+
+class ClearMessage:
+
+    def __init__(self, sender):
+        self.sender = sender
+
+    def to_irc(self):
+        msg = "cl#"
+        return msg
+
+
 class Message:
     """This class will eventually handle message parsing and any other operations
     on messages.
