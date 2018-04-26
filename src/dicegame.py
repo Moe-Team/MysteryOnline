@@ -13,7 +13,10 @@ class DiceGame:
     def process_input(self, cmd):
         roll_result = self.process_roll(cmd)
         con = App.get_running_app().get_user_handler().get_connection_manager()
-        con.send_roll_to_all(roll_result)
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_roll_message(roll_result)
+        con.send_msg(message)
+        con.send_local(message)
 
     def process_roll(self, cmd):
         no_of_dice = cmd['no_of_dice']

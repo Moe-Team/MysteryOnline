@@ -137,7 +137,10 @@ class CommandProcessor:
             dice_game.process_input(command)
         if cmd_name == 'clear':
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-            connection_manager.send_clear_to_all()
+            message_factory = App.get_running_app().get_message_factory()
+            message = message_factory.build_clear_message()
+            connection_manager.send_msg(message)
+            connection_manager.send_local(message)
 
 
 command_processor = CommandProcessor()

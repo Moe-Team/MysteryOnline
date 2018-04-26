@@ -61,8 +61,11 @@ class UserInventory(Popup):
 
     def send_item(self, item):
         con = App.get_running_app().get_user_handler().get_connection_manager()
-        item_on_str = item.encode()
-        con.send_item_to_all(item_on_str)
+        encoded_item = item.encode()
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_item_message(encoded_item)
+        con.send_msg(message)
+        con.send_local(message)
 
 
 class Item(GridLayout):

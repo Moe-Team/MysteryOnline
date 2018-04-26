@@ -28,6 +28,7 @@ from sprite import SpritePreview, SpriteSettings, SpriteWindow
 from textbox import MainTextInput, TextBox
 from toolbar import Toolbar
 from left_tab import LeftTab
+from irc_mo import MessageFactory
 
 from mopopup import MOPopup
 from location import location_manager
@@ -93,6 +94,7 @@ class MysteryOnlineApp(App):
         self.user = None
         self.main_screen = None
         self.user_handler = None
+        self.message_factory = MessageFactory()
 
     def build(self):
         msm = MainScreenManager()
@@ -142,6 +144,9 @@ class MysteryOnlineApp(App):
 
     def get_user_handler(self):
         return self.user_handler
+
+    def get_message_factory(self):
+        return self.message_factory
 
     def on_stop(self):
         if self.main_screen:

@@ -19,7 +19,39 @@ class MessageFactory:
         pass
 
     def build_chat_message(self, **kwargs):
-        result = ChatMessage("default", **kwargs)
+        username = kwargs.get('username', None)
+        if username is not None:
+            result = ChatMessage(username, **kwargs)
+        else:
+            result = ChatMessage("default", **kwargs)
+        return result
+
+    def build_character_message(self, character):
+        result = CharacterMessage("default", character)
+        return result
+
+    def build_location_message(self, location):
+        result = LocationMessage("default", location)
+        return result
+
+    def build_ooc_message(self, content):
+        result = OOCMessage("default", content)
+        return result
+
+    def build_music_message(self, track_name, url):
+        result = MusicMessage("default", track_name, url)
+        return result
+
+    def build_roll_message(self, roll):
+        result = RollMessage("default", roll)
+        return result
+
+    def build_item_message(self, item):
+        result = ItemMessage("default", item)
+        return result
+
+    def build_clear_message(self):
+        result = ClearMessage("default")
         return result
 
 
@@ -118,13 +150,21 @@ class MusicMessage:
         self.url = url
 
     def to_irc(self):
+        if self.track_name is None:
+            self.track_name = "0"
+        if self.url is None:
+            self.url = "0"
         msg = "m#{0}#{1}".format(self.track_name, self.url)
         return msg
 
     def from_irc(self, message):
         arguments = message.split('#', 2)
         self.track_name = arguments[1]
+        if self.track_name == "0":
+            self.track_name = None
         self.url = arguments[2]
+        if self.url == "0":
+            self.url = None
 
 
 class RollMessage:
@@ -231,9 +271,9 @@ class MessageQueue:
     def is_empty(self):
         return self.messages == []
 
-    def enqueue(self, msg, sender):
-        message = Message(msg, sender)
-        self.messages.insert(0, message)
+    def enqueue(self, msg):
+        # TODO use factory here
+        self.messages.insert(0, msg)
 
     def dequeue(self):
         try:
@@ -312,18 +352,11 @@ class IrcConnection:
     def get_pm(self):
         return self.p_msg_q.dequeue()
 
-    def send_msg(self, msg, *args):
-        args = tuple(args)
-        message = Message(msg)
-        message.encode(*args)
-        self.msg_q.messages.insert(0, message)
-        self.connection.privmsg(self.channel, message.msg)
+    def send_msg(self, msg):
+        self.connection.privmsg(self.channel, msg)
 
-    def send_local_msg(self, msg, username, *args):
-        args = tuple(args)
-        message = Message(msg, username)
-        message.encode(*args)
-        self.msg_q.messages.insert(0, message)
+    def send_local_msg(self, msg):
+        self.msg_q.messages.insert(0, msg)
 
     def send_private_msg(self, receiver, sender, msg):
         pm = PrivateMessage(msg, sender, receiver)
@@ -331,17 +364,6 @@ class IrcConnection:
         if len(msg) > 480:  # controls the msg length so it doesn't crash
             msg = (msg[:480] + '..')
         self.connection.privmsg(receiver, msg)
-
-    def send_special(self, kind, value):
-        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#', 'roll': 'r#', 'item': 'i#', 'clear': 'cl#'}
-        msg = kinds[kind] + value
-        if '\n' in msg or '\r' in msg:
-            msg = msg.replace('\n', ' ')
-            msg = msg.replace('\r', ' ')
-        self.connection.privmsg(self.channel, msg)
-        if kind == 'OOC' or kind == 'roll' or kind == 'item' or kind == 'clear':
-            message = Message(msg)
-            self.msg_q.messages.insert(0, message)
 
     def send_mode(self, username, msg):
         self.connection.mode(username, msg)
@@ -373,7 +395,7 @@ class IrcConnection:
 
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
-        self.msg_q.enqueue(msg, e.source.nick)
+        self.msg_q.enqueue(msg)
 
     def on_namreply(self, c, e):
         self.on_users_handler(e.arguments[2])
@@ -401,7 +423,7 @@ class IrcConnection:
         self.connection_manager.receive_pong()
 
 
-class ConnectionManger:
+class ConnectionManager:
 
     def __init__(self, irc_connection):
         self.irc_connection = irc_connection
@@ -436,48 +458,16 @@ class ConnectionManger:
         if self.disconnected_event is not None:
             self.disconnected_event.cancel()
 
-    def send_loc_to_all(self, loc_name):
-        try:
-            self.irc_connection.send_special('loc', loc_name)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_char_to_all(self, char_name):
-        try:
-            self.irc_connection.send_special('char', char_name)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_music_to_all(self, music_url):
-        try:
-            self.irc_connection.send_special('music', music_url)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_roll_to_all(self, roll_result):
-        try:
-            self.irc_connection.send_special('roll', roll_result)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_clear_to_all(self):
-        try:
-            self.irc_connection.send_special('clear', '')
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_item_to_all(self, item):
-        try:
-            self.irc_connection.send_special('item', item)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
     def send_msg(self, msg, *args):
         try:
-            self.irc_connection.send_msg(msg, *args)
+            irc_message = msg.to_irc()
+            self.irc_connection.send_msg(irc_message, *args)
         except irc.client.ServerNotConnectedError:
             self.get_disconnected()
         self.reschedule_ping()
+
+    def send_local(self, msg):
+        self.irc_connection.msg_q.insert(0, msg)
 
     def update_chat(self, dt):
         main_scr = App.get_running_app().get_main_screen()
@@ -589,8 +579,10 @@ class ConnectionManger:
             main_scr.text_box.display_text(dcd[8], user, col, sender)
             main_scr.ooc_window.update_subloc(user.username, user.subloc.name)
 
-    def update_music(self, url):
-        self.send_music_to_all(url)
+    def update_music(self, track_name, url=None):
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_music_message(track_name, url)
+        self.send_msg(message)
 
     def update_char(self, main_scr, char, username):
         main_scr.ooc_window.update_char(username, char)
@@ -616,10 +608,16 @@ class ConnectionManger:
             main_scr.ooc_window.add_user(main_scr.users[username])
         main_scr.log_window.add_entry("{} has joined.\n".format(username))
         loc = user_handler.get_current_loc().name
-        self.send_loc_to_all(loc)
+        message_factory = App.get_running_app().get_message_factory()
+        loc_message = message_factory.build_location_message(loc)
+        self.send_msg(loc_message)
+        self.send_local(loc_message)
         char = user.get_char()
         if char is not None:
-            self.send_char_to_all(char.name)
+            message_factory = App.get_running_app().get_message_factory()
+            char_msg = message_factory.build_character_message(char.name)
+            self.send_msg(char_msg)
+            self.send_local(char_msg)
 
     def on_disconnect(self, username):
         main_scr = App.get_running_app().get_main_screen()

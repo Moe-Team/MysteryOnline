@@ -2,6 +2,8 @@ from character import characters
 from location import location_manager
 from inventory import UserInventory
 
+from kivy.app import App
+
 
 class User:
     def __init__(self, username):
@@ -46,7 +48,7 @@ class User:
             self.color = '00cd00'
         elif col == 'rainbow':
             self.color = 'rainbow'
-        elif col =='purple':
+        elif col == 'purple':
             self.color = '8b6fba'
         elif col == 'normal':
             self.color = 'ffffff'
@@ -143,14 +145,21 @@ class CurrentUserHandler:
         loc = self.user.get_loc().name
         char = self.user.get_char().name
         sprite_option = self.user.get_sprite_option()
-        self.connection_manager.send_msg(msg, loc, self.current_subloc_name, char,
-                                         self.current_sprite_name, self.current_pos_name, col_id, sprite_option)
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_chat_message(content=msg, location=loc, sublocation=self.current_subloc_name,
+                                                     character=char, sprite=self.current_sprite_name,
+                                                     position=self.current_pos_name, color_id=col_id,
+                                                     sprite_option=sprite_option)
+        self.connection_manager.send_msg(message)
 
     def on_current_loc(self, *args):
         self.user.set_loc(self.current_loc)
         subloc_name = self.current_loc.get_first_sub()
         self.set_current_subloc_name(subloc_name)
-        self.connection_manager.send_loc_to_all(self.current_loc.name)
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_location_message(self.current_loc.name)
+        self.connection_manager.send_msg(message)
+        self.connection_manager.send_local(message)
 
     def on_current_subloc_name(self, *args):
         subloc = self.current_loc.get_sub(self.current_subloc_name)

@@ -6,7 +6,7 @@ from character_select import CharacterSelect
 
 import re
 
-from irc_mo import IrcConnection, ConnectionManger
+from irc_mo import IrcConnection, ConnectionManager
 from user import User, CurrentUserHandler
 
 import configparser
@@ -39,7 +39,7 @@ class LoginScreen(Screen):
     def create_irc_connection(self):
         user_handler = App.get_running_app().get_user_handler()
         connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
-        user_handler.set_connection_manager(ConnectionManger(connection))
+        user_handler.set_connection_manager(ConnectionManager(connection))
         self.manager.irc_connection = connection
 
     def set_current_user(self):

@@ -154,8 +154,7 @@ class Track:
 
     def on_selected(self):
         main_scr = App.get_running_app().get_main_screen()
-        encoded_url = self.name + ";" + self.url
-        main_scr.ooc_window.music_tab.on_music_play(encoded_url)
+        main_scr.ooc_window.music_tab.on_music_play(url=self.name, track_name=self.name)
 
 
 class MusicListLabel(BoxLayout):

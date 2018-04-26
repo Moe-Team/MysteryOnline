@@ -159,8 +159,13 @@ class DebugMode:
         pos = user.pos
         col_id = "0"
         sprite_option = "-1"
-        irc_connection = App.get_running_app().get_user_handler().connection_manager.irc_connection
-        irc_connection.send_local_msg(message, username, loc, subloc, char, sprite, pos, col_id, sprite_option)
+        connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_chat_message(content=message, location=loc, sublocation=subloc,
+                                                     character=char, sprite=sprite,
+                                                     position=pos, color_id=col_id,
+                                                     sprite_option=sprite_option, username=username)
+        connection_manager.send_local(message)
 
     def get_created_users(self):
         return self.created_users
