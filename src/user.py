@@ -20,14 +20,13 @@ class User:
         self.sprite_option = -1
         self.inventory = UserInventory(self)
 
-    def set_from_msg(self, *args):
-        args = list(args)
-        self.set_loc(args[1], True)
+    def set_from_msg(self, location, sublocation, position, sprite, character):
+        self.set_loc(location, True)
         if self.location is not None:
-            self.set_subloc(self.location.get_sub(args[2]))
-            self.set_pos(args[5])
-        self.set_current_sprite(args[4])
-        self.character = characters.get(args[3])
+            self.set_subloc(self.location.get_sub(sublocation))
+            self.set_pos(position)
+        self.set_current_sprite(sprite)
+        self.character = characters.get(character)
         if self.character is None:
             self.character = characters['RedHerring']
             self.set_current_sprite('4')
@@ -151,6 +150,7 @@ class CurrentUserHandler:
                                                      position=self.current_pos_name, color_id=col_id,
                                                      sprite_option=sprite_option)
         self.connection_manager.send_msg(message)
+        self.connection_manager.send_local(message)
 
     def on_current_loc(self, *args):
         self.user.set_loc(self.current_loc)
@@ -159,7 +159,6 @@ class CurrentUserHandler:
         message_factory = App.get_running_app().get_message_factory()
         message = message_factory.build_location_message(self.current_loc.name)
         self.connection_manager.send_msg(message)
-        self.connection_manager.send_local(message)
 
     def on_current_subloc_name(self, *args):
         subloc = self.current_loc.get_sub(self.current_subloc_name)
