@@ -3,33 +3,75 @@ from kivy.properties import ObjectProperty
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
 from kivy.logger import Logger
-from kivy.uix.recycleview import RecycleView
 from utils import binary_search
 from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.boxlayout import BoxLayout
 
 
 class SectionLabel(Label):
 
-    def __init__(self, **kwargs):
+    def __init__(self, section, **kwargs):
         super(SectionLabel, self).__init__(**kwargs)
+        self.section = section
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'left' and touch.is_double_tap:
+                self.on_selected()
+                return True
+
+    def on_selected(self):
+        self.section.on_selected(self.parent)
 
 
 class SubSectionLabel(Label):
 
-    def __init__(self, **kwargs):
+    def __init__(self, subsection, **kwargs):
         super(SubSectionLabel, self).__init__(**kwargs)
+        self.subsection = subsection
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'left' and touch.is_double_tap:
+                self.on_selected()
+                return True
+
+    def on_selected(self):
+        self.subsection.on_selected(self.parent)
+
+
+class SubSubSectionLabel(Label):
+
+    def __init__(self, **kwargs):
+        super(SubSubSectionLabel, self).__init__(**kwargs)
+
+
+class TrackLabel(Label):
+
+    def __init__(self, track, **kwargs):
+        super(TrackLabel, self).__init__(**kwargs)
+        self.track = track
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'left' and touch.is_double_tap:
+                self.on_selected()
+                return True
+
+    def on_selected(self):
+        self.track.on_selected()
 
 
 class TrackSection:
 
     def __init__(self, name):
         self.name = name
-        self.subsections = {}
+        self.subsections = []
         self.tracks = []
 
     def add_subsection(self, subsection):
-        self.subsections[subsection.get_name()] = subsection
+        self.subsections.append(subsection)
 
     def add_track(self, track_name):
         self.tracks.append(track_name)
@@ -43,6 +85,22 @@ class TrackSection:
     def get_tracks(self):
         return self.tracks
 
+    def on_selected(self, parent):
+        try:
+            if not parent.is_open:
+                parent.is_open = True
+                for subsection in self.subsections:
+                    subsection_label = MusicListLabel(SubSectionLabel(subsection, text=subsection.get_name()))
+                    parent.add_widget(subsection_label)
+                for track in self.tracks:
+                    track_label = MusicListLabel(TrackLabel(track, text=track.name))
+                    parent.add_widget(track_label)
+            else:
+                parent.is_open = False
+                parent.hide_tracks()
+        except AttributeError:
+            pass
+
 
 class TrackSubSection:
 
@@ -53,35 +111,74 @@ class TrackSubSection:
     def add_track(self, track_name):
         self.tracks.append(track_name)
 
+    def add_subsubsection(self, subsubsection):
+        self.tracks.append(subsubsection)
+
     def get_name(self):
         return self.name
 
     def get_tracks(self):
         return self.tracks
 
+    def on_selected(self, parent):
+        try:
+            if not parent.is_open:
+                parent.is_open = True
+                for track in self.tracks:
+                    if self.track_is_subsection(track):
+                        parent.add_widget(track)
+                    else:
+                        track_label = MusicListLabel(TrackLabel(track, text=track.name))
+                        parent.add_widget(track_label)
+            else:
+                parent.is_open = False
+                parent.hide_tracks()
+        except AttributeError:
+            pass
 
-class TrackLabel(Label):
+    def track_is_subsection(self, track):
+        try:
+            temp = track.url
+            return False
+        except AttributeError:
+            return True
 
-    def __init__(self, **kwargs):
-        super(TrackLabel, self).__init__(**kwargs)
-        self.track_url = None
 
-    def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos):
-            if touch.button == 'left' and touch.is_double_tap:
-                self.on_selected()
+class Track:
+
+    def __init__(self, name, url, section, subsection):
+        self.name = name
+        self.url = url
+        self.section = section
+        self.subsection = subsection
 
     def on_selected(self):
-        if self.track_url:
-            main_scr = App.get_running_app().get_main_screen()
-            encoded_url = self.text + ";" + self.track_url
-            main_scr.ooc_window.music_tab.on_music_play(encoded_url)
+        main_scr = App.get_running_app().get_main_screen()
+        main_scr.ooc_window.music_tab.on_music_play(url=self.url, track_name=self.name)
 
 
-class MusicListView(RecycleView):
+class MusicListLabel(BoxLayout):
+
+    def __init__(self, display, **kwargs):
+        super(MusicListLabel, self).__init__(**kwargs)
+        self.element_display = display
+        self.add_widget(self.element_display)
+        self.is_open = False
+
+    def hide_tracks(self):
+        self.clear_widgets()
+        self.add_widget(self.element_display)
+
+
+class MusicListView(ScrollView):
+
+    music_box_layout = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(MusicListView, self).__init__(**kwargs)
+
+    def add_element(self, el):
+        self.music_box_layout.add_widget(el)
 
 
 class SearchResults(ScrollView):
@@ -104,7 +201,6 @@ class MusicList(TabbedPanelItem):
 
     def __init__(self, **kwargs):
         super(MusicList, self).__init__(**kwargs)
-        self.temp_data = []
         self.tracks = {}
         self.search_space = []
         self.track_search_space = []
@@ -129,7 +225,6 @@ class MusicList(TabbedPanelItem):
         except FileNotFoundError:
             Logger.warning('Music: musiclist.txt not found')
             return
-        self.music_list_view.data = self.temp_data
         self.track_search_space = list(self.tracks.keys())
         self.section_search_space = list(self.sections.keys())
         self.subsection_search_space = list(self.subsections.keys())
@@ -138,36 +233,34 @@ class MusicList(TabbedPanelItem):
         self.subsection_search_space.sort(key=str.lower)
 
     def build_from_line(self, line):
+        music_list_element = None
         if line.startswith('['):
             section = line[1:-2]
-            prop_dict = {'text': section, 'color': [0.8, 0, 0, 1]}
             track_section = TrackSection(section)
             self.sections[section.lower()] = track_section
             self.current_section = track_section
             self.current_subsection = None
+            music_list_element = MusicListLabel(SectionLabel(track_section, text=section))
         elif line.startswith('<'):
             subsection = line[1:-2]
-            prop_dict = {'text': subsection, 'color': [0, 0.8, 0, 1]}
             track_subsection = TrackSubSection(subsection)
             self.subsections[subsection.lower()] = track_subsection
             self.current_subsection = track_subsection
             self.current_section.add_subsection(track_subsection)
         elif line.startswith('\\'):
             subsubsection = line[1:-2]
-            prop_dict = {'text': subsubsection, 'color': [0, 0.8, 0.8, 1]}
+            self.current_subsection.add_subsubsection(MusicListLabel(SubSubSectionLabel(text=subsubsection)))
         else:
             track_name, track_url = line.split(':', 1)
             track_url = track_url.strip()
-            prop_dict = {'text': track_name, 'track_url': track_url, 'color': [1, 1, 1, 1]}
-            self.tracks[track_name.lower()] = [track_name, track_url, self.current_section, self.current_subsection]
+            track = Track(track_name, track_url, self.current_section, self.current_subsection)
+            self.tracks[track_name.lower()] = track
             if self.current_subsection is None:
-                self.current_section.add_track(track_name)
+                self.current_section.add_track(track)
             else:
-                self.current_subsection.add_track(track_name)
-        prop_dict['size_hint_x'] = 1
-        prop_dict['size_hint_y'] = None
-        prop_dict['height'] = 30
-        self.temp_data.append(prop_dict)
+                self.current_subsection.add_track(track)
+        if music_list_element is not None:
+            self.music_list_view.add_element(music_list_element)
 
     def search(self, target):
         if target == "":
@@ -192,47 +285,54 @@ class MusicList(TabbedPanelItem):
         result = self.find_track(target)
         if result is None:
             return
+        added_sections = []
+        added_subsections = []
         for track in result:
             if is_section and track in self.sections:
                 section = self.sections[track]
                 self.add_section_to_search_result(section)
                 for section_track in section.get_tracks():
                     self.add_track_to_search_result(section_track)
-                for subsection_name, subsection in section.get_subsections().items():
+                for subsection in section.get_subsections():
                     self.add_subsection_to_search_result(subsection)
-                    for track_name in subsection.get_tracks():
-                        self.add_track_to_search_result(track_name)
+                    for track_object in subsection.get_tracks():
+                        self.add_track_to_search_result(track_object)
             elif is_subsection and track in self.subsections:
                 subsection = self.subsections[track]
                 self.add_subsection_to_search_result(subsection)
-                for track_name in subsection.get_tracks():
-                    self.add_track_to_search_result(track_name)
+                for track_object in subsection.get_tracks():
+                    self.add_track_to_search_result(track_object)
             elif not is_subsection and not is_section:
-                track_section = self.tracks[track.lower()][2]
-                self.add_section_to_search_result(track_section)
-                track_subsection = self.tracks[track.lower()][3]
+                track_section = self.tracks[track.lower()].section
+                if track_section not in added_sections:
+                    self.add_section_to_search_result(track_section)
+                    added_sections.append(track_section)
+                track_subsection = self.tracks[track.lower()].subsection
                 if track_subsection is not None:
-                    self.add_subsection_to_search_result(track_subsection)
-                self.add_track_to_search_result(track)
+                    if track_subsection not in added_subsections:
+                        self.add_subsection_to_search_result(track_subsection)
+                        added_subsections.append(track_subsection)
+                self.add_track_to_search_result(self.tracks[track])
         layout = self.content
         layout.remove_widget(self.music_list_view)
         layout.add_widget(self.search_results, index=1)
 
     def add_subsection_to_search_result(self, subsection):
-        subsection_label = SubSectionLabel()
+        subsection_label = SubSectionLabel(subsection)
         subsection_label.text = subsection.get_name()
         self.search_results.add_label(subsection_label)
 
     def add_section_to_search_result(self, section):
-        section_label = SectionLabel()
+        section_label = SectionLabel(section)
         section_label.text = section.get_name()
         self.search_results.add_label(section_label)
 
     def add_track_to_search_result(self, track):
-        track_label = TrackLabel(size_hint_x=1, size_hint_y=None, height=30)
-        track_label.text = self.tracks[track.lower()][0]
-        track_label.track_url = self.tracks[track.lower()][1]
-        self.search_results.add_label(track_label)
+        try:
+            track_label = TrackLabel(track, text=track.name)
+            self.search_results.add_label(track_label)
+        except AttributeError:
+            pass
 
     def find_track(self, target):
         found_index = binary_search(self.search_space, target)

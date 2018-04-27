@@ -117,7 +117,9 @@ class MainScreen(Screen):
         self.set_first_sprite(char)
         user_handler = App.get_running_app().get_user_handler()
         connection_manager = user_handler.get_connection_manager()
-        connection_manager.send_char_to_all(char.name)
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_character_message(char.name)
+        connection_manager.send_msg(message)
         connection_manager.update_char(self, char.name, self.user.username)
 
     def set_first_sprite(self, char):

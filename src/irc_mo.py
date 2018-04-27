@@ -13,58 +13,311 @@ class ChannelConnectionError(Exception):
     pass
 
 
-class Message:
-    """This class will eventually handle message parsing and any other operations
-    on messages.
-    """
-    def __init__(self, message, sender="default"):
-        self.msg = message
+class IncorrectMessageTypeError(Exception):
+    pass
+
+
+class MessageFactory:
+
+    def __init__(self):
+        pass
+
+    def build_chat_message(self, **kwargs):
+        username = kwargs.get('username', None)
+        if username is not None:
+            result = ChatMessage(username, **kwargs)
+        else:
+            result = ChatMessage("default", **kwargs)
+        return result
+
+    def build_character_message(self, character):
+        result = CharacterMessage("default", character)
+        return result
+
+    def build_location_message(self, location):
+        result = LocationMessage("default", location)
+        return result
+
+    def build_ooc_message(self, content):
+        result = OOCMessage("default", content)
+        return result
+
+    def build_music_message(self, track_name, url):
+        result = MusicMessage("default", track_name, url)
+        return result
+
+    def build_roll_message(self, roll):
+        result = RollMessage("default", roll)
+        return result
+
+    def build_item_message(self, item):
+        result = ItemMessage("default", item)
+        return result
+
+    def build_clear_message(self):
+        result = ClearMessage("default")
+        return result
+    
+    def build_from_irc(self, irc_message, username):
+        if irc_message.count('#') >= 7:
+            result = ChatMessage(username)
+        elif irc_message.startswith('c#'):
+            result = CharacterMessage(username)
+        elif irc_message.startswith('OOC#'):
+            result = OOCMessage(username)
+        elif irc_message.startswith('m#'):
+            result = MusicMessage(username)
+        elif irc_message.startswith('l#'):
+            result = LocationMessage(username)
+        elif irc_message.startswith('r#'):
+            result = RollMessage(username)
+        elif irc_message.startswith('i#'):
+            result = ItemMessage(username)
+        elif irc_message.startswith('cl#'):
+            result = ClearMessage(username)
+        else:
+            raise IncorrectMessageTypeError(irc_message)
+        result.from_irc(irc_message)
+        return result
+
+
+class ChatMessage:
+
+    def __init__(self, sender, **kwargs):
+        # TODO Try to reduce the number of arguments
+        self.components = kwargs
         self.sender = sender
+        self.content = kwargs.get('content')
+        self.location = kwargs.get('location')
+        self.sublocation = kwargs.get('sublocation')
+        self.character = kwargs.get('character')
+        self.sprite = kwargs.get('sprite')
+        self.position = kwargs.get('position')
+        self.color_id = kwargs.get('color_id')
+        self.sprite_option = kwargs.get('sprite_option')
         self.remove_line_breaks()
 
     def remove_line_breaks(self):
-        if '\n' in self.msg or '\r' in self.msg:
-            self.msg = self.msg.replace('\n', ' ')
-            self.msg = self.msg.replace('\r', ' ')
+        if self.content is None:
+            return
+        if '\n' in self.content or '\r' in self.content:
+            self.content = self.content.replace('\n', ' ')
+            self.content = self.content.replace('\r', ' ')
 
-    def __str__(self):
-        return self.msg
+    def to_irc(self):
+        msg = "{0[location]}#{0[sublocation]}#{0[character]}#{0[sprite]}#" \
+              "{0[position]}#{0[color_id]}#{0[sprite_option]}#{0[content]}".format(self.components)
+        return msg
 
-    def __repr__(self):
-        return str(self.msg)
+    def from_irc(self, message):
+        arguments = tuple(message.split('#', len(self.components) - 1))
+        self.location, self.sublocation, self.character, self.sprite, self.position, \
+            self.color_id, self.sprite_option, self.content = arguments
 
-    def encode(self, loc, subloc, char, sprite, pos, col_id, sprite_option):
-        self.msg = "{}#{}#{}#{}#{}#{}#{}#{}".format(loc, subloc, char, sprite, pos, col_id, sprite_option, self.msg)
+    def execute(self, connection_manager, main_screen, user_handler):
+        if main_screen.text_box.is_displaying_msg:
+            connection_manager.irc_connection.put_back_msg(self)
+            return
+        username = self.sender
+        if username == "default":
+            user = App.get_running_app().get_user()
+        else:
+            connection_manager.reschedule_ping()
+            user = main_screen.users.get(username, None)
+            if user is None:
+                connection_manager.on_join(username)
+            user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+        if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
+            option = int(self.sprite_option)
+            user.set_sprite_option(option)
+            main_screen.sprite_window.set_subloc(user.get_subloc())
+            main_screen.sprite_window.set_sprite(user)
+            col = user.color_ids[int(self.color_id)]
+            main_screen.text_box.display_text(self.content, user, col, username)
+            main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
 
-    def decode(self):
-        res = self.msg.split("#", 7)
-        res.insert(0, self.sender)
-        return tuple(res)
 
-    def decode_other(self):
-        res = self.msg.split("#", 1)
-        res.append(self.sender)
-        return res[1], res[2]
+class CharacterMessage:
 
-    def identify(self):
-        if self.msg.count('#') >= 7:
-            return 'chat'
-        if self.msg.startswith('c#'):
-            return 'char'
-        if self.msg.startswith('OOC#'):
-            return 'OOC'
-        if self.msg.startswith('m#'):
-            return 'music'
-        if self.msg.startswith('l#'):
-            return 'loc'
-        if self.msg.startswith('r#'):
-            return 'roll'
-        if self.msg.startswith('i#'):
-            return "item"
-        if self.msg.startswith('cl#'):
-            return "clear"
+    def __init__(self, sender, character=None):
+        self.sender = sender
+        self.character = character
 
-        return None
+    def to_irc(self):
+        msg = "c#{0}".format(self.character)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.character = arguments[1]
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        connection_manager.update_char(main_screen, self.character, self.sender)
+
+
+class LocationMessage:
+
+    def __init__(self, sender, location=None):
+        self.sender = sender
+        self.location = location
+
+    def to_irc(self):
+        msg = "l#{0}".format(self.location)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.location = arguments[1]
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        username = self.sender
+        loc = self.location
+        user = main_screen.users.get(username, None)
+        if user.get_loc() is not None and user.get_loc().get_name() != loc:
+            main_screen.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
+        user.set_loc(loc, True)
+        main_screen.ooc_window.update_loc(user.username, loc)
+
+
+class OOCMessage:
+
+    def __init__(self, sender, content=None):
+        self.sender = sender
+        self.content = content
+        self.remove_line_breaks()
+
+    def remove_line_breaks(self):
+        if self.content is None:
+            return
+        if '\n' in self.content or '\r' in self.content:
+            self.content = self.content.replace('\n', ' ')
+            self.content = self.content.replace('\r', ' ')
+
+    def to_irc(self):
+        msg = "OOC#{0}".format(self.content)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.content = arguments[1]
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        main_screen.ooc_window.update_ooc(self.content, self.sender)
+
+
+class MusicMessage:
+
+    def __init__(self, sender, track_name=None, url=None):
+        self.sender = sender
+        self.track_name = track_name
+        self.url = url
+
+    def to_irc(self):
+        if self.track_name is None:
+            self.track_name = "0"
+        if self.url is None:
+            self.url = "0"
+        msg = "m#{0}#{1}".format(self.track_name, self.url)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 2)
+        self.track_name = arguments[1]
+        if self.track_name == "0":
+            self.track_name = None
+        self.url = arguments[2]
+        if self.url == "0":
+            self.url = None
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        username = self.sender
+        user = main_screen.users[username]
+        if user.get_loc().name != user_handler.get_current_loc().name:
+            return
+        if self.track_name == "stop":
+            main_screen.log_window.add_entry("{} stopped the music.\n".format(username))
+            main_screen.ooc_window.music_tab.music_stop(False)
+        else:
+            main_screen.log_window.add_entry("{} changed the music.\n".format(username))
+            main_screen.ooc_window.music_tab.on_music_play(self.url, send_to_all=False, track_name=self.track_name)
+
+
+class RollMessage:
+
+    def __init__(self, sender, roll=None):
+        self.sender = sender
+        self.roll = roll
+
+    def to_irc(self):
+        msg = "r#{0}".format(self.roll)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.roll = arguments[1]
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        username = self.sender
+        if username == "default":
+            username = "You"
+        main_screen.log_window.add_entry("{} rolled {}.\n".format(username, self.roll))
+
+
+class ItemMessage:
+
+    def __init__(self, sender, item=None):
+        self.sender = sender
+        self.item = item
+        self.remove_line_breaks()
+
+    def remove_line_breaks(self):
+        if self.item is None:
+            return
+        if '\n' in self.item or '\r' in self.item:
+            self.item = self.item.replace('\n', ' ')
+            self.item = self.item.replace('\r', ' ')
+
+    def to_irc(self):
+        msg = "i#{0}".format(self.item)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.item = arguments[1]
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        item_string = self.item
+        dcdi = item_string.split("#", 3)
+        user = App.get_running_app().get_user()
+        username = self.sender
+        entry_text = ''
+        if username != 'default':
+            sender = main_screen.users[username]
+            if sender.get_loc().name != user_handler.get_current_loc().name:
+                return
+            entry_text = ' and it was added to your inventory'
+        if username == 'default':
+            username = 'You'
+        user.inventory.receive_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
+        main_screen.log_window.add_entry("{} presented {}{}.\n".format(username, dcdi[0], entry_text))
+
+
+class ClearMessage:
+
+    def __init__(self, sender):
+        self.sender = sender
+
+    def to_irc(self):
+        msg = "cl#"
+        return msg
+
+    def from_irc(self, message):
+        pass
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        # TODO Make it work only for the person who is currently speaking
+        textbox = main_screen.text_box
+        textbox.clear_textbox()
 
 
 class MessageQueue:
@@ -77,9 +330,8 @@ class MessageQueue:
     def is_empty(self):
         return self.messages == []
 
-    def enqueue(self, msg, sender):
-        message = Message(msg, sender)
-        self.messages.insert(0, message)
+    def enqueue(self, msg):
+        self.messages.insert(0, msg)
 
     def dequeue(self):
         try:
@@ -158,18 +410,8 @@ class IrcConnection:
     def get_pm(self):
         return self.p_msg_q.dequeue()
 
-    def send_msg(self, msg, *args):
-        args = tuple(args)
-        message = Message(msg)
-        message.encode(*args)
-        self.msg_q.messages.insert(0, message)
-        self.connection.privmsg(self.channel, message.msg)
-
-    def send_local_msg(self, msg, username, *args):
-        args = tuple(args)
-        message = Message(msg, username)
-        message.encode(*args)
-        self.msg_q.messages.insert(0, message)
+    def send_msg(self, msg):
+        self.connection.privmsg(self.channel, msg)
 
     def send_private_msg(self, receiver, sender, msg):
         pm = PrivateMessage(msg, sender, receiver)
@@ -177,17 +419,6 @@ class IrcConnection:
         if len(msg) > 480:  # controls the msg length so it doesn't crash
             msg = (msg[:480] + '..')
         self.connection.privmsg(receiver, msg)
-
-    def send_special(self, kind, value):
-        kinds = {'char': 'c#', 'OOC': 'OOC#', 'music': 'm#', 'loc': 'l#', 'roll': 'r#', 'item': 'i#', 'clear': 'cl#'}
-        msg = kinds[kind] + value
-        if '\n' in msg or '\r' in msg:
-            msg = msg.replace('\n', ' ')
-            msg = msg.replace('\r', ' ')
-        self.connection.privmsg(self.channel, msg)
-        if kind == 'OOC' or kind == 'roll' or kind == 'item' or kind == 'clear':
-            message = Message(msg)
-            self.msg_q.messages.insert(0, message)
 
     def send_mode(self, username, msg):
         self.connection.mode(username, msg)
@@ -219,7 +450,9 @@ class IrcConnection:
 
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
-        self.msg_q.enqueue(msg, e.source.nick)
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_from_irc(msg, e.source.nick)
+        self.msg_q.enqueue(message)
 
     def on_namreply(self, c, e):
         self.on_users_handler(e.arguments[2])
@@ -247,7 +480,7 @@ class IrcConnection:
         self.connection_manager.receive_pong()
 
 
-class ConnectionManger:
+class ConnectionManager:
 
     def __init__(self, irc_connection):
         self.irc_connection = irc_connection
@@ -282,161 +515,28 @@ class ConnectionManger:
         if self.disconnected_event is not None:
             self.disconnected_event.cancel()
 
-    def send_loc_to_all(self, loc_name):
-        try:
-            self.irc_connection.send_special('loc', loc_name)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_char_to_all(self, char_name):
-        try:
-            self.irc_connection.send_special('char', char_name)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_music_to_all(self, music_url):
-        try:
-            self.irc_connection.send_special('music', music_url)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_roll_to_all(self, roll_result):
-        try:
-            self.irc_connection.send_special('roll', roll_result)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_clear_to_all(self):
-        try:
-            self.irc_connection.send_special('clear', '')
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
-    def send_item_to_all(self, item):
-        try:
-            self.irc_connection.send_special('item', item)
-        except irc.client.ServerNotConnectedError:
-            self.get_disconnected()
-
     def send_msg(self, msg, *args):
         try:
-            self.irc_connection.send_msg(msg, *args)
+            irc_message = msg.to_irc()
+            self.irc_connection.send_msg(irc_message, *args)
         except irc.client.ServerNotConnectedError:
             self.get_disconnected()
         self.reschedule_ping()
 
-    def update_chat(self, dt):
-        main_scr = App.get_running_app().get_main_screen()
+    def send_local(self, msg):
+        self.irc_connection.msg_q.enqueue(msg)
 
-        config = App.get_running_app().config
-        user_handler = App.get_running_app().get_user_handler()
+    def update_chat(self, dt):
         msg = self.irc_connection.get_msg()
         if msg is not None:
-            if msg.identify() == 'chat':
-                if main_scr.text_box.is_displaying_msg:
-                    self.irc_connection.put_back_msg(msg)
-                    return
-                self.on_chat_message(main_scr, msg, user_handler)
-            elif msg.identify() == 'char':
-                self.on_char_message(main_scr, msg)
-            elif msg.identify() == 'loc':
-                self.on_loc_message(main_scr, msg)
-            elif msg.identify() == 'OOC':
-                self.on_ooc_message(main_scr, msg)
-            elif msg.identify() == 'music':
-                self.on_music_message(main_scr, msg, user_handler)
-            elif msg.identify() == 'roll':
-                self.on_roll_message(main_scr, msg)
-            elif msg.identify() == 'item':
-                self.on_item_message(main_scr, msg, user_handler)
-            elif msg.identify() == 'clear':
-                self.on_clear_message(main_scr, msg)
+            main_scr = App.get_running_app().get_main_screen()
+            user_handler = App.get_running_app().get_user_handler()
+            msg.execute(self, main_scr, user_handler)
 
-    def on_music_message(self, main_scr, msg, user_handler):
-        dcd = msg.decode_other()
-        username = dcd[1]
-        user = main_scr.users[username]
-        if user.get_loc().name != user_handler.get_current_loc().name:
-            return
-        if dcd[0] == "stop":
-            main_scr.log_window.add_entry("{} stopped the music.\n".format(dcd[1]))
-            main_scr.ooc_window.music_tab.music_stop(False)
-        else:
-            main_scr.log_window.add_entry("{} changed the music.\n".format(dcd[1]))
-            main_scr.ooc_window.music_tab.on_music_play(dcd[0], send_to_all=False)
-
-    def on_ooc_message(self, main_scr, msg):
-        dcd = msg.decode_other()
-        main_scr.ooc_window.update_ooc(*dcd)
-
-    def on_loc_message(self, main_scr, msg):
-        dcd = msg.decode_other()
-        user = dcd[1]
-        loc = dcd[0]
-        user = main_scr.users.get(user, None)
-        if user.get_loc() is not None and user.get_loc().get_name() != loc:
-            main_scr.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
-        user.set_loc(loc, True)
-        main_scr.ooc_window.update_loc(user.username, loc)
-
-    def on_char_message(self, main_scr, msg):
-        dcd = msg.decode_other()
-        self.update_char(main_scr, *dcd)
-
-    def on_roll_message(self, main_scr, msg):
-        dcd = msg.decode_other()
-        username = dcd[1]
-        roll_result = dcd[0]
-        if username == 'default':
-            username = "You"
-        main_scr.log_window.add_entry("{} rolled {}.\n".format(username, roll_result))
-
-    def on_clear_message(self, main_scr, msg):
-        # TODO Make it work only for the person who is currently speaking
-        textbox = main_scr.text_box
-        textbox.clear_textbox()
-
-    def on_item_message(self, main_scr, msg, user_handler):
-        dcd = msg.decode_other()
-        item_string = dcd[0]
-        dcdi = item_string.split("#", 3)
-        user = App.get_running_app().get_user()
-        username = dcd[1]
-        entry_text = ''
-        if username != 'default':
-            sender = main_scr.users[username]
-            if sender.get_loc().name != user_handler.get_current_loc().name:
-                return
-            entry_text = ' and it was added to your inventory'
-        if username == 'default':
-            username = 'You'
-        user.inventory.receive_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
-        main_scr.log_window.add_entry("{} presented {}{}.\n".format(username, dcdi[0], entry_text))
-
-    def on_chat_message(self, main_scr, msg, user_handler):
-        dcd = msg.decode()
-        username = dcd[0]
-        if username == "default":
-            user = App.get_running_app().get_user()
-        else:
-            self.reschedule_ping()
-            user = main_scr.users.get(username, None)
-            if user is None:
-                self.on_join(username)
-            user.set_from_msg(*dcd)
-        loc = dcd[1]
-        if loc == user_handler.get_current_loc().name and user not in main_scr.ooc_window.muted_users:
-            option = int(dcd[7])
-            sender = dcd[0]
-            user.set_sprite_option(option)
-            main_scr.sprite_window.set_subloc(user.get_subloc())
-            main_scr.sprite_window.set_sprite(user)
-            col = user.color_ids[int(dcd[6])]
-            main_scr.text_box.display_text(dcd[8], user, col, sender)
-            main_scr.ooc_window.update_subloc(user.username, user.subloc.name)
-
-    def update_music(self, url):
-        self.send_music_to_all(url)
+    def update_music(self, track_name, url=None):
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_music_message(track_name, url)
+        self.send_msg(message)
 
     def update_char(self, main_scr, char, username):
         main_scr.ooc_window.update_char(username, char)
@@ -462,10 +562,14 @@ class ConnectionManger:
             main_scr.ooc_window.add_user(main_scr.users[username])
         main_scr.log_window.add_entry("{} has joined.\n".format(username))
         loc = user_handler.get_current_loc().name
-        self.send_loc_to_all(loc)
+        message_factory = App.get_running_app().get_message_factory()
+        loc_message = message_factory.build_location_message(loc)
+        self.send_msg(loc_message)
         char = user.get_char()
         if char is not None:
-            self.send_char_to_all(char.name)
+            message_factory = App.get_running_app().get_message_factory()
+            char_msg = message_factory.build_character_message(char.name)
+            self.send_msg(char_msg)
 
     def on_disconnect(self, username):
         main_scr = App.get_running_app().get_main_screen()

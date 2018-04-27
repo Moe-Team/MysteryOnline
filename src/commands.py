@@ -139,13 +139,16 @@ class CommandProcessor:
             dice_game.process_input(command)
         if cmd_name == 'clear':
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-            connection_manager.send_clear_to_all()
         if cmd_name == 'color':
             user_handler = App.get_running_app().get_user_handler()
             user = user_handler.get_user()
             user.set_color(command.__getitem__('color'))
             user_handler.send_message(command.__getitem__('text'))
             user.set_color('normal')
+            message_factory = App.get_running_app().get_message_factory()
+            message = message_factory.build_clear_message()
+            connection_manager.send_msg(message)
+            connection_manager.send_local(message)
 
 
 command_processor = CommandProcessor()

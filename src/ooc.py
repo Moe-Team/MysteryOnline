@@ -48,23 +48,21 @@ class MusicTab(TabbedPanelItem):
         self.loop = True
         self.is_loading_music = False
 
-    def on_music_play(self, url=None, send_to_all=True):
+    def on_music_play(self, url=None, send_to_all=True, track_name=None):
         if self.is_loading_music:
             return
         self.is_loading_music = True
         main_screen = App.get_running_app().get_main_screen()
         if url is None:
             url = self.url_input.text
-        encoded_url = url
-        if ';' in url:
-            track_name, url = url.split(';')
+        if track_name is not None:
             main_screen.music_name_display.text = "Playing: {}".format(track_name)
         else:
             main_screen.music_name_display.text = "Playing: URL Track"
         if send_to_all:
             self.url_input.text = ""
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-            connection_manager.update_music(encoded_url)
+            connection_manager.update_music(track_name, url)
             main_screen.log_window.add_entry("You changed the music.\n")
         if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):  # watch is for yt links
             Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
@@ -333,9 +331,11 @@ class OOCWindow(TabbedPanel):
     def send_ooc(self):
         Clock.schedule_once(self.refocus_text)
         msg = self.ooc_input.text
-        main_scr = App.get_running_app().get_main_screen()
-        irc = main_scr.manager.irc_connection
-        irc.send_special('OOC', msg)
+        connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_ooc_message(msg)
+        connection_manager.send_msg(message)
+        connection_manager.send_local(message)
         self.ooc_input.text = ""
 
     def refocus_text(self, *args):

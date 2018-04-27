@@ -1,27 +1,51 @@
-<SubSectionLabel>:
+<SubSubSectionLabel>:
     size_hint: 1, None
     height: 30
-    color: [0, 0.8, 0, 1]
-
-
-<SectionLabel>:
-    size_hint: 1, None
-    height: 30
-    color: [0.8, 0, 0, 1]
-
-
-<TrackLabel>:
+    color: [0.9, 0.3, 0.3, 1]
     text_size: self.width, None
     size: self.texture_size
     halign: 'center'
 
 
+<SubSectionLabel>:
+    size_hint: 1, None
+    height: 30
+    color: [0.9, 0.7, 0.3, 1]
+    text_size: self.width, None
+    size: self.texture_size
+    halign: 'center'
+
+
+<SectionLabel>:
+    size_hint: 1, None
+    height: 30
+    color: [0.2, 0.6, 0.6, 1]
+    text_size: self.width, None
+    size: self.texture_size
+    halign: 'center'
+
+
+<TrackLabel>:
+    size_hint: 1, None
+    height: 30
+    text_size: self.width, None
+    size: self.texture_size
+    halign: 'center'
+
+
+<MusicListLabel>:
+    orientation: 'vertical'
+    size_hint: 1, None
+    height: self.minimum_height
+
+
 <MusicListView>:
-    viewclass: 'TrackLabel'
+    music_box_layout: music_box_layout
     scroll_type: ['bars']
     bar_width: 10
-    RecycleBoxLayout:
-        default_size_hint: 1, None
+    BoxLayout:
+        id: music_box_layout
+        size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
