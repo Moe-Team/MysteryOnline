@@ -59,7 +59,7 @@ class MessageFactory:
         return result
     
     def build_from_irc(self, irc_message, username):
-        if irc_message.count('#') >= 7:
+        if irc_message.count('#') >= 8:
             result = ChatMessage(username)
         elif irc_message.startswith('c#'):
             result = CharacterMessage(username)
@@ -95,6 +95,7 @@ class ChatMessage:
         self.position = kwargs.get('position')
         self.color_id = kwargs.get('color_id')
         self.sprite_option = kwargs.get('sprite_option')
+        self.sfx_name = kwargs.get('sfx_name')
         self.remove_line_breaks()
 
     def remove_line_breaks(self):
@@ -105,14 +106,18 @@ class ChatMessage:
             self.content = self.content.replace('\r', ' ')
 
     def to_irc(self):
+        if self.components['sfx_name'] is None:
+            self.components['sfx_name'] = '0'
         msg = "{0[location]}#{0[sublocation]}#{0[character]}#{0[sprite]}#" \
-              "{0[position]}#{0[color_id]}#{0[sprite_option]}#{0[content]}".format(self.components)
+              "{0[position]}#{0[color_id]}#{0[sprite_option]}#{0[sfx_name]}#{0[content]}".format(self.components)
         return msg
 
     def from_irc(self, message):
         arguments = tuple(message.split('#', len(self.components) - 1))
         self.location, self.sublocation, self.character, self.sprite, self.position, \
-            self.color_id, self.sprite_option, self.content = arguments
+            self.color_id, self.sprite_option, self.sfx_name, self.content = arguments
+        if self.sfx_name == '0':
+            self.sfx_name = None
 
     def execute(self, connection_manager, main_screen, user_handler):
         if main_screen.text_box.is_displaying_msg:
@@ -133,6 +138,8 @@ class ChatMessage:
             main_screen.sprite_window.set_subloc(user.get_subloc())
             main_screen.sprite_window.set_sprite(user)
             col = user.color_ids[int(self.color_id)]
+            if self.sfx_name is not None:
+                main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
             main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
 
