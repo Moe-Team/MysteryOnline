@@ -35,6 +35,8 @@ from mopopup import MOPopup_YN
 from location import location_manager
 from os import listdir
 
+from commands import command_processor
+
 import configparser
 
 KV_DIR = "kv_files/"
@@ -160,12 +162,14 @@ class MysteryOnlineApp(App):
         super(MysteryOnlineApp, self).on_stop()
 
     def on_start(self):
-        config = self.config      
+        config = self.config
+        self.load_shortcuts()
         if not self.was_last_exit_graceful():
             self.show_ungraceful_exit_popup()
         else:
             self.set_graceful_flag(False)
             config.write()
+        super().on_start()
 
     def was_last_exit_graceful(self):
         graceful_exit = self.config.getboolean('other', 'graceful_exit')
@@ -183,6 +187,9 @@ class MysteryOnlineApp(App):
 
     def send_error_log(self, *args):
         print("Waiting on that bot")
+
+    def load_shortcuts(self):
+        command_processor.load_shortcuts()
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()

@@ -187,11 +187,11 @@ class MainTextInput(TextInput):
     def message_is_command(self, msg):
         return msg.startswith('/')
 
-    def extend_message(self, msg):      # Used for command shortcuts, but there's probably a better way to do this
-        if msg.startswith('>'):
-            msg = "/color green '" + msg + "'"
-        elif msg.startswith('/true'):
-            msg = "/color red '" + msg + "'"      
+    def extend_message(self, msg):
+        for shortcut in command_processor.shortcuts:
+            if msg.startswith(shortcut) and not any(msg.startswith('/'+command) for command in command_processor.commands):
+                msg = msg.replace(shortcut, command_processor.shortcuts[shortcut], 1)
+                return msg
         return msg
 
     def handle_command(self, msg):
