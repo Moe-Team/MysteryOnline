@@ -98,3 +98,5 @@ src/temp\.mp3
 /src/ooc_log.txt
 /src/musiclist.txt
 /src/temp.mp3.info.json
+
+src/locations/

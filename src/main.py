@@ -32,9 +32,13 @@ from left_tab import LeftTab
 from irc_mo import MessageFactory
 
 from mopopup import MOPopup
+from mopopup import MOPopup_YN
 from location import location_manager
 from os import listdir
 
+from commands import command_processor
+
+import configparser
 
 KV_DIR = "kv_files/"
 
@@ -120,7 +124,8 @@ class MysteryOnlineApp(App):
             'textbox_transparency': 60,
             'nsfw_mode': 1,
             'spoiler_mode': 1,
-            'sprite_tooltips': 1
+            'sprite_tooltips': 1,
+            'graceful_exit': 'True'
         })
 
     def build_settings(self, settings):
@@ -150,15 +155,46 @@ class MysteryOnlineApp(App):
         return self.message_factory
 
     def on_stop(self):
+        config = self.config
+        self.set_graceful_flag(True)
         if self.main_screen:
             self.main_screen.on_stop()
-        self.config.write()
+        config.write()
         super(MysteryOnlineApp, self).on_stop()
 
+    def on_start(self):
+        config = self.config
+        self.load_shortcuts()
+        if not self.was_last_exit_graceful():
+            self.show_ungraceful_exit_popup()
+        else:
+            self.set_graceful_flag(False)
+            config.write()
+        super().on_start()
+
+    def was_last_exit_graceful(self):
+        graceful_exit = self.config.getboolean('other', 'graceful_exit')
+        if graceful_exit:
+            return True
+        return False
+
+    def show_ungraceful_exit_popup(self):
+        popup = MOPopup_YN('Ungraceful Exit','It seems MO closed unexpectedly last time.\n'
+                        'Do you wish to send us the error log?', [self.send_error_log, None])
+        popup.open()
+
+    def set_graceful_flag(self, boolean):
+        self.config.set('other', 'graceful_exit', boolean)
+
+    def send_error_log(self, *args):
+        print("Waiting on that bot")
+
+    def load_shortcuts(self):
+        command_processor.load_shortcuts()
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
-
+    
 
 __all__ = ['set_kivy_config', 'LoginScreen', 'MainScreen', 'Icon', 'IconsLayout', 'OOCWindow', 'OOCLogLabel',
            'LogLabel', 'LogWindow', 'SpriteSettings', 'SpriteWindow', 'SpritePreview', 'TextBox', 'MainTextInput',

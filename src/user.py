@@ -35,8 +35,11 @@ class User:
     def get_color(self):
         return self.color
 
-    def set_color(self, col, color_button):
+    def on_col_select(self, col, color_button):
         color_button.text = col
+        self.set_color(col)
+
+    def set_color(self, col):
         if col == 'red':
             self.color = 'ff3333'
         elif col == 'blue':
@@ -51,6 +54,11 @@ class User:
             self.color = '8b6fba'
         elif col == 'normal':
             self.color = 'ffffff'
+
+        if self.color != 'ffffff':
+            self.colored = True
+        else:
+            self.colored = False
 
     def set_current_sprite(self, num):
         self.current_sprite = num

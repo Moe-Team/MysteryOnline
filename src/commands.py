@@ -2,6 +2,8 @@ import re
 from dicegame import dice_game
 from kivy.app import App
 
+import character
+
 
 class CommandError(Exception):
     pass
@@ -62,7 +64,7 @@ class CommandHandler:
     def parse_command(self, msg):
         if self.num_of_args == 0:
             return Command(self.cmd_name)
-        args = self.split_msg_into_args(msg)
+        args = self.split_msg_into_args(msg, self.num_of_args)
         args_processed = {}
         for i, arg in enumerate(args):
             if self.types[i] == 'str':
@@ -77,11 +79,11 @@ class CommandHandler:
         command = Command(self.cmd_name, args_processed)
         return command
 
-    def split_msg_into_args(self, msg):
+    def split_msg_into_args(self, msg, num_of_args):
         args = []
         mark = None
         start_index = None
-        for w in msg.split(' '):
+        for w in msg.split(' ', num_of_args):
             if w.startswith(("'", '"')):
                 mark = w[0]
                 args.append(w[1:])
@@ -119,11 +121,16 @@ class RegexCommandHandler:
 class CommandProcessor:
 
     def __init__(self):
-        self.commands = ['roll', 'clear']
+        self.commands = ['roll', 'clear', 'color', 'refresh']
+        self.shortcuts = {}
         self.handlers = {
             'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
                                         r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?'),
-            'clear': CommandHandler('clear')
+            'clear': CommandHandler('clear'),
+
+            'color': CommandHandler('color', 'str:color str:text'),
+
+            'refresh': CommandHandler('refresh')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -141,6 +148,21 @@ class CommandProcessor:
             message = message_factory.build_clear_message()
             connection_manager.send_msg(message)
             connection_manager.send_local(message)
+        if cmd_name == 'color':
+            user_handler = App.get_running_app().get_user_handler()
+            user = user_handler.get_user()
+            user.set_color(command.__getitem__('color'))
+            user_handler.send_message(command.__getitem__('text'))
+            user.set_color('normal')
+        if cmd_name == 'refresh':
+            return
 
+    def load_shortcuts(self):
+        self.shortcuts = {}
+        config = App.get_running_app().config
+        for shortcut in config.items('command_shortcuts'):
+            self.shortcuts[shortcut[0]] = shortcut[1]
+        
+            
 
 command_processor = CommandProcessor()

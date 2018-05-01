@@ -177,6 +177,7 @@ class MainTextInput(TextInput):
         if not self.message_is_valid(msg):
             return
         self.text = ""
+        msg = self.extend_message(msg)
         if self.message_is_command(msg):
             self.handle_command(msg)
         else:
@@ -192,6 +193,13 @@ class MainTextInput(TextInput):
 
     def message_is_command(self, msg):
         return msg.startswith('/')
+
+    def extend_message(self, msg):
+        for shortcut in command_processor.shortcuts:
+            if msg.startswith(shortcut) and not any(msg.startswith('/'+command) for command in command_processor.commands):
+                msg = msg.replace(shortcut, command_processor.shortcuts[shortcut], 1)
+                return msg
+        return msg
 
     def handle_command(self, msg):
         try:
