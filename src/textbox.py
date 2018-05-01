@@ -82,6 +82,13 @@ class TextBox(Label):
         self.textbox_color.rgba = [1, 1, 1, v / 100]
         self.char_name_color.rgba = [1, 1, 1, v / 100]
 
+    def play_sfx(self, sfx_name):
+        sfx = self.load_wav('sounds/sfx/{0}'.format(sfx_name))
+        config = App.get_running_app().config
+        vol = config.getdefaultint('sound', 'effect_volume', 100) / 100
+        sfx.volume = vol
+        sfx.play()
+
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
         if self.prev_user is not user or (len(self.text) + len(msg) > 400):

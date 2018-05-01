@@ -95,6 +95,7 @@
     trans_slider: trans_slider
     speed_slider: speed_slider
     music_list: music_list
+    sfx_main_btn: sfx_main_btn
     do_default_tab: False
     tab_width: 80
 
@@ -123,6 +124,12 @@
             size: root.size
             pos: root.pos
             orientation: 'vertical'
+
+            Button:
+                id: sfx_main_btn
+                size_hint: 1, None
+                text: "Choose sfx"
+                height: 40
 
             Label:
                 text: "Textbox transparency"

@@ -14,6 +14,7 @@ from kivy.logger import Logger
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
 
+import json
 import youtube_dl
 import os
 
@@ -28,7 +29,8 @@ ytdl_format_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0'
+    'source_address': '0.0.0.0',
+    'writeinfojson': True
 }
 # this thing let's you declare what shit you want ur download to be, neat!!
 
@@ -101,6 +103,11 @@ class MusicTab(TabbedPanelItem):
             track.play()
             root.track = track
             root.is_loading_music = False
+            if 'youtube' in url:
+                main_scr = App.get_running_app().get_main_screen()
+                with open('temp.mp3.info.json', 'r') as f:
+                    video_info = json.load(f)
+                main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
 
         threading.Thread(target=play_song, args=(self,)).start()
 

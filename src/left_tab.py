@@ -7,6 +7,9 @@ from utils import binary_search
 from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
+from kivy.uix.button import Button
+import os
 
 
 class SectionLabel(Label):
@@ -379,9 +382,13 @@ class LeftTab(TabbedPanel):
     trans_slider = ObjectProperty(None)
     speed_slider = ObjectProperty(None)
     music_list = ObjectProperty(None)
+    sfx_main_btn = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(LeftTab, self).__init__(**kwargs)
+        self.sfx_dropdown = None
+        self.sfx_name = None
+        self.sfx_list = []
 
     def ready(self, main_scr):
         main_scr.sprite_preview = self.sprite_preview
@@ -390,6 +397,31 @@ class LeftTab(TabbedPanel):
         self.trans_slider.value = config.getdefaultint('other', 'textbox_transparency', 60)
         self.speed_slider.value = config.getdefaultint('other', 'textbox_speed', 60)
         self.music_list.ready()
+        self.load_sfx()
+        self.create_sfx_dropdown()
+
+    def get_sfx_name(self):
+        if self.sfx_name == "None":
+            self.sfx_name = None
+        return self.sfx_name
+
+    def load_sfx(self):
+        for file in os.listdir('sounds/sfx'):
+            if file.endswith('wav'):
+                self.sfx_list.append(file)
+
+    def create_sfx_dropdown(self):
+        self.sfx_dropdown = DropDown()
+        for sfx in self.sfx_list:
+            btn = Button(text=sfx, size_hint_y=None, height=40)
+            btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
+            self.sfx_dropdown.add_widget(btn)
+        btn = Button(text="None", size_hint_y=None, height=40)
+        btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
+        self.sfx_main_btn.bind(on_release=self.sfx_dropdown.open)
+        self.sfx_dropdown.add_widget(btn)
+        self.sfx_dropdown.bind(on_select=lambda instance, x: setattr(self.sfx_main_btn, 'text', x))
+        self.sfx_dropdown.bind(on_select=lambda instance, x: setattr(self, 'sfx_name', x))
 
     def on_trans_slider_value(self, *args):
         config = App.get_running_app().config
