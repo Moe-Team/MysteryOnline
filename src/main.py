@@ -30,6 +30,7 @@ from textbox import MainTextInput, TextBox
 from toolbar import Toolbar
 from left_tab import LeftTab
 from irc_mo import MessageFactory
+from keyboard_listener import KeyboardListener
 
 from mopopup import MOPopup
 from mopopup import MOPopup_YN
@@ -98,9 +99,11 @@ class MysteryOnlineApp(App):
         self.main_screen = None
         self.user_handler = None
         self.message_factory = MessageFactory()
+        self.keyboard_listener = None
 
     def build(self):
         msm = MainScreenManager()
+        self.keyboard_listener = KeyboardListener()
         location_manager.load_locations()
         return msm
 
