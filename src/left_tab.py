@@ -403,7 +403,11 @@ class LeftTab(TabbedPanel):
     def get_sfx_name(self):
         if self.sfx_name == "None":
             self.sfx_name = None
-        return self.sfx_name
+        current_sfx = self.sfx_name
+        if self.sfx_main_btn.text != "Choose sfx":
+            self.sfx_main_btn.text = "None"
+            self.sfx_name = None
+        return current_sfx
 
     def load_sfx(self):
         for file in os.listdir('sounds/sfx'):

@@ -38,8 +38,6 @@ from os import listdir
 
 from commands import command_processor
 
-import configparser
-
 KV_DIR = "kv_files/"
 
 for kv_file in listdir(KV_DIR):
@@ -60,7 +58,7 @@ class MainScreenManager(ScreenManager):
 
         self.set_handlers()
         self.main_screen.user = App.get_running_app().get_user()
-        Clock.schedule_interval(self.process_irc, 1.0/60.0)
+        Clock.schedule_interval(self.process_irc, 1.0 / 60.0)
         self.popup_.open()
 
     def set_handlers(self):
@@ -78,7 +76,7 @@ class MainScreenManager(ScreenManager):
         self.current = "main"
         self.main_screen.on_ready()
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-        Clock.schedule_interval(connection_manager.update_chat, 1.0/60.0)
+        Clock.schedule_interval(connection_manager.update_chat, 1.0 / 60.0)
 
     def unset_the_r_flag(self):
         """Fixes being unable to receive private messages from other users"""
@@ -126,6 +124,9 @@ class MysteryOnlineApp(App):
             'spoiler_mode': 1,
             'sprite_tooltips': 1,
             'graceful_exit': 'True'
+        })
+        config.setdefaults('command_shortcuts', {
+            '>': "/color green '>"
         })
 
     def build_settings(self, settings):
@@ -179,8 +180,8 @@ class MysteryOnlineApp(App):
         return False
 
     def show_ungraceful_exit_popup(self):
-        popup = MOPopup_YN('Ungraceful Exit','It seems MO closed unexpectedly last time.\n'
-                        'Do you wish to send us the error log?', [self.send_error_log, None])
+        popup = MOPopup_YN('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
+                                              'Do you wish to send us the error log?', [self.send_error_log, None])
         popup.open()
 
     def set_graceful_flag(self, boolean):
@@ -192,9 +193,9 @@ class MysteryOnlineApp(App):
     def load_shortcuts(self):
         command_processor.load_shortcuts()
 
+
 if __name__ == "__main__":
     MysteryOnlineApp().run()
-    
 
 __all__ = ['set_kivy_config', 'LoginScreen', 'MainScreen', 'Icon', 'IconsLayout', 'OOCWindow', 'OOCLogLabel',
            'LogLabel', 'LogWindow', 'SpriteSettings', 'SpriteWindow', 'SpritePreview', 'TextBox', 'MainTextInput',
