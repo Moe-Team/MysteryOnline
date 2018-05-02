@@ -131,6 +131,10 @@ class MysteryOnlineApp(App):
         config.setdefaults('command_shortcuts', {
             '>': "/color green '>"
         })
+        config.setdefaults('keybindings', {
+            'open_character_select': 'ctrl+p',
+            'open_inventory': 'ctrl+i'
+        })
 
     def build_settings(self, settings):
         settings.add_json_panel('Display', self.config, 'settings.json')

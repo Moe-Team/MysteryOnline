@@ -12,18 +12,26 @@ class KeyboardListener(Widget):
         self.load_shortcuts()
 
     def load_shortcuts(self):
+        config = App.get_running_app().config
         self.keyboard_shortcuts = {
-            ('ctrl', 'p'): self.open_character_select
+            config.get('keybindings', 'open_character_select'): self.open_character_select,
+            config.get('keybindings', 'open_inventory'): self.open_inventory
         }
 
     def bind_keyboard(self):
         Window.bind(on_key_down=self._on_keyboard_down)
 
     def _on_keyboard_down(self, inst, value, keycode, text, modifiers):
-        if not modifiers:
+        if text is None:
             return
-        if (modifiers[0], text) in self.keyboard_shortcuts:
-            shortcut_hook = self.keyboard_shortcuts[(modifiers[0], text)]
+        shortcut = ""
+        if modifiers:
+            for mod in modifiers:
+                shortcut += str(mod)
+                shortcut += "+"
+        shortcut += text
+        if shortcut in self.keyboard_shortcuts:
+            shortcut_hook = self.keyboard_shortcuts[shortcut]
             shortcut_hook()
             return True
 
@@ -39,3 +47,10 @@ class KeyboardListener(Widget):
             user.get_char().load()
             main_scr = App.get_running_app().get_main_screen()
             main_scr.on_new_char(user.get_char())
+
+    def open_inventory(self):
+        main_scr = App.get_running_app().get_main_screen()
+        user = App.get_running_app().get_user()
+        user.inventory.open()
+        toolbar = main_scr.get_toolbar()
+        toolbar.text_item_btn.text = "no item"
