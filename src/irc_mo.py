@@ -7,6 +7,7 @@ from kivy.clock import Clock
 
 from character import characters
 from user import User
+from mopopup import MOPopup_YN
 
 
 class ChannelConnectionError(Exception):
@@ -57,6 +58,10 @@ class MessageFactory:
     def build_clear_message(self):
         result = ClearMessage("default")
         return result
+
+    def build_choice_message(self, text, options, list_of_users=None):
+        result = ChoiceMessage("default",text, options, list_of_users)
+        return result
     
     def build_from_irc(self, irc_message, username):
         if irc_message.count('#') >= 8:
@@ -75,6 +80,8 @@ class MessageFactory:
             result = ItemMessage(username)
         elif irc_message.startswith('cl#'):
             result = ClearMessage(username)
+        elif irc_message.startswith('ch#'):
+            result = ChoiceMessage(username)
         else:
             raise IncorrectMessageTypeError(irc_message)
         result.from_irc(irc_message)
@@ -142,6 +149,43 @@ class ChatMessage:
                 main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
             main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
+
+
+class ChoiceMessage:
+
+    def __init__(self, sender, text=None, options=None, list_of_users=None):
+        if options is None:
+            options = ['Option1', '0ption2']
+        if text is None:
+            text = 'Text'
+        if list_of_users is None:
+            list_of_users = 'all'
+        self.components = {'text':text, 'option_1':options[0], 'option_2':options[1], 'list_of_users':list_of_users}
+        self.sender = sender
+        self.text = text
+        self.options = options
+        self.list_of_users = list_of_users
+
+    def to_irc(self):
+        msg = "ch#{0[text]}#{0[option_1]}#{0[option_2]}#{0[list_of_users]}".format(self.components)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#')
+        arguments.remove('ch')
+        self.text, self.options[0], self.options[1], self.list_of_users = arguments
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        choice_popup = MOPopup_YN('', self.text, btn_msg=[self.options[0], self.options[1]])
+        username = user_handler.get_user().username
+        if self.list_of_users != 'all':
+            list_of_users = self.list_of_users.replace('@', '')
+            list_of_users = list_of_users.split(',')
+            for user in list_of_users:
+                if username == user:
+                    choice_popup.open()
+            return
+        choice_popup.open()
 
 
 class CharacterMessage:
