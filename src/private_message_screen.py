@@ -90,13 +90,14 @@ class PrivateMessageScreen(ModalView):
     def send_pm(self):
         sender = self.username
         if self.current_conversation is not None:
-            receiver = self.current_conversation.username
-            self.irc.send_private_msg(receiver, sender, self.text_box.text)
-            msg = self.text_box.text
-            if 'www.' in msg or 'http://' in msg or 'https://' in msg:
-                msg = "[u]{}[/u]".format(msg)
-            self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
-            self.pm_body.text = self.current_conversation.msgs
-            self.text_box.text = ''
-            self.pm_body.parent.scroll_y = 0
-            Clock.schedule_once(self.refocus_text, 0.1)
+            if self.text_box.text != "":
+                    receiver = self.current_conversation.username
+                    self.irc.send_private_msg(receiver, sender, self.text_box.text)
+                    msg = self.text_box.text
+                    if 'www.' in msg or 'http://' in msg or 'https://' in msg:
+                        msg = "[u]{}[/u]".format(msg)
+                    self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
+                    self.pm_body.text = self.current_conversation.msgs
+                    self.text_box.text = ''
+                    self.pm_body.parent.scroll_y = 0
+                    Clock.schedule_once(self.refocus_text, 0.1)
