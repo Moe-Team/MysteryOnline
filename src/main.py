@@ -45,6 +45,10 @@ for kv_file in listdir(KV_DIR):
     Builder.load_file(KV_DIR + kv_file)
 
 
+def truth():
+    print('Casca is gay')
+
+
 class MainScreenManager(ScreenManager):
     main_screen = ObjectProperty(None)
     irc_connection = ObjectProperty(None)
