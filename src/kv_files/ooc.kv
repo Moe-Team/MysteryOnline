@@ -1,0 +1,159 @@
+#:kivy 1.10
+<OOCLogLabel>:
+    halign: 'left'
+    valign: 'top'
+    font_size: 16
+    text_size: self.width, None
+    size_hint_y: None
+    height: self.texture_size[1]
+    markup: True
+
+
+<MusicTab>:
+    url_input: url_input
+    loop_checkbox: loop_checkbox
+    text: 'Music'
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        Label:
+            text: "Music URL"
+            size_hint: 1, None
+            height: 40
+
+        TextInput:
+            id: url_input
+            multiline: False
+            on_text_validate: root.on_music_play()
+            size_hint: 1, None
+            height: 30
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 40
+
+            Button:
+                text: "Play"
+                on_release: root.on_music_play()
+                size_hint: None, None
+                height: 40
+
+            Button:
+                text: "Stop"
+                on_release: root.music_stop()
+                size_hint: None, None
+                height: 40
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 40
+
+            Label:
+                text: 'Loop'
+
+            CheckBox:
+                id: loop_checkbox
+                active: True
+                on_active: root.on_loop(self.active)
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 40
+
+            Button:
+                text: "Reset music"
+                on_release: root.reset_music()
+
+
+<OOCWindow>:
+    user_list: user_list
+    ooc_chat_header: ooc_chat_header
+    ooc_input: ooc_input
+    blip_slider: blip_slider
+    music_slider: music_slider
+    music_tab: music_tab
+    effect_slider: effect_slider
+    chat_grid: chat_grid
+
+    do_default_tab: False
+    tab_width: 60
+
+    TabbedPanelItem:
+        text: 'OOC'
+        id: ooc_chat_header
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            ScrollView:
+
+                GridLayout:
+                    id: chat_grid
+                    cols: 1
+                    size_hint_y: None
+
+            TextInput:
+                id: ooc_input
+                size_hint: 1, None
+                height: 30
+                multiline: False
+                on_text_validate: root.send_ooc()
+
+    TabbedPanelItem:
+        text: 'Online'
+
+        ScrollView:
+
+            GridLayout:
+                size_hint_x: 1
+                height: 300
+                cols: 1
+                spacing: 10
+                size_hint_y: None
+                id: user_list
+
+    TabbedPanelItem:
+        text: 'Volume'
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            Label:
+                text: "Blips"
+                size_hint: 1, None
+                height: 30
+
+            Slider:
+                id: blip_slider
+                size_hint: 1, 1
+                min: 0
+                max: 100
+                on_value: root.on_slider_blip_value()
+
+            Label:
+                text: "Music"
+                size_hint: 1, None
+                height: 30
+
+            Slider:
+                id: music_slider
+                size_hint: 1, 1
+                min: 0
+                max: 100
+                on_value: root.on_slider_music_value()
+
+            Label:
+                text: "Sound effects"
+                size_hint: 1, None
+                height: 30
+
+            Slider:
+                id: effect_slider
+                size_hint: 1, 1
+                min: 0
+                max: 100
+                on_value: root.on_slider_effect_value()
+
+    MusicTab:
+        id: music_tab

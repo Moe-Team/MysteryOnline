@@ -1,0 +1,14 @@
+#:kivy 1.10
+<IconsLayout>:
+
+    BoxLayout:
+        size_hint: 1, None
+        height: 40
+
+        Button:
+            text: "<"
+            on_release: root.prev_page()
+
+        Button:
+            text: ">"
+            on_release: root.next_page()

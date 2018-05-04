@@ -39,9 +39,6 @@ class CharacterSelect(Popup):
 
     def __init__(self, **kwargs):
         super(CharacterSelect, self).__init__(**kwargs)
-        self.title = "Select your character"
-        self.size_hint = (0.7, 0.7)
-        self.auto_dismiss = False
         self.picked_char = None
         self.main_lay = BoxLayout(orientation='vertical', size_hint=(1, None), height=self.height-100)
         self.scroll_lay.add_widget(self.main_lay)
@@ -59,26 +56,35 @@ class CharacterSelect(Popup):
             return
 
         grids = {}
-        for s in series_list:
-            temp = list(filter(lambda x: x.series == s, characters.values()))
-            mod = ceil(len(temp) / 7)
-            self.main_lay.add_widget(Label(text=s, size_hint=(1, None), height=40))
-            grids[s] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
-            self.main_lay.add_widget(grids[s])
+        for s in sorted(series_list):
+            self.create_series_rows(grids, s)
 
         for g in grids:
-            chars = list(filter(lambda x: x.series == g, characters.values()))
-            chars = sorted(chars, key=lambda x: x.name)
-            for c in chars:
-                btn = CharacterToggle(c, group='char')
-                btn.bind(on_press=self.character_chosen)
-                grids[g].add_widget(btn)
+            self.fill_rows_with_chars(g, grids)
         ok_btn = Button(text="OK", size_hint=(1, None), height=40, pos_hint={'y': 0, 'x': 0})
-        ok_btn.bind(on_press=self.dismiss)
+        ok_btn.bind(on_release=self.dismiss)
         self.button_lay.add_widget(ok_btn)
         self.main_lay.bind(minimum_height=self.main_lay.setter('height'))
         self.save.save()
         self.scroll_lay.add_widget(self.main_lay)
 
+    def fill_rows_with_chars(self, g, grids):
+        chars = list(filter(lambda x: x.series == g, characters.values()))
+        chars = sorted(chars, key=lambda x: x.name)
+        for c in chars:
+            btn = CharacterToggle(c, group='char')
+            btn.bind(on_press=self.character_chosen)
+            grids[g].add_widget(btn)
+
+    def create_series_rows(self, grids, s):
+        temp = list(filter(lambda x: x.series == s, characters.values()))
+        mod = ceil(len(temp) / 7)
+        self.main_lay.add_widget(Label(text=s, size_hint=(1, None), height=40))
+        grids[s] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
+        self.main_lay.add_widget(grids[s])
+
     def character_chosen(self, inst):
         self.picked_char = inst.char
+
+    def dismiss(self, inst):
+        super(CharacterSelect, self).dismiss(animation=False)

@@ -48,11 +48,32 @@ class SubLocation:
             self.r_users.remove(user)
 
 
+class LocationManager:
+
+    def __init__(self):
+        self.locations = {}
+        self.is_loaded = False
+
+    def load_locations(self):
+        if self.is_loaded:
+            return
+        self.locations = {name: Location(name)
+                          for name in os.listdir("locations") if os.path.isdir("locations/" + name)}
+        for location_name in self.locations:
+            self.locations[location_name].load()
+        self.is_loaded = True
+
+    def get_locations(self):
+        if not self.is_loaded:
+            self.load_locations()
+        return self.locations
+
+
 class Location:
 
-    def __init__(self, name):
+    def __init__(self, name, directory="locations"):
         self.name = name
-        self.path = "locations/{0}/".format(self.name)
+        self.path = "{0}/{1}/".format(directory, self.name)
         self.sublocations = {}
 
     def load(self):
@@ -74,5 +95,8 @@ class Location:
     def get_first_sub(self):
         return self.list_sub()[0]
 
+    def get_name(self):
+        return self.name
 
-locations = {name: Location(name) for name in os.listdir("locations") if os.path.isdir("locations/" + name)}
+
+location_manager = LocationManager()

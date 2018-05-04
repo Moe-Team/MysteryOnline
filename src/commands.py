@@ -1,3 +1,10 @@
+import re
+from dicegame import dice_game
+from kivy.app import App
+
+import character
+
+
 class CommandError(Exception):
     pass
 
@@ -17,8 +24,8 @@ class CommandUnknownArgumentTypeError(CommandError):
 
 class Command:
 
-    def __init__(self, cmd, args):
-        self.cmd = cmd
+    def __init__(self, cmd_name, args=None):
+        self.cmd_name = cmd_name
         self.args = args
 
     def __getitem__(self, item):
@@ -30,16 +37,21 @@ class Command:
     def __repr__(self):
         return str(self)
 
+    def get_name(self):
+        return self.cmd_name
+
 
 class CommandHandler:
 
-    def __init__(self, cmd, form, prefix="/"):
-        self.num_of_args = None
-        self.cmd = cmd
+    def __init__(self, cmd_name, form=None):
+        self.cmd_name = cmd_name
         self.types = []
         self.names = []
-        self.prefix = prefix
-        self.parse_format(form)
+        if form is not None:
+            self.num_of_args = None
+            self.parse_format(form)
+        else:
+            self.num_of_args = 0
 
     def parse_format(self, form):
         args = form.split(' ')
@@ -50,13 +62,11 @@ class CommandHandler:
             self.names.append(name)
 
     def parse_command(self, msg):
-        if not msg.startswith(self.prefix):
-            raise CommandPrefixNotFoundError(self.prefix, msg[0])
-        args = self.split_msg_into_args(msg)
+        if self.num_of_args == 0:
+            return Command(self.cmd_name)
+        args = self.split_msg_into_args(msg, self.num_of_args)
         args_processed = {}
-        # Extract the command name without the prefix
-        cmd = args[0][1:]
-        for i, arg in enumerate(args[1:]):
+        for i, arg in enumerate(args):
             if self.types[i] == 'str':
                 arg = str(arg)
             elif self.types[i] == 'int':
@@ -66,14 +76,14 @@ class CommandHandler:
             else:
                 raise CommandUnknownArgumentTypeError(self.types[i])
             args_processed[self.names[i]] = arg
-        command = Command(cmd, args_processed)
+        command = Command(self.cmd_name, args_processed)
         return command
 
-    def split_msg_into_args(self, msg):
+    def split_msg_into_args(self, msg, num_of_args):
         args = []
         mark = None
         start_index = None
-        for w in msg.split(' '):
+        for w in msg.split(' ', num_of_args):
             if w.startswith(("'", '"')):
                 mark = w[0]
                 args.append(w[1:])
@@ -89,3 +99,70 @@ class CommandHandler:
             else:
                 args.append(w)
         return args
+
+
+class RegexCommandHandler:
+
+    def __init__(self, cmd_name, arg_names, pattern):
+        self.cmd_name = cmd_name
+        self.pattern = re.compile(pattern)
+        self.arg_names = arg_names
+
+    def parse_command(self, cmd):
+        found = re.search(self.pattern, cmd)
+        arg_number = len(self.arg_names)
+        args = {}
+        for i in range(arg_number):
+            group_number = i + 1  # Offset by 1 because group 0 is the whole string
+            args[self.arg_names[i]] = found.group(group_number)
+        return Command(self.cmd_name, args)
+
+
+class CommandProcessor:
+
+    def __init__(self):
+        self.commands = ['roll', 'clear', 'color', 'refresh']
+        self.shortcuts = {}
+        self.handlers = {
+            'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
+                                        r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?'),
+            'clear': CommandHandler('clear'),
+
+            'color': CommandHandler('color', 'str:color str:text'),
+
+            'refresh': CommandHandler('refresh')
+        }
+
+    def process_command(self, cmd_name, cmd):
+        if cmd_name in self.commands:
+            cmd_handler = self.handlers[cmd_name]
+        else:
+            return None
+        args = cmd_handler.parse_command(cmd)
+        command = Command(cmd_name, args)
+        if cmd_name == 'roll':
+            dice_game.process_input(command)
+        if cmd_name == 'clear':
+            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+            message_factory = App.get_running_app().get_message_factory()
+            message = message_factory.build_clear_message()
+            connection_manager.send_msg(message)
+            connection_manager.send_local(message)
+        if cmd_name == 'color':
+            user_handler = App.get_running_app().get_user_handler()
+            user = user_handler.get_user()
+            user.set_color(command.__getitem__('color'))
+            user_handler.send_message(command.__getitem__('text'))
+            user.set_color('normal')
+        if cmd_name == 'refresh':
+            return
+
+    def load_shortcuts(self):
+        self.shortcuts = {}
+        config = App.get_running_app().config
+        for shortcut in config.items('command_shortcuts'):
+            self.shortcuts[shortcut[0]] = shortcut[1]
+        
+            
+
+command_processor = CommandProcessor()

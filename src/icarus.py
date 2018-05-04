@@ -3,12 +3,11 @@ from os.path import dirname, join
 from kivy.event import EventDispatcher
 from kivy.logger import Logger
 from kivy.properties import AliasProperty, DictProperty
-from kivy.core.image import Image as CoreImage
+from sprite import Sprite, NullSprite
 import os
 
-
 # late import to prevent recursion
-# CoreImage = None
+CoreImage = None
 
 
 class Icarus(EventDispatcher):
@@ -37,9 +36,9 @@ class Icarus(EventDispatcher):
 
     def load(self, image_name):
         # late import to prevent recursive import.
-        # global CoreImage
-        # if CoreImage is None:
-        #     from kivy.core.image import Image as CoreImage
+        global CoreImage
+        if CoreImage is None:
+            from kivy.core.image import Image as CoreImage
 
         # must be a name finished by .atlas ?
         filename = self._filename
@@ -59,7 +58,9 @@ class Icarus(EventDispatcher):
                 found = sub
                 ids_found = ids
         if found is None:
-            print(image_name, " not found")
+            Logger.error('Icarus: ' + image_name + ' not found')
+            self.textures[image_name] = NullSprite(image_name)
+            return
         subfilename = join(d, found)
         Logger.debug('Atlas: Load <%s>' % subfilename)
 
@@ -71,6 +72,6 @@ class Icarus(EventDispatcher):
         # it in our dict.
         for meta_id, meta_coords in ids_found.items():
             x, y, w, h = meta_coords
-            textures[meta_id] = atlas_texture.get_region(*meta_coords)
+            textures[meta_id] = Sprite(meta_id, atlas_texture.get_region(*meta_coords))
 
         self.textures = textures

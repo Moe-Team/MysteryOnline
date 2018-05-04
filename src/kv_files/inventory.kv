@@ -1,0 +1,98 @@
+#:kivy 1.10
+<UserInventory>:
+    title: "Inventory"
+    size_hint: 1, 1
+
+    main_lay: _main_lay
+    scroll: _scroll
+    item_list: item_list
+
+    BoxLayout:
+        id: _main_lay
+        orientation: 'vertical'
+        size_hint: 1, 1
+
+        ScrollView:
+            id: _scroll
+            size_hint: 1, 1
+            size: root.width, root.height - 50
+
+            GridLayout:
+                id: item_list
+                size_hint_y: None
+                cols: 1
+                spacing: 10
+                size: root.width, root.height
+
+        Button:
+            text: "+"
+            size_hint: 1, None
+            height: 40
+            pos_hint: {'y': 0, 'x': 0}
+            on_release: root.display_item_creator()
+
+        Button:
+            text: "Close"
+            size_hint: 1, None
+            height: 40
+            pos_hint: {'y': 0, 'x': 0}
+            on_release: root.dismiss()
+
+
+<ItemCreator>:
+    name: _name
+    description: _description
+    image_link: _image_link
+
+    GridLayout:
+        rows: 2
+        spacing: 30
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 20
+
+            Label:
+                text: "Name"
+                size_hint: 1, 0.1
+
+            TextInput:
+                id: _name
+                multiline: False
+                size_hint: None, 0.1
+                width: 400
+
+            Label:
+                text: "Description"
+                size_hint: 1, 0.1
+
+            TextInput:
+                id: _description
+                size_hint: None, 0.5
+                width: 400
+
+            Label:
+                text: "Link"
+                size_hint: 1, 0.1
+
+            TextInput:
+                id: _image_link
+                multiline: False
+                size_hint: 1, 0.1
+
+        GridLayout:
+            cols: 2
+            spacing: 50
+            size_hint_y: 0.2
+
+            Button:
+                text: "Close"
+                pos_hint: {'y': 0, 'x': 0}
+                on_release: root.dismiss()
+
+            Button:
+                text: "Create"
+                pos_hint: {'y': 0, 'x': 0}
+                on_release: root.create_item(_name.text, _description.text, _image_link.text, root.user.username)
+                on_release: root.dismiss()
+

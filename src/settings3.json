@@ -22,5 +22,23 @@
   "desc": "Turn the auto scrolling of the OOC log off or on",
   "section": "other",
   "key": "ooc_scrolling"
+  },
+  {"type": "bool",
+  "title": "Spoiler Mode",
+  "desc": "Don't display spoilery sprites",
+  "section": "other",
+  "key": "spoiler_mode"
+  },
+  {"type": "bool",
+  "title": "NSFW Mode",
+  "desc": "Don't display NSFW sprites",
+  "section": "other",
+  "key": "nsfw_mode"
+  },
+  {"type": "bool",
+  "title": "Sprite Tooltips",
+  "desc": "Display sprite tooltips",
+  "section": "other",
+  "key": "sprite_tooltips"
   }
 ]

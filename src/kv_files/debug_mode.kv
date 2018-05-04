@@ -1,0 +1,180 @@
+#:kivy 1.10
+<DebugModePopup>:
+    size_hint: 0.8, 0.8
+
+    DebugModeInterface:
+
+
+<DebugModeInterfaceButton@Button>:
+    size_hint: 1, 0
+    height: 40
+
+
+<DebugModeInterface>:
+    orientation: 'vertical'
+
+    DebugModeInterfaceButton:
+        text: "Create user"
+        on_release: root.open_user_creation()
+
+    DebugModeInterfaceButton:
+        text: "Manage created users"
+        on_release: root.open_user_management()
+
+
+<UserCreationRow@BoxLayout>:
+    orientation: 'horizontal'
+    size_hint: 1, None
+    height: 40
+
+
+<UserCreationLabel@Label>:
+    size_hint: 0.4, 1
+
+
+<UserCreationTextInput@TextInput>:
+    size_hint: 0.4, 1
+    multiline: False
+
+
+<UserCreationButton@Button>:
+    size_hint: 0.2, 1
+
+
+<UserCreationInterface>:
+    username_input: username_input
+    character_input: character_input
+    location_input: location_input
+    sublocation_input: sublocation_input
+    position_input: position_input
+
+    size_hint: 0.4, 0.4
+    padding: 10
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 5
+
+        UserCreationRow:
+
+            UserCreationLabel:
+                text: "Username"
+
+            UserCreationTextInput:
+                id: username_input
+
+            UserCreationButton:
+                text: "Random"
+                on_release: root.create_random_username()
+
+        UserCreationRow:
+
+            UserCreationLabel:
+                text: "Character"
+
+            UserCreationTextInput:
+                id: character_input
+
+            UserCreationButton:
+                text: "Current"
+                on_release: root.use_current_character()
+
+        UserCreationRow:
+
+            UserCreationLabel:
+                text: "Location"
+
+            UserCreationTextInput:
+                id: location_input
+
+            UserCreationButton:
+                text: "Current"
+                on_release: root.use_current_location()
+
+        UserCreationRow:
+
+            UserCreationLabel:
+                text: "Sublocation"
+
+            UserCreationTextInput:
+                id: sublocation_input
+
+            UserCreationButton:
+                text: "Current"
+                on_release: root.use_current_sublocation()
+
+        UserCreationRow:
+
+            UserCreationLabel:
+                text: "Position"
+
+            UserCreationTextInput:
+                id: position_input
+                hint_text: "right, left, center"
+
+            UserCreationButton:
+                text: "Current"
+                on_release: root.use_current_position()
+
+        UserCreationRow:
+
+            UserCreationButton:
+                text: "Cancel"
+                on_release: root.dismiss()
+
+            UserCreationButton:
+                text: "Create"
+                on_release: root.on_create()
+
+
+<UserManagementTextInput@TextInput>:
+    multiline: False
+    size_hint: 1, None
+    height: 40
+
+
+<UserManagementInterface>:
+    message_input: message_input
+    sprite_input: sprite_input
+    delay_input: delay_input
+    user_dropdown_button: user_dropdown_button
+
+    size_hint: 0.3, 0.3
+    padding: 10
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        UserManagementTextInput:
+            id: message_input
+            hint_text: "Something to say"
+            multiline: False
+
+        UserManagementTextInput:
+            id: sprite_input
+            hint_text: "Random if left blank"
+            multiline: False
+
+        UserManagementTextInput:
+            id: delay_input
+            hint_text: "Delay in seconds"
+            multiline: False
+
+        Button:
+            id: user_dropdown_button
+            size_hint: 1, None
+            height: 40
+
+        BoxLayout:
+
+            Button:
+                size_hint: 0.5, None
+                height: 40
+                text: "Cancel"
+                on_release: root.dismiss()
+
+            Button:
+                size_hint: 0.5, None
+                height: 40
+                text: "Send"
+                on_release: root.send_message()

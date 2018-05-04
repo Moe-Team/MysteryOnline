@@ -1,0 +1,25 @@
+#:kivy 1.10
+<LogLabel>:
+    markup: True
+    text_size: self.width, None
+    size_hint_y: None
+    height: self.texture_size[1]
+
+
+<LogWindow>:
+    grid_l: grid_l
+    bar_width: 10
+    bar_margin: 0
+    scroll_type: ['bars']
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    GridLayout:
+        id: grid_l
+        cols: 1
+        size_hint_y: None
+        size: root.size

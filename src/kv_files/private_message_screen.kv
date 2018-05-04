@@ -1,0 +1,55 @@
+#:kivy 1.10
+<PrivateMessageScreen>:
+    prv_users_scroll: prv_users_scroll
+    pm_body: pm_body
+    size_hint: 0.8, 0.8
+    padding: 10, 10
+
+    BoxLayout:
+        orientation: 'horizontal'
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            ScrollView:
+                size_hint: 0.8, 1
+
+                Label:
+                    id: pm_body
+                    markup: True
+                    text_size: self.width, None
+                    size_hint_y: None
+                    height: self.texture_size[1]
+
+            TextInput:
+                id: pm_input
+                on_text_validate: root.send_pm()
+                multiline: False
+                height: 30
+                size_hint: 1, None
+
+        BoxLayout:
+            size_hint: 0.2, 1
+            orientation: 'vertical'
+            id: pm_user_box
+
+            ScrollView:
+                valign: 'top'
+                size_hint: 1, 0.8
+                size: pm_user_box.width, pm_user_box.height
+                title: 'User list'
+                id: prv_users_scroll
+
+                GridLayout:
+                    cols: 1
+                    spacing: 10
+                    size_hint_y: None
+                    size: pm_user_box.width, pm_user_box.height
+                    id: prv_users_list
+
+            Button:
+                size_hint: 1, 0.2
+                valign: 'bottom'
+                text: 'Close'
+                on_release: root.prv_chat_close_btn()
+                id: prv_chat_btn

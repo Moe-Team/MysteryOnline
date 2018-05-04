@@ -1,0 +1,28 @@
+#:kivy 1.10
+<TextBox>:
+    char_name: char_name
+    font_size: 20
+    text_size: self.size
+    halign: 'left'
+    valign: 'top'
+    outline_color: [0, 0, 0]
+    outline_width: 2
+    padding: 10, 10
+
+    Label:
+        id: char_name
+        pos: root.x, root.top
+        size_hint: None, None
+        size: 200, 30
+        text_size: self.size
+        halign: 'center'
+        valign: 'top'
+        font_size: 20
+        outline_color: [0, 0, 0]
+        outline_width: 2
+        padding: 2, 2
+
+
+<MainTextInput>:
+    readonly: True
+    on_text_validate: self.send_message()

@@ -1,0 +1,108 @@
+#:kivy 1.10
+<MainScreen>:
+    icons_layout: icons_layout
+    sprite_window: sprite_window
+    msg_input: msg_input
+    toolbar: toolbar
+    text_box: text_box
+    log_window: log_window
+    ooc_window: ooc_window
+    left_tab: left_tab
+    music_name_display: music_name_display
+
+    FloatLayout:
+
+        SpriteWindow:
+            id: sprite_window
+            size_hint: None, None
+            size: 800, 600
+            pos_hint: {'center_x': 0.5, 'center_y': 0.52}
+
+        TextBox:
+            id: text_box
+            size_hint: None, None
+            size: 800, 170
+            pos: sprite_window.x, sprite_window.y
+
+        MainTextInput:
+            id: msg_input
+            multiline: False
+            size_hint: None, None
+            size: 800, 30
+            pos: sprite_window.x, sprite_window.y - 35
+
+        LogWindow:
+            id: log_window
+            size_hint: None, None
+            x: sprite_window.right + 5
+            top: sprite_window.top
+            size: 250, 300
+
+        OOCWindow:
+            id: ooc_window
+            size_hint: None, None
+            size: 250, 330
+            x: log_window.x
+            top: log_window.y -5
+
+        IconsLayout:
+            id: icons_layout
+            size_hint: None, None
+            size: 250, 360
+            right: sprite_window.x - 20
+            y: sprite_window.y -30
+
+        LeftTab:
+            id: left_tab
+            y: icons_layout.top + 5
+            x: icons_layout.x
+            size_hint: None, None
+            size: 800 / 3, 300
+
+        Toolbar:
+            id: toolbar
+            size_hint: None, None
+            size: 800, 30
+            pos: msg_input.x, msg_input.y - 30
+
+        Label:
+            id: music_name_display
+            size_hint: None, None
+            height: 40
+            pos: sprite_window.x, sprite_window.top + 5
+            text: "Playing: "
+            width: self.texture_size[0]
+
+
+<RightClickMenuButton@Button>:
+    size_hint: None, None
+    size: 100, 30
+
+
+<RightClickMenu>:
+    char_select: char_select
+    size_hint: None, None
+    size: 105, 300
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        RightClickMenuButton:
+            id: char_select
+            text: 'Character'
+            on_release: root.on_char_select_clicked()
+
+        RightClickMenuButton:
+            id: settings
+            text: 'Settings'
+            on_release: root.on_settings_clicked()
+
+        RightClickMenuButton:
+            id: inventory
+            text: 'Inventory'
+            on_release: root.on_inventory_clicked()
+
+        RightClickMenuButton:
+            id: debug_menu
+            text: "Debug"
+            on_release: root.on_debug_menu_clicked()

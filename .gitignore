@@ -96,3 +96,8 @@ src/temp\.mp3
 .idea/
 /src/msg_log.txt
 /src/ooc_log.txt
+/src/musiclist.txt
+/src/temp.mp3.info.json
+
+src/locations/
+.vscode/
