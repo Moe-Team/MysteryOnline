@@ -52,8 +52,8 @@ class LoginScreen(Screen):
         App.get_running_app().set_user_handler(user_handler)
 
     def set_username_as_last_used(self):
-        config = App.get_running_app().config
-        config.set('other', 'last_username', self.username)
+        main_config = App.get_running_app().config
+        main_config.set('other', 'last_username', self.username)
 
     # noinspection PyTypeChecker
     def is_username_valid(self):

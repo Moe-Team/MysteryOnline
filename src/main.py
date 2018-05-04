@@ -30,6 +30,7 @@ from textbox import MainTextInput, TextBox
 from toolbar import Toolbar
 from left_tab import LeftTab
 from irc_mo import MessageFactory
+from keyboard_listener import KeyboardListener
 
 from mopopup import MOPopup
 from mopopup import MOPopup_YN
@@ -37,8 +38,6 @@ from location import location_manager
 from os import listdir
 
 from commands import command_processor
-
-import configparser
 
 KV_DIR = "kv_files/"
 
@@ -60,7 +59,7 @@ class MainScreenManager(ScreenManager):
 
         self.set_handlers()
         self.main_screen.user = App.get_running_app().get_user()
-        Clock.schedule_interval(self.process_irc, 1.0/60.0)
+        Clock.schedule_interval(self.process_irc, 1.0 / 60.0)
         self.popup_.open()
 
     def set_handlers(self):
@@ -78,7 +77,7 @@ class MainScreenManager(ScreenManager):
         self.current = "main"
         self.main_screen.on_ready()
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-        Clock.schedule_interval(connection_manager.update_chat, 1.0/60.0)
+        Clock.schedule_interval(connection_manager.update_chat, 1.0 / 60.0)
 
     def unset_the_r_flag(self):
         """Fixes being unable to receive private messages from other users"""
@@ -100,9 +99,11 @@ class MysteryOnlineApp(App):
         self.main_screen = None
         self.user_handler = None
         self.message_factory = MessageFactory()
+        self.keyboard_listener = None
 
     def build(self):
         msm = MainScreenManager()
+        self.keyboard_listener = KeyboardListener()
         location_manager.load_locations()
         return msm
 
@@ -126,6 +127,13 @@ class MysteryOnlineApp(App):
             'spoiler_mode': 1,
             'sprite_tooltips': 1,
             'graceful_exit': 'True'
+        })
+        config.setdefaults('command_shortcuts', {
+            '>': "/color green '>"
+        })
+        config.setdefaults('keybindings', {
+            'open_character_select': 'ctrl+p',
+            'open_inventory': 'ctrl+i'
         })
 
     def build_settings(self, settings):
@@ -179,8 +187,8 @@ class MysteryOnlineApp(App):
         return False
 
     def show_ungraceful_exit_popup(self):
-        popup = MOPopup_YN('Ungraceful Exit','It seems MO closed unexpectedly last time.\n'
-                        'Do you wish to send us the error log?', [self.send_error_log, None])
+        popup = MOPopup_YN('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
+                                              'Do you wish to send us the error log?', [self.send_error_log, None])
         popup.open()
 
     def set_graceful_flag(self, boolean):
@@ -192,9 +200,9 @@ class MysteryOnlineApp(App):
     def load_shortcuts(self):
         command_processor.load_shortcuts()
 
+
 if __name__ == "__main__":
     MysteryOnlineApp().run()
-    
 
 __all__ = ['set_kivy_config', 'LoginScreen', 'MainScreen', 'Icon', 'IconsLayout', 'OOCWindow', 'OOCLogLabel',
            'LogLabel', 'LogWindow', 'SpriteSettings', 'SpriteWindow', 'SpritePreview', 'TextBox', 'MainTextInput',
