@@ -197,7 +197,7 @@ class MainTextInput(TextInput):
     def extend_message(self, msg):
         for shortcut in command_processor.shortcuts:
             if msg.startswith(shortcut) and not any(msg.startswith('/'+command) for command in command_processor.commands):
-                msg = msg.replace(shortcut, command_processor.shortcuts[shortcut], 1)
+                msg = msg.replace(shortcut, command_processor.shortcuts[shortcut], 1) + "'"
                 return msg
         return msg
 

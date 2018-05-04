@@ -121,16 +121,19 @@ class RegexCommandHandler:
 class CommandProcessor:
 
     def __init__(self):
-        self.commands = ['roll', 'clear', 'color', 'refresh']
+        self.commands = ['roll', 'clear', 'color', 'refresh', 'choice']
         self.shortcuts = {}
         self.handlers = {
             'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
                                         r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?'),
             'clear': CommandHandler('clear'),
 
-            'color': CommandHandler('color', 'str:color str:text'),
+            'color': RegexCommandHandler('color', ['color', 'text'],
+                                         r'([a-z]*)\s*["\'](.*)["\']$'),
+            'refresh': CommandHandler('refresh'),
 
-            'refresh': CommandHandler('refresh')
+            'choice': RegexCommandHandler('choice', ['list_of_users', 'choice_text', 'option1', 'option2'],
+                                          '(@.*\S)? *"(.*)"\s*"(.*)"\s*"(.*)"')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -156,6 +159,14 @@ class CommandProcessor:
             user.set_color('normal')
         if cmd_name == 'refresh':
             return
+        if cmd_name == 'choice':
+            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+            message_factory = App.get_running_app().get_message_factory()
+            text = command.__getitem__('choice_text')
+            options = [command.__getitem__('option1'), command.__getitem__('option2')]
+            list_of_users = command.__getitem__('list_of_users')
+            message = message_factory.build_choice_message(text, options, list_of_users)
+            connection_manager.send_msg(message)
 
     def load_shortcuts(self):
         self.shortcuts = {}
