@@ -39,7 +39,7 @@ class TextBox(Label):
     def setup_textbox(self):
         with self.canvas.before:
             self.textbox_color = Color(rgba=[1, 1, 1, 0.6])
-            self.textbox_rect = Rectangle(size=self.size, pos=self.pos, source="misc_img\\TextBox.png")
+            self.textbox_rect = Rectangle(size=self.size, pos=self.pos, source="misc_img/TextBox.png")
         Clock.schedule_once(self.update_ui, 0)
         self.bind(pos=self.update_rect, size=self.update_rect)
 
@@ -69,7 +69,7 @@ class TextBox(Label):
     def update_ui(self, dt):
         with self.char_name.canvas.before:
             self.char_name_color = Color(rgba=[1, 1, 1, 0.6])
-            self.char_name_rect = Rectangle(size=self.size, pos=self.pos, source="misc_img\\BoxChar.png")
+            self.char_name_rect = Rectangle(size=self.size, pos=self.pos, source="misc_img/BoxChar.png")
 
     def update_rect(self, *args):
         self.textbox_rect.pos = self.pos
