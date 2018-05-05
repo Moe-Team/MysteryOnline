@@ -268,7 +268,7 @@ class OOCWindow(TabbedPanel):
                     if not self.chat.pm_window_open_flag:
                         for x in range(len(self.online_users)):
                             if pm.sender == self.pm_buttons[x].id:
-                                self.pm_buttons[x].background_color = (1, 0, 0, 1)
+                                self.pm_buttons[x].background_color = (0, 178, 170, 0.5)
                                 break
                         if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             self.pm_notif.play()
