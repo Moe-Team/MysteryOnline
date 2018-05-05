@@ -120,7 +120,7 @@ class ChatMessage:
         return msg
 
     def from_irc(self, message):
-        arguments = tuple(message.split('#', len(self.components) - 1))
+        arguments = tuple(message.split('#', 8))
         self.location, self.sublocation, self.character, self.sprite, self.position, \
             self.color_id, self.sprite_option, self.sfx_name, self.content = arguments
         if self.sfx_name == '0':
