@@ -1,4 +1,5 @@
 import irc.client
+import re
 from mopopup import MOPopup
 from kivy.uix.textinput import TextInput
 from kivy.app import App
@@ -7,7 +8,7 @@ from kivy.clock import Clock
 
 from character import characters
 from user import User
-from mopopup import MOPopup_YN
+from choice import ChoicePopup
 
 
 class ChannelConnectionError(Exception):
@@ -155,28 +156,29 @@ class ChoiceMessage:
 
     def __init__(self, sender, text=None, options=None, list_of_users=None):
         if options is None:
-            options = ['Option1', '0ption2']
+            options = 'Option1'
         if text is None:
             text = 'Text'
         if list_of_users is None:
             list_of_users = 'all'
-        self.components = {'text':text, 'option_1':options[0], 'option_2':options[1], 'list_of_users':list_of_users}
+        self.components = {'text':text, 'options':options, 'list_of_users':list_of_users}
         self.sender = sender
         self.text = text
         self.options = options
         self.list_of_users = list_of_users
 
     def to_irc(self):
-        msg = "ch#{0[text]}#{0[option_1]}#{0[option_2]}#{0[list_of_users]}".format(self.components)
+        msg = "ch#{0[text]}#{0[options]}#{0[list_of_users]}".format(self.components)
         return msg
 
     def from_irc(self, message):
         arguments = message.split('#')
         arguments.remove('ch')
-        self.text, self.options[0], self.options[1], self.list_of_users = arguments
+        self.text, self.options, self.list_of_users = arguments
 
     def execute(self, connection_manager, main_screen, user_handler):
-        choice_popup = MOPopup_YN('', self.text, btn_msg=[self.options[0], self.options[1]])
+        options = re.split(r'(?<!\\);', self.options)
+        choice_popup = ChoicePopup('', self.text, options, user_handler.get_user())
         username = user_handler.get_user().username
         if self.list_of_users != 'all':
             list_of_users = self.list_of_users.replace('@', '')

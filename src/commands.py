@@ -132,8 +132,8 @@ class CommandProcessor:
                                          r'([a-z]*)\s*["\'](.*)["\']$'),
             'refresh': CommandHandler('refresh'),
 
-            'choice': RegexCommandHandler('choice', ['list_of_users', 'choice_text', 'option1', 'option2'],
-                                          '(@.*\S)? *"(.*)"\s*"(.*)"\s*"(.*)"')
+            'choice': RegexCommandHandler('choice', ['list_of_users', 'choice_text', 'options'],
+                                          '(@.*\S)? *"(.*)"\s*"(.*)"')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -154,19 +154,18 @@ class CommandProcessor:
         if cmd_name == 'color':
             user_handler = App.get_running_app().get_user_handler()
             user = user_handler.get_user()
-            user.set_color(command.__getitem__('color'))
-            user_handler.send_message(command.__getitem__('text'))
+            user.set_color(command['color'])
+            user_handler.send_message(command['text'])
             user.set_color('normal')
         if cmd_name == 'refresh':
             return
         if cmd_name == 'choice':
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
             message_factory = App.get_running_app().get_message_factory()
-            text = command.__getitem__('choice_text')
-            options = [command.__getitem__('option1'), command.__getitem__('option2')]
-            list_of_users = command.__getitem__('list_of_users')
-            message = message_factory.build_choice_message(text, options, list_of_users)
+            message = message_factory.build_choice_message(command['choice_text'], command['options'], command['list_of_users'])
             connection_manager.send_msg(message)
+            #######################################
+            connection_manager.send_local(message)
 
     def load_shortcuts(self):
         self.shortcuts = {}
