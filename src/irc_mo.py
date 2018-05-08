@@ -502,7 +502,10 @@ class IrcConnection:
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_from_irc(msg, e.source.nick)
+        try:
+            message = message_factory.build_from_irc(msg, e.source.nick)
+        except IncorrectMessageTypeError:
+            return
         self.msg_q.enqueue(message)
 
     def on_namreply(self, c, e):
