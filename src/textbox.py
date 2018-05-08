@@ -196,10 +196,14 @@ class MainTextInput(TextInput):
 
     def extend_message(self, msg):
         for shortcut in command_processor.shortcuts:
-            if msg.startswith(shortcut) and not any(msg.startswith('/'+command) for command in command_processor.commands):
+            if self.message_is_shortcut(msg, shortcut):
                 msg = msg.replace(shortcut, command_processor.shortcuts[shortcut], 1) + "'"
                 return msg
         return msg
+
+    def message_is_shortcut(self, msg, shortcut):
+        return msg.startswith(shortcut) and\
+               not any(msg.startswith('/'+command) for command in command_processor.commands)
 
     def handle_command(self, msg):
         try:

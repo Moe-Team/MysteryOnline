@@ -7,7 +7,7 @@ from kivy.clock import Clock
 
 from character import characters
 from user import User
-from mopopup import MOPopup_YN
+from mopopup import MOPopupYN
 
 
 class ChannelConnectionError(Exception):
@@ -176,7 +176,7 @@ class ChoiceMessage:
         self.text, self.options[0], self.options[1], self.list_of_users = arguments
 
     def execute(self, connection_manager, main_screen, user_handler):
-        choice_popup = MOPopup_YN('', self.text, btn_msg=[self.options[0], self.options[1]])
+        choice_popup = MOPopupYN('', self.text, btn_msg=[self.options[0], self.options[1]])
         username = user_handler.get_user().username
         if self.list_of_users != 'all':
             list_of_users = self.list_of_users.replace('@', '')

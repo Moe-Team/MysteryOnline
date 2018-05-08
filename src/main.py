@@ -33,7 +33,7 @@ from irc_mo import MessageFactory
 from keyboard_listener import KeyboardListener
 
 from mopopup import MOPopup
-from mopopup import MOPopup_YN
+from mopopup import MOPopupYN
 from location import location_manager
 from os import listdir
 
@@ -191,7 +191,7 @@ class MysteryOnlineApp(App):
         return False
 
     def show_ungraceful_exit_popup(self):
-        popup = MOPopup_YN('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
+        popup = MOPopupYN('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
                                               'Do you wish to send us the error log?', [self.send_error_log, None])
         popup.open()
 

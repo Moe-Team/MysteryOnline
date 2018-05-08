@@ -2,8 +2,6 @@ import re
 from dicegame import dice_game
 from kivy.app import App
 
-import character
-
 
 class CommandError(Exception):
     pass
@@ -174,6 +172,5 @@ class CommandProcessor:
         for shortcut in config.items('command_shortcuts'):
             self.shortcuts[shortcut[0]] = shortcut[1]
         
-            
 
 command_processor = CommandProcessor()
