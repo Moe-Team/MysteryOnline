@@ -60,7 +60,7 @@ class MessageFactory:
         return result
 
     def build_choice_message(self, text, options, list_of_users=None):
-        result = ChoiceMessage("default",text, options, list_of_users)
+        result = ChoiceMessage("default", text, options, list_of_users)
         return result
     
     def build_from_irc(self, irc_message, username):
@@ -160,7 +160,7 @@ class ChoiceMessage:
             text = 'Text'
         if list_of_users is None:
             list_of_users = 'all'
-        self.components = {'text':text, 'option_1':options[0], 'option_2':options[1], 'list_of_users':list_of_users}
+        self.components = {'text': text, 'option_1': options[0], 'option_2': options[1], 'list_of_users': list_of_users}
         self.sender = sender
         self.text = text
         self.options = options
