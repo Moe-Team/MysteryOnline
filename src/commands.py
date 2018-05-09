@@ -160,9 +160,11 @@ class CommandProcessor:
         if cmd_name == 'refresh':
             return
         if cmd_name == 'choice':
-            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+            user_handler = App.get_running_app().get_user_handler()
+            username = user_handler.get_user().username
+            connection_manager = user_handler.get_connection_manager()
             message_factory = App.get_running_app().get_message_factory()
-            message = message_factory.build_choice_message(command['choice_text'], command['options'], command['list_of_users'])
+            message = message_factory.build_choice_message(username, command['choice_text'], command['options'], command['list_of_users'])
             connection_manager.send_msg(message)
             #######################################
             connection_manager.send_local(message)

@@ -60,8 +60,12 @@ class MessageFactory:
         result = ClearMessage("default")
         return result
 
-    def build_choice_message(self, text, options, list_of_users=None):
-        result = ChoiceMessage("default",text, options, list_of_users)
+    def build_choice_message(self, sender, text, options, list_of_users):
+        result = ChoiceMessage(sender, text, options, list_of_users)
+        return result
+
+    def build_choice_return_message(self, sender, questioner, whisper, selected_option):
+        result = ChoiceReturnMessage(sender, questioner, whisper, selected_option)
         return result
     
     def build_from_irc(self, irc_message, username):
@@ -155,10 +159,10 @@ class ChatMessage:
 class ChoiceMessage:
 
     def __init__(self, sender, text=None, options=None, list_of_users=None):
-        if options is None:
-            options = 'Option1'
         if text is None:
             text = 'Text'
+        if options is None:
+            options = 'Options'
         if list_of_users is None:
             list_of_users = 'all'
         self.components = {'text':text, 'options':options, 'list_of_users':list_of_users}
@@ -178,7 +182,7 @@ class ChoiceMessage:
 
     def execute(self, connection_manager, main_screen, user_handler):
         options = re.split(r'(?<!\\);', self.options)
-        choice_popup = ChoicePopup('', self.text, options, user_handler.get_user())
+        choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
         username = user_handler.get_user().username
         if self.list_of_users != 'all':
             list_of_users = self.list_of_users.replace('@', '')
@@ -189,6 +193,43 @@ class ChoiceMessage:
             return
         choice_popup.open()
 
+
+class ChoiceReturnMessage: #, make .remove(ch2?) only do it for the first
+
+    def __init__(self, sender, questioner=None, whisper=False, selected_option=None):
+        self.components = {'questioner':questioner, 'whisper':whisper, 'selected_option':selected_option}
+        self.questioner = questioner
+        self.whisper = whisper
+        self.selected_option = selected_option
+        self.sender = sender
+
+    def to_irc(self):
+        if self.selected_option is None:
+            self.selected_option = ''
+        msg = "ch2#{0[questioner]}#{0[whisper]}#{0[selected_option]}".format(self.components)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#')
+        arguments.remove('ch2')
+        self.questioner, self.whisper, self.selected_option = arguments
+        if self.selected_option == '':
+            self.selected_option = None
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        log = main_screen.log_window
+        username = user_handler.get_user().username
+        if self.selected_option is None:
+            log.add_entry(username+' refused to answer.')
+            return
+        if self.whisper:
+            if username == self.questioner:
+                log.add_entry(username+' whispered "'+self.selected_option+'" to you.')
+            else:
+                log.add_entry(username+' whispered the answer.')
+        else:
+            if username == self.sender:
+                user_handler.send_message(self.selected_option)
 
 class CharacterMessage:
 

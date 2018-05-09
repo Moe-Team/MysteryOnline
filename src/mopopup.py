@@ -36,7 +36,6 @@ class MOPopup_Base(Popup):
             if command is None:
                 args = None
             else:
-                print(btn_command_args)
                 args = btn_command_args[btn]
             self.create_button(btn_msg[btn], dismissable, command, args)        
 
