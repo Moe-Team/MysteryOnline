@@ -1,3 +1,4 @@
+#:kivy 1.10
 <SubSubSectionLabel>:
     size_hint: 1, None
     height: 30
@@ -125,10 +126,15 @@
             pos: root.pos
             orientation: 'vertical'
 
+            Label:
+                size_hint: 1, None
+                height: 40
+                text: "Choose sfx"
+
             Button:
                 id: sfx_main_btn
                 size_hint: 1, None
-                text: "Choose sfx"
+                text: "None"
                 height: 40
 
             Label:

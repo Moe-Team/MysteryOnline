@@ -125,7 +125,7 @@ class ChatMessage:
         return msg
 
     def from_irc(self, message):
-        arguments = tuple(message.split('#', len(self.components) - 1))
+        arguments = tuple(message.split('#', 8))
         self.location, self.sublocation, self.character, self.sprite, self.position, \
             self.color_id, self.sprite_option, self.sfx_name, self.content = arguments
         if self.sfx_name == '0':
@@ -545,7 +545,10 @@ class IrcConnection:
     def on_pubmsg(self, c, e):
         msg = e.arguments[0]
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_from_irc(msg, e.source.nick)
+        try:
+            message = message_factory.build_from_irc(msg, e.source.nick)
+        except IncorrectMessageTypeError:
+            return
         self.msg_q.enqueue(message)
 
     def on_namreply(self, c, e):

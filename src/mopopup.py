@@ -4,12 +4,13 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 
 
-class MOPopup_Base(Popup):
+class MOPopupBase(Popup):
     def __init__(self, title_, msg, *args, **kwargs):
-        super(MOPopup_Base, self).__init__(**kwargs)
+        super(MOPopupBase, self).__init__(**kwargs)
         self.create_box_layout(msg)
         self.size_popup()
         self.title = title_
+        self.box_lay = None
 
     def needs_button(self, dismissable, btn_command):
         if dismissable:
@@ -50,6 +51,7 @@ class MOPopup_Base(Popup):
             return self.dismiss
         if dismissable:
             dismiss = self.dismiss
+
             def execute_and_dismiss(self):
                 btn_command(*args)
                 dismiss()
@@ -59,12 +61,12 @@ class MOPopup_Base(Popup):
                 btn_command(*args)
             return execute
 
-    def size_popup(self, size_hint = (None, None), size = (400, 200)):
+    def size_popup(self, size_hint=(None, None), size=(400, 200)):
         self.size_hint = size_hint
         self.size = size
     
 
-class MOPopup(MOPopup_Base):
+class MOPopup(MOPopupBase):
 
     def __init__(self, title_, msg, btn_msg, dismissable=True, btn_command=None, btn_command_args=[], *args, **kwargs):
         super().__init__(title_, msg, **kwargs)
@@ -74,25 +76,11 @@ class MOPopup(MOPopup_Base):
             self.auto_dismiss = False
         
 
-class MOPopup_YN(MOPopup_Base):
-    def __init__(self, title_, msg, btn_command=[None, None], btn_command_args=[[None], [None]], btn_msg = ['Yes', 'No'], dismissable=True):
+class MOPopupYN(MOPopupBase):
+    def __init__(self, title_, msg, btn_command=[None, None], btn_command_args=[[None], [None]], btn_msg=['Yes', 'No'],
+                 dismissable=True):
         super().__init__(title_, msg)
         if self.needs_button(dismissable, btn_command):
             self.add_buttons(btn_msg, dismissable, btn_command, btn_command_args)
         else:
             self.auto_dismiss = False
-
-
-##class MOPopup_Scroll(MOPopup_Base):
-##
-##    def __init__(self
-
-        
-
-
-    
-
-    
-
-        
-

@@ -404,7 +404,7 @@ class LeftTab(TabbedPanel):
         if self.sfx_name == "None":
             self.sfx_name = None
         current_sfx = self.sfx_name
-        if self.sfx_main_btn.text != "Choose sfx":
+        if self.sfx_name is not None:
             self.sfx_main_btn.text = "None"
             self.sfx_name = None
         return current_sfx

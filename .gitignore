@@ -100,3 +100,5 @@ src/temp\.mp3
 /src/temp.mp3.info.json
 
 src/locations/
+.vscode/
+/src/irc_channel_name.ini
