@@ -164,7 +164,7 @@ class ChoiceMessage:
         if options is None:
             options = 'Options'
         if list_of_users is None:
-            list_of_users = 'all'
+            list_of_users = 'everyone'
         self.components = {'text':text, 'options':options, 'list_of_users':list_of_users}
         self.sender = sender
         self.text = text
@@ -181,20 +181,22 @@ class ChoiceMessage:
         self.text, self.options, self.list_of_users = arguments
 
     def execute(self, connection_manager, main_screen, user_handler):
-        options = re.split(r'(?<!\\);', self.options)
-        choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
         username = user_handler.get_user().username
-        if self.list_of_users != 'all':
-            list_of_users = self.list_of_users.replace('@', '')
-            list_of_users = list_of_users.split(',')
-            for user in list_of_users:
-                if username == user:
-                    choice_popup.open()
-            return
-        choice_popup.open()
+        log = main_screen.log_window
+        options = re.split(r'(?<!\\);', self.options)
+        self.list_of_users = self.list_of_users.replace('@', '')
+        if self.list_of_users != 'everyone':
+            list_of_users = self.list_of_users.split(', ')
+            if username in list_of_users:
+                choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
+                choice_popup.open()
+        else:
+            choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
+            choice_popup.open()
+        log.add_entry(self.sender+' gave '+self.list_of_users+' a choice.\n')
 
 
-class ChoiceReturnMessage: #, make .remove(ch2?) only do it for the first
+class ChoiceReturnMessage:
 
     def __init__(self, sender, questioner=None, whisper=False, selected_option=None):
         self.components = {'questioner':questioner, 'whisper':whisper, 'selected_option':selected_option}
@@ -219,14 +221,14 @@ class ChoiceReturnMessage: #, make .remove(ch2?) only do it for the first
     def execute(self, connection_manager, main_screen, user_handler):
         log = main_screen.log_window
         username = user_handler.get_user().username
-        if self.selected_option is None:
-            log.add_entry(username+' refused to answer.')
+        if self.selected_option == '':
+            log.add_entry(username+' refused to answer.\n')
             return
         if self.whisper:
             if username == self.questioner:
-                log.add_entry(username+' whispered "'+self.selected_option+'" to you.')
+                log.add_entry(username+' whispered "'+self.selected_option+'" to you.\n')
             else:
-                log.add_entry(username+' whispered the answer.')
+                log.add_entry(username+' whispered the answer.\n')
         else:
             if username == self.sender:
                 user_handler.send_message(self.selected_option)
