@@ -10,7 +10,6 @@ class MOPopupBase(Popup):
         self.create_box_layout(msg)
         self.size_popup()
         self.title = title_
-        self.box_lay = None
 
     def needs_button(self, dismissable, btn_command):
         if dismissable:
