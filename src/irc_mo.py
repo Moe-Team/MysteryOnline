@@ -87,6 +87,8 @@ class MessageFactory:
             result = ClearMessage(username)
         elif irc_message.startswith('ch#'):
             result = ChoiceMessage(username)
+        elif irc_message.startswith('ch2#'):
+            result = ChoiceReturnMessage(username)
         else:
             raise IncorrectMessageTypeError(irc_message)
         result.from_irc(irc_message)
@@ -190,7 +192,7 @@ class ChoiceMessage:
             if username in list_of_users:
                 choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
                 choice_popup.open()
-        else:
+        elif username != self.sender:
             choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
             choice_popup.open()
         log.add_entry(self.sender+' gave '+self.list_of_users+' a choice.\n')
@@ -226,12 +228,13 @@ class ChoiceReturnMessage:
             return
         if self.whisper:
             if username == self.questioner:
-                log.add_entry(username+' whispered "'+self.selected_option+'" to you.\n')
+                log.add_entry(self.sender+' whispered "'+self.selected_option+'" to you.\n')
             else:
-                log.add_entry(username+' whispered the answer.\n')
+                log.add_entry(self.sender+' whispered the answer.\n')
         else:
             if username == self.sender:
                 user_handler.send_message(self.selected_option)
+                
 
 class CharacterMessage:
 

@@ -164,7 +164,6 @@ class CommandProcessor:
             message_factory = App.get_running_app().get_message_factory()
             message = message_factory.build_choice_message(username, command['choice_text'], command['options'], command['list_of_users'])
             connection_manager.send_msg(message)
-            #######################################
             connection_manager.send_local(message)
 
     def load_shortcuts(self):

@@ -26,7 +26,6 @@ class ChoicePopup(MOPopupBase):
             self.grid_lay = GridLayout(cols=number_of_cols)
             self.content = self.grid_lay
             
-
     def open(self, *args, **kwargs):
         if self.grid_lay is not None:
             self.content = self.box_lay
