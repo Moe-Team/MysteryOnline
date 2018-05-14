@@ -8,15 +8,20 @@ from kivy.app import App
 class ChoicePopup(MOPopupBase):
 
     def __init__(self, title_, sender, msg, btn_msg, user, **kwargs):
+        self.selected_option = None
+        if self.is_user_busy():
+            return
+        self.whisper = False
         self.number_of_buttons = len(btn_msg)
         self.grid_lay = None
         super().__init__(title_, msg, **kwargs)
         self.user_handler = App.get_running_app().get_user_handler()
+        self.user = self.user_handler.get_user()
+        self.username = self.user.username
+        self.user.set_choice_popup_state(True)
         self.sender = sender
         self.btn_msg = btn_msg
         self.add_buttons(btn_msg, True, self.build_btn_commands_list(), self.build_btn_args_list())
-        self.whisper = False
-        self.selected_option = None
         self.size_popup(size=(400,400))
 
     def create_box_layout(self, msg):
@@ -34,6 +39,7 @@ class ChoicePopup(MOPopupBase):
         super().open(*args, **kwargs)
 
     def on_dismiss(self):
+        self.user.set_choice_popup_state(False)
         self.send_answer()
 
     def option_select(self, option):
@@ -42,8 +48,7 @@ class ChoicePopup(MOPopupBase):
     def send_answer(self):
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
         message_factory = App.get_running_app().get_message_factory()
-        username = self.user_handler.get_user().username
-        message = message_factory.build_choice_return_message(username, self.sender, self.whisper, self.selected_option)
+        message = message_factory.build_choice_return_message(self.username, self.sender, self.whisper, self.selected_option)
         connection_manager.send_msg(message)
         connection_manager.send_local(message)
            
@@ -73,6 +78,14 @@ class ChoicePopup(MOPopupBase):
 
     def set_whisper(self, value):
         self.whisper = value
+
+    def is_user_busy(self):
+        if self.user.has_choice_popup:
+            self.whisper = 'Busy'
+            self.send_answer()
+            return True
+        return False
+        
             
         
             

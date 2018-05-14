@@ -19,6 +19,7 @@ class User:
         self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow', '8b6fba']  # Color code for text
         self.sprite_option = -1
         self.inventory = UserInventory(self)
+        self.has_choice_popup = False
 
     def set_from_msg(self, location, sublocation, position, sprite, character):
         self.set_loc(location, True)
@@ -132,6 +133,12 @@ class User:
             self.subloc.remove_l_user(self)
         else:
             self.subloc.remove_c_user(self)
+
+    def set_choice_popup_state(self, boolean):
+        self.has_choice_popup = boolean
+
+    def get_choice_popup_state(self):
+        return self.has_choice_popup
 
 
 class CurrentUserHandler:
