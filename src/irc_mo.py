@@ -183,12 +183,15 @@ class ChoiceMessage:
         self.text, self.options, self.list_of_users = arguments
 
     def execute(self, connection_manager, main_screen, user_handler):
-        user = user_handler.get_user()
+        user = user_handler.get_user()            
         username = user.username
         log = main_screen.log_window
         options = re.split(r'(?<!\\);', self.options)
         self.list_of_users = self.list_of_users.replace('@', '')
-        if self.list_of_users != 'everyone':
+        if user.has_choice_popup:
+            ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
+            pass
+        elif self.list_of_users != 'everyone':
             list_of_users = self.list_of_users.split(', ')
             if username in list_of_users:
                 choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
@@ -225,7 +228,7 @@ class ChoiceReturnMessage:
         log = main_screen.log_window
         username = user_handler.get_user().username
         if self.whisper == 'Busy':
-            log.add_entry(username+" was busy and didn't receive the answer")
+            log.add_entry(username+" was busy and didn't receive the answer.\n")
             return
         if self.selected_option == '':
             log.add_entry(username+' refused to answer.\n')

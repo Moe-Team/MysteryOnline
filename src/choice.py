@@ -8,18 +8,18 @@ from kivy.app import App
 class ChoicePopup(MOPopupBase):
 
     def __init__(self, title_, sender, msg, btn_msg, user, **kwargs):
+        self.sender = sender
         self.selected_option = None
-        if self.is_user_busy():
-            return
-        self.whisper = False
-        self.number_of_buttons = len(btn_msg)
-        self.grid_lay = None
-        super().__init__(title_, msg, **kwargs)
         self.user_handler = App.get_running_app().get_user_handler()
         self.user = self.user_handler.get_user()
         self.username = self.user.username
+        if self.is_user_busy():
+            return
+        self.grid_lay = None
+        self.whisper = False
+        self.number_of_buttons = len(btn_msg)
+        super().__init__(title_, msg, **kwargs)
         self.user.set_choice_popup_state(True)
-        self.sender = sender
         self.btn_msg = btn_msg
         self.add_buttons(btn_msg, True, self.build_btn_commands_list(), self.build_btn_args_list())
         self.size_popup(size=(400,400))
