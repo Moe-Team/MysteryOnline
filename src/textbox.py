@@ -192,7 +192,11 @@ class MainTextInput(TextInput):
         return True
 
     def message_is_command(self, msg):
-        return msg.startswith('/')
+        if msg.startswith('/'):
+            words = msg.split(' ')
+            if words[0][1:] in command_processor.commands:
+                return True
+        return False
 
     def extend_message(self, msg):
         for shortcut in command_processor.shortcuts:
