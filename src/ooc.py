@@ -48,6 +48,7 @@ class MusicTab(TabbedPanelItem):
         super(MusicTab, self).__init__(**kwargs)
         self.track = None
         self.loop = True
+        self.hide_title = False
         self.is_loading_music = False
 
     def on_music_play(self, url=None, send_to_all=True, track_name=None):
@@ -55,6 +56,8 @@ class MusicTab(TabbedPanelItem):
             return
         self.is_loading_music = True
         main_screen = App.get_running_app().get_main_screen()
+        if self.hide_title:
+            track_name = "Hidden track"
         if url is None:
             url = self.url_input.text
         if track_name is not None:
@@ -103,7 +106,7 @@ class MusicTab(TabbedPanelItem):
             track.play()
             root.track = track
             root.is_loading_music = False
-            if 'youtube' in url:
+            if 'youtube' in url and track_name != "Hidden track":
                 main_scr = App.get_running_app().get_main_screen()
                 with open('temp.mp3.info.json', 'r') as f:
                     video_info = json.load(f)
@@ -124,6 +127,9 @@ class MusicTab(TabbedPanelItem):
 
     def on_loop(self, value):
         self.loop = value
+
+    def on_hide(self, value):
+        self.hide_title = value
 
     def reset_music(self, *args):
         self.is_loading_music = False

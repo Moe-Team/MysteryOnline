@@ -61,6 +61,17 @@
             size_hint: 1, None
             height: 40
 
+            Label:
+                text: 'Hide title'
+
+            CheckBox:
+                active: False
+                on_active: root.on_hide(self.active)
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 40
+
             Button:
                 text: "Reset music"
                 on_release: root.reset_music()
