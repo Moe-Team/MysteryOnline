@@ -178,7 +178,7 @@ class ChoiceMessage:
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#')
+        arguments = message.split('#', 3)
         arguments.remove('ch')
         self.text, self.options, self.list_of_users = arguments
 
