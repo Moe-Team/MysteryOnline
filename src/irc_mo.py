@@ -190,7 +190,6 @@ class ChoiceMessage:
         self.list_of_users = self.list_of_users.replace('@', '')
         if user.has_choice_popup:
             ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
-            pass
         elif self.list_of_users != 'everyone':
             list_of_users = self.list_of_users.split(', ')
             if username in list_of_users:
@@ -212,8 +211,6 @@ class ChoiceReturnMessage:
         self.sender = sender
 
     def to_irc(self):
-        if self.selected_option is None:
-            self.selected_option = ''
         msg = "ch2#{0[questioner]}#{0[whisper]}#{0[selected_option]}".format(self.components)
         return msg
 
@@ -221,19 +218,15 @@ class ChoiceReturnMessage:
         arguments = message.split('#')
         arguments.remove('ch2')
         self.questioner, self.whisper, self.selected_option = arguments
-        if self.selected_option == '':
-            self.selected_option = None
 
     def execute(self, connection_manager, main_screen, user_handler):
         log = main_screen.log_window
         username = user_handler.get_user().username
         if self.whisper == 'Busy':
             log.add_entry(username+" was busy and didn't receive the answer.\n")
-            return
-        if self.selected_option == '':
-            log.add_entry(username+' refused to answer.\n')
-            return
-        if self.whisper:
+        elif self.whisper == 'Refused':
+            log.add_entry(self.sender+' refused to answer.\n')
+        elif self.whisper:
             if username == self.questioner:
                 log.add_entry(self.sender+' whispered "'+self.selected_option+'" to you.\n')
             else:

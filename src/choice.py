@@ -40,6 +40,8 @@ class ChoicePopup(MOPopupBase):
 
     def on_dismiss(self):
         self.user.set_choice_popup_state(False)
+        if self.selected_option is None:
+            self.whisper = 'Refused'
         self.send_answer()
 
     def option_select(self, option):
