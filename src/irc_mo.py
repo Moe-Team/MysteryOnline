@@ -9,6 +9,8 @@ from kivy.clock import Clock
 from character import characters
 from user import User
 from choice import ChoicePopup
+import ctypes
+import re
 
 
 class ChannelConnectionError(Exception):
@@ -156,6 +158,18 @@ class ChatMessage:
                 main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
             main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
+            
+        if self.need_to_notify(self.content, user_handler.get_user().username):
+            self.notify_user()
+
+    def need_to_notify(self, msg, username):
+        p = re.compile('@'+username+'([ ]|$)', re.I)
+        if re.search(p, msg):
+            return True
+        return False
+
+    def notify_user(self):
+        ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
 
 
 class ChoiceMessage:

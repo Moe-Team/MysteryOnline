@@ -203,7 +203,7 @@ class MainTextInput(TextInput):
 
     def message_is_shortcut(self, msg, shortcut):
         return msg.startswith(shortcut) and\
-               not any(msg.startswith('/'+command) for command in command_processor.commands)
+               not any(msg.startswith('/'+command) for command in command_processor.get_commands())
 
     def handle_command(self, msg):
         try:

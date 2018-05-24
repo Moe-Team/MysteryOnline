@@ -1,6 +1,7 @@
 import re
 from dicegame import dice_game
 from kivy.app import App
+from kivy.core.window import Window
 
 
 class CommandError(Exception):
@@ -128,7 +129,6 @@ class RegexCommandHandler:
 class CommandProcessor:
 
     def __init__(self):
-        self.commands = ['roll', 'clear', 'color', 'refresh', 'choice']
         self.shortcuts = {}
         self.handlers = {
             'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
@@ -140,18 +140,23 @@ class CommandProcessor:
             'refresh': CommandHandler('refresh'),
 
             'choice': RegexCommandHandler('choice', ['list_of_users', 'choice_text', 'options'],
-                                          '(@.*\S)? *"(.*)"\s*"(.*)"')
+                                          '(@.*\S)? *"(.*)"\s*"(.*)"'),
+            'startim': CommandHandler('startim')
         }
 
     def process_command(self, cmd_name, cmd):
-        if cmd_name in self.commands:
+        if cmd_name in self.handlers:
             cmd_handler = self.handlers[cmd_name]
         else:
             return None
         args = cmd_handler.parse_command(cmd)
         self.command = Command(cmd_name, args)
         self.command.execute(self)
-
+        
+    #                       #
+    # v Command Processes v #
+    #                       #
+    
     def roll_process(self):
         dice_game.process_input(self.command)
 
@@ -170,7 +175,7 @@ class CommandProcessor:
         user.set_color('normal')
 
     def refresh_process(self):
-        return
+        pass
 
     def choice_process(self):
         user_handler = App.get_running_app().get_user_handler()
@@ -180,12 +185,21 @@ class CommandProcessor:
         message = message_factory.build_choice_message(username, self.command['choice_text'], self.command['options'], self.command['list_of_users'])
         connection_manager.send_msg(message)
         connection_manager.send_local(message)
+
+    def startim_process(self):
+        Window.set_title("Sonata's Revenge")
+        
+    #                       #
+    # ^ Command Processes ^ #
+    #                       #
             
     def load_shortcuts(self):
-        self.shortcuts = {}
         config = App.get_running_app().config
         for shortcut in config.items('command_shortcuts'):
             self.shortcuts[shortcut[0]] = shortcut[1]
+
+    def get_commands(self):
+        return list(self.handlers)
         
 
 command_processor = CommandProcessor()

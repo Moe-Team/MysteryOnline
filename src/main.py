@@ -38,6 +38,8 @@ from location import location_manager
 from os import listdir
 
 from commands import command_processor
+import win32gui
+from kivy.core.window import Window
 
 KV_DIR = "kv_files/"
 
@@ -96,6 +98,7 @@ class MainScreenManager(ScreenManager):
 
 class MysteryOnlineApp(App):
     use_kivy_settings = False
+    window_handle = None
 
     def __init__(self, **kwargs):
         super(MysteryOnlineApp, self).__init__(**kwargs)
@@ -177,6 +180,7 @@ class MysteryOnlineApp(App):
     def on_start(self):
         config = self.config
         self.load_shortcuts()
+        self.find_window_handle()
         if not self.was_last_exit_graceful():
             self.show_ungraceful_exit_popup()
         else:
@@ -204,6 +208,14 @@ class MysteryOnlineApp(App):
     def load_shortcuts(self):
         command_processor.load_shortcuts()
 
+    def find_window_handle(self):
+        def callback(hwnd, window_title):
+            if win32gui.GetWindowText(hwnd) == window_title:
+                self.window_handle = hwnd
+        win32gui.EnumWindows(callback, 'MysteryOnline')
+
+    def get_window_handle(self):
+        return self.window_handle
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
