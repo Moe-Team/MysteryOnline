@@ -14,6 +14,8 @@ import set_kivy_config
 # import requests
 # import youtube_dl
 # import json
+import win32gui
+import win32con
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
@@ -38,7 +40,6 @@ from location import location_manager
 from os import listdir
 
 from commands import command_processor
-import win32gui
 from kivy.core.window import Window
 
 KV_DIR = "kv_files/"
@@ -181,6 +182,8 @@ class MysteryOnlineApp(App):
         config = self.config
         self.load_shortcuts()
         self.find_window_handle()
+        self.load_cursor()
+        self.set_cursor()
         if not self.was_last_exit_graceful():
             self.show_ungraceful_exit_popup()
         else:
@@ -216,6 +219,21 @@ class MysteryOnlineApp(App):
 
     def get_window_handle(self):
         return self.window_handle
+
+    def load_cursor(self):
+        try:
+            self.cursor = win32gui.LoadImage(0, 'cursor.cur', win32con.IMAGE_CURSOR, 0, 0, win32con.LR_LOADFROMFILE)
+        except:
+            self.cursor = 'default'
+
+    def reset_cursor(self, *args):
+        win32gui.SetCursor(self.cursor)
+
+    def set_cursor(self):
+        if self.cursor != 'default':
+            Window.bind(mouse_pos=self.reset_cursor)
+            Window.bind(on_motion=self.reset_cursor)
+            
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
