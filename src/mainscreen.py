@@ -8,8 +8,11 @@ from character_select import CharacterSelect
 from location import location_manager
 from debug_mode import DebugModePopup
 
+from kivy.uix.dropdown import DropDown
+from kivy.uix.button import Button
 
 class RightClickMenu(ModalView):
+    loc_button = ObjectProperty(None)
     char_select = ObjectProperty(None)
 
     def __init__(self, **kwargs):
@@ -46,6 +49,34 @@ class RightClickMenu(ModalView):
             user.get_char().load()
             main_scr = App.get_running_app().get_main_screen()
             main_scr.on_new_char(user.get_char())
+
+    def on_loc_select_clicked(self, *args):
+        self.create_loc_drop()
+        loc_drop_main_button = Button(size_hint=(None,None), size = (200, 30))     #Temporary button just for dropdown
+        self.get_parent_window().add_widget(loc_drop_main_button)
+        loc_drop_main_button.pos = (self.loc_button.x + self.loc_button.width, self.loc_button.y + self.loc_button.height)
+        self.loc_drop.open(loc_drop_main_button)           
+        self.get_parent_window().remove_widget(loc_drop_main_button)               #And the temporary button is gone, R.I.P.
+
+    def create_location_buttons(self, loc_list):
+        for l in location_manager.get_locations():
+            btn = Button(text=l, size_hint=(None, None), size=(200, 30))
+            btn.bind(on_release=lambda btn_: self.loc_drop.select(btn_.text))
+            loc_list.add_widget(btn)
+        loc_list.bind(on_select=self.on_loc_select)
+
+    def create_loc_drop(self):
+        self.loc_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        self.create_location_buttons(self.loc_drop)
+        self.loc_drop.bind(on_select=self.on_loc_select_clicked)
+        
+    def on_loc_select(self, inst, loc_name):
+        main_scr = App.get_running_app().get_main_screen()
+        user_handler = App.get_running_app().get_user_handler()
+        loc = location_manager.get_locations()[loc_name]
+        user_handler.set_current_loc(loc)
+        main_scr.get_toolbar().update_sub(loc)
+        main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
 
 
 class MainScreen(Screen):
@@ -103,7 +134,6 @@ class MainScreen(Screen):
         user_handler = App.get_running_app().get_user_handler()
         locations = location_manager.get_locations()
         user_handler.set_current_loc(locations['Hakuryou'])
-        self.toolbar.update_loc()
         self.toolbar.update_sub(locations['Hakuryou'])
         self.toolbar.set_user(self.user)
         self.sprite_preview.set_subloc(user_handler.get_current_subloc())

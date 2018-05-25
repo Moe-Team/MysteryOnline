@@ -11,7 +11,6 @@ class Toolbar(BoxLayout):
         super(Toolbar, self).__init__(**kwargs)
         self.user = None
         self.main_btn = None
-        self.main_loc_btn = None
         self.subloc_drop = DropDown(size_hint=(None, None), size=(200, 30))
         self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30))
         for pos in ('center', 'right', 'left'):
@@ -32,7 +31,6 @@ class Toolbar(BoxLayout):
         self.pos_btn.bind(on_release=self.pos_drop.open)
         self.add_widget(self.pos_btn)
         self.pos_drop.bind(on_select=self.on_pos_select)
-        self.loc_drop = DropDown(size_hint=(None, None), size=(200, 30))
         self.item_drop = DropDown(size_hint=(None, None), size=(200, 30))
         self.text_item_btn = Button(text='no item', size_hint=(None, None), size=(200, 30))
         self.text_item_btn.bind(on_release=self.build_item_drop)
@@ -67,28 +65,6 @@ class Toolbar(BoxLayout):
             self.add_widget(self.main_btn)
             self.subloc_drop.bind(on_select=self.on_subloc_select)
         self.main_btn.text = loc.get_first_sub()
-
-    def update_loc(self):
-        for l in location_manager.get_locations():
-            btn = Button(text=l, size_hint=(None, None), size=(200, 30))
-            btn.bind(on_release=lambda btn_: self.loc_drop.select(btn_.text))
-            self.loc_drop.add_widget(btn)
-        self.main_loc_btn = Button(size_hint=(None, None), size=(200, 30))
-        user_handler = App.get_running_app().get_user_handler()
-        current_loc = user_handler.get_current_loc()
-        self.main_loc_btn.text = current_loc.name
-        self.main_loc_btn.bind(on_release=self.loc_drop.open)
-        self.add_widget(self.main_loc_btn)
-        self.loc_drop.bind(on_select=self.on_loc_select)
-
-    def on_loc_select(self, inst, loc_name):
-        self.main_loc_btn.text = loc_name
-        main_scr = App.get_running_app().get_main_screen()
-        user_handler = App.get_running_app().get_user_handler()
-        loc = location_manager.get_locations()[loc_name]
-        user_handler.set_current_loc(loc)
-        self.update_sub(loc)
-        main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
 
     def on_subloc_select(self, inst, subloc_name):
         self.main_btn.text = subloc_name

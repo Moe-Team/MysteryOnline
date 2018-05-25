@@ -80,12 +80,18 @@
 
 
 <RightClickMenu>:
+    loc_button: loc_select
     char_select: char_select
     size_hint: None, None
     size: 105, 300
 
     BoxLayout:
         orientation: 'vertical'
+
+        RightClickMenuButton:
+            id: loc_select
+            text: 'Location'
+            on_release: root.on_loc_select_clicked()
 
         RightClickMenuButton:
             id: char_select
