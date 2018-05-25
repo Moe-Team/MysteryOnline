@@ -1,5 +1,6 @@
 import re
 from dicegame import dice_game
+from mainscreen import RightClickMenu
 from kivy.app import App
 from kivy.core.window import Window
 
@@ -141,6 +142,8 @@ class CommandProcessor:
 
             'choice': RegexCommandHandler('choice', ['list_of_users', 'choice_text', 'options'],
                                           '(@.*\S)? *"(.*)"\s*"(.*)"'),
+            'move': CommandHandler('move', 'str:location'),
+
             'startim': CommandHandler('startim')
         }
 
@@ -185,6 +188,9 @@ class CommandProcessor:
         message = message_factory.build_choice_message(username, self.command['choice_text'], self.command['options'], self.command['list_of_users'])
         connection_manager.send_msg(message)
         connection_manager.send_local(message)
+
+    def move_process(self):
+        RightClickMenu.on_loc_select(None, None, self.command['location'])
 
     def startim_process(self):
         Window.set_title("Sonata's Revenge")
