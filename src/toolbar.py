@@ -12,11 +12,6 @@ class Toolbar(BoxLayout):
         self.user = None
         self.main_btn = None
         self.subloc_drop = DropDown(size_hint=(None, None), size=(200, 30))
-        self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30))
-        for pos in ('center', 'right', 'left'):
-            btn = Button(text=pos, size_hint=(None, None), size=(100, 30))
-            btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
-            self.pos_drop.add_widget(btn)
         self.color_drop = DropDown(size_hint=(None, None), size=(100, 30))
         for col in ('red', 'blue', 'golden', 'green', 'rainbow', 'purple', 'normal'):
             btn = Button(text=col, size_hint=(None, None), size=(100, 30))
@@ -26,11 +21,6 @@ class Toolbar(BoxLayout):
         self.text_col_btn.bind(on_release=self.color_drop.open)
         self.add_widget(self.text_col_btn)
         self.color_drop.bind(on_select=self.on_col_select)
-        self.pos_btn = Button(size_hint=(None, None), size=(100, 30))
-        self.pos_btn.text = 'center'
-        self.pos_btn.bind(on_release=self.pos_drop.open)
-        self.add_widget(self.pos_btn)
-        self.pos_drop.bind(on_select=self.on_pos_select)
         self.item_drop = DropDown(size_hint=(None, None), size=(200, 30))
         self.text_item_btn = Button(text='no item', size_hint=(None, None), size=(200, 30))
         self.text_item_btn.bind(on_release=self.build_item_drop)
@@ -73,13 +63,6 @@ class Toolbar(BoxLayout):
         user_handler.set_current_subloc_name(subloc_name)
         sub = user_handler.get_current_subloc()
         main_scr.sprite_preview.set_subloc(sub)
-        main_scr.refocus_text()
-
-    def on_pos_select(self, inst, pos):
-        self.pos_btn.text = pos
-        main_scr = App.get_running_app().get_main_screen()
-        user_handler = App.get_running_app().get_user_handler()
-        user_handler.set_current_pos_name(pos)
         main_scr.refocus_text()
 
     def on_col_select(self, inst, col, user=None):

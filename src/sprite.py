@@ -4,6 +4,8 @@ from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
+from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
 
 
 class NullSprite:
@@ -105,12 +107,14 @@ class Sprite:
 
 class SpriteSettings(BoxLayout):
     check_flip_h = ObjectProperty(None)
+    pos_btn = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(SpriteSettings, self).__init__(**kwargs)
         self.functions = {"flip_h": self.flip_sprite}
         self.activated = []
         self.flipped = []
+        self.create_pos_drop()
 
     def apply_post_processing(self, sprite, setting):
         if setting == 0:
@@ -138,6 +142,24 @@ class SpriteSettings(BoxLayout):
         main_scr = App.get_running_app().get_main_screen()
         main_scr.sprite_preview.set_sprite(sprite)
         Clock.schedule_once(main_scr.refocus_text, 0.2)
+
+    def on_pos_select_clicked(self):
+        self.pos_drop.open(self.pos_btn)
+
+    def create_pos_drop(self):
+        self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30))
+        for pos in ('center', 'right', 'left'):
+            btn = Button(text=pos, size_hint=(None, None), size=(100, 30))
+            btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
+            self.pos_drop.add_widget(btn)
+        self.pos_drop.bind(on_select=self.on_pos_select)
+
+    def on_pos_select(self, inst, pos):
+        self.pos_btn.text = pos
+        main_scr = App.get_running_app().get_main_screen()
+        user_handler = App.get_running_app().get_user_handler()
+        user_handler.set_current_pos_name(pos)
+        main_scr.refocus_text()
 
 
 class SpritePreview(Image):

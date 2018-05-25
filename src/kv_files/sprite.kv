@@ -1,14 +1,20 @@
 #:kivy 1.10
 <SpriteSettings>:
     check_flip_h: check_flip_h
+    pos_btn: pos_btn
     orientation: 'horizontal'
 
     Label:
-        text: "Flip horizontally"
+        text: "Flip:"
 
     CheckBox:
         id: check_flip_h
         on_active: root.on_checked_flip_h(self.active)
+
+    Button:
+        id: pos_btn
+        text: 'Center'
+        on_release: root.on_pos_select_clicked()
 
 
 <SpritePreview>:
