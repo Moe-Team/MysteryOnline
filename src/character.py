@@ -6,7 +6,8 @@ from kivy.app import App
 import os
 
 
-series_list = ["OC"]
+main_series_list = ["OC"]
+extra_series_list = []
 
 
 class Character:
@@ -16,6 +17,7 @@ class Character:
         self.path = "characters/{0}/".format(self.name)
         self.display_name = None
         self.series = None
+        self.extra_series = []
         self.sprites_path = None
         self.icons_path = None
         self.avatar = None
@@ -31,14 +33,23 @@ class Character:
         self.read_config()
 
     def read_config(self):
-        global series_list
+        global main_series_list
         self.config.read(self.path + "settings.ini")
         char = self.config['character']
         self.display_name = char['name']
         con_series = char['series']
-        if con_series not in series_list:
-            series_list.append(con_series)
-        self.series = con_series
+        con_series = con_series.split(',')
+        con_series = [s.strip() for s in con_series]
+        main_series = con_series[0]
+        if len(con_series) > 1:
+            extra_series = con_series[1:]
+            self.extra_series = extra_series
+        if main_series not in main_series_list:
+            main_series_list.append(main_series)
+        for s in self.extra_series:
+            if s not in extra_series_list:
+                extra_series_list.append(s)
+        self.series = main_series
         self.sprites_path = self.path + char['sprites']
         self.icons_path = self.path + char['icons']
         self.avatar = self.path + "avatar.png"
@@ -57,10 +68,23 @@ class Character:
 
     def read_spoiler_sprites(self):
         try:
-            spoiler_list = self.config['spoiler']['sprites']
+            spoiler_section = self.config['spoiler']
         except KeyError:
             return
-        spoiler_list = spoiler_list.split(',')
+        spoiler_list = []
+        series = self.extra_series[:]
+        series.insert(0, self.series)
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
+        whitelist = config.get('other', 'whitelisted_series')
+        whitelist = whitelist.strip('[]')
+        whitelist = whitelist.replace("'", "")
+        whitelist = whitelist.split(',')
+        whitelist = [x.strip() for x in whitelist]
+        for key, s in zip(sorted(spoiler_section), series):
+            if s not in whitelist:
+                spoiler_sprites = spoiler_section[key].split(',')
+                spoiler_list.extend(spoiler_sprites)
         for sprite_name in spoiler_list:
             self.spoiler_sprites[sprite_name] = None
 

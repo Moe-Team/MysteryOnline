@@ -40,5 +40,11 @@
   "desc": "Display sprite tooltips",
   "section": "other",
   "key": "sprite_tooltips"
+  },
+  {"type": "serieswhitelist",
+  "title": "Whitelist Series",
+  "desc": "Choose which series you've already read and want to see spoilers from",
+  "section": "other",
+  "key": "whitelisted_series"
   }
 ]

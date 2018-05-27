@@ -5,7 +5,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
-from character import characters, series_list
+from character import characters, main_series_list
 from math import ceil
 
 
@@ -56,7 +56,7 @@ class CharacterSelect(Popup):
             return
 
         grids = {}
-        for s in sorted(series_list):
+        for s in sorted(main_series_list):
             self.create_series_rows(grids, s)
 
         for g in grids:
