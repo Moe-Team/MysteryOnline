@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
+from kivy.uix.stacklayout import StackLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
@@ -108,6 +109,7 @@ class Sprite:
 class SpriteSettings(BoxLayout):
     check_flip_h = ObjectProperty(None)
     pos_btn = ObjectProperty(None)
+    subloc_btn = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(SpriteSettings, self).__init__(**kwargs)
@@ -115,6 +117,7 @@ class SpriteSettings(BoxLayout):
         self.activated = []
         self.flipped = []
         self.create_pos_drop()
+        self.create_subloc_drop()
 
     def apply_post_processing(self, sprite, setting):
         if setting == 0:
@@ -146,9 +149,16 @@ class SpriteSettings(BoxLayout):
     def on_pos_select_clicked(self):
         self.pos_drop.open(self.pos_btn)
 
+    def on_subloc_select_clicked(self):
+        subloc_drop_main_btn = Widget(size_hint=(None, None), size=(200, 30))
+        self.add_widget(subloc_drop_main_btn)
+        subloc_drop_main_btn.pos = (self.subloc_btn.x + self.subloc_btn.width, self.subloc_btn.y + self.subloc_btn.height)
+        self.subloc_drop.open(subloc_drop_main_btn)
+        self.remove_widget(subloc_drop_main_btn)
+
     def create_pos_drop(self):
         self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30))
-        for pos in ('center', 'right', 'left'):
+        for pos in ('Center', 'Right', 'Left'):
             btn = Button(text=pos, size_hint=(None, None), size=(100, 30))
             btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
             self.pos_drop.add_widget(btn)
@@ -160,6 +170,28 @@ class SpriteSettings(BoxLayout):
         user_handler = App.get_running_app().get_user_handler()
         user_handler.set_current_pos_name(pos)
         main_scr.refocus_text()
+
+    def create_subloc_drop(self):
+        self.subloc_drop = DropDown(size_hint=(None, None), size=(100, 30))
+        self.subloc_drop.bind(on_select=self.on_subloc_select)
+
+    def on_subloc_select(self, inst, subloc_name):
+        self.subloc_btn.text = subloc_name
+        main_scr = App.get_running_app().get_main_screen()
+        user_handler = App.get_running_app().get_user_handler()
+        user_handler.set_current_subloc_name(subloc_name)
+        sub = user_handler.get_current_subloc()
+        main_scr.sprite_preview.set_subloc(sub)
+        main_scr.refocus_text()
+
+    def update_sub(self, loc):
+        if self.subloc_btn is not None:
+            self.subloc_drop.clear_widgets()
+        for sub in loc.list_sub():
+            btn = Button(text=sub, size_hint=(None, None), size=(200, 30))
+            btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
+            self.subloc_drop.add_widget(btn)
+        self.subloc_btn.text = loc.get_first_sub()
 
 
 class SpritePreview(Image):

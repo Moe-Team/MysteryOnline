@@ -75,7 +75,7 @@ class RightClickMenu(ModalView):
         user_handler = App.get_running_app().get_user_handler()
         loc = location_manager.get_locations()[loc_name]
         user_handler.set_current_loc(loc)
-        main_scr.get_toolbar().update_sub(loc)
+        main_scr.sprite_settings.update_sub(loc)
         main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
 
 
@@ -134,7 +134,7 @@ class MainScreen(Screen):
         user_handler = App.get_running_app().get_user_handler()
         locations = location_manager.get_locations()
         user_handler.set_current_loc(locations['Hakuryou'])
-        self.toolbar.update_sub(locations['Hakuryou'])
+        self.sprite_settings.update_sub(locations['Hakuryou'])
         self.toolbar.set_user(self.user)
         self.sprite_preview.set_subloc(user_handler.get_current_subloc())
         char = self.user.get_char()

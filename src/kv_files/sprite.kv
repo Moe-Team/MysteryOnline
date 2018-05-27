@@ -2,19 +2,31 @@
 <SpriteSettings>:
     check_flip_h: check_flip_h
     pos_btn: pos_btn
+    subloc_btn: subloc_btn
     orientation: 'horizontal'
-
+    
     Label:
         text: "Flip:"
+        width: 30
+        size_hint: None, 1
 
     CheckBox:
         id: check_flip_h
+        width: 30
+        size_hint: None, 1
         on_active: root.on_checked_flip_h(self.active)
 
     Button:
         id: pos_btn
         text: 'Center'
+        size_hint: None, 1
         on_release: root.on_pos_select_clicked()
+
+    Button:
+        id: subloc_btn
+        text: 'Sublocation'
+        size_hint: None, 1
+        on_release: root.on_subloc_select_clicked()
 
 
 <SpritePreview>:

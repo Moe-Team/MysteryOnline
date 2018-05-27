@@ -42,20 +42,6 @@ class Toolbar(BoxLayout):
     def set_user(self, user):
         self.user = user
 
-    def update_sub(self, loc):
-        if self.main_btn is not None:
-            self.subloc_drop.clear_widgets()
-        for sub in loc.list_sub():
-            btn = Button(text=sub, size_hint=(None, None), size=(200, 30))
-            btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
-            self.subloc_drop.add_widget(btn)
-        if self.main_btn is None:
-            self.main_btn = Button(size_hint=(None, None), size=(200, 30))
-            self.main_btn.bind(on_release=self.subloc_drop.open)
-            self.add_widget(self.main_btn)
-            self.subloc_drop.bind(on_select=self.on_subloc_select)
-        self.main_btn.text = loc.get_first_sub()
-
     def on_subloc_select(self, inst, subloc_name):
         self.main_btn.text = subloc_name
         main_scr = App.get_running_app().get_main_screen()
