@@ -1,3 +1,4 @@
+import os
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -26,6 +27,14 @@ class Toolbar(BoxLayout):
         self.add_widget(self.text_item_btn)
         self.item_drop.bind(on_select=self.on_item_select)
 
+        self.sfx_main_btn = Button(text='SFX')
+        self.sfx_dropdown = None    
+        self.sfx_name = None        
+        self.sfx_list = []          
+        self.load_sfx()             
+        self.create_sfx_dropdown() 
+        self.add_widget(self.sfx_main_btn)
+
     def build_item_drop(self, pos):
         self.item_drop.clear_widgets()
         item_list = self.user.inventory.get_item_string_list()
@@ -53,3 +62,30 @@ class Toolbar(BoxLayout):
             item = self.user.inventory.get_item_by_name(item)
             self.user.inventory.send_item(item)
         self.text_item_btn.text = "no item"
+
+    def get_sfx_name(self):     
+        if self.sfx_name == "None":
+            self.sfx_name = None
+        current_sfx = self.sfx_name
+        if self.sfx_name is not None:
+            self.sfx_main_btn.text = "None"
+            self.sfx_name = None
+        return current_sfx
+
+    def load_sfx(self):         
+        for file in os.listdir('sounds/sfx'):
+            if file.endswith('wav'):
+                self.sfx_list.append(file)
+
+    def create_sfx_dropdown(self):  
+        self.sfx_dropdown = DropDown()
+        for sfx in self.sfx_list:
+            btn = Button(text=sfx, size_hint_y=None, height=40)
+            btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
+            self.sfx_dropdown.add_widget(btn)
+        btn = Button(text="None", size_hint_y=None, height=40)
+        btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
+        self.sfx_main_btn.bind(on_release=self.sfx_dropdown.open)
+        self.sfx_dropdown.add_widget(btn)
+        self.sfx_dropdown.bind(on_select=lambda instance, x: setattr(self.sfx_main_btn, 'text', x))
+        self.sfx_dropdown.bind(on_select=lambda instance, x: setattr(self, 'sfx_name', x))

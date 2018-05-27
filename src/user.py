@@ -160,7 +160,7 @@ class CurrentUserHandler:
         char = self.user.get_char().name
         sprite_option = self.user.get_sprite_option()
         message_factory = App.get_running_app().get_message_factory()
-        sfx_name = App.get_running_app().get_main_screen().left_tab.get_sfx_name()
+        sfx_name = App.get_running_app().get_main_screen().get_toolbar().get_sfx_name()
         message = message_factory.build_chat_message(content=msg, location=loc, sublocation=self.current_subloc_name,
                                                      character=char, sprite=self.current_sprite_name,
                                                      position=self.current_pos_name, color_id=col_id,
