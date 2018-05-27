@@ -10,8 +10,6 @@ class Toolbar(BoxLayout):
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
         self.user = None
-        self.main_btn = None
-        self.subloc_drop = DropDown(size_hint=(None, None), size=(200, 30))
         self.color_drop = DropDown(size_hint=(None, None), size=(100, 30))
         for col in ('red', 'blue', 'golden', 'green', 'rainbow', 'purple', 'normal'):
             btn = Button(text=col, size_hint=(None, None), size=(100, 30))
@@ -41,15 +39,6 @@ class Toolbar(BoxLayout):
 
     def set_user(self, user):
         self.user = user
-
-    def on_subloc_select(self, inst, subloc_name):
-        self.main_btn.text = subloc_name
-        main_scr = App.get_running_app().get_main_screen()
-        user_handler = App.get_running_app().get_user_handler()
-        user_handler.set_current_subloc_name(subloc_name)
-        sub = user_handler.get_current_subloc()
-        main_scr.sprite_preview.set_subloc(sub)
-        main_scr.refocus_text()
 
     def on_col_select(self, inst, col, user=None):
         main_scr = App.get_running_app().get_main_screen()
