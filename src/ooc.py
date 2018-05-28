@@ -224,6 +224,7 @@ class OOCWindow(TabbedPanel):
             char = char.name
         if user.username not in (main_screen.user.username, '@ChanServ', 'ChanServ'):
             user_box = UserBox(size_hint_y=None, height=40)
+            user_box.lbl.bind(on_touch_down=user_box.on_label_touch_down)
             user_box.lbl.text = "{}: {}\n".format(user.username, char)
             user_box.pm.id = user.username
             user_box.pm.bind(on_press=lambda x: self.open_private_msg_screen(user.username, user_box.pm))

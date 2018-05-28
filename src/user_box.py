@@ -2,9 +2,6 @@ from kivy.properties import ObjectProperty
 from kivy.uix.modalview import ModalView
 from kivy.uix.widget import Widget
 
-# from tooltip import TooltipBehavior
-# import gc
-
 
 class UserBox(Widget):
     lbl = ObjectProperty(None)
@@ -13,30 +10,31 @@ class UserBox(Widget):
 
     def __init__(self, **kwargs):
         super(UserBox, self).__init__(**kwargs)
-    #     self.popup = UserBoxPopup()
-    #     self.char_lbl_text = ""
-    #     self.sub_lbl_text = ""
-    #     self.loc_lbl_text = ""
-    #
-    # def set_new_popup(self):
-    #     gc.collect()
-    #     del self.popup
-    #     self.popup = UserBoxPopup()
-    #     self.popup.char_lbl.text = self.char_lbl_text
-    #     self.popup.sub_lbl.text = self.sub_lbl_text
-    #     self.popup.loc_lbl.text = self.loc_lbl_text
+        self.popup = UserBoxPopup()
+        self.char_lbl_text = ""
+        self.sub_lbl_text = ""
+        self.loc_lbl_text = ""
+
+    def on_label_touch_down(self, inst, touch):
+        if self.lbl.collide_point(*touch.pos):
+            self.set_new_popup()
+            self.popup.open()
+
+    def set_new_popup(self):
+        del self.popup
+        self.popup = UserBoxPopup()
+        self.popup.char_lbl.text = self.char_lbl_text
+        self.popup.sub_lbl.text = self.sub_lbl_text
+        self.popup.loc_lbl.text = self.loc_lbl_text
 
     def set_char_label(self, text):
-        # self.char_lbl_text = text
-        pass
+        self.char_lbl_text = text
 
     def set_sub_label(self, text):
-        # self.sub_lbl_text = text
-        pass
+        self.sub_lbl_text = text
 
     def set_loc_label(self, text):
-        # self.loc_lbl_text = text
-        pass
+        self.loc_lbl_text = text
 
 
 class UserBoxPopup(ModalView):
@@ -48,5 +46,3 @@ class UserBoxPopup(ModalView):
         super(UserBoxPopup, self).__init__(**kwargs)
         self.background_color = [0, 0, 0, 0]
 
-    def on_touch_down(self, touch):
-        pass
