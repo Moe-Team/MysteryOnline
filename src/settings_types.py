@@ -1,13 +1,17 @@
 from kivy.uix.settings import SettingItem
 from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.core.window import Window
 from kivy.uix.popup import Popup
-from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.metrics import dp
 from character import main_series_list, extra_series_list
+
+
+class ScrollablePopup(Popup):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class MultiChoiceOptions(SettingItem):
@@ -31,22 +35,20 @@ class MultiChoiceOptions(SettingItem):
 
     def _create_popup(self, instance):
         self._create_options()
-        content = BoxLayout(orientation='vertical', spacing='5dp')
-        popup_width = min(0.95 * Window.width, dp(500))
-        self.popup = popup = Popup(
-            content=content, title=self.title, size_hint=(None, None),
-            size=(popup_width, '400dp'))
-        popup.height = len(self.options) * dp(55) + dp(150)
+        content = BoxLayout(orientation='vertical', spacing='5dp', size_hint_y=None, height=500)
+        content.bind(minimum_height=content.setter('height'))
+        self.popup = popup = ScrollablePopup()
 
-        content.add_widget(Widget(size_hint_y=None, height=1))
         for option in self.options:
             state = 'down' if option in self.value else 'normal'
-            btn = ToggleButton(text=option, state=state)
+            btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
             self.buttons.append(btn)
             content.add_widget(btn)
 
-        box = BoxLayout(size_hint_y=None, height=dp(50))
-        content.add_widget(box)
+        popup.scroll_lay.add_widget(content)
+
+        box = BoxLayout(size_hint_y=None, height=dp(50), pos_hint={'y': 0, 'x': 0})
+        popup.button_lay.add_widget(box)
 
         btn = Button(text='Done', size_hint_y=None, height=dp(50))
         btn.bind(on_release=self._set_options)
