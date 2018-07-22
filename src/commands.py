@@ -1,6 +1,8 @@
 import re
 from dicegame import dice_game
+from mainscreen import RightClickMenu
 from kivy.app import App
+from kivy.core.window import Window
 
 
 class CommandError(Exception):
@@ -25,6 +27,8 @@ class Command:
     def __init__(self, cmd_name, args=None):
         self.cmd_name = cmd_name
         self.args = args
+        self.process_name = self.cmd_name+'_process'
+        self.process = None
 
     def __getitem__(self, item):
         return self.args[item]
@@ -38,6 +42,13 @@ class Command:
     def get_name(self):
         return self.cmd_name
 
+    def get_process(self):
+        return self.process
+    
+    def execute(self, command_processor):
+        self.process = getattr(command_processor, self.process_name)
+        self.process()
+        
 
 class CommandHandler:
 
@@ -119,7 +130,6 @@ class RegexCommandHandler:
 class CommandProcessor:
 
     def __init__(self):
-        self.commands = ['roll', 'clear', 'color', 'refresh', 'choice']
         self.shortcuts = {}
         self.handlers = {
             'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
@@ -130,47 +140,72 @@ class CommandProcessor:
                                          r'([a-z]*)\s*["\'](.*)["\']$'),
             'refresh': CommandHandler('refresh'),
 
-            'choice': RegexCommandHandler('choice', ['list_of_users', 'choice_text', 'option1', 'option2'],
-                                          '(@.*\S)? *"(.*)"\s*"(.*)"\s*"(.*)"')
+            'choice': RegexCommandHandler('choice', ['list_of_users', 'choice_text', 'options'],
+                                          '(@.*\S)? *"(.*)"\s*"(.*)"'),
+            'move': CommandHandler('move', 'str:location'),
+
+            'startim': CommandHandler('startim')
         }
 
     def process_command(self, cmd_name, cmd):
-        if cmd_name in self.commands:
+        if cmd_name in self.handlers:
             cmd_handler = self.handlers[cmd_name]
         else:
             return None
         args = cmd_handler.parse_command(cmd)
-        command = Command(cmd_name, args)
-        if cmd_name == 'roll':
-            dice_game.process_input(command)
-        if cmd_name == 'clear':
-            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-            message_factory = App.get_running_app().get_message_factory()
-            message = message_factory.build_clear_message()
-            connection_manager.send_msg(message)
-            connection_manager.send_local(message)
-        if cmd_name == 'color':
-            user_handler = App.get_running_app().get_user_handler()
-            user = user_handler.get_user()
-            user.set_color(command.__getitem__('color'))
-            user_handler.send_message(command.__getitem__('text'))
-            user.set_color('normal')
-        if cmd_name == 'refresh':
-            return
-        if cmd_name == 'choice':
-            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-            message_factory = App.get_running_app().get_message_factory()
-            text = command.__getitem__('choice_text')
-            options = [command.__getitem__('option1'), command.__getitem__('option2')]
-            list_of_users = command.__getitem__('list_of_users')
-            message = message_factory.build_choice_message(text, options, list_of_users)
-            connection_manager.send_msg(message)
+        self.command = Command(cmd_name, args)
+        self.command.execute(self)
+        
+    #                       #
+    # v Command Processes v #
+    #                       #
+    
+    def roll_process(self):
+        dice_game.process_input(self.command)
 
+    def clear_process(self):
+        connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_clear_message()
+        connection_manager.send_msg(message)
+        connection_manager.send_local(message)
+
+    def color_process(self):
+        user_handler = App.get_running_app().get_user_handler()
+        user = user_handler.get_user()
+        user.set_color(self.command['color'])
+        user_handler.send_message(self.command['text'])
+        user.set_color('normal')
+
+    def refresh_process(self):
+        pass
+
+    def choice_process(self):
+        user_handler = App.get_running_app().get_user_handler()
+        username = user_handler.get_user().username
+        connection_manager = user_handler.get_connection_manager()
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_choice_message(username, self.command['choice_text'], self.command['options'], self.command['list_of_users'])
+        connection_manager.send_msg(message)
+        connection_manager.send_local(message)
+
+    def move_process(self):
+        RightClickMenu.on_loc_select(None, None, self.command['location'])
+
+    def startim_process(self):
+        Window.set_title("Sonata's Revenge")
+        
+    #                       #
+    # ^ Command Processes ^ #
+    #                       #
+            
     def load_shortcuts(self):
-        self.shortcuts = {}
         config = App.get_running_app().config
         for shortcut in config.items('command_shortcuts'):
             self.shortcuts[shortcut[0]] = shortcut[1]
+
+    def get_commands(self):
+        return list(self.handlers)
         
 
 command_processor = CommandProcessor()

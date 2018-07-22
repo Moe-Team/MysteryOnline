@@ -19,6 +19,7 @@ class User:
         self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow', '8b6fba']  # Color code for text
         self.sprite_option = -1
         self.inventory = UserInventory(self)
+        self.has_choice_popup = False
 
     def set_from_msg(self, location, sublocation, position, sprite, character):
         self.set_loc(location, True)
@@ -133,6 +134,12 @@ class User:
         else:
             self.subloc.remove_c_user(self)
 
+    def set_choice_popup_state(self, boolean):
+        self.has_choice_popup = boolean
+
+    def get_choice_popup_state(self):
+        return self.has_choice_popup
+
 
 class CurrentUserHandler:
     def __init__(self, user):
@@ -153,7 +160,7 @@ class CurrentUserHandler:
         char = self.user.get_char().name
         sprite_option = self.user.get_sprite_option()
         message_factory = App.get_running_app().get_message_factory()
-        sfx_name = App.get_running_app().get_main_screen().left_tab.get_sfx_name()
+        sfx_name = App.get_running_app().get_main_screen().get_toolbar().get_sfx_name()
         message = message_factory.build_chat_message(content=msg, location=loc, sublocation=self.current_subloc_name,
                                                      character=char, sprite=self.current_sprite_name,
                                                      position=self.current_pos_name, color_id=col_id,

@@ -1,4 +1,5 @@
 import irc.client
+import re
 from mopopup import MOPopup
 from kivy.uix.textinput import TextInput
 from kivy.app import App
@@ -7,7 +8,9 @@ from kivy.clock import Clock
 
 from character import characters
 from user import User
-from mopopup import MOPopupYN
+from choice import ChoicePopup
+import ctypes
+import re
 
 
 class ChannelConnectionError(Exception):
@@ -59,8 +62,12 @@ class MessageFactory:
         result = ClearMessage("default")
         return result
 
-    def build_choice_message(self, text, options, list_of_users=None):
-        result = ChoiceMessage("default", text, options, list_of_users)
+    def build_choice_message(self, sender, text, options, list_of_users):
+        result = ChoiceMessage(sender, text, options, list_of_users)
+        return result
+
+    def build_choice_return_message(self, sender, questioner, whisper, selected_option):
+        result = ChoiceReturnMessage(sender, questioner, whisper, selected_option)
         return result
     
     def build_from_irc(self, irc_message, username):
@@ -82,6 +89,8 @@ class MessageFactory:
             result = ClearMessage(username)
         elif irc_message.startswith('ch#'):
             result = ChoiceMessage(username)
+        elif irc_message.startswith('ch2#'):
+            result = ChoiceReturnMessage(username)
         else:
             raise IncorrectMessageTypeError(irc_message)
         result.from_irc(irc_message)
@@ -149,44 +158,97 @@ class ChatMessage:
                 main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
             main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
+            
+        if self.need_to_notify(self.content, user_handler.get_user().username):
+            self.notify_user()
+
+    def need_to_notify(self, msg, username):
+        p = re.compile('@'+username+'([ ]|$)', re.I)
+        if re.search(p, msg):
+            return True
+        return False
+
+    def notify_user(self):
+        ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
 
 
 class ChoiceMessage:
 
     def __init__(self, sender, text=None, options=None, list_of_users=None):
-        if options is None:
-            options = ['Option1', '0ption2']
         if text is None:
             text = 'Text'
+        if options is None:
+            options = 'Options'
         if list_of_users is None:
-            list_of_users = 'all'
-        self.components = {'text': text, 'option_1': options[0], 'option_2': options[1], 'list_of_users': list_of_users}
+            list_of_users = 'everyone'
+        self.components = {'text':text, 'options':options, 'list_of_users':list_of_users}
         self.sender = sender
         self.text = text
         self.options = options
         self.list_of_users = list_of_users
 
     def to_irc(self):
-        msg = "ch#{0[text]}#{0[option_1]}#{0[option_2]}#{0[list_of_users]}".format(self.components)
+        msg = "ch#{0[text]}#{0[options]}#{0[list_of_users]}".format(self.components)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 3)
+        arguments.remove('ch')
+        self.text, self.options, self.list_of_users = arguments
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        user = user_handler.get_user()            
+        username = user.username
+        log = main_screen.log_window
+        options = re.split(r'(?<!\\);', self.options)
+        self.list_of_users = self.list_of_users.replace('@', '')
+        if user.has_choice_popup:
+            ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
+        elif self.list_of_users != 'everyone':
+            list_of_users = self.list_of_users.split(', ')
+            if username in list_of_users:
+                choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
+                choice_popup.open()
+        elif username != self.sender:
+            choice_popup = ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
+            choice_popup.open()
+        log.add_entry(self.sender+' gave '+self.list_of_users+' a choice.\n')
+
+
+class ChoiceReturnMessage:
+
+    def __init__(self, sender, questioner=None, whisper=False, selected_option=None):
+        self.components = {'questioner':questioner, 'whisper':whisper, 'selected_option':selected_option}
+        self.questioner = questioner
+        self.whisper = whisper
+        self.selected_option = selected_option
+        self.sender = sender
+
+    def to_irc(self):
+        msg = "ch2#{0[questioner]}#{0[whisper]}#{0[selected_option]}".format(self.components)
         return msg
 
     def from_irc(self, message):
         arguments = message.split('#')
-        arguments.remove('ch')
-        self.text, self.options[0], self.options[1], self.list_of_users = arguments
+        arguments.remove('ch2')
+        self.questioner, self.whisper, self.selected_option = arguments
 
     def execute(self, connection_manager, main_screen, user_handler):
-        choice_popup = MOPopupYN('', self.text, btn_msg=[self.options[0], self.options[1]])
+        log = main_screen.log_window
         username = user_handler.get_user().username
-        if self.list_of_users != 'all':
-            list_of_users = self.list_of_users.replace('@', '')
-            list_of_users = list_of_users.split(',')
-            for user in list_of_users:
-                if username == user:
-                    choice_popup.open()
-            return
-        choice_popup.open()
-
+        if self.whisper == 'Busy':
+            log.add_entry(username+" was busy and didn't receive the answer.\n")
+        elif self.whisper == 'Refused':
+            log.add_entry(self.sender+' refused to answer.\n')
+        elif self.whisper:
+            if username == self.questioner:
+                log.add_entry(self.sender+' whispered "'+self.selected_option+'" to you.\n')
+            else:
+                log.add_entry(self.sender+' whispered the answer.\n')
+        else:
+            if username == self.sender:
+                user_handler.send_message(self.selected_option)
+                
 
 class CharacterMessage:
 

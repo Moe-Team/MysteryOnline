@@ -10,7 +10,6 @@ class MOPopupBase(Popup):
         self.create_box_layout(msg)
         self.size_popup()
         self.title = title_
-        self.box_lay = None
 
     def needs_button(self, dismissable, btn_command):
         if dismissable:
@@ -28,9 +27,17 @@ class MOPopupBase(Popup):
         self.content.add_widget(Label(text=msg))
 
     def add_buttons(self, btn_msg, dismissable, btn_command=[], btn_command_args=[]):
-        number_of_buttons = len(btn_command)
-        for btn in range(0, number_of_buttons):
-            self.create_button(btn_msg[btn], dismissable, btn_command[btn], btn_command_args[btn])        
+        number_of_buttons = len(btn_msg)
+        for btn in range(number_of_buttons):
+            try:
+                command = btn_command[btn]
+            except IndexError:
+                command = None
+            if command is None:
+                args = None
+            else:
+                args = btn_command_args[btn]
+            self.create_button(btn_msg[btn], dismissable, command, args)        
 
     def create_button(self, btn_msg, dismissable, btn_command, btn_command_args=[]):
         btn = Button(text=btn_msg, size_hint=(1, 0.4))
