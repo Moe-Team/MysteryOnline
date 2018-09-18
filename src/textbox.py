@@ -28,6 +28,9 @@ class TextBox(Label):
         self.red_sfx = None
         self.blue_sfx = None
         self.gold_sfx = None
+        self.green_sfx = None
+        self.purple_sfx = None
+        self.rainbow_sfx = None
         self.char_name_color = None
         self.char_name_rect = None
         self.textbox_color = None
@@ -52,12 +55,18 @@ class TextBox(Label):
         self.red_sfx.volume = vol * 0.5
         self.blue_sfx.volume = vol * 0.5
         self.gold_sfx.volume = vol * 0.5
+        self.green_sfx.volume = vol * 0.5
+        self.purple_sfx.volume = vol * 0.5
+        self.rainbow_sfx.volume = vol * 0.5
 
     def load_sounds(self):
         self.blip = self.load_wav('sounds/general/blip.wav')
         self.red_sfx = self.load_wav('sounds/general/red.wav')
         self.blue_sfx = self.load_wav('sounds/general/blue.wav')
         self.gold_sfx = self.load_wav('sounds/general/gold.wav')
+        self.green_sfx = self.load_wav('sounds/general/green.wav')
+        self.purple_sfx = self.load_wav('sounds/general/purple.wav')
+        self.rainbow_sfx = self.load_wav('sounds/general/rainbow.wav')
 
     def load_wav(self, filename):
         """Use SDL2 to load wav files cuz it's better"""
@@ -117,7 +126,12 @@ class TextBox(Label):
                     self.blue_sfx.play()
                 elif user.color == 'ffd700':
                     self.gold_sfx.play()
+                elif user.color == '8b6fba':
+                    self.purple_sfx.play()
+                elif user.color == '00cd00':
+                    self.green_sfx.play()
             else:
+                self.rainbow_sfx.play()
                 msg_array = list(self.msg)
                 self.msg = ''
                 color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '00adfc', '8b6fba', 'ee82ee']
@@ -157,6 +171,9 @@ class TextBox(Label):
         self.red_sfx.volume = vol * 0.5
         self.blue_sfx.volume = vol * 0.5
         self.gold_sfx.volume = vol * 0.5
+        self.green_sfx.volume = vol * 0.5
+        self.purple_sfx.volume = vol * 0.5
+        self.rainbow_sfx.volume = vol * 0.5
 
 
 class MainTextInput(TextInput):
