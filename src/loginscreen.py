@@ -48,6 +48,11 @@ class LoginScreen(Screen):
         if self.picked_char is not None:
             user.set_char(self.picked_char)
             user.get_char().load()
+        else:
+            from character import characters
+            red_herring = characters['RedHerring']
+            user.set_char(red_herring)
+            user.get_char().load()
         App.get_running_app().set_user(user)
         App.get_running_app().set_user_handler(user_handler)
 
