@@ -620,7 +620,6 @@ class ConnectionManager:
     def get_disconnected(self, *args):
         self.ping_event.cancel()
         popup = MOPopup("Disconnected", "Seems you got disconnected from IRC :(", "RIP")
-        popup.bind(on_dismiss=self.close_app)
         popup.open()
         # TODO Implement reconnection strategy
 
