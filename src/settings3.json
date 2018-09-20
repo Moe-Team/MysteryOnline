@@ -24,6 +24,12 @@
   "key": "ooc_scrolling"
   },
   {"type": "bool",
+  "title": "Instant Text Display",
+  "desc": "For those with performances issues",
+  "section": "other",
+  "key": "instant_text"
+  },
+  {"type": "bool",
   "title": "Spoiler Mode",
   "desc": "Don't display spoilery sprites",
   "section": "other",

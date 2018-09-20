@@ -112,7 +112,8 @@ class TextBox(Label):
             for c in text:
                 yield c
 
-        if user.color == 'ffffff':
+        config = App.get_running_app().config
+        if user.color == 'ffffff' and config.getint('other', 'instant_text') == 0:
             self.gen = text_gen(self.msg)
             config = App.get_running_app().config
             speed = config.getdefaultint('other', 'textbox_speed', 60)
@@ -130,6 +131,8 @@ class TextBox(Label):
                     self.purple_sfx.play()
                 elif user.color == '00cd00':
                     self.green_sfx.play()
+                elif user.color == 'ffffff':
+                    self.blip.play()
             else:
                 self.rainbow_sfx.play()
                 msg_array = list(self.msg)
