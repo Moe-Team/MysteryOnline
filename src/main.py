@@ -129,6 +129,7 @@ class MysteryOnlineApp(App):
             'ooc_notif_delay': 60,
             'log_scrolling': 1,
             'ooc_scrolling': 1,
+            'instant_text': 0,
             'last_username': 'YourUsernameHere',
             'textbox_speed': 60,
             'textbox_transparency': 60,
