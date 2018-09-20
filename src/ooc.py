@@ -17,6 +17,7 @@ from user_box import UserBox
 import json
 import youtube_dl
 import os
+import ctypes
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -279,6 +280,7 @@ class OOCWindow(TabbedPanel):
                                 break
                         if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             self.pm_notif.play()
+                            ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
                     self.chat.pm_flag = True
                     self.chat.build_conversation(pm.sender)
                     self.chat.set_current_conversation_user(pm.sender)
