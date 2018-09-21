@@ -5,6 +5,7 @@ from kivy.uix.label import Label
 from kivy.uix.image import AsyncImage
 from kivy.app import App
 from kivy.properties import ObjectProperty
+from kivy.core.audio import SoundLoader
 from mopopup import MOPopup
 import webbrowser
 
@@ -19,6 +20,7 @@ class UserInventory(Popup):
         self.user = user
         self.item_dictionary_logic = {}
         self.number_of_items = len(self.item_dictionary_logic)
+        self.inv_open_sound = SoundLoader.load('sounds/general/takethat.wav')
 
     def get_item_string_list(self):
         string_list = []
@@ -40,7 +42,11 @@ class UserInventory(Popup):
             item = Item(name, description, image_link, self, user)
             self.item_dictionary_logic[name] = item
             self.item_list.add_widget(item)
+        config = App.get_running_app().config
+        v = config.getdefaultint('sound', 'effect_volume', 100)
+        self.inv_open_sound.volume = v / 100
         item.open_popup()
+        self.inv_open_sound.play()
 
     def delete_item(self, name):
         if name in self.item_dictionary_logic:
