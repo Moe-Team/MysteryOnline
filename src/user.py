@@ -9,7 +9,7 @@ class User:
     def __init__(self, username):
         self.username = username
         self.character = None
-        self.loc = None
+        self.location = None
         self.subloc = None
         self.pos = "center"
         self.current_sprite = None
@@ -21,12 +21,12 @@ class User:
         self.inventory = UserInventory(self)
         self.has_choice_popup = False
 
-    def set_from_msg(self, loc, sublocation, position, sprite, character):
-        self.set_loc(loc, True)
-        if self.loc is not None:
-            subs = Location.load(self.loc)
+    def set_from_msg(self, location, sublocation, position, sprite, character):
+        self.set_loc(location, True)
+        if self.location is not None:
+            subs = self.location.load()
             if sublocation is not None and sublocation in subs:
-                self.set_subloc(self.loc.get_sub(sublocation))
+                self.set_subloc(self.location.get_sub(sublocation))
             self.set_pos(position)
         self.set_current_sprite(sprite)
         self.character = characters.get(character)
@@ -76,11 +76,11 @@ class User:
         if from_string:
             locations = location_manager.get_locations()
             if loc in locations:
-                self.loc = locations[loc]
+                self.location = locations[loc]
             else:
-                self.loc= None
+                self.location= None
         else:
-            self.loc = loc
+            self.location = loc
 
     def set_subloc(self, subloc):
         self.prev_subloc = self.subloc
@@ -112,7 +112,7 @@ class User:
         return self.character
 
     def get_loc(self):
-        return self.loc
+        return self.location
 
     def get_subloc(self):
         return self.subloc
