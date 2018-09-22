@@ -1,5 +1,5 @@
 from character import characters
-from location import location_manager
+from location import location_manager, Location
 from inventory import UserInventory
 
 from kivy.app import App
@@ -9,7 +9,7 @@ class User:
     def __init__(self, username):
         self.username = username
         self.character = None
-        self.location = None
+        self.loc = None
         self.subloc = None
         self.pos = "center"
         self.current_sprite = None
@@ -21,10 +21,12 @@ class User:
         self.inventory = UserInventory(self)
         self.has_choice_popup = False
 
-    def set_from_msg(self, location, sublocation, position, sprite, character):
-        self.set_loc(location, True)
-        if self.location is not None:
-            self.set_subloc(self.location.get_sub(sublocation))
+    def set_from_msg(self, loc, sublocation, position, sprite, character):
+        self.set_loc(loc, True)
+        if self.loc is not None:
+            subs = Location.load(self.loc)
+            if sublocation is not None and sublocation in subs:
+                self.set_subloc(self.loc.get_sub(sublocation))
             self.set_pos(position)
         self.set_current_sprite(sprite)
         self.character = characters.get(character)
@@ -74,11 +76,11 @@ class User:
         if from_string:
             locations = location_manager.get_locations()
             if loc in locations:
-                self.location = locations[loc]
+                self.loc = locations[loc]
             else:
-                self.location = None
+                self.loc= None
         else:
-            self.location = loc
+            self.loc = loc
 
     def set_subloc(self, subloc):
         self.prev_subloc = self.subloc
@@ -110,7 +112,7 @@ class User:
         return self.character
 
     def get_loc(self):
-        return self.location
+        return self.loc
 
     def get_subloc(self):
         return self.subloc

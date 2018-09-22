@@ -80,6 +80,7 @@ class Location:
         self.sublocations = {self.strip_ext(file):
                              SubLocation(self.strip_ext(file),
                                          self.path+file) for file in os.listdir(self.path)}
+        return self.sublocations
 
     def strip_ext(self, name):
         # Strips extension from sublocation names
