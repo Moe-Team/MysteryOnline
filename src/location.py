@@ -75,6 +75,7 @@ class Location:
         self.name = name
         self.path = "{0}/{1}/".format(directory, self.name)
         self.sublocations = {}
+        self.placeholder_subloc = SubLocation('Missingno',  "misc_img/Missingno.jpg")
 
     def load(self):
         self.sublocations = {self.strip_ext(file):
@@ -90,11 +91,7 @@ class Location:
         return sorted(list(self.sublocations.keys()))
 
     def get_sub(self, name):
-        if name != 'Missingno':
-            return self.sublocations[name]
-        else:
-            missing_no = SubLocation('Missingno',  "misc_img/Missingno.jpg")
-            return missing_no
+        return self.sublocations[name]
 
     def get_first_sub(self):
         return self.list_sub()[0]

@@ -27,7 +27,7 @@ class User:
             try:
                  self.set_subloc(self.location.get_sub(sublocation))
             except KeyError:
-                self.set_subloc(self.location.get_sub('Missingno'))
+                self.set_subloc(self.location.placeholder_subloc)
             self.set_pos(position)
         self.set_current_sprite(sprite)
         self.character = characters.get(character)
