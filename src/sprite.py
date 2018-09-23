@@ -158,7 +158,7 @@ class SpriteSettings(BoxLayout):
 
     def create_pos_drop(self):
         self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30))
-        for pos in ('Center', 'Right', 'Left'):
+        for pos in ('center', 'right', 'left'):
             btn = Button(text=pos, size_hint=(None, None), size=(100, 30))
             btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
             self.pos_drop.add_widget(btn)
