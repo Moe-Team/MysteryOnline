@@ -80,7 +80,6 @@ class Location:
         self.sublocations = {self.strip_ext(file):
                              SubLocation(self.strip_ext(file),
                                          self.path+file) for file in os.listdir(self.path)}
-        return self.sublocations
 
     def strip_ext(self, name):
         # Strips extension from sublocation names
@@ -91,7 +90,11 @@ class Location:
         return sorted(list(self.sublocations.keys()))
 
     def get_sub(self, name):
-        return self.sublocations[name]
+        if name != 'Missingno':
+            return self.sublocations[name]
+        else:
+            missing_no = SubLocation('Missingno',  "misc_img/Missingno.jpg")
+            return missing_no
 
     def get_first_sub(self):
         return self.list_sub()[0]

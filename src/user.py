@@ -1,5 +1,5 @@
 from character import characters
-from location import location_manager, Location
+from location import location_manager
 from inventory import UserInventory
 
 from kivy.app import App
@@ -24,9 +24,10 @@ class User:
     def set_from_msg(self, location, sublocation, position, sprite, character):
         self.set_loc(location, True)
         if self.location is not None:
-            subs = self.location.load()
-            if sublocation is not None and sublocation in subs:
-                self.set_subloc(self.location.get_sub(sublocation))
+            try:
+                 self.set_subloc(self.location.get_sub(sublocation))
+            except KeyError:
+                self.set_subloc(self.location.get_sub('Missingno'))
             self.set_pos(position)
         self.set_current_sprite(sprite)
         self.character = characters.get(character)
