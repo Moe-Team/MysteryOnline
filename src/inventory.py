@@ -38,10 +38,11 @@ class UserInventory(Popup):
 
     def receive_item(self, name, description, image_link, user):
         item = self.get_item_by_name(name)
-        if item is None:
-            item = Item(name, description, image_link, self, user)
-            self.item_dictionary_logic[name] = item
-            self.item_list.add_widget(item)
+        if item is not None:
+            self.delete_item(name)
+        item = Item(name, description, image_link, self, user)
+        self.item_dictionary_logic[name] = item
+        self.item_list.add_widget(item)
         config = App.get_running_app().config
         v = config.getdefaultint('sound', 'effect_volume', 100)
         self.inv_open_sound.volume = v / 100
