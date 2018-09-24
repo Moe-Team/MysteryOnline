@@ -142,7 +142,6 @@ class IconsLayout(BoxLayout):
         main_scr = App.get_running_app().get_main_screen()
         char = main_scr.user.get_char()
         user_handler = App.get_running_app().get_user_handler()
-        user_handler.get_current_sprite_option()
         sprite_option = user_handler.get_current_sprite_option()
         sprite = char.get_sprite(sprite_name)
         main_scr.sprite_settings.apply_post_processing(sprite, sprite_option)
