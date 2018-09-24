@@ -231,7 +231,7 @@ class SpriteWindow(Widget):
         from character import characters
         sprite = user.get_current_sprite()
         if sprite.is_cg():
-            self.set_cg(sprite)
+            self.set_cg(sprite, user)
             return
         subloc = user.get_subloc()
         pos = user.get_pos()
@@ -271,9 +271,12 @@ class SpriteWindow(Widget):
 
         self.display_sub(subloc)
 
-    def set_cg(self, sprite):
+    def set_cg(self, sprite, user):
         self.sprite_layout.clear_widgets()
         self.sprite_layout.add_widget(self.center_sprite, index=0)
+        option = user.get_sprite_option()
+        main_scr = App.get_running_app().get_main_screen()
+        sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
         self.center_sprite.texture = None
         self.center_sprite.texture = sprite.get_texture()
         self.center_sprite.opacity = 1
