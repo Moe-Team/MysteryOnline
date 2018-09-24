@@ -10,12 +10,16 @@ class SubLocation:
         self.c_users = []
         self.l_users = []
         self.r_users = []
+        self.o_users =[]
 
     def get_img(self):
         return Image(source=self.img_path)
 
     def get_name(self):
         return self.name
+
+    def add_o_user(self, user):
+        self.o_users.append(user)
 
     def add_c_user(self, user):
         self.c_users.append(user)
@@ -34,6 +38,13 @@ class SubLocation:
 
     def get_r_user(self):
         return self.r_users[-1]
+
+    def get_o_user(self):
+        return self.o_users[-1]
+
+    def remove_o_user(self, user):
+        if user in self.c_users:
+            self.o_users.remove(user)
 
     def remove_c_user(self, user):
         if user in self.c_users:

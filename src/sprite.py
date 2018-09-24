@@ -224,6 +224,8 @@ class SpriteWindow(Widget):
                                  pos_hint={'center_x': 0.25, 'y': 0})
         self.right_sprite = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                                   pos_hint={'center_x': 0.75, 'y': 0})
+        self.overlay = Image(opacity=0, size_hint=(None, None), size=(800, 600),
+                                  pos_hint={'center_x': 0.5, 'y': 0})
 
     def set_sprite(self, user):
         sprite = user.get_current_sprite()
@@ -232,24 +234,39 @@ class SpriteWindow(Widget):
             return
         subloc = user.get_subloc()
         pos = user.get_pos()
+        from character import characters
+        char = user.get_char()
+
         self.sprite_layout.clear_widgets()
+        if char is characters['Narrator']:
+            self.sprite_layout.add_widget(self.overlay, index=0)
+            self.sprite_layout.add_widget(self.center_sprite, index=1)
+            self.sprite_layout.add_widget(self.right_sprite, index=3)
+            self.sprite_layout.add_widget(self.left_sprite, index=2)
+            subloc.add_o_user(user)
+            self.display_sub(subloc, user)
+            return
+
         if pos == 'right':
             self.sprite_layout.add_widget(self.center_sprite, index=2)
             self.sprite_layout.add_widget(self.right_sprite, index=0)
             self.sprite_layout.add_widget(self.left_sprite, index=1)
+            self.sprite_layout.add_widget(self.overlay, index=3)
             subloc.add_r_user(user)
         elif pos == 'left':
             self.sprite_layout.add_widget(self.center_sprite, index=1)
             self.sprite_layout.add_widget(self.right_sprite, index=2)
             self.sprite_layout.add_widget(self.left_sprite, index=0)
+            self.sprite_layout.add_widget(self.overlay, index=3)
             subloc.add_l_user(user)
         else:
             self.sprite_layout.add_widget(self.center_sprite, index=0)
             self.sprite_layout.add_widget(self.right_sprite, index=2)
             self.sprite_layout.add_widget(self.left_sprite, index=1)
+            self.sprite_layout.add_widget(self.overlay, index=3)
             subloc.add_c_user(user)
 
-        self.display_sub(subloc)
+        self.display_sub(subloc, user)
 
     def set_cg(self, sprite):
         self.sprite_layout.clear_widgets()
@@ -262,7 +279,17 @@ class SpriteWindow(Widget):
     def set_subloc(self, subloc):
         self.background.texture = subloc.get_img().texture
 
-    def display_sub(self, subloc):
+    def display_sub(self, subloc, user):
+        from character import characters
+        char = user.get_char()
+
+        if char is characters['Narrator']:
+            sprite = user.get_current_sprite()
+            if sprite is not None:
+                self.overlay.texture = sprite.get_texture()
+                self.overlay.opacity = 1
+                self.overlay.size = self.overlay.texture.size
+                return
 
         if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
