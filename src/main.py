@@ -144,7 +144,8 @@ class MysteryOnlineApp(App):
         })
         config.setdefaults('keybindings', {
             'open_character_select': 'ctrl+p',
-            'open_inventory': 'ctrl+i'
+            'open_inventory': 'ctrl+i',
+            'refresh': 'ctrl+r'
         })
 
     def build_settings(self, settings):

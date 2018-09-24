@@ -2,6 +2,7 @@ from kivy.core.window import Window
 from kivy.uix.widget import Widget
 from kivy.app import App
 from character_select import CharacterSelect
+from location import location_manager
 
 
 class KeyboardListener(Widget):
@@ -15,7 +16,8 @@ class KeyboardListener(Widget):
         config = App.get_running_app().config
         self.keyboard_shortcuts = {
             config.get('keybindings', 'open_character_select'): self.open_character_select,
-            config.get('keybindings', 'open_inventory'): self.open_inventory
+            config.get('keybindings', 'open_inventory'): self.open_inventory,
+            config.get('keybindings', 'refresh'): self.refresh
         }
 
     def bind_keyboard(self):
@@ -54,3 +56,7 @@ class KeyboardListener(Widget):
         user.inventory.open()
         toolbar = main_scr.get_toolbar()
         toolbar.text_item_btn.text = "no item"
+
+    def refresh(self):
+        location_manager.is_loaded = False
+        location_manager.get_locations()
