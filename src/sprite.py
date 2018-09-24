@@ -204,6 +204,11 @@ class SpritePreview(Image):
         self.texture = sub.get_img().texture
 
     def set_sprite(self, sprite):
+        user_handler = App.get_running_app().get_user_handler()
+        main_scr = App.get_running_app().get_main_screen()
+        user_handler.get_current_sprite_option()
+        sprite_option = user_handler.get_current_sprite_option()
+        sprite = main_scr.sprite_settings.apply_post_processing(sprite, sprite_option)
         self.center_sprite.texture = None
         self.center_sprite.texture = sprite.get_texture()
         self.center_sprite.opacity = 1
