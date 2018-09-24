@@ -228,15 +228,14 @@ class SpriteWindow(Widget):
                                   pos_hint={'center_x': 0.5, 'y': 0})
 
     def set_sprite(self, user):
+        from character import characters
         sprite = user.get_current_sprite()
         if sprite.is_cg():
             self.set_cg(sprite)
             return
         subloc = user.get_subloc()
         pos = user.get_pos()
-        from character import characters
         char = user.get_char()
-
         self.sprite_layout.clear_widgets()
         if char is characters['Narrator']:
             self.sprite_layout.add_widget(self.overlay, index=0)
@@ -244,7 +243,11 @@ class SpriteWindow(Widget):
             self.sprite_layout.add_widget(self.right_sprite, index=3)
             self.sprite_layout.add_widget(self.left_sprite, index=2)
             subloc.add_o_user(user)
-            self.display_sub(subloc, user)
+            sprite = user.get_current_sprite()
+            if sprite is not None:
+                self.overlay.texture = sprite.get_texture()
+                self.overlay.opacity = 1
+                self.overlay.size = self.overlay.texture.size
             return
 
         if pos == 'right':
@@ -266,7 +269,7 @@ class SpriteWindow(Widget):
             self.sprite_layout.add_widget(self.overlay, index=3)
             subloc.add_c_user(user)
 
-        self.display_sub(subloc, user)
+        self.display_sub(subloc)
 
     def set_cg(self, sprite):
         self.sprite_layout.clear_widgets()
@@ -279,18 +282,7 @@ class SpriteWindow(Widget):
     def set_subloc(self, subloc):
         self.background.texture = subloc.get_img().texture
 
-    def display_sub(self, subloc, user):
-        from character import characters
-        char = user.get_char()
-
-        if char is characters['Narrator']:
-            sprite = user.get_current_sprite()
-            if sprite is not None:
-                self.overlay.texture = sprite.get_texture()
-                self.overlay.opacity = 1
-                self.overlay.size = self.overlay.texture.size
-                return
-
+    def display_sub(self, subloc):
         if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
             option = subloc.get_c_user().get_sprite_option()
