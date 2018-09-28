@@ -1,7 +1,6 @@
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
-from kivy.uix.stacklayout import StackLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
@@ -116,6 +115,8 @@ class SpriteSettings(BoxLayout):
         self.functions = {"flip_h": self.flip_sprite}
         self.activated = []
         self.flipped = []
+        self.pos_drop = None
+        self.subloc_drop = None
         self.create_pos_drop()
         self.create_subloc_drop()
 
@@ -152,7 +153,8 @@ class SpriteSettings(BoxLayout):
     def on_subloc_select_clicked(self):
         subloc_drop_main_btn = Widget(size_hint=(None, None), size=(200, 30))
         self.add_widget(subloc_drop_main_btn)
-        subloc_drop_main_btn.pos = (self.subloc_btn.x + self.subloc_btn.width, self.subloc_btn.y + self.subloc_btn.height)
+        subloc_drop_main_btn.pos = (
+            self.subloc_btn.x + self.subloc_btn.width, self.subloc_btn.y + self.subloc_btn.height)
         self.subloc_drop.open(subloc_drop_main_btn)
         self.remove_widget(subloc_drop_main_btn)
 
@@ -229,7 +231,7 @@ class SpriteWindow(Widget):
         self.right_sprite = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                                   pos_hint={'center_x': 0.75, 'y': 0})
         self.overlay = Image(opacity=0, size_hint=(None, None), size=(800, 600),
-                                  pos_hint={'center_x': 0.5, 'y': 0})
+                             pos_hint={'center_x': 0.5, 'y': 0})
 
     def set_sprite(self, user):
         from character import characters

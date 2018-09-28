@@ -1,16 +1,16 @@
-import user
 from mopopup import MOPopupBase
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.app import App
 
+
 class ChoicePopup(MOPopupBase):
 
     def __init__(self, title_, sender, msg, btn_msg, user, **kwargs):
         self.number_of_buttons = len(btn_msg)
         super().__init__(title_, msg, **kwargs)
-        self.size_popup(size=(400,400))
+        self.size_popup(size=(400, 400))
         self.user_handler = App.get_running_app().get_user_handler()
         self.user = self.user_handler.get_user()
         self.grid_lay = None
@@ -36,7 +36,7 @@ class ChoicePopup(MOPopupBase):
             self.content.add_widget(self.grid_lay)
         self.add_checkbox()
         self.user.set_choice_popup_state(True)
-        super().open(*args, **kwargs)
+        super().open(*args)
 
     def on_dismiss(self):
         self.user.set_choice_popup_state(False)
@@ -50,7 +50,8 @@ class ChoicePopup(MOPopupBase):
     def send_answer(self):
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_choice_return_message(self.username, self.questioner, self.whisper, self.selected_option)
+        message = message_factory.build_choice_return_message(
+            self.username, self.questioner, self.whisper, self.selected_option)
         connection_manager.send_msg(message)
         connection_manager.send_local(message)
            
@@ -102,8 +103,3 @@ class ChoicePopup(MOPopupBase):
 
     def get_selected_option(self):
         return self.selected_option
-        
-            
-        
-            
-            

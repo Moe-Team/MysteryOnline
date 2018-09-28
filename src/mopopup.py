@@ -7,6 +7,7 @@ from kivy.uix.button import Button
 class MOPopupBase(Popup):
     def __init__(self, title_, msg, *args, **kwargs):
         super(MOPopupBase, self).__init__(**kwargs)
+        self.box_lay = None
         self.create_box_layout(msg)
         self.size_popup()
         self.title = title_
@@ -26,7 +27,9 @@ class MOPopupBase(Popup):
         self.content = self.box_lay
         self.content.add_widget(Label(text=msg))
 
-    def add_buttons(self, btn_msg, dismissable, btn_command=[], btn_command_args=[]):
+    def add_buttons(self, btn_msg, dismissable, btn_command=None, btn_command_args=None):
+        btn_command = [] if btn_command is None else btn_command
+        btn_command_args = [] if btn_command_args is None else btn_command_args
         number_of_buttons = len(btn_msg)
         for btn in range(number_of_buttons):
             try:
@@ -39,7 +42,8 @@ class MOPopupBase(Popup):
                 args = btn_command_args[btn]
             self.create_button(btn_msg[btn], dismissable, command, args)        
 
-    def create_button(self, btn_msg, dismissable, btn_command, btn_command_args=[]):
+    def create_button(self, btn_msg, dismissable, btn_command, btn_command_args=None):
+        btn_command_args = [] if btn_command_args is None else btn_command_args
         btn = Button(text=btn_msg, size_hint=(1, 0.4))
         self.content.add_widget(btn)
         btn_command = self.create_command(dismissable, btn_command, btn_command_args)
@@ -67,7 +71,9 @@ class MOPopupBase(Popup):
 
 class MOPopup(MOPopupBase):
 
-    def __init__(self, title_, msg, btn_msg, dismissable=True, btn_command=None, btn_command_args=[], *args, **kwargs):
+    def __init__(self, title_, msg, btn_msg, dismissable=True, btn_command=None,
+                 btn_command_args=None, *args, **kwargs):
+        btn_command_args = [] if btn_command_args is None else btn_command_args
         super().__init__(title_, msg, **kwargs)
         if self.needs_button(dismissable, btn_command):
             self.create_button(btn_msg, dismissable, btn_command, btn_command_args)
