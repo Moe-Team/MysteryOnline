@@ -2,8 +2,9 @@ from kivy.core.window import Window
 from kivy.uix.widget import Widget
 from kivy.app import App
 from character_select import CharacterSelect
+from character import Character, characters
 from location import location_manager
-
+import os
 
 class KeyboardListener(Widget):
 
@@ -60,3 +61,12 @@ class KeyboardListener(Widget):
     def refresh(self):
         location_manager.is_loaded = False
         location_manager.get_locations()
+        characters.clear()
+        char = {name: Character(name) for name in os.listdir("characters") if os.path.isdir("characters/" + name)}
+        characters.update(char)
+        main_scr = App.get_running_app().get_main_screen()
+        toolbar = main_scr.get_toolbar()
+        toolbar.sfx_dropdown.clear_widgets()
+        toolbar.sfx_list = []
+        toolbar.load_sfx()
+        toolbar.create_sfx_dropdown()
