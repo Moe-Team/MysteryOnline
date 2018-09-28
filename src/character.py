@@ -29,7 +29,10 @@ class Character:
         self.nsfw_sprites = {}
         self.spoiler_sprites = {}
         self.cg_sprites = {}
-        self.config = ConfigParser(self.name)
+        try:
+            self.config = ConfigParser(self.name)
+        except ValueError:
+            self.config = ConfigParser.get_configparser(self.name)
         self.read_config()
 
     def read_config(self):
