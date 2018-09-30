@@ -1,0 +1,8 @@
+[
+  {"type": "favcharacterlist",
+  "title": "Favorite your characters",
+  "desc": "Choose which characters you'd like in the favorite category",
+  "section": "other",
+  "key": "fav_characters"
+  }
+]

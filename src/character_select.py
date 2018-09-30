@@ -74,19 +74,16 @@ class CharacterSelect(Popup):
         config = ConfigParser()
         config.read('mysteryonline.ini')
         favorites = config.get('other', 'fav_characters')
-        chars = list(filter(lambda x: x.name in favorites, characters.values()))
-        chars = sorted(chars, key=lambda x: x.name)
-        for c in chars:
-            btn = CharacterToggle(c, group='char')
-            btn.bind(on_press=self.character_chosen)
-            grids['Favorites'].add_widget(btn)
-
         chars = list(filter(lambda x: x.series == g, characters.values()))
         chars = sorted(chars, key=lambda x: x.name)
         for c in chars:
-            btn = CharacterToggle(c, group='char')
-            btn.bind(on_press=self.character_chosen)
-            grids[g].add_widget(btn)
+                btn = CharacterToggle(c, group='char')
+                btn.bind(on_press=self.character_chosen)
+                if c.name in favorites:
+                    fav_btn = CharacterToggle(c, group='char')
+                    fav_btn.bind(on_press=self.character_chosen)
+                    grids['Favorites'].add_widget(fav_btn)
+                grids[g].add_widget(btn)
 
     def create_series_rows(self, grids, s):
         self.main_lay.add_widget(Label(text='Favorites', size_hint=(1, None), height=40))

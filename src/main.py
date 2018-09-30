@@ -156,6 +156,7 @@ class MysteryOnlineApp(App):
         settings.add_json_panel('Display', self.config, 'settings.json')
         settings.add_json_panel('Sound', self.config, 'settings2.json')
         settings.add_json_panel('Other', self.config, 'settings3.json')
+        settings.add_json_panel('Favorites', self.config, 'settings4.json')
 
     def set_user(self, user):
         self.user = user
