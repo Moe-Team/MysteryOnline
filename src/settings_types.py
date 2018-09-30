@@ -5,7 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.metrics import dp
-from character import main_series_list, extra_series_list
+from character import main_series_list, extra_series_list, characters
 
 
 class ScrollablePopup(Popup):
@@ -69,3 +69,11 @@ class SeriesWhitelist(MultiChoiceOptions):
     def _create_options(self):
         self.options = main_series_list[:]
         self.options.extend(extra_series_list[:])
+
+
+class FavCharacterList(MultiChoiceOptions):
+
+    def _create_options(self):
+        self.options = characters
+
+

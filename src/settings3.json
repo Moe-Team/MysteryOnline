@@ -52,5 +52,11 @@
   "desc": "Choose which series you've already read and want to see spoilers from",
   "section": "other",
   "key": "whitelisted_series"
+  },
+  {"type": "favcharacterlist",
+  "title": "Favorite your characters",
+  "desc": "Choose which characters you'd like in the favorite category",
+  "section": "other",
+  "key": "fav_characters"
   }
 ]

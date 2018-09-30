@@ -13,7 +13,6 @@ from kivy.logger import Logger
 
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
-from character import characters
 
 import json
 import youtube_dl
