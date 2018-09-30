@@ -282,14 +282,9 @@ class OOCWindow(TabbedPanel):
                         if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             self.pm_notif.play()
                             ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
-                    try:
-                        char = characters[self.online_users[pm.sender].char_lbl_text]
-                    except ValueError:
-                        char = characters['RedHerring']
                     self.chat.pm_flag = True
                     self.chat.build_conversation(pm.sender)
-                    self.chat.set_current_conversation_user(pm.sender)
-                    self.chat.update_conversation(pm.sender, pm.msg, char)
+                    self.chat.update_conversation(pm.sender, pm.msg)
 
     def mute_user(self, user, btn):
         if user in self.muted_users:

@@ -39,6 +39,7 @@ class PrivateMessageScreen(ModalView):
 
     def open_conversation(self, conversation):
         self.set_current_conversation(conversation)
+        self.pm_body.clear_widgets()
         self.update_pms()
 
     def get_conversation_for_user(self, username):
@@ -80,20 +81,26 @@ class PrivateMessageScreen(ModalView):
         self.conversation_list.add_widget(btn)
         self.current_conversation = conversation
 
-    def update_conversation(self, sender, msg, char):
+    def update_conversation(self, sender, msg):
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
             msg = "[u]{}[/u]".format(msg)
-        avatar = Image(source=char.avatar, size_hint_x=None, width=60)
-        self.pm_body.add_widget(avatar)
         self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
-        self.pm_body.add_widget(Label(text="{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
-                                                                              escape_markup(msg)), markup=True, halign='left'))
-        self.pm_body.parent.scroll_y = 0
+        self.pm_body.clear_widgets()
+        self.update_pms()
 
     def update_pms(self):
-        self.pm_body.clear_widgets()
+        user = App.get_running_app().get_user()
+        main_scr = App.get_running_app().get_main_screen()
+        ooc = main_scr.ooc_window
         for line in self.current_conversation.msgs.splitlines():
-            avatar = Image(source=characters['RedHerring'].avatar, size_hint_x=None, width=60)  # Placeholder until we do better
+            if line.startswith(self.current_conversation.username):
+                try:
+                    avatar = Image(source=characters[ooc.online_users
+                                   [self.current_conversation.username].char_lbl_text].avatar, size_hint_x=None, width=60)  # Placeholder until we do better
+                except ValueError:
+                    avatar = Image(source=characters['RedHerring'].avatar, size_hint_x=None, width=60)
+            else:
+                avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
             self.pm_body.add_widget(avatar)
             self.pm_body.add_widget(Label(text=line, markup=True))
         self.pm_body.parent.scroll_y = 0
