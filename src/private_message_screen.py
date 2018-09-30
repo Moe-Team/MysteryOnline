@@ -93,7 +93,8 @@ class PrivateMessageScreen(ModalView):
         main_scr = App.get_running_app().get_main_screen()
         ooc = main_scr.ooc_window
         for line in self.current_conversation.msgs.splitlines():
-            if line.startswith(self.current_conversation.username):
+            username = line.split(':', 1)[0]
+            if username == self.current_conversation.username:
                 try:
                     avatar = Image(source=characters[ooc.online_users
                                    [self.current_conversation.username].char_lbl_text].avatar, size_hint_x=None, width=60)  # Placeholder until we do better
