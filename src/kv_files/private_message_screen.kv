@@ -10,17 +10,18 @@
 
         BoxLayout:
             orientation: 'vertical'
+            id: pm_body_box
 
             ScrollView:
                 size_hint: 0.8, 1
 
-                Label:
+                GridLayout:
                     id: pm_body
-                    markup: True
-                    text_size: self.width, None
                     size_hint_y: None
-                    height: self.texture_size[1]
-                    padding: 125, 5
+                    row_default_height: 60
+                    spacing: 0,0
+                    size: pm_body_box.width, pm_body_box.height
+                    cols: 2
 
             TextInput:
                 id: pm_input

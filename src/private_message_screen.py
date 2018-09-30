@@ -6,8 +6,10 @@ from kivy.uix.button import Button
 from kivy.uix.modalview import ModalView
 from kivy.utils import escape_markup
 from kivy.uix.image import Image
+from kivy.uix.label import Label
 
 from irc_mo import PrivateConversation
+from character import characters
 
 
 class PrivateMessageScreen(ModalView):
@@ -81,13 +83,19 @@ class PrivateMessageScreen(ModalView):
     def update_conversation(self, sender, msg, char):
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
             msg = "[u]{}[/u]".format(msg)
-        avatar = Image(source=char.avatar, y=self.pm_body.y)
+        avatar = Image(source=char.avatar, size_hint_x=None, width=60)
         self.pm_body.add_widget(avatar)
-        self.current_conversation.msgs += "\n{0}: [ref={2}]{1}[/ref]\n\n".format(sender, msg, escape_markup(msg))
-        self.update_pms()
+        self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
+        self.pm_body.add_widget(Label(text="{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
+                                                                              escape_markup(msg)), markup=True, halign='left'))
+        self.pm_body.parent.scroll_y = 0
 
     def update_pms(self):
-        self.pm_body.text = self.current_conversation.msgs
+        self.pm_body.clear_widgets()
+        for line in self.current_conversation.msgs.splitlines():
+            avatar = Image(source=characters['RedHerring'].avatar, size_hint_x=None, width=60)  # Placeholder until we do better
+            self.pm_body.add_widget(avatar)
+            self.pm_body.add_widget(Label(text=line, markup=True))
         self.pm_body.parent.scroll_y = 0
 
     def refocus_text(self, *args):
@@ -96,7 +104,7 @@ class PrivateMessageScreen(ModalView):
     def send_pm(self):
         sender = self.username
         user = App.get_running_app().get_user()
-        self.avatar = Image(source=user.get_char().avatar, y=self.pm_body.y)
+        self.avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
         if self.current_conversation is not None:
             if self.text_box.text != "":
                     receiver = self.current_conversation.username
@@ -105,9 +113,10 @@ class PrivateMessageScreen(ModalView):
                     if 'www.' in msg or 'http://' in msg or 'https://' in msg:
                         msg = "[u]{}[/u]".format(msg)
                     self.pm_body.add_widget(self.avatar)
-                    self.current_conversation.msgs += "\n{0}: [ref={2}]{1}[/ref]\n\n".format(sender, msg,
+                    self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
                                                                                                 escape_markup(msg))
-                    self.pm_body.text = self.current_conversation.msgs
+                    self.pm_body.add_widget(Label(text="{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
+                                                                                          escape_markup(msg)), markup=True, halign='left'))
                     self.text_box.text = ''
                     self.pm_body.parent.scroll_y = 0
                     Clock.schedule_once(self.refocus_text, 0.1)
