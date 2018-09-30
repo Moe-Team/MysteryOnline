@@ -7,6 +7,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from character import characters, main_series_list
 from math import ceil
+from kivy.config import ConfigParser
 
 
 class CharacterToggle(ToggleButton):
@@ -61,6 +62,7 @@ class CharacterSelect(Popup):
 
         for g in grids:
             self.fill_rows_with_chars(g, grids)
+
         ok_btn = Button(text="OK", size_hint=(1, None), height=40, pos_hint={'y': 0, 'x': 0})
         ok_btn.bind(on_release=self.dismiss)
         self.button_lay.add_widget(ok_btn)
@@ -69,6 +71,16 @@ class CharacterSelect(Popup):
         self.scroll_lay.add_widget(self.main_lay)
 
     def fill_rows_with_chars(self, g, grids):
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
+        favorites = config.get('other', 'fav_characters')
+        chars = list(filter(lambda x: x.name in favorites, characters.values()))
+        chars = sorted(chars, key=lambda x: x.name)
+        for c in chars:
+            btn = CharacterToggle(c, group='char')
+            btn.bind(on_press=self.character_chosen)
+            grids['Favorites'].add_widget(btn)
+
         chars = list(filter(lambda x: x.series == g, characters.values()))
         chars = sorted(chars, key=lambda x: x.name)
         for c in chars:
@@ -77,6 +89,9 @@ class CharacterSelect(Popup):
             grids[g].add_widget(btn)
 
     def create_series_rows(self, grids, s):
+        self.main_lay.add_widget(Label(text='Favorites', size_hint=(1, None), height=40))
+        grids['Favorites'] = GridLayout(cols=7, size_hint=(1, None), height=60)
+        self.main_lay.add_widget(grids['Favorites'])
         temp = list(filter(lambda x: x.series == s, characters.values()))
         mod = ceil(len(temp) / 7)
         self.main_lay.add_widget(Label(text=s, size_hint=(1, None), height=40))
