@@ -92,7 +92,6 @@ src/mysteryonline\.ini
 
 
 src/temp\.mp3
-/src/characters/
 .idea/
 /src/msg_log.txt
 /src/ooc_log.txt
