@@ -205,6 +205,8 @@ class MysteryOnlineApp(App):
         else:
             self.set_graceful_flag(False)
             config.write()
+        App.get_running_app().open_settings()
+        App.get_running_app().close_settings()
         super().on_start()
 
     def was_last_exit_graceful(self):

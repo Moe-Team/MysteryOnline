@@ -99,25 +99,28 @@ class CharacterSelect(Popup):
 
     def character_chosen(self, inst, touch):
         if touch.button == 'right':
-            if inst.collide_point(touch.x, touch.y):
-                favorite = App.get_running_app().get_fav_chars()
-                favorite.options = characters
-                for option in favorite.options:
-                    state = 'down' if option in favorite.value else 'normal'
-                    btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
-                    favorite.buttons.append(btn)
-                for btn in favorite.buttons:
-                    if btn.text == characters[inst.name].name:
-                        if btn.state == 'normal':
-                            btn.state = 'down'
-                        else:
-                            btn.state = 'normal'
-                        favorite.value = [btn.text for btn in favorite.buttons if btn.state == 'down']
-                        favorite.buttons.clear()
+            try:
+                if inst.collide_point(touch.x, touch.y):
+                    favorite = App.get_running_app().get_fav_chars()
+                    favorite.options = characters
+                    for option in favorite.options:
+                        state = 'down' if option in favorite.value else 'normal'
+                        btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
+                        favorite.buttons.append(btn)
+                    for btn in favorite.buttons:
+                        if btn.text == characters[inst.name].name:
+                            if btn.state == 'normal':
+                                btn.state = 'down'
+                            else:
+                                btn.state = 'normal'
+                            favorite.value = [btn.text for btn in favorite.buttons if btn.state == 'down']
+                            favorite.buttons.clear()
 
-                        self.save.is_saved = False
-                        self.main_lay.clear_widgets()
-                        self.fill_with_chars()
+                            self.save.is_saved = False
+                            self.main_lay.clear_widgets()
+                            self.fill_with_chars()
+            except AttributeError:
+                pass
 
         else:
             self.picked_char = inst.char

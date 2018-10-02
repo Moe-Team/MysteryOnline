@@ -74,9 +74,14 @@ class SeriesWhitelist(MultiChoiceOptions):
 
 class FavCharacterList(MultiChoiceOptions):
 
+    def __init__(self, **kwargs):
+        super(SettingItem, self).__init__(**kwargs)
+        self.value = self.panel.get_value(self.section, self.key)
+        App.get_running_app().set_fav_chars(self)
+
     def return_inst(self):
         self._create_options()
-        App.get_running_app().set_fav_chars(self)
+
 
 
     def _create_options(self):
