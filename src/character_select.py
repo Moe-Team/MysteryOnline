@@ -59,6 +59,14 @@ class CharacterSelect(Popup):
             return
 
         grids = {}
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
+        favorites = config.get('other', 'fav_characters')
+        favorites = list(filter(lambda x: x.name in favorites, characters.values()))
+        mod = ceil(len(favorites) / 7)
+        self.main_lay.add_widget(Label(text='Favorites', size_hint=(1, None), height=40))
+        grids['Favorites'] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
+        self.main_lay.add_widget(grids['Favorites'])
         for s in sorted(main_series_list):
             self.create_series_rows(grids, s)
 
@@ -88,9 +96,6 @@ class CharacterSelect(Popup):
                 grids[g].add_widget(btn)
 
     def create_series_rows(self, grids, s):
-        self.main_lay.add_widget(Label(text='Favorites', size_hint=(1, None), height=40))
-        grids['Favorites'] = GridLayout(cols=7, size_hint=(1, None), height=60)
-        self.main_lay.add_widget(grids['Favorites'])
         temp = list(filter(lambda x: x.series == s, characters.values()))
         mod = ceil(len(temp) / 7)
         self.main_lay.add_widget(Label(text=s, size_hint=(1, None), height=40))
