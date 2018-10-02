@@ -5,6 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.metrics import dp
+from kivy.app import App
 from character import main_series_list, extra_series_list, characters
 
 
@@ -73,7 +74,13 @@ class SeriesWhitelist(MultiChoiceOptions):
 
 class FavCharacterList(MultiChoiceOptions):
 
+    def return_inst(self):
+        self._create_options()
+        App.get_running_app().set_fav_chars(self)
+
+
     def _create_options(self):
         self.options = characters
+        App.get_running_app().set_fav_chars(self)
 
 
