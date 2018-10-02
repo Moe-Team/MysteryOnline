@@ -81,15 +81,13 @@ class CharacterSelect(Popup):
         self.scroll_lay.add_widget(self.main_lay)
 
     def fill_rows_with_chars(self, g, grids):
-        config = ConfigParser()
-        config.read('mysteryonline.ini')
-        favorites = config.get('other', 'fav_characters')
         chars = list(filter(lambda x: x.series == g, characters.values()))
         chars = sorted(chars, key=lambda x: x.name)
+        fav = App.get_running_app().get_fav_chars()
         for c in chars:
                 btn = CharacterToggle(c, group='char')
                 btn.bind(on_touch_down=self.character_chosen)
-                if c.name in favorites:
+                if c.name in fav.value:
                     fav_btn = CharacterToggle(c, group='char')
                     fav_btn.bind(on_touch_down=self.character_chosen)
                     grids['Favorites'].add_widget(fav_btn)
@@ -113,7 +111,7 @@ class CharacterSelect(Popup):
                         btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
                         favorite.buttons.append(btn)
                     for btn in favorite.buttons:
-                        if btn.text == characters[inst.name].name:
+                        if btn.text is characters[inst.name].name:
                             if btn.state == 'normal':
                                 btn.state = 'down'
                             else:
