@@ -59,10 +59,8 @@ class CharacterSelect(Popup):
             return
 
         grids = {}
-        config = ConfigParser()
-        config.read('mysteryonline.ini')
-        favorites = config.get('other', 'fav_characters')
-        favorites = list(filter(lambda x: x.name in favorites, characters.values()))
+        fav = App.get_running_app().get_fav_chars()
+        favorites = list(filter(lambda x: x.name in fav.value, characters.values()))
         mod = ceil(len(favorites) / 7)
         self.main_lay.add_widget(Label(text='Favorites', size_hint=(1, None), height=40))
         grids['Favorites'] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
@@ -72,7 +70,6 @@ class CharacterSelect(Popup):
 
         for g in grids:
             self.fill_rows_with_chars(g, grids)
-
         ok_btn = Button(text="OK", size_hint=(1, None), height=40, pos_hint={'y': 0, 'x': 0})
         ok_btn.bind(on_release=self.dismiss)
         self.button_lay.add_widget(ok_btn)

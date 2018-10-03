@@ -205,8 +205,8 @@ class MysteryOnlineApp(App):
         else:
             self.set_graceful_flag(False)
             config.write()
-        App.get_running_app().open_settings()
-        App.get_running_app().close_settings()
+        App.get_running_app().open_settings()   # Necessary to not crash upon setting favorites outside settings
+        App.get_running_app().close_settings()  # Maybe we'll find a better option one day
         super().on_start()
 
     def was_last_exit_graceful(self):

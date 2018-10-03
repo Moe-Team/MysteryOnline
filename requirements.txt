@@ -4,3 +4,4 @@ irc
 pillow
 requests
 youtube_dl
+pywin32

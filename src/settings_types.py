@@ -79,11 +79,6 @@ class FavCharacterList(MultiChoiceOptions):
         self.value = self.panel.get_value(self.section, self.key)
         App.get_running_app().set_fav_chars(self)
 
-    def return_inst(self):
-        self._create_options()
-
-
-
     def _create_options(self):
         self.options = characters
         App.get_running_app().set_fav_chars(self)
