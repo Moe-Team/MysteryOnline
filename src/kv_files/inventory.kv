@@ -1,7 +1,8 @@
 #:kivy 1.10
 <UserInventory>:
     title: "Inventory"
-    size_hint: 1, 1
+    size_hint: 0.5, 0.8
+    background_color: [0, 0, 0, 0]
 
     main_lay: _main_lay
     scroll: _scroll
@@ -43,6 +44,8 @@
     name: _name
     description: _description
     image_link: _image_link
+    size_hint: 0.5, 0.8
+    background_color: [0, 0, 0, 0]
 
     GridLayout:
         rows: 2

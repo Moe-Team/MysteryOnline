@@ -89,7 +89,7 @@ class Item(GridLayout):
         self.image = AsyncImage(source=image_link, pos_hint={'left': 1})
         self.image.bind(on_touch_down=self.open_image)
         self.owner_username = username
-        delete_btn = Button(text="X")
+        delete_btn = Button(text="X", size_hint=[None, 1], width=60)
         delete_btn.bind(on_press=lambda x: self.delete_item())
         self.add_widget(delete_btn)
         self.popup = None
