@@ -31,20 +31,28 @@
 
         BoxLayout:
             size_hint: 1, None
-            height: 40
+            height: 30
 
             Button:
                 text: "Play"
                 on_release: root.on_music_play()
                 size_hint: None, None
-                height: 40
+                height: 30
+                width: 40
 
             Button:
                 text: "Stop"
                 on_release: root.music_stop()
                 size_hint: None, None
-                height: 40
+                height: 30
+                width: 40
 
+        BoxLayout:
+            size_hint: 1, None
+            height: 60
+
+            Label:
+                text: 'Options:'
         BoxLayout:
             size_hint: 1, None
             height: 40
