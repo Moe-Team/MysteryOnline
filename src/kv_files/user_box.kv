@@ -27,7 +27,8 @@
 
     BoxLayout:
         orientation: 'horizontal'
-        size: root.size
+        width: root.width
+        height: lbl.height
         pos: root.pos
 
         Label:
@@ -39,12 +40,13 @@
             id: pm
             text: "PM"
             size_hint_x: 0.2
-            size_hint_y: None
+            size_hint_y: 0.5
             height: lbl.height
+
 
         Button:
             id: mute
             text: "Mute"
-            size_hint_x: 0.2
-            size_hint_y: None
+            size_hint_x: 0.4
+            size_hint_y: 0.5
             height: lbl.height
