@@ -31,21 +31,25 @@
 
         BoxLayout:
             size_hint: 1, None
-            height: 30
+            height: 40
 
             Button:
                 text: "Play"
                 on_release: root.on_music_play()
                 size_hint: None, None
-                height: 30
-                width: 40
+                height: 40
+                width: 100
+
+            Button:
+                height: 40
+                opacity: 0
 
             Button:
                 text: "Stop"
                 on_release: root.music_stop()
                 size_hint: None, None
-                height: 30
-                width: 40
+                height: 40
+                width: 100
 
         BoxLayout:
             size_hint: 1, None
