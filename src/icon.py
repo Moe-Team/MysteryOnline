@@ -100,7 +100,7 @@ class IconsLayout(BoxLayout):
         counter = 0
         g = None
         for i in sorted(icons.textures.keys()):
-            if counter % 48 == 0:
+            if counter % 54 == 0:
                 g = GridLayout(cols=6)
                 self.grids.append(g)
             if config.getdefaultint('other', 'spoiler_mode', 1) and i in spoiler_icons:
