@@ -82,7 +82,9 @@ class Toolbar(BoxLayout):
         fav_sfx = App.get_running_app().get_fav_sfx()
         for sfx in fav_sfx.value:
             if sfx in self.sfx_list:
-                btn = Button(text=sfx, size_hint_y=None, height=40)
+                btn = Button(text=sfx, size_hint_y=None, height=40,
+                             background_normal='atlas://data/images/defaulttheme/button_pressed',
+                             background_down='atlas://data/images/defaulttheme/button')
                 btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
                 self.sfx_dropdown.add_widget(btn)
         for sfx in self.sfx_list:
