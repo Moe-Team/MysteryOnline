@@ -83,11 +83,25 @@ class FavCharacterList(MultiChoiceOptions):
         self.options = characters
         App.get_running_app().set_fav_chars(self)
 
+
 class FavSFXList(MultiChoiceOptions):
+
+    def __init__(self, **kwargs):
+        super(SettingItem, self).__init__(**kwargs)
+        self.value = self.panel.get_value(self.section, self.key)
+        self._create_options()
+        for option in self.options:
+            state = 'down' if option in self.value else 'normal'
+            btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
+            self.buttons.append(btn)
+        self.value = [btn.text for btn in self.buttons if btn.state == 'down']
+        App.get_running_app().set_fav_sfx(self)
+        self.buttons.clear()
 
     def _create_options(self):
         main_scr = App.get_running_app().get_main_screen()
         toolbar = main_scr.get_toolbar()
         self.options = toolbar.sfx_list
+        App.get_running_app().set_fav_sfx(self)
 
 

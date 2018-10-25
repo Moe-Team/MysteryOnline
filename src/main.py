@@ -110,6 +110,7 @@ class MysteryOnlineApp(App):
         self.message_factory = MessageFactory()
         self.keyboard_listener = None
         self.fav_chars = None
+        self.fav_sfx = None
 
     def build(self):
         msm = MainScreenManager()
@@ -173,6 +174,12 @@ class MysteryOnlineApp(App):
 
     def get_fav_chars(self):
         return self.fav_chars
+
+    def set_fav_sfx(self, fav_sfx):
+        self.fav_sfx = fav_sfx
+
+    def get_fav_sfx(self):
+        return self.fav_sfx
 
     def set_main_screen(self, scr):
         self.main_screen = scr

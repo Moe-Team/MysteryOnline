@@ -7,7 +7,7 @@
   },
   {"type": "favsfxlist",
   "title": "Favorite your SFXs",
-  "desc": "Choose which SFX you'd like at the top of the list.",
+  "desc": "Choose which SFX you'd like at the top of the list. (might need to refresh for it to display.)",
   "section": "other",
   "key": "fav_sfx"
   }
