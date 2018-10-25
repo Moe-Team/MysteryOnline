@@ -6,5 +6,11 @@
   "section": "display",
   "key": "resolution",
   "options": ["1920x1080", "1366x768"]
+  },
+  {"type": "bool",
+  "title": "RPG mode",
+  "desc": "Switch between username and character display",
+  "section": "display",
+  "key": "rpg_mode"
   }
 ]
