@@ -4,5 +4,11 @@
   "desc": "Choose which characters you'd like in the favorite category",
   "section": "other",
   "key": "fav_characters"
+  },
+  {"type": "favsfxlist",
+  "title": "Favorite your SFXs",
+  "desc": "Choose which SFX you'd like at the top of the list.",
+  "section": "other",
+  "key": "fav_sfx"
   }
 ]

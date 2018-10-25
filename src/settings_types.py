@@ -83,4 +83,11 @@ class FavCharacterList(MultiChoiceOptions):
         self.options = characters
         App.get_running_app().set_fav_chars(self)
 
+class FavSFXList(MultiChoiceOptions):
+
+    def _create_options(self):
+        main_scr = App.get_running_app().get_main_screen()
+        toolbar = main_scr.get_toolbar()
+        self.options = toolbar.sfx_list
+
 

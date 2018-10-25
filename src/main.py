@@ -33,7 +33,7 @@ from toolbar import Toolbar
 from left_tab import LeftTab
 from irc_mo import MessageFactory
 from keyboard_listener import KeyboardListener
-from settings_types import MultiChoiceOptions, SeriesWhitelist, FavCharacterList
+from settings_types import MultiChoiceOptions, SeriesWhitelist, FavCharacterList, FavSFXList
 
 from mopopup import MOPopup
 from mopopup import MOPopupYN
@@ -140,7 +140,8 @@ class MysteryOnlineApp(App):
             'sprite_tooltips': 1,
             'graceful_exit': 'True',
             'whitelisted_series': [],
-            'fav_characters': []
+            'fav_characters': [],
+            'fav_sfx': []
         })
         config.setdefaults('command_shortcuts', {
             '>': "/color green '>"
@@ -155,6 +156,7 @@ class MysteryOnlineApp(App):
         settings.register_type('multioptions', MultiChoiceOptions)
         settings.register_type('serieswhitelist', SeriesWhitelist)
         settings.register_type('favcharacterlist', FavCharacterList)
+        settings.register_type('favsfxlist', FavSFXList)
         settings.add_json_panel('Display', self.config, 'settings.json')
         settings.add_json_panel('Sound', self.config, 'settings2.json')
         settings.add_json_panel('Other', self.config, 'settings3.json')
