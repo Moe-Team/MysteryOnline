@@ -22,6 +22,14 @@ class CommandUnknownArgumentTypeError(CommandError):
         self.type_ = type_
 
 
+class CommandInvalidArgumentsError(CommandError):
+    pass
+
+
+class CommandNoArgumentsError(CommandError):
+    pass
+
+
 class Command:
 
     def __init__(self, cmd_name, args=None):
@@ -118,7 +126,11 @@ class RegexCommandHandler:
         self.arg_names = arg_names
 
     def parse_command(self, cmd):
+        if cmd is None:
+            raise CommandNoArgumentsError
         found = re.search(self.pattern, cmd)
+        if found is None:
+            raise CommandInvalidArgumentsError
         arg_number = len(self.arg_names)
         args = {}
         for i in range(arg_number):

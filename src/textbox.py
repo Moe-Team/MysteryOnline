@@ -10,7 +10,7 @@ from kivy.resources import resource_find
 from kivy.core.audio.audio_sdl2 import SoundSDL2
 
 import re
-from commands import command_processor
+from commands import command_processor, CommandInvalidArgumentsError, CommandNoArgumentsError
 from mopopup import MOPopup
 
 
@@ -242,8 +242,12 @@ class MainTextInput(TextInput):
         cmd_name = cmd_name[1:]
         try:
             command_processor.process_command(cmd_name, cmd)
-        except:
-            pass  # TODO Better error handling
+        except CommandInvalidArgumentsError:
+            print("Invalid arguments")
+            pass
+        except CommandNoArgumentsError:
+            print("No arguments given")
+            pass
 
     def cursor_offset(self):
         """Fix weird kivy bug when col sometimes isn't an int"""
