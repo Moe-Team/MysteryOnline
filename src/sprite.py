@@ -232,7 +232,6 @@ class SpriteWindow(Widget):
                                   pos_hint={'center_x': 0.5, 'y': 0})
 
     def set_sprite(self, user):
-        from character import characters
         sprite = user.get_current_sprite()
         if sprite.is_cg():
             self.set_cg(sprite, user)
@@ -241,7 +240,7 @@ class SpriteWindow(Widget):
         pos = user.get_pos()
         char = user.get_char()
         self.sprite_layout.clear_widgets()
-        if char is characters['Narrator']:
+        if char.name == 'Narrator':
             self.sprite_layout.add_widget(self.overlay, index=0)
             self.sprite_layout.add_widget(self.center_sprite, index=1)
             self.sprite_layout.add_widget(self.right_sprite, index=3)
