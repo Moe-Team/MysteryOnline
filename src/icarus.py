@@ -1,4 +1,5 @@
 import json
+# noinspection PyUnresolvedReferences
 from os.path import dirname, join
 from kivy.event import EventDispatcher
 from kivy.logger import Logger
@@ -43,6 +44,7 @@ class Icarus(EventDispatcher):
         # must be a name finished by .atlas ?
         filename = self._filename
         assert(filename.endswith('.atlas'))
+        # noinspection PyUnresolvedReferences
         filename = filename.replace('/', os.sep)
 
         Logger.debug('Atlas: Load <%s>' % filename)
@@ -59,6 +61,7 @@ class Icarus(EventDispatcher):
                 ids_found = ids
         if found is None:
             Logger.error('Icarus: ' + image_name + ' not found')
+            # noinspection PyTypeChecker
             self.textures[image_name] = NullSprite(image_name)
             return
         subfilename = join(d, found)

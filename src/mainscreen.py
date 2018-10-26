@@ -11,6 +11,7 @@ from debug_mode import DebugModePopup
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
 
+
 class RightClickMenu(ModalView):
     loc_button = ObjectProperty(None)
     char_select = ObjectProperty(None)
@@ -18,6 +19,7 @@ class RightClickMenu(ModalView):
     def __init__(self, **kwargs):
         super(RightClickMenu, self).__init__(**kwargs)
         self.background_color = [0, 0, 0, 0]
+        self.loc_drop = None
 
     def on_char_select_clicked(self, *args):
         cs = CharacterSelect()
@@ -52,11 +54,11 @@ class RightClickMenu(ModalView):
 
     def on_loc_select_clicked(self, *args):
         self.create_loc_drop()
-        loc_drop_main_button = Button(size_hint=(None,None), size = (200, 30))     #Temporary button just for dropdown
+        loc_drop_main_button = Button(size_hint=(None, None), size=(200, 30))  # Temporary button just for dropdown
         self.get_parent_window().add_widget(loc_drop_main_button)
-        loc_drop_main_button.pos = (self.loc_button.x + self.loc_button.width, self.loc_button.y + self.loc_button.height)
+        loc_drop_main_button.pos = self.loc_button.x + self.loc_button.width, self.loc_button.y + self.loc_button.height
         self.loc_drop.open(loc_drop_main_button)           
-        self.get_parent_window().remove_widget(loc_drop_main_button)               #And the temporary button is gone, R.I.P.
+        self.get_parent_window().remove_widget(loc_drop_main_button)  # And the temporary button is gone, R.I.P.
 
     def create_location_buttons(self, loc_list):
         for l in location_manager.get_locations():
@@ -65,6 +67,7 @@ class RightClickMenu(ModalView):
             loc_list.add_widget(btn)
         loc_list.bind(on_select=self.on_loc_select)
 
+    # noinspection PyTypeChecker
     def create_loc_drop(self):
         self.loc_drop = DropDown(size_hint=(None, None), size=(200, 30))
         self.create_location_buttons(self.loc_drop)

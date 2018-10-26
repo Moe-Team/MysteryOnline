@@ -86,6 +86,7 @@ class MusicTab(TabbedPanelItem):
                     Logger.warning('Music: Invalid URL')
                     root.is_loading_music = False
                     return
+                # TODO too broad an exception
                 except:
                     Logger.warning('Music: Unexpected error occurred while loading music')
                     root.is_loading_music = False

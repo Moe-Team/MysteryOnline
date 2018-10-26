@@ -45,8 +45,8 @@ class Command:
     def get_process(self):
         return self.process
     
-    def execute(self, command_processor):
-        self.process = getattr(command_processor, self.process_name)
+    def execute(self, command_proc):
+        self.process = getattr(command_proc, self.process_name)
         self.process()
         
 
@@ -130,6 +130,7 @@ class RegexCommandHandler:
 class CommandProcessor:
 
     def __init__(self):
+        self.command = None
         self.shortcuts = {}
         self.handlers = {
             'roll': RegexCommandHandler('roll', ['no_of_dice', 'die_type', 'mod'],
@@ -185,11 +186,14 @@ class CommandProcessor:
         username = user_handler.get_user().username
         connection_manager = user_handler.get_connection_manager()
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_choice_message(username, self.command['choice_text'], self.command['options'], self.command['list_of_users'])
+        message = message_factory.build_choice_message(username, self.command['choice_text'],
+                                                       self.command['options'], self.command['list_of_users'])
         connection_manager.send_msg(message)
         connection_manager.send_local(message)
 
+    # noinspection PyTypeChecker
     def move_process(self):
+        # TODO Don't use the class instead of its instance pls, gotta find a way around this
         RightClickMenu.on_loc_select(None, None, self.command['location'])
 
     def startim_process(self):

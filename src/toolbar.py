@@ -3,9 +3,6 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
-from kivy.uix.togglebutton import ToggleButton
-
-from location import location_manager
 
 
 class Toolbar(BoxLayout):

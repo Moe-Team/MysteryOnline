@@ -10,7 +10,7 @@ class SubLocation:
         self.c_users = []
         self.l_users = []
         self.r_users = []
-        self.o_users =[]
+        self.o_users = []
 
     def get_img(self):
         return Image(source=self.img_path)

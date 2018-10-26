@@ -8,7 +8,6 @@ from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from character import characters, main_series_list
 from math import ceil
-from kivy.config import ConfigParser
 
 
 class CharacterToggle(ToggleButton):

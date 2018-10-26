@@ -14,6 +14,7 @@ import set_kivy_config
 # import requests
 # import youtube_dl
 # import json
+# noinspection PyPackageRequirements
 import win32gui
 import win32con
 from kivy.app import App
@@ -111,6 +112,7 @@ class MysteryOnlineApp(App):
         self.keyboard_listener = None
         self.fav_chars = None
         self.fav_sfx = None
+        self.cursor = None
 
     def build(self):
         msm = MainScreenManager()
@@ -215,7 +217,7 @@ class MysteryOnlineApp(App):
         else:
             self.set_graceful_flag(False)
             config.write()
-        App.get_running_app().open_settings()   # Necessary to not crash upon setting favorites outside settings
+        App.get_running_app().open_settings()  # Necessary to not crash upon setting favorites outside settings
         App.get_running_app().close_settings()  # Maybe we'll find a better option one day
         super().on_start()
 
@@ -227,7 +229,7 @@ class MysteryOnlineApp(App):
 
     def show_ungraceful_exit_popup(self):
         popup = MOPopupYN('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
-                                              'Do you wish to send us the error log?', [self.send_error_log, None])
+                                             'Do you wish to send us the error log?', [self.send_error_log, None])
         popup.open()
 
     def set_graceful_flag(self, boolean):
@@ -243,6 +245,7 @@ class MysteryOnlineApp(App):
         def callback(hwnd, window_title):
             if win32gui.GetWindowText(hwnd) == window_title:
                 self.window_handle = hwnd
+
         win32gui.EnumWindows(callback, 'MysteryOnline')
 
     def get_window_handle(self):
@@ -251,6 +254,7 @@ class MysteryOnlineApp(App):
     def load_cursor(self):
         try:
             self.cursor = win32gui.LoadImage(0, 'cursor.cur', win32con.IMAGE_CURSOR, 0, 0, win32con.LR_LOADFROMFILE)
+        # TODO too broad an exception
         except:
             self.cursor = 'default'
 
@@ -261,7 +265,7 @@ class MysteryOnlineApp(App):
         if self.cursor != 'default':
             Window.bind(mouse_pos=self.reset_cursor)
             Window.bind(on_motion=self.reset_cursor)
-            
+
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()

@@ -1,5 +1,4 @@
 import irc.client
-import re
 from mopopup import MOPopup
 from kivy.uix.textinput import TextInput
 from kivy.app import App
@@ -181,7 +180,7 @@ class ChoiceMessage:
             options = 'Options'
         if list_of_users is None:
             list_of_users = 'everyone'
-        self.components = {'text':text, 'options':options, 'list_of_users':list_of_users}
+        self.components = {'text': text, 'options': options, 'list_of_users': list_of_users}
         self.sender = sender
         self.text = text
         self.options = options
@@ -218,7 +217,7 @@ class ChoiceMessage:
 class ChoiceReturnMessage:
 
     def __init__(self, sender, questioner=None, whisper=False, selected_option=None):
-        self.components = {'questioner':questioner, 'whisper':whisper, 'selected_option':selected_option}
+        self.components = {'questioner': questioner, 'whisper': whisper, 'selected_option': selected_option}
         self.questioner = questioner
         self.whisper = whisper
         self.selected_option = selected_option

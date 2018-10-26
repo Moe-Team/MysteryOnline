@@ -7,9 +7,6 @@ from utils import binary_search
 from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.dropdown import DropDown
-from kivy.uix.button import Button
-import os
 
 
 class SectionLabel(Label):
