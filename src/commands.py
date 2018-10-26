@@ -27,7 +27,7 @@ class Command:
     def __init__(self, cmd_name, args=None):
         self.cmd_name = cmd_name
         self.args = args
-        self.process_name = self.cmd_name+'_process'
+        self.process_name = 'process_' + self.cmd_name
         self.process = None
 
     def __getitem__(self, item):
@@ -161,27 +161,27 @@ class CommandProcessor:
     # v Command Processes v #
     #                       #
     
-    def roll_process(self):
+    def process_roll(self):
         dice_game.process_input(self.command)
 
-    def clear_process(self):
+    def process_clear(self):
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
         message_factory = App.get_running_app().get_message_factory()
         message = message_factory.build_clear_message()
         connection_manager.send_msg(message)
         connection_manager.send_local(message)
 
-    def color_process(self):
+    def process_color(self):
         user_handler = App.get_running_app().get_user_handler()
         user = user_handler.get_user()
         user.set_color(self.command['color'])
         user_handler.send_message(self.command['text'])
         user.set_color('normal')
 
-    def refresh_process(self):
+    def process_refresh(self):
         pass
 
-    def choice_process(self):
+    def process_choice(self):
         user_handler = App.get_running_app().get_user_handler()
         username = user_handler.get_user().username
         connection_manager = user_handler.get_connection_manager()
@@ -192,11 +192,11 @@ class CommandProcessor:
         connection_manager.send_local(message)
 
     # noinspection PyTypeChecker
-    def move_process(self):
+    def process_move(self):
         # TODO Don't use the class instead of its instance pls, gotta find a way around this
         RightClickMenu.on_loc_select(None, None, self.command['location'])
 
-    def startim_process(self):
+    def process_startim(self):
         Window.set_title("Sonata's Revenge")
         
     #                       #

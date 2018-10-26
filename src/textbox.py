@@ -218,7 +218,7 @@ class MainTextInput(TextInput):
     def message_is_command(self, msg):
         if msg.startswith('/'):
             words = msg.split(' ')
-            if words[0][1:] in command_processor.commands:
+            if words[0][1:] in command_processor.get_commands():
                 return True
         return False
 
