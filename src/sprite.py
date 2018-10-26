@@ -6,6 +6,7 @@ from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
+from sprite_organizer import SpriteOrganizer
 
 
 class NullSprite:
@@ -223,6 +224,7 @@ class SpriteWindow(Widget):
 
     def __init__(self, **kwargs):
         super(SpriteWindow, self).__init__(**kwargs)
+        self.sprite_organizer = SpriteOrganizer()
         self.center_sprite = Image(allow_stretch=True, keep_ratio=False,
                                    opacity=0, size_hint=(None, None), size=(800, 600),
                                    pos_hint={'center_x': 0.5, 'y': 0})
@@ -232,6 +234,10 @@ class SpriteWindow(Widget):
                                   pos_hint={'center_x': 0.75, 'y': 0})
         self.overlay = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                              pos_hint={'center_x': 0.5, 'y': 0})
+        self.sprite_organizer.add_sprite(self.center_sprite)
+        self.sprite_organizer.add_sprite(self.left_sprite)
+        self.sprite_organizer.add_sprite(self.right_sprite)
+        self.sprite_organizer.add_sprite(self.overlay)
 
     def set_sprite(self, user):
         from character import characters
@@ -257,23 +263,17 @@ class SpriteWindow(Widget):
             return
 
         if pos == 'right':
-            self.sprite_layout.add_widget(self.center_sprite, index=2)
-            self.sprite_layout.add_widget(self.right_sprite, index=0)
-            self.sprite_layout.add_widget(self.left_sprite, index=1)
-            self.sprite_layout.add_widget(self.overlay, index=3)
+            self.sprite_organizer.add_sprite(self.right_sprite)
             subloc.add_r_user(user)
         elif pos == 'left':
-            self.sprite_layout.add_widget(self.center_sprite, index=1)
-            self.sprite_layout.add_widget(self.right_sprite, index=2)
-            self.sprite_layout.add_widget(self.left_sprite, index=0)
-            self.sprite_layout.add_widget(self.overlay, index=3)
+            self.sprite_organizer.add_sprite(self.left_sprite)
             subloc.add_l_user(user)
         else:
-            self.sprite_layout.add_widget(self.center_sprite, index=0)
-            self.sprite_layout.add_widget(self.right_sprite, index=2)
-            self.sprite_layout.add_widget(self.left_sprite, index=1)
-            self.sprite_layout.add_widget(self.overlay, index=3)
+            self.sprite_organizer.add_sprite(self.center_sprite)
             subloc.add_c_user(user)
+
+        for index, organized_sprite in enumerate(self.sprite_organizer.get_sprites()):
+            self.sprite_layout.add_widget(organized_sprite, index=index)
 
         self.display_sub(subloc)
 
