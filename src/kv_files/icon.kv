@@ -2,13 +2,22 @@
 <IconsLayout>:
 
     BoxLayout:
-        size_hint: 1, None
+        size_hint: 0.97, None
         height: 40
 
         Button:
             text: "<"
             on_release: root.prev_page()
+            size_hint: None, None
+            height: 30
+            width: 50
+
+        Button:
+            opacity:0
 
         Button:
             text: ">"
             on_release: root.next_page()
+            size_hint: None, None
+            height: 30
+            width: 50

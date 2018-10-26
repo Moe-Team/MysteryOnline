@@ -103,8 +103,12 @@ class TextBox(Label):
         if self.prev_user is not user or (len(self.text) + len(msg) > 400):
             self.clear_textbox()
         self.prev_user = user
-        char_name = user.get_char().get_display_name()
-        self.char_name.text = char_name
+        config = App.get_running_app().config
+        if config.getint('display', 'rpg_mode') == 1:
+            char_name = user.get_char().get_display_name()
+            self.char_name.text = char_name
+        else:
+            self.char_name.text = user.username
         self.msg = msg
         user.color = color
 

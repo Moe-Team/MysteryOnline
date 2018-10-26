@@ -5,8 +5,11 @@ from kivy.properties import ObjectProperty
 from kivy.uix.button import Button
 from kivy.uix.modalview import ModalView
 from kivy.utils import escape_markup
+from kivy.uix.image import Image
+from kivy.uix.label import Label
 
 from irc_mo import PrivateConversation
+from character import characters
 
 
 class PrivateMessageScreen(ModalView):
@@ -17,6 +20,7 @@ class PrivateMessageScreen(ModalView):
         self.conversations = []
         self.irc = None
         self.username = ''
+        self.avatar = None
         self.current_conversation = None
         self.conversation_list = getattr(self.ids, 'prv_users_list')
         self.text_box = getattr(self.ids, 'pm_input')
@@ -26,6 +30,8 @@ class PrivateMessageScreen(ModalView):
 
     def ready(self):
         main_scr = App.get_running_app().get_main_screen()
+        user = App.get_running_app().get_user()
+        self.avatar = user.get_char().avatar
         self.pm_body.bind(on_ref_press=main_scr.log_window.copy_text)
 
     def set_current_conversation(self, conversation):
@@ -33,6 +39,7 @@ class PrivateMessageScreen(ModalView):
 
     def open_conversation(self, conversation):
         self.set_current_conversation(conversation)
+        self.pm_body.clear_widgets()
         self.update_pms()
 
     def get_conversation_for_user(self, username):
@@ -78,10 +85,25 @@ class PrivateMessageScreen(ModalView):
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
             msg = "[u]{}[/u]".format(msg)
         self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
+        self.pm_body.clear_widgets()
         self.update_pms()
 
     def update_pms(self):
-        self.pm_body.text = self.current_conversation.msgs
+        user = App.get_running_app().get_user()
+        main_scr = App.get_running_app().get_main_screen()
+        ooc = main_scr.ooc_window
+        for line in self.current_conversation.msgs.splitlines():
+            username = line.split(':', 1)[0]
+            if username == self.current_conversation.username:
+                try:
+                    avatar = Image(source=characters[ooc.online_users
+                                   [self.current_conversation.username].char_lbl_text].avatar, size_hint_x=None, width=60)  # Placeholder until we do better
+                except ValueError:
+                    avatar = Image(source=characters['RedHerring'].avatar, size_hint_x=None, width=60)
+            else:
+                avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
+            self.pm_body.add_widget(avatar)
+            self.pm_body.add_widget(Label(text=line, markup=True))
         self.pm_body.parent.scroll_y = 0
 
     def refocus_text(self, *args):
@@ -89,6 +111,8 @@ class PrivateMessageScreen(ModalView):
 
     def send_pm(self):
         sender = self.username
+        user = App.get_running_app().get_user()
+        self.avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
         if self.current_conversation is not None:
             if self.text_box.text != "":
                     receiver = self.current_conversation.username
@@ -96,9 +120,11 @@ class PrivateMessageScreen(ModalView):
                     msg = self.text_box.text
                     if 'www.' in msg or 'http://' in msg or 'https://' in msg:
                         msg = "[u]{}[/u]".format(msg)
+                    self.pm_body.add_widget(self.avatar)
                     self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
-                                                                                         escape_markup(msg))
-                    self.pm_body.text = self.current_conversation.msgs
+                                                                                                escape_markup(msg))
+                    self.pm_body.add_widget(Label(text="{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
+                                                                                          escape_markup(msg)), markup=True, halign='left'))
                     self.text_box.text = ''
                     self.pm_body.parent.scroll_y = 0
                     Clock.schedule_once(self.refocus_text, 0.1)

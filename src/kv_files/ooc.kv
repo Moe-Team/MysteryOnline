@@ -38,13 +38,25 @@
                 on_release: root.on_music_play()
                 size_hint: None, None
                 height: 40
+                width: 100
+
+            Button:
+                height: 40
+                opacity: 0
 
             Button:
                 text: "Stop"
                 on_release: root.music_stop()
                 size_hint: None, None
                 height: 40
+                width: 100
 
+        BoxLayout:
+            size_hint: 1, None
+            height: 60
+
+            Label:
+                text: 'Options:'
         BoxLayout:
             size_hint: 1, None
             height: 40

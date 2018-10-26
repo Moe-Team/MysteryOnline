@@ -37,28 +37,28 @@
             size_hint: None, None
             x: sprite_window.right + 5
             top: sprite_window.top
-            size: 250, 300
+            size: 240, 300
 
         OOCWindow:
             id: ooc_window
             size_hint: None, None
-            size: 250, 330
+            size: 240, 330
             x: log_window.x
             top: log_window.y -5
 
         IconsLayout:
             id: icons_layout
             size_hint: None, None
-            size: 250, 360
+            size: 250, 410
             right: sprite_window.x - 20
-            y: sprite_window.y -30
+            y: sprite_window.y -60
 
         LeftTab:
             id: left_tab
             y: icons_layout.top + 5
             x: icons_layout.x
             size_hint: None, None
-            size: 800 / 3, 300
+            size: 800 / 3, 280
 
         Toolbar:
             id: toolbar
@@ -84,7 +84,8 @@
     loc_button: loc_select
     char_select: char_select
     size_hint: None, None
-    size: 105, 300
+    size: 140, 180
+    padding: 20, 20
 
     BoxLayout:
         orientation: 'vertical'

@@ -33,7 +33,7 @@ from toolbar import Toolbar
 from left_tab import LeftTab
 from irc_mo import MessageFactory
 from keyboard_listener import KeyboardListener
-from settings_types import MultiChoiceOptions, SeriesWhitelist
+from settings_types import MultiChoiceOptions, SeriesWhitelist, FavCharacterList, FavSFXList
 
 from mopopup import MOPopup
 from mopopup import MOPopupYN
@@ -109,6 +109,8 @@ class MysteryOnlineApp(App):
         self.user_handler = None
         self.message_factory = MessageFactory()
         self.keyboard_listener = None
+        self.fav_chars = None
+        self.fav_sfx = None
 
     def build(self):
         msm = MainScreenManager()
@@ -119,6 +121,7 @@ class MysteryOnlineApp(App):
     def build_config(self, config):
         config.setdefaults('display', {
             'resolution': '1920x1080',
+            'rpg_mode': 0,
         })
         config.setdefaults('sound', {
             'blip_volume': 100,
@@ -137,7 +140,9 @@ class MysteryOnlineApp(App):
             'spoiler_mode': 1,
             'sprite_tooltips': 1,
             'graceful_exit': 'True',
-            'whitelisted_series': []
+            'whitelisted_series': [],
+            'fav_characters': [],
+            'fav_sfx': []
         })
         config.setdefaults('command_shortcuts', {
             '>': "/color green '>"
@@ -151,15 +156,30 @@ class MysteryOnlineApp(App):
     def build_settings(self, settings):
         settings.register_type('multioptions', MultiChoiceOptions)
         settings.register_type('serieswhitelist', SeriesWhitelist)
+        settings.register_type('favcharacterlist', FavCharacterList)
+        settings.register_type('favsfxlist', FavSFXList)
         settings.add_json_panel('Display', self.config, 'settings.json')
         settings.add_json_panel('Sound', self.config, 'settings2.json')
         settings.add_json_panel('Other', self.config, 'settings3.json')
+        settings.add_json_panel('Favorites', self.config, 'settings4.json')
 
     def set_user(self, user):
         self.user = user
 
     def get_user(self):
         return self.user
+
+    def set_fav_chars(self, fav_chars):
+        self.fav_chars = fav_chars
+
+    def get_fav_chars(self):
+        return self.fav_chars
+
+    def set_fav_sfx(self, fav_sfx):
+        self.fav_sfx = fav_sfx
+
+    def get_fav_sfx(self):
+        return self.fav_sfx
 
     def set_main_screen(self, scr):
         self.main_screen = scr
@@ -195,6 +215,8 @@ class MysteryOnlineApp(App):
         else:
             self.set_graceful_flag(False)
             config.write()
+        App.get_running_app().open_settings()   # Necessary to not crash upon setting favorites outside settings
+        App.get_running_app().close_settings()  # Maybe we'll find a better option one day
         super().on_start()
 
     def was_last_exit_graceful(self):

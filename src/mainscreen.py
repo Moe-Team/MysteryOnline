@@ -136,6 +136,7 @@ class MainScreen(Screen):
         user_handler.set_current_loc(locations['Hakuryou'])
         self.sprite_settings.update_sub(locations['Hakuryou'])
         self.toolbar.set_user(self.user)
+        self.toolbar.create_sfx_dropdown()
         self.sprite_preview.set_subloc(user_handler.get_current_subloc())
         char = self.user.get_char()
         if char is not None:

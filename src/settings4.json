@@ -1,0 +1,14 @@
+[
+  {"type": "favcharacterlist",
+  "title": "Favorite your characters",
+  "desc": "Choose which characters you'd like in the favorite category",
+  "section": "other",
+  "key": "fav_characters"
+  },
+  {"type": "favsfxlist",
+  "title": "Favorite your SFXs",
+  "desc": "Choose which SFX you'd like at the top of the list. (might need to refresh for it to display.)",
+  "section": "other",
+  "key": "fav_sfx"
+  }
+]

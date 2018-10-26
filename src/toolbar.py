@@ -3,6 +3,7 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
+from kivy.uix.togglebutton import ToggleButton
 
 from location import location_manager
 
@@ -31,8 +32,7 @@ class Toolbar(BoxLayout):
         self.sfx_dropdown = None    
         self.sfx_name = None        
         self.sfx_list = []          
-        self.load_sfx()             
-        self.create_sfx_dropdown() 
+        self.load_sfx()
         self.add_widget(self.sfx_main_btn)
 
     def build_item_drop(self, pos):
@@ -77,12 +77,22 @@ class Toolbar(BoxLayout):
             if file.endswith('wav'):
                 self.sfx_list.append(file)
 
-    def create_sfx_dropdown(self):  
+    def create_sfx_dropdown(self):
         self.sfx_dropdown = DropDown()
+        fav_sfx = App.get_running_app().get_fav_sfx()
+        for sfx in fav_sfx.value:
+            if sfx in self.sfx_list:
+                btn = Button(text=sfx, size_hint_y=None, height=40,
+                             background_normal='atlas://data/images/defaulttheme/button_pressed',
+                             background_down='atlas://data/images/defaulttheme/button')
+                btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
+                self.sfx_dropdown.add_widget(btn)
         for sfx in self.sfx_list:
-            btn = Button(text=sfx, size_hint_y=None, height=40)
-            btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
-            self.sfx_dropdown.add_widget(btn)
+            if sfx not in fav_sfx.value:
+                btn = Button(text=sfx, size_hint_y=None, height=40)
+                btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
+                self.sfx_dropdown.add_widget(btn)
+
         btn = Button(text="None", size_hint_y=None, height=40)
         btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
         self.sfx_main_btn.bind(on_release=self.sfx_dropdown.open)

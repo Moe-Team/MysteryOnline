@@ -6,6 +6,7 @@ from character import Character, characters
 from location import location_manager
 import os
 
+
 class KeyboardListener(Widget):
 
     def __init__(self, **kwargs):
@@ -70,3 +71,4 @@ class KeyboardListener(Widget):
         toolbar.sfx_list = []
         toolbar.load_sfx()
         toolbar.create_sfx_dropdown()
+        main_scr.left_tab.music_list.ready()

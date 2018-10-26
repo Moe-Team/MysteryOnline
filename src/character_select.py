@@ -1,4 +1,5 @@
 from kivy.uix.popup import Popup
+from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.gridlayout import GridLayout
@@ -7,6 +8,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from character import characters, main_series_list
 from math import ceil
+from kivy.config import ConfigParser
 
 
 class CharacterToggle(ToggleButton):
@@ -14,6 +16,7 @@ class CharacterToggle(ToggleButton):
     def __init__(self, char, **kwargs):
         super(CharacterToggle, self).__init__(**kwargs)
         self.char = char
+        self.name = char.name
         self.background_normal = self.char.avatar
         self.size_hint = (None, None)
         self.size = (60, 60)
@@ -56,6 +59,12 @@ class CharacterSelect(Popup):
             return
 
         grids = {}
+        fav = App.get_running_app().get_fav_chars()
+        favorites = list(filter(lambda x: x.name in fav.value, characters.values()))
+        mod = ceil(len(favorites) / 7)
+        self.main_lay.add_widget(Label(text='Favorites', size_hint=(1, None), height=40))
+        grids['Favorites'] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
+        self.main_lay.add_widget(grids['Favorites'])
         for s in sorted(main_series_list):
             self.create_series_rows(grids, s)
 
@@ -71,10 +80,15 @@ class CharacterSelect(Popup):
     def fill_rows_with_chars(self, g, grids):
         chars = list(filter(lambda x: x.series == g, characters.values()))
         chars = sorted(chars, key=lambda x: x.name)
+        fav = App.get_running_app().get_fav_chars()
         for c in chars:
-            btn = CharacterToggle(c, group='char')
-            btn.bind(on_press=self.character_chosen)
-            grids[g].add_widget(btn)
+                btn = CharacterToggle(c, group='char')
+                btn.bind(on_touch_down=self.character_chosen)
+                if c.name in fav.value:
+                    fav_btn = CharacterToggle(c, group='char')
+                    fav_btn.bind(on_touch_down=self.character_chosen)
+                    grids['Favorites'].add_widget(fav_btn)
+                grids[g].add_widget(btn)
 
     def create_series_rows(self, grids, s):
         temp = list(filter(lambda x: x.series == s, characters.values()))
@@ -83,8 +97,33 @@ class CharacterSelect(Popup):
         grids[s] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
         self.main_lay.add_widget(grids[s])
 
-    def character_chosen(self, inst):
-        self.picked_char = inst.char
+    def character_chosen(self, inst, touch):
+        if touch.button == 'right':
+            try:
+                if inst.collide_point(touch.x, touch.y):
+                    favorite = App.get_running_app().get_fav_chars()
+                    favorite.options = characters
+                    for option in favorite.options:
+                        state = 'down' if option in favorite.value else 'normal'
+                        btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
+                        favorite.buttons.append(btn)
+                    for btn in favorite.buttons:
+                        if btn.text is characters[inst.name].name:
+                            if btn.state == 'normal':
+                                btn.state = 'down'
+                            else:
+                                btn.state = 'normal'
+                            favorite.value = [btn.text for btn in favorite.buttons if btn.state == 'down']
+                            favorite.buttons.clear()
+
+                            self.save.is_saved = False
+                            self.main_lay.clear_widgets()
+                            self.fill_with_chars()
+            except AttributeError:
+                pass
+
+        else:
+            self.picked_char = inst.char
 
     def dismiss(self, inst):
         super(CharacterSelect, self).dismiss(animation=False)
