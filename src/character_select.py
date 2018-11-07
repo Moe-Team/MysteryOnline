@@ -45,6 +45,7 @@ class CharacterSelect(Popup):
         self.main_lay = BoxLayout(orientation='vertical', size_hint=(1, None), height=self.height-100)
         self.scroll_lay.add_widget(self.main_lay)
         self.save = CharacterSelectSaved(self.main_lay)
+        self.value = []
         self.fill_with_chars()
 
     def on_size(self, *args):
@@ -61,9 +62,14 @@ class CharacterSelect(Popup):
         fav = App.get_running_app().get_fav_chars()
         favorites = list(filter(lambda x: x.name in fav.value, characters.values()))
         mod = ceil(len(favorites) / 7)
-        self.main_lay.add_widget(Label(text='Favorites', size_hint=(1, None), height=40))
-        grids['Favorites'] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
-        self.main_lay.add_widget(grids['Favorites'])
+        fav_button = ToggleButton(text='Favorites', size_hint=(1, None), height=25)
+        if fav_button.text in self.value:
+            fav_button.state = 'down'
+        fav_button.bind(state=self.series_dropdown)
+        self.main_lay.add_widget(fav_button)
+        if fav_button.state is 'down':
+            grids['Favorites'] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
+            self.main_lay.add_widget(grids['Favorites'])
         for s in sorted(main_series_list):
             self.create_series_rows(grids, s)
 
@@ -81,20 +87,40 @@ class CharacterSelect(Popup):
         chars = sorted(chars, key=lambda x: x.name)
         fav = App.get_running_app().get_fav_chars()
         for c in chars:
-                btn = CharacterToggle(c, group='char')
-                btn.bind(on_touch_down=self.character_chosen)
-                if c.name in fav.value:
+                if c.name in fav.value and 'Favorites' in self.value:
                     fav_btn = CharacterToggle(c, group='char')
                     fav_btn.bind(on_touch_down=self.character_chosen)
                     grids['Favorites'].add_widget(fav_btn)
-                grids[g].add_widget(btn)
+                if c.series in self.value:
+                    btn = CharacterToggle(c, group='char')
+                    btn.bind(on_touch_down=self.character_chosen)
+                    grids[g].add_widget(btn)
 
     def create_series_rows(self, grids, s):
         temp = list(filter(lambda x: x.series == s, characters.values()))
         mod = ceil(len(temp) / 7)
-        self.main_lay.add_widget(Label(text=s, size_hint=(1, None), height=40))
-        grids[s] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
+        series = ToggleButton(text=s, size_hint=(1, None), height=25)
+        if series.text in self.value:
+            series.state = 'down'
+        series.bind(state=self.series_dropdown)
+        self.main_lay.add_widget(series)
+        if series.state is 'down':
+            grids[s] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
+        else:
+            grids[s] = GridLayout(cols=7, size_hint=(1, None), height=0)
         self.main_lay.add_widget(grids[s])
+
+    def series_dropdown(self, instance, value):
+        if value is 'down':
+            self.value.append(instance.text)
+        else:
+            try:
+                self.value.remove(instance.text)
+            except AttributeError:
+                pass
+        self.save.is_saved = False
+        self.main_lay.clear_widgets()
+        self.fill_with_chars()
 
     def character_chosen(self, inst, touch):
         if touch.button == 'right':
