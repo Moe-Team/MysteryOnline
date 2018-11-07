@@ -29,10 +29,8 @@ class PrivateMessageScreen(ModalView):
         self.pm_flag = False
 
     def ready(self):
-        main_scr = App.get_running_app().get_main_screen()
         user = App.get_running_app().get_user()
         self.avatar = user.get_char().avatar
-        self.pm_body.bind(on_ref_press=main_scr.log_window.copy_text)
 
     def set_current_conversation(self, conversation):
         self.current_conversation = conversation
@@ -103,7 +101,7 @@ class PrivateMessageScreen(ModalView):
             else:
                 avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
             self.pm_body.add_widget(avatar)
-            self.pm_body.add_widget(Label(text=line, markup=True))
+            self.pm_body.add_widget(Label(text=line, markup=True, on_ref_press=main_scr.log_window.copy_text))
         self.pm_body.parent.scroll_y = 0
 
     def refocus_text(self, *args):
@@ -111,6 +109,7 @@ class PrivateMessageScreen(ModalView):
 
     def send_pm(self):
         sender = self.username
+        main_scr = App.get_running_app().get_main_screen()
         user = App.get_running_app().get_user()
         self.avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
         if self.current_conversation is not None:
@@ -124,7 +123,8 @@ class PrivateMessageScreen(ModalView):
                     self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
                                                                                                 escape_markup(msg))
                     self.pm_body.add_widget(Label(text="{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
-                                                                                          escape_markup(msg)), markup=True, halign='left'))
+                                                                                          escape_markup(msg)), markup=True,
+                                                  on_ref_press=main_scr.log_window.copy_text))
                     self.text_box.text = ''
                     self.pm_body.parent.scroll_y = 0
                     Clock.schedule_once(self.refocus_text, 0.1)
