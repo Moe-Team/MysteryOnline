@@ -3,7 +3,7 @@ from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
+from kivy.config import ConfigParser
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from character import characters, main_series_list
@@ -86,15 +86,22 @@ class CharacterSelect(Popup):
         chars = list(filter(lambda x: x.series == g, characters.values()))
         chars = sorted(chars, key=lambda x: x.name)
         fav = App.get_running_app().get_fav_chars()
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
+        fav_list = str(config.get('other', 'fav_characters').strip('[]'))
+        fav_list = fav_list.replace("'", "")
+        fav_list = fav_list.split(',')
+        fav_list = [x.strip() for x in fav_list]
         for c in chars:
-                if c.name in fav.value and 'Favorites' in self.value:
-                    fav_btn = CharacterToggle(c, group='char')
-                    fav_btn.bind(on_touch_down=self.character_chosen)
-                    grids['Favorites'].add_widget(fav_btn)
-                if c.series in self.value:
-                    btn = CharacterToggle(c, group='char')
-                    btn.bind(on_touch_down=self.character_chosen)
-                    grids[g].add_widget(btn)
+            if c.name in fav_list and c.name in fav.value and 'Favorites' in self.value:
+                fav_btn = CharacterToggle(c, group='char')
+                fav_btn.bind(on_touch_down=self.character_chosen)
+                grids['Favorites'].add_widget(fav_btn)
+            if c.series in self.value:
+                btn = CharacterToggle(c, group='char')
+                btn.bind(on_touch_down=self.character_chosen)
+                grids[g].add_widget(btn)
+        fav_list.clear()
 
     def create_series_rows(self, grids, s):
         temp = list(filter(lambda x: x.series == s, characters.values()))
@@ -128,8 +135,14 @@ class CharacterSelect(Popup):
                 if inst.collide_point(touch.x, touch.y):
                     favorite = App.get_running_app().get_fav_chars()
                     favorite.options = characters
+                    config = ConfigParser()
+                    config.read('mysteryonline.ini')
+                    fav_list = str(config.get('other', 'fav_characters').strip('[]'))
+                    fav_list = fav_list.replace("'", "")
+                    fav_list = fav_list.split(',')
+                    fav_list = [x.strip() for x in fav_list]
                     for option in favorite.options:
-                        state = 'down' if option in favorite.value else 'normal'
+                        state = 'down' if option in favorite.value and option in fav_list else 'normal'
                         btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
                         favorite.buttons.append(btn)
                     for btn in favorite.buttons:
