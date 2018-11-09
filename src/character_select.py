@@ -94,14 +94,22 @@ class CharacterSelect(Popup):
         fav_list = [x.strip() for x in fav_list]
         for c in chars:
             if c.name in fav_list and c.name in fav.value and 'Favorites' in self.value:
-                fav_btn = CharacterToggle(c, group='char')
-                fav_btn.bind(on_touch_down=self.character_chosen)
+                fav_btn = CharacterToggle(c, group='char', size=[60, 60], text_size=[60, 60], valign='center',
+                                          halign='center', markup=True)
+                fav_btn.bind(on_touch_down=self.character_chosen, state=self.lbl_popup)
                 grids['Favorites'].add_widget(fav_btn)
             if c.series in self.value:
-                btn = CharacterToggle(c, group='char')
-                btn.bind(on_touch_down=self.character_chosen)
+                btn = CharacterToggle(c, group='char', size=[60, 60], text_size=[60, 60], valign='center',
+                                      halign='center', markup=True)
+                btn.bind(on_touch_down=self.character_chosen, state=self.lbl_popup)
                 grids[g].add_widget(btn)
         fav_list.clear()
+
+    def lbl_popup(self, inst, value):
+        if value is 'down':
+            inst.text = '[size=9]'+inst.name+'[/size]'
+        else:
+            inst.text = ''
 
     def create_series_rows(self, grids, s):
         temp = list(filter(lambda x: x.series == s, characters.values()))
@@ -123,7 +131,7 @@ class CharacterSelect(Popup):
         else:
             try:
                 self.value.remove(instance.text)
-            except AttributeError:
+            except ValueError:
                 pass
         self.save.is_saved = False
         self.main_lay.clear_widgets()
