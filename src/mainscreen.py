@@ -24,7 +24,6 @@ class RightClickMenu(ModalView):
     def on_char_select_clicked(self, *args):
         cs = CharacterSelect()
         self.dismiss(animation=False)
-        cs.bind(on_dismiss=self.on_picked)
         cs.open()
 
     def on_settings_clicked(self, *args):
@@ -44,13 +43,6 @@ class RightClickMenu(ModalView):
         self.dismiss(animation=False)
         popup.open()
 
-    def on_picked(self, inst):
-        user = App.get_running_app().get_user()
-        if inst.picked_char is not None:
-            user.set_char(inst.picked_char)
-            user.get_char().load()
-            main_scr = App.get_running_app().get_main_screen()
-            main_scr.on_new_char(user.get_char())
 
     def on_loc_select_clicked(self, *args):
         self.create_loc_drop()

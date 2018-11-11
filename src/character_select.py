@@ -1,6 +1,5 @@
 from kivy.uix.popup import Popup
 from kivy.app import App
-from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.gridlayout import GridLayout
 from kivy.config import ConfigParser
@@ -75,9 +74,6 @@ class CharacterSelect(Popup):
 
         for g in grids:
             self.fill_rows_with_chars(g, grids)
-        ok_btn = Button(text="OK", size_hint=(1, None), height=40, pos_hint={'y': 0, 'x': 0})
-        ok_btn.bind(on_release=self.dismiss)
-        self.button_lay.add_widget(ok_btn)
         self.main_lay.bind(minimum_height=self.main_lay.setter('height'))
         self.save.save()
         self.scroll_lay.add_widget(self.main_lay)
@@ -96,18 +92,20 @@ class CharacterSelect(Popup):
             if c.name in fav_list and c.name in fav.value and 'Favorites' in self.value:
                 fav_btn = CharacterToggle(c, group='char', size=[60, 60], text_size=[60, 60], valign='center',
                                           halign='center', markup=True)
-                fav_btn.bind(on_touch_down=self.character_chosen, state=self.lbl_popup)
+                fav_btn.bind(on_touch_down=self.right_click, state=self.character_chosen)
                 grids['Favorites'].add_widget(fav_btn)
             if c.series in self.value:
                 btn = CharacterToggle(c, group='char', size=[60, 60], text_size=[60, 60], valign='center',
                                       halign='center', markup=True)
-                btn.bind(on_touch_down=self.character_chosen, state=self.lbl_popup)
+                btn.bind(on_touch_down=self.right_click, state=self.character_chosen)
                 grids[g].add_widget(btn)
         fav_list.clear()
 
-    def lbl_popup(self, inst, value):
+    def character_chosen(self, inst, value):
         if value is 'down':
             inst.text = '[size=9]'+inst.name+'[/size]'
+            self.picked_char = None
+            self.picked_char = inst.char
         else:
             inst.text = ''
 
@@ -137,7 +135,7 @@ class CharacterSelect(Popup):
         self.main_lay.clear_widgets()
         self.fill_with_chars()
 
-    def character_chosen(self, inst, touch):
+    def right_click(self, inst, touch):
         if touch.button == 'right':
             try:
                 if inst.collide_point(touch.x, touch.y):
@@ -168,8 +166,12 @@ class CharacterSelect(Popup):
             except AttributeError:
                 pass
 
-        else:
-            self.picked_char = inst.char
 
     def dismiss(self, inst):
+        user = App.get_running_app().get_user()
+        if self.picked_char and user is not None:
+            user.set_char(self.picked_char)
+            user.get_char().load()
+            main_scr = App.get_running_app().get_main_screen()
+            main_scr.on_new_char(user.get_char())
         super(CharacterSelect, self).dismiss(animation=False)

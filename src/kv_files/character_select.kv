@@ -19,3 +19,9 @@
             scroll_type: ['content', 'bars']
             bar_width: 5
             id: scroll_lay
+        Button:
+            text: "OK"
+            size_hint: 1, None
+            height: 40
+            pos_hint: {'y': 0, 'x': 0}
+            on_release: root.dismiss(self)
