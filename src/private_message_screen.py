@@ -28,6 +28,11 @@ class PrivateMessageScreen(ModalView):
         self.pm_window_open_flag = False
         self.pm_flag = False
         self.pm_body.bind(minimum_height=self.pm_body.setter('height'))
+        self.bind(on_open=self.open_pms)
+
+    def open_pms(self, instance):
+        self.pm_body.clear_widgets()
+        self.update_pms()
 
     def ready(self):
         user = App.get_running_app().get_user()
@@ -102,7 +107,11 @@ class PrivateMessageScreen(ModalView):
             else:
                 avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
             self.pm_body.add_widget(avatar)
-            self.pm_body.add_widget(Label(text=line, markup=True, on_ref_press=main_scr.log_window.copy_text))
+            line_widget = Label(text=line, markup=True, on_ref_press=main_scr.log_window.copy_text,
+                                size=[self.pm_body.parent.width, 60], text_size=[self.pm_body.parent.width, None],
+                                halign='left', padding_x=60)
+            line_widget.height = line_widget.texture_size[1]
+            self.pm_body.add_widget(line_widget)
         self.pm_body.parent.scroll_y = 0
 
     def refocus_text(self, *args):
@@ -122,10 +131,13 @@ class PrivateMessageScreen(ModalView):
                         msg = "[u]{}[/u]".format(msg)
                     self.pm_body.add_widget(self.avatar)
                     self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
-                                                                                                escape_markup(msg))
-                    self.pm_body.add_widget(Label(text="{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
-                                                                                          escape_markup(msg)), markup=True,
-                                                  on_ref_press=main_scr.log_window.copy_text))
+                                                                                         escape_markup(msg))
+                    line = Label(text="{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg)),
+                                 markup=True, on_ref_press=main_scr.log_window.copy_text,
+                                 size=[self.pm_body.parent.width, 60], text_size=[self.pm_body.parent.width, None],
+                                 halign='left', padding_x=60)
+                    line.height = line.texture_size[1]
+                    self.pm_body.add_widget(line)
                     self.text_box.text = ''
                     self.pm_body.parent.scroll_y = 0
                     Clock.schedule_once(self.refocus_text, 0.1)
