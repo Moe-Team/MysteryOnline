@@ -100,7 +100,7 @@ class TextBox(Label):
 
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
-        if self.prev_user is not user or (len(self.text) + len(msg) > 400):
+        if self.prev_user is not user or (len(self.text) + len(msg) > 240):
             self.clear_textbox()
         self.prev_user = user
         config = App.get_running_app().config
