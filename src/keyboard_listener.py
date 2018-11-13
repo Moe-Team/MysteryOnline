@@ -72,3 +72,14 @@ class KeyboardListener(Widget):
         toolbar.load_sfx()
         toolbar.create_sfx_dropdown()
         main_scr.left_tab.music_list.ready()
+        user = App.get_running_app().get_user()
+        user.get_char().nsfw_sprites = {}
+        user.get_char().spoiler_sprites = {}
+        user.get_char().cg_sprites = {}
+        try:
+            user.get_char().read_config()
+        except AttributeError:
+            pass
+        user.set_char(user.get_char())
+        user.get_char().load()
+        main_scr.on_new_char(user.get_char())
