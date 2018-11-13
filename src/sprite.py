@@ -249,19 +249,10 @@ class SpriteWindow(Widget):
         char = user.get_char()
         self.sprite_layout.clear_widgets()
         if char.name == 'Narrator':
-            self.sprite_layout.add_widget(self.overlay, index=0)
-            self.sprite_layout.add_widget(self.center_sprite, index=1)
-            self.sprite_layout.add_widget(self.right_sprite, index=3)
-            self.sprite_layout.add_widget(self.left_sprite, index=2)
+            self.sprite_organizer.add_sprite(self.overlay)
             subloc.add_o_user(user)
-            sprite = user.get_current_sprite()
-            if sprite is not None:
-                self.overlay.texture = sprite.get_texture()
-                self.overlay.opacity = 1
-                self.overlay.size = self.overlay.texture.size
-            return
 
-        if pos == 'right':
+        elif pos == 'right':
             self.sprite_organizer.add_sprite(self.right_sprite)
             subloc.add_r_user(user)
         elif pos == 'left':
@@ -291,6 +282,19 @@ class SpriteWindow(Widget):
         self.background.texture = subloc.get_img().texture
 
     def display_sub(self, subloc):
+        if subloc.o_users:
+            sprite = subloc.get_o_user().get_current_sprite()
+            option = subloc.get_o_user().get_sprite_option()
+            main_scr = App.get_running_app().get_main_screen()
+            sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
+            if sprite is not None:
+                self.overlay.texture = None
+                self.overlay.texture = sprite.get_texture()
+                self.overlay.opacity = 1
+                self.overlay.size = self.overlay.texture.size
+        else:
+            self.overlay.texture = None
+            self.overlay.opacity = 0
         if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
             option = subloc.get_c_user().get_sprite_option()
