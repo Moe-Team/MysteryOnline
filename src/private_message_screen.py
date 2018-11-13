@@ -27,6 +27,7 @@ class PrivateMessageScreen(ModalView):
         self.pm_close_sound = SoundLoader.load('sounds/general/codecover.wav')
         self.pm_window_open_flag = False
         self.pm_flag = False
+        self.pm_body.bind(minimum_height=self.pm_body.setter('height'))
 
     def ready(self):
         user = App.get_running_app().get_user()

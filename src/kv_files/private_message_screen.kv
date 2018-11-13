@@ -18,9 +18,10 @@
                 GridLayout:
                     id: pm_body
                     size_hint_y: None
-                    row_default_height: 60
+                    row_default_height: '60'
+                    row_force_default: True
+                    height: root.height
                     spacing: 0,0
-                    size: pm_body_box.width, pm_body_box.height
                     cols: 2
 
             TextInput:
