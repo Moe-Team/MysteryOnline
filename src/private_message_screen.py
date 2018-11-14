@@ -84,6 +84,8 @@ class PrivateMessageScreen(ModalView):
         btn.bind(on_press=lambda x: self.open_conversation(conversation))
         self.conversation_list.add_widget(btn)
         self.current_conversation = conversation
+        self.pm_body.clear_widgets()
+        self.update_pms()
 
     def update_conversation(self, sender, msg):
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
