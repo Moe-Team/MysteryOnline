@@ -2,8 +2,9 @@
 <PrivateMessageScreen>:
     prv_users_scroll: prv_users_scroll
     pm_body: pm_body
-    size_hint: 0.8, 0.8
+    size_hint: 0.5, 0.8
     padding: 10, 10
+    background_color: [0, 0, 0, 0]
 
     BoxLayout:
         orientation: 'horizontal'
@@ -13,7 +14,7 @@
             id: pm_body_box
 
             ScrollView:
-                size_hint: 0.8, 1
+                size_hint: 1, 1
 
                 GridLayout:
                     id: pm_body
@@ -51,7 +52,8 @@
                     id: prv_users_list
 
             Button:
-                size_hint: 1, 0.2
+                size_hint: 1, None
+                height: 30
                 valign: 'bottom'
                 text: 'Close'
                 on_release: root.prv_chat_close_btn()
