@@ -102,7 +102,7 @@ class PrivateMessageScreen(ModalView):
                 try:
                     avatar = Image(source=characters[ooc.online_users
                                    [self.current_conversation.username].char_lbl_text].avatar, size_hint_x=None, width=60)  # Placeholder until we do better
-                except ValueError:
+                except ValueError or KeyError:
                     avatar = Image(source=characters['RedHerring'].avatar, size_hint_x=None, width=60)
             else:
                 avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
