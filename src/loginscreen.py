@@ -3,7 +3,7 @@ from kivy.app import App
 from kivy.properties import StringProperty
 from mopopup import MOPopup
 from character_select import CharacterSelect
-
+from character import characters
 import re
 
 from irc_mo import IrcConnection, ConnectionManager
@@ -49,7 +49,6 @@ class LoginScreen(Screen):
             user.set_char(self.picked_char)
             user.get_char().load()
         else:
-            from character import characters
             red_herring = characters['RedHerring']
             user.set_char(red_herring)
             user.get_char().load()
