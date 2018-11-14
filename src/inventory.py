@@ -93,6 +93,7 @@ class Item(GridLayout):
         delete_btn.bind(on_press=lambda x: self.delete_item())
         self.add_widget(delete_btn)
         self.popup = None
+        self.description.text_size = [self.description.size[0]*3, self.description.size[1]]
 
     def on_item_pressed(self, inst, touch):
         if self.name.collide_point(*touch.pos):
