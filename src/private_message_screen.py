@@ -21,6 +21,7 @@ class PrivateMessageScreen(ModalView):
         self.irc = None
         self.username = ''
         self.avatar = None
+        self.previous_line = None
         self.current_conversation = None
         self.conversation_list = getattr(self.ids, 'prv_users_list')
         self.text_box = getattr(self.ids, 'pm_input')
@@ -90,7 +91,7 @@ class PrivateMessageScreen(ModalView):
     def update_conversation(self, sender, msg):
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
             msg = "[u]{}[/u]".format(msg)
-        self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
+        self.current_conversation.msgs += "{0}:[ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
         self.pm_body.clear_widgets()
         self.update_pms()
 
@@ -98,6 +99,7 @@ class PrivateMessageScreen(ModalView):
         user = App.get_running_app().get_user()
         main_scr = App.get_running_app().get_main_screen()
         ooc = main_scr.ooc_window
+        self.previous_line = None
         for line in self.current_conversation.msgs.splitlines():
             username = line.split(':', 1)[0]
             if username == self.current_conversation.username:
@@ -108,12 +110,18 @@ class PrivateMessageScreen(ModalView):
                     avatar = Image(source=characters['RedHerring'].avatar, size_hint_x=None, width=60)
             else:
                 avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
+#            if username == self.previous_line:
+#                avatar.color = [0, 0, 0, 0]
             self.pm_body.add_widget(avatar)
-            line_widget = Label(text=line, markup=True, on_ref_press=main_scr.log_window.copy_text,
+            linesplitted = " [u]"+line.split(':', 1)[0]+"[/u]:" + '\n' + line.split(':', 1)[1]
+            line_widget = Label(text=linesplitted, markup=True, on_ref_press=main_scr.log_window.copy_text,
                                 size=[self.pm_body.parent.width, 60], text_size=[self.pm_body.parent.width, None],
-                                halign='left', padding_x=60)
+                                halign='left', valign='top', padding_x=60)
+            if username == self.previous_line:
+                line_widget.text = line.split(':', 1)[1]
             line_widget.height = line_widget.texture_size[1]
             self.pm_body.add_widget(line_widget)
+            self.previous_line = username
         self.pm_body.parent.scroll_y = 0
 
     def refocus_text(self, *args):
@@ -124,6 +132,7 @@ class PrivateMessageScreen(ModalView):
         main_scr = App.get_running_app().get_main_screen()
         user = App.get_running_app().get_user()
         self.avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
+        avatar = self.avatar
         if self.current_conversation is not None:
             if self.text_box.text != "":
                     receiver = self.current_conversation.username
@@ -131,15 +140,19 @@ class PrivateMessageScreen(ModalView):
                     msg = self.text_box.text
                     if 'www.' in msg or 'http://' in msg or 'https://' in msg:
                         msg = "[u]{}[/u]".format(msg)
-                    self.pm_body.add_widget(self.avatar)
                     self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
                                                                                          escape_markup(msg))
-                    line = Label(text="{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg)),
+                    line = Label(text=" [u]{0}[/u]: \n [ref={2}]{1}[/ref]".format(sender, msg, escape_markup(msg)),
                                  markup=True, on_ref_press=main_scr.log_window.copy_text,
                                  size=[self.pm_body.parent.width, 60], text_size=[self.pm_body.parent.width, None],
-                                 halign='left', padding_x=60)
+                                 halign='left', valign='top', padding_x=60)
+                    if self.username == self.previous_line:
+                        line.text = " [ref={2}]{1}[/ref]".format(sender, msg, escape_markup(msg))
+#                        avatar.color = [0, 0, 0, 0]
                     line.height = line.texture_size[1]
+                    self.pm_body.add_widget(avatar)
                     self.pm_body.add_widget(line)
+                    self.previous_line = self.username
                     self.text_box.text = ''
                     self.pm_body.parent.scroll_y = 0
                     Clock.schedule_once(self.refocus_text, 0.1)
