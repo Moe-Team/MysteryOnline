@@ -112,15 +112,23 @@ class PrivateMessageScreen(ModalView):
                 avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
 #            if username == self.previous_line:
 #                avatar.color = [0, 0, 0, 0]
-            self.pm_body.add_widget(avatar)
-            linesplitted = " [u]"+line.split(':', 1)[0]+"[/u]:" + '\n' + line.split(':', 1)[1]
-            line_widget = Label(text=linesplitted, markup=True, on_ref_press=main_scr.log_window.copy_text,
+            line_splitted = " [u]"+line.split(':', 1)[0]+"[/u]:" + '\n' + line.split(':', 1)[1]
+            line_widget = Label(text=line_splitted, markup=True, on_ref_press=main_scr.log_window.copy_text,
                                 size=[self.pm_body.parent.width, 60], text_size=[self.pm_body.parent.width, None],
                                 halign='left', valign='top', padding_x=60)
             if username == self.previous_line:
                 line_widget.text = line.split(':', 1)[1]
             line_widget.height = line_widget.texture_size[1]
+            if len(line_widget.text) > 120:
+                self.pm_body.add_widget(Image(source=characters['RedHerring'].avatar, size_hint_x=None, width=60,
+                                              opacity=0))
+                self.pm_body.add_widget(Label(text=''))
+            self.pm_body.add_widget(avatar)
             self.pm_body.add_widget(line_widget)
+            if len(line_widget.text) > 120:
+                self.pm_body.add_widget(Image(source=characters['RedHerring'].avatar, size_hint_x=None, width=60,
+                                              opacity=0))
+                self.pm_body.add_widget(Label(text=''))
             self.previous_line = username
         self.pm_body.parent.scroll_y = 0
 
@@ -129,12 +137,10 @@ class PrivateMessageScreen(ModalView):
 
     def send_pm(self):
         sender = self.username
-        main_scr = App.get_running_app().get_main_screen()
         user = App.get_running_app().get_user()
         self.avatar = Image(source=user.get_char().avatar, size_hint_x=None, width=60)
-        avatar = self.avatar
         if self.current_conversation is not None:
-            if self.text_box.text != "":
+            if self.text_box.text != "" and len(self.text_box.text) <= 400:
                     receiver = self.current_conversation.username
                     self.irc.send_private_msg(receiver, sender, self.text_box.text)
                     msg = self.text_box.text
@@ -142,17 +148,11 @@ class PrivateMessageScreen(ModalView):
                         msg = "[u]{}[/u]".format(msg)
                     self.current_conversation.msgs += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg,
                                                                                          escape_markup(msg))
-                    line = Label(text=" [u]{0}[/u]: \n [ref={2}]{1}[/ref]".format(sender, msg, escape_markup(msg)),
-                                 markup=True, on_ref_press=main_scr.log_window.copy_text,
-                                 size=[self.pm_body.parent.width, 60], text_size=[self.pm_body.parent.width, None],
-                                 halign='left', valign='top', padding_x=60)
-                    if self.username == self.previous_line:
-                        line.text = " [ref={2}]{1}[/ref]".format(sender, msg, escape_markup(msg))
-#                        avatar.color = [0, 0, 0, 0]
-                    line.height = line.texture_size[1]
-                    self.pm_body.add_widget(avatar)
-                    self.pm_body.add_widget(line)
+                    self.pm_body.clear_widgets()
+                    self.update_pms()
                     self.previous_line = self.username
                     self.text_box.text = ''
-                    self.pm_body.parent.scroll_y = 0
                     Clock.schedule_once(self.refocus_text, 0.1)
+            else:
+                self.text_box.text = ''
+
