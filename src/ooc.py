@@ -255,7 +255,7 @@ class OOCWindow(TabbedPanel):
 
     def open_private_msg_screen(self, username, pm):  # Opens the PM window
         self.chat.pm_window_open_flag = True
-        pm.background_color = (1, 1, 1, 1)
+        pm.background_normal = 'atlas://data/images/defaulttheme/button'
         self.chat.build_conversation(username)
         self.chat.set_current_conversation_user(username)
         self.chat.open()
@@ -277,7 +277,7 @@ class OOCWindow(TabbedPanel):
                     if not self.chat.pm_window_open_flag:
                         for x in range(len(self.online_users)):
                             if pm.sender == self.pm_buttons[x].id:
-                                self.pm_buttons[x].background_color = (0, 178, 170, 0.5)
+                                self.pm_buttons[x].background_normal = 'atlas://data/images/defaulttheme/button_pressed'
                                 break
                         if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             self.pm_notif.play()
