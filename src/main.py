@@ -22,6 +22,7 @@ from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.clock import Clock
 from kivy.lang.builder import Builder
+from kivy.core.audio import SoundLoader
 
 from loginscreen import LoginScreen
 from mainscreen import MainScreen
@@ -83,6 +84,11 @@ class MainScreenManager(ScreenManager):
         self.unset_the_r_flag()
         self.popup_.dismiss()
         del self.popup_
+        config = App.get_running_app().config
+        sfx = SoundLoader.load('sounds/general/login.wav')
+        v = config.getdefaultint('sound', 'effect_volume', 100)
+        sfx.volume = v / 100
+        sfx.play()
         self.current = "main"
         self.main_screen.on_ready()
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
