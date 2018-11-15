@@ -93,11 +93,15 @@ class CharacterSelect(Popup):
                 fav_btn = CharacterToggle(c, group='char', size=[60, 60], text_size=[60, 60], valign='center',
                                           halign='center', markup=True)
                 fav_btn.bind(on_touch_down=self.right_click, state=self.character_chosen)
+                if c == self.picked_char:
+                    fav_btn.state = 'down'
                 grids['Favorites'].add_widget(fav_btn)
             if c.series in self.value:
                 btn = CharacterToggle(c, group='char', size=[60, 60], text_size=[60, 60], valign='center',
                                       halign='center', markup=True)
                 btn.bind(on_touch_down=self.right_click, state=self.character_chosen)
+                if c == self.picked_char:
+                    btn.state = 'down'
                 grids[g].add_widget(btn)
         fav_list.clear()
 
@@ -108,6 +112,8 @@ class CharacterSelect(Popup):
             self.picked_char = inst.char
         else:
             inst.text = ''
+            if self.picked_char == inst.char:
+                self.picked_char = None
 
     def create_series_rows(self, grids, s):
         temp = list(filter(lambda x: x.series == s, characters.values()))
