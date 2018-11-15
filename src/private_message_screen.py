@@ -30,6 +30,7 @@ class PrivateMessageScreen(ModalView):
         self.pm_flag = False
         self.pm_body.bind(minimum_height=self.pm_body.setter('height'))
         self.bind(on_open=self.open_pms)
+        self.auto_dismiss = False
 
     def open_pms(self, instance):
         self.pm_body.clear_widgets()
