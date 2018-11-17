@@ -90,6 +90,7 @@ class PrivateMessageScreen(ModalView):
         self.update_pms()
 
     def update_conversation(self, sender, msg):
+        self.set_current_conversation_user(sender)
         if 'www.' in msg or 'http://' in msg or 'https://' in msg:
             msg = "[u]{}[/u]".format(msg)
         self.current_conversation.msgs += "{0}:[ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(msg))
