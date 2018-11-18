@@ -345,14 +345,15 @@ class OOCWindow(TabbedPanel):
         self.ooc_play = True
 
     def send_ooc(self):
-        Clock.schedule_once(self.refocus_text)
-        msg = self.ooc_input.text
-        connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-        message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_ooc_message(msg)
-        connection_manager.send_msg(message)
-        connection_manager.send_local(message)
-        self.ooc_input.text = ""
+        if self.ooc_input.text != "":
+            Clock.schedule_once(self.refocus_text)
+            msg = self.ooc_input.text
+            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+            message_factory = App.get_running_app().get_message_factory()
+            message = message_factory.build_ooc_message(msg)
+            connection_manager.send_msg(message)
+            connection_manager.send_local(message)
+            self.ooc_input.text = ""
 
     def refocus_text(self, *args):
         self.ooc_input.focus = True
