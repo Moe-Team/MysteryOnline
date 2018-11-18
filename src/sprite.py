@@ -85,22 +85,37 @@ class Sprite:
         return self.nsfw
 
     def set_nsfw(self):
-        self.nsfw = True
+        try:
+            self.nsfw = True
+        except AttributeError:
+            pass
 
     def unset_nsfw(self):
-        self.nsfw = False
-
+        try:
+            self.nsfw = False
+        except AttributeError:
+            pass
+        
     def unset_spoiler(self):
-        self.spoiler = False
+        try:
+            self.spoiler = False
+        except AttributeError:
+            pass
 
     def set_spoiler(self):
-        self.spoiler = True
+        try:
+            self.spoiler = True
+        except AttributeError:
+            pass
 
     def is_spoiler(self):
         return self.spoiler
 
     def set_cg(self):
-        self.cg = True
+        try:
+            self.cg = True
+        except AttributeError:
+            pass
 
     def is_cg(self):
         return self.cg
