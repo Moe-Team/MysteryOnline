@@ -52,12 +52,13 @@ class MusicTab(TabbedPanelItem):
         self.hide_title = False
         self.is_loading_music = False
 
-    def on_music_play(self, url=None, send_to_all=True, track_name=None):
+    def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
         if self.is_loading_music:
             return
         self.is_loading_music = True
         main_screen = App.get_running_app().get_main_screen()
-        if self.hide_title:
+        user = App.get_running_app().get_user()
+        if self.hide_title and sender == 'Default':
             track_name = "Hidden track"
         if url is None:
             url = self.url_input.text

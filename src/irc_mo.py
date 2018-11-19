@@ -344,7 +344,7 @@ class MusicMessage:
     def execute(self, connection_manager, main_screen, user_handler):
         username = self.sender
         user = main_screen.users[username]
-        if user.get_log() is not None:
+        if user.get_loc() is not None:
             if user.get_loc().name != user_handler.get_current_loc().name:
                 return
         if self.track_name == "stop":
@@ -352,7 +352,8 @@ class MusicMessage:
             main_screen.ooc_window.music_tab.music_stop(False)
         else:
             main_screen.log_window.add_entry("{} changed the music.\n".format(username))
-            main_screen.ooc_window.music_tab.on_music_play(self.url, send_to_all=False, track_name=self.track_name)
+            main_screen.ooc_window.music_tab.on_music_play(username, self.url, send_to_all=False, track_name=
+                                                           self.track_name)
 
 
 class RollMessage:
