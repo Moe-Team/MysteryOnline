@@ -45,6 +45,8 @@ class DiceGame:
         if type_class is None:
             return None
         result = type_class.calculate_and_format(die_type, no_of_dice, mod_op, mod)
+        if len(result) > 420:
+            result = 'too much'
         return result
 
     def type_is_default(self, die_type):
