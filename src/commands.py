@@ -177,11 +177,15 @@ class CommandProcessor:
         dice_game.process_input(self.command)
 
     def process_clear(self):
-        connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-        message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_clear_message()
-        connection_manager.send_msg(message)
-        connection_manager.send_local(message)
+        main_scr = App.get_running_app().get_main_screen()
+        textbox = main_scr.text_box
+        user = App.get_running_app().get_user()
+        if textbox.prev_user == user and textbox.is_displaying_msg is False:
+            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+            message_factory = App.get_running_app().get_message_factory()
+            message = message_factory.build_clear_message()
+            connection_manager.send_msg(message)
+            connection_manager.send_local(message)
 
     def process_color(self):
         user_handler = App.get_running_app().get_user_handler()
