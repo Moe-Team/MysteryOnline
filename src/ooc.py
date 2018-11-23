@@ -10,6 +10,7 @@ from kivy.uix.label import Label
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.utils import escape_markup
 from kivy.logger import Logger
+from kivy.utils import platform
 
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
@@ -17,7 +18,6 @@ from user_box import UserBox
 import json
 import youtube_dl
 import os
-import ctypes
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -282,7 +282,9 @@ class OOCWindow(TabbedPanel):
                                 break
                         if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             self.pm_notif.play()
-                            ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
+                            if platform == 'win':
+                                import ctypes
+                                ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
                     self.chat.pm_flag = True
                     self.chat.build_conversation(pm.sender)
                     self.chat.update_conversation(pm.sender, pm.msg)

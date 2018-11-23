@@ -4,11 +4,11 @@ from kivy.uix.textinput import TextInput
 from kivy.app import App
 from kivy.logger import Logger
 from kivy.clock import Clock
+from kivy.utils import platform
 
 from character import characters
 from user import User
 from choice import ChoicePopup
-import ctypes
 import re
 
 
@@ -168,7 +168,9 @@ class ChatMessage:
         return False
 
     def notify_user(self):
-        ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
+        if platform == 'win':
+            import ctypes
+            ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
 
 
 class ChoiceMessage:

@@ -15,14 +15,13 @@ import set_kivy_config
 # import youtube_dl
 # import json
 # noinspection PyPackageRequirements
-import win32gui
-import win32con
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.clock import Clock
 from kivy.lang.builder import Builder
 from kivy.core.audio import SoundLoader
+from kivy.utils import platform
 
 from loginscreen import LoginScreen
 from mainscreen import MainScreen
@@ -248,24 +247,35 @@ class MysteryOnlineApp(App):
         command_processor.load_shortcuts()
 
     def find_window_handle(self):
-        def callback(hwnd, window_title):
-            if win32gui.GetWindowText(hwnd) == window_title:
-                self.window_handle = hwnd
+        if platform == 'win':
+            import win32gui
 
-        win32gui.EnumWindows(callback, 'MysteryOnline')
+        def callback(hwnd, window_title):
+            if platform == 'win':
+                if win32gui.GetWindowText(hwnd) == window_title:
+                    self.window_handle = hwnd
+        if platform == 'win':
+            win32gui.EnumWindows(callback, 'MysteryOnline')
 
     def get_window_handle(self):
         return self.window_handle
 
     def load_cursor(self):
-        try:
-            self.cursor = win32gui.LoadImage(0, 'cursor.cur', win32con.IMAGE_CURSOR, 0, 0, win32con.LR_LOADFROMFILE)
+        if platform == 'win':
+            import win32gui
+            import win32con
+            try:
+                self.cursor = win32gui.LoadImage(0, 'cursor.cur', win32con.IMAGE_CURSOR, 0, 0, win32con.LR_LOADFROMFILE)
         # TODO too broad an exception
-        except:
+            except:
+                self.cursor = 'default'
+        else:
             self.cursor = 'default'
 
     def reset_cursor(self, *args):
-        win32gui.SetCursor(self.cursor)
+        if platform == 'win':
+            import win32gui
+            win32gui.SetCursor(self.cursor)
 
     def set_cursor(self):
         if self.cursor != 'default':
