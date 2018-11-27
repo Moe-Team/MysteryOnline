@@ -9,7 +9,7 @@
     BoxLayout:
         orientation: 'vertical'
         size_hint: None, None
-        size: 300, 150
+        size: 300, 200
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
         Label:
@@ -36,6 +36,14 @@
         Button:
             text: "Settings"
             on_release: app.open_settings()
+
+        Button:
+            text: "Help"
+            on_release: root.on_help_clicked()
+
+        Button:
+            text: "Rules"
+            on_release: root.on_rules_clicked()
 
     Label:
         text: "Version 1.0.6"

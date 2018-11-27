@@ -1,7 +1,7 @@
 from kivy.uix.screenmanager import Screen
 from kivy.app import App
 from kivy.properties import StringProperty
-from mopopup import MOPopup
+from mopopup import MOPopup, MOPopupFile
 from character_select import CharacterSelect
 from character import characters
 import re
@@ -73,3 +73,11 @@ class LoginScreen(Screen):
 
     def on_picked(self, inst):
         self.picked_char = inst.picked_char
+
+    def on_help_clicked(self, *args):
+        popup = MOPopupFile('Help', 'help.txt')
+        popup.open()
+
+    def on_rules_clicked(self, *args):
+        popup = MOPopupFile('Rules', 'rules.txt')
+        popup.open()

@@ -2,6 +2,7 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.scrollview import ScrollView
 
 
 class MOPopupBase(Popup):
@@ -89,3 +90,27 @@ class MOPopupYN(MOPopupBase):
             self.add_buttons(btn_msg, dismissable, btn_command, btn_command_args)
         else:
             self.auto_dismiss = False
+
+
+class MOPopupFile(Popup):
+    def __init__(self, title, file, *args, **kwargs):
+        super(MOPopupFile, self).__init__(**kwargs)
+        self.title = title
+        self.size_hint = (None, None)
+        self.size = [400, 600]
+        scroll = ScrollView(size_hint=[1, 1], size=[self.width, self.height - 50])
+        try:
+            file = open(file)
+        except FileNotFoundError:
+            popup = MOPopup("Error", "file not found", "Whatever you say, mate")
+            popup.open()
+            return
+        label = Label(text=file.read(), markup=True, size_hint_y=None,
+                      size=[scroll.width, 600], text_size=[scroll.width, None],
+                      halign='center', valign='top', padding_x=60)
+        label.bind(texture_size=lambda instance, value: setattr(instance, 'height', value[1]))
+        scroll.add_widget(label)
+        box_lay = BoxLayout(orientation='vertical')
+        box_lay.add_widget(scroll)
+        content = box_lay
+        self.add_widget(content)
