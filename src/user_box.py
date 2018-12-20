@@ -22,7 +22,12 @@ class UserBox(Widget):
 
     def set_new_popup(self):
         del self.popup
-        self.popup = UserBoxPopup()
+        size = len(self.char_lbl_text)
+        if len(self.sub_lbl_text) > size:
+            size = len(self.sub_lbl_text)
+        if len(self.loc_lbl_text) > size:
+            size = len(self.loc_lbl_text)
+        self.popup = UserBoxPopup(size=[size*10+15, 100])
         self.popup.char_lbl.text = self.char_lbl_text
         self.popup.sub_lbl.text = self.sub_lbl_text
         self.popup.loc_lbl.text = self.loc_lbl_text
