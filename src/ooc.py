@@ -276,9 +276,9 @@ class OOCWindow(TabbedPanel):
             if pm.sender != self.chat.username:
                 if not self.muted_sender(pm, self.muted_users):
                     if not self.chat.pm_window_open_flag:
-                        for x in range(len(self.online_users)):
-                            if pm.sender == self.pm_buttons[x].id:
-                                self.pm_buttons[x].background_normal = 'atlas://data/images/defaulttheme/button_pressed'
+                        for btn in self.pm_buttons:
+                            if pm.sender == btn.id:
+                                btn.background_normal = 'atlas://data/images/defaulttheme/button_pressed'
                                 break
                         if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             self.pm_notif.play()
