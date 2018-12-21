@@ -82,6 +82,11 @@ class Character:
         try:
             whitelist = config.get('other', 'whitelisted_series')
         except:
+            for key, s in zip(sorted(spoiler_section), series):
+                spoiler_sprites = spoiler_section[key].split(',')
+                spoiler_list.extend(spoiler_sprites)
+            for sprite_name in spoiler_list:
+                self.spoiler_sprites[sprite_name] = None
             return
         whitelist = whitelist.strip('[]')
         whitelist = whitelist.replace("'", "")
