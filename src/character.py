@@ -79,7 +79,10 @@ class Character:
         series.insert(0, self.series)
         config = ConfigParser()
         config.read('mysteryonline.ini')
-        whitelist = config.get('other', 'whitelisted_series')
+        try:
+            whitelist = config.get('other', 'whitelisted_series')
+        except:
+            return
         whitelist = whitelist.strip('[]')
         whitelist = whitelist.replace("'", "")
         whitelist = whitelist.split(',')
