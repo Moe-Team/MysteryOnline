@@ -195,7 +195,7 @@ class CommandProcessor:
         user.set_color('normal')
 
     def process_refresh(self):
-        pass
+        App.get_running_app().keyboard_listener.refresh()
 
     def process_choice(self):
         user_handler = App.get_running_app().get_user_handler()
