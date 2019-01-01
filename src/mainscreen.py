@@ -68,7 +68,10 @@ class RightClickMenu(ModalView):
     def on_loc_select(self, inst, loc_name):
         main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
-        loc = location_manager.get_locations()[loc_name]
+        try:
+            loc = location_manager.get_locations()[loc_name]
+        except KeyError:
+            return
         user_handler.set_current_loc(loc)
         main_scr.sprite_settings.update_sub(loc)
         main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
