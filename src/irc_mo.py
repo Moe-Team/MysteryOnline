@@ -202,6 +202,13 @@ class ChoiceMessage:
         username = user.username
         log = main_screen.log_window
         options = re.split(r'(?<!\\);', self.options)
+        try:
+            user = main_screen.users[self.sender]
+            if user.get_loc() is not None:
+                if user.get_loc().name != user_handler.get_current_loc().name:
+                    return
+        except KeyError:
+            pass
         self.list_of_users = self.list_of_users.replace('@', '')
         if user.has_choice_popup:
             ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
