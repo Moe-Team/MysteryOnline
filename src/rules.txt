@@ -1,1 +1,14 @@
-Here will be rules.
+[u]MO Rules:[/u]
+    
+
+No Spam.
+
+No Doxx.
+
+No Block evading.
+
+NSFW must be properly tagged.
+
+Personal issues shouldn't call for moderation, blocking is an option for a reason.
+
+Don't abuse MO's bugs in order to annoy others or cause them to crash, they will be fixed in the future.
