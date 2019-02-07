@@ -293,6 +293,13 @@ class LocationMessage:
     def execute(self, connection_manager, main_screen, user_handler):
         username = self.sender
         loc = self.location
+        if username not in main_screen.users:
+            try:
+                main_screen.ooc_window.delete_user('@'+username)
+            except AttributeError:
+                pass
+            main_screen.users[username] = User(username)
+            main_screen.ooc_window.add_user(main_screen.users[username])
         user = main_screen.users.get(username, None)
         if user.get_loc() is not None and user.get_loc().get_name() != loc:
             main_screen.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
