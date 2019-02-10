@@ -146,7 +146,10 @@ class ChatMessage:
             user = main_screen.users.get(username, None)
             if user is None:
                 connection_manager.on_join(username)
-            user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+            try:
+                user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+            except AttributeError:
+                return
         if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
             option = int(self.sprite_option)
             user.set_sprite_option(option)
