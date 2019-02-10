@@ -598,6 +598,10 @@ class IrcConnection:
         Logger.info('IRC: {}'.format(server_response))
 
     def on_nicknameinuse(self, c, e):
+        if len(App.get_running_app().get_user().username) < 16:
+            c.nick(App.get_running_app().get_user().username + '_')
+            App.get_running_app().get_user().username += '_'
+            return
         temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")
         text_inp = TextInput(multiline=False, size_hint=(1, 0.4))
         temp_pop.box_lay.add_widget(text_inp)
