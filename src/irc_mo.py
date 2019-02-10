@@ -91,7 +91,7 @@ class MessageFactory:
         elif irc_message.startswith('ch2#'):
             result = ChoiceReturnMessage(username)
         else:
-            raise IncorrectMessageTypeError(irc_message)
+            result = OOCMessage(username)
         result.from_irc(irc_message)
         return result
 
@@ -326,8 +326,11 @@ class OOCMessage:
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 1)
-        self.content = arguments[1]
+        try:
+            arguments = message.split('#', 1)
+            self.content = arguments[1]
+        except IndexError:
+            self.content = message
 
     def execute(self, connection_manager, main_screen, user_handler):
         main_screen.ooc_window.update_ooc(self.content, self.sender)
