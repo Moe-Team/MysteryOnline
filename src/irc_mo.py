@@ -628,6 +628,7 @@ class ConnectionManager:
     def __init__(self, irc_connection):
         self.irc_connection = irc_connection
         self.irc_connection.set_connection_manager(self)
+        self.not_again_flag = False
         self.ping_event = None
         self.disconnected_event = None
         self.reschedule_ping()
@@ -645,13 +646,21 @@ class ConnectionManager:
         self.disconnected_event = Clock.schedule_once(self.get_disconnected, 10)
 
     def get_disconnected(self, *args):
-        self.ping_event.cancel()
-        popup = MOPopup("Disconnected", "Seems you might be disconnected from IRC :(", "RIP")
-        popup.size = 800 / 2, 600 / 3
-        popup.pos_hint = {'top': 1}
-        popup.background_color = [0, 0, 0, 0]
-        popup.open()
-        # TODO Implement reconnection strategy
+        if self.not_again_flag is False:
+            self.ping_event.cancel()
+            popup = MOPopup("Disconnected", "Seems you might be disconnected from IRC :(", "Okay.")
+            popup.create_button('Not again!', False, btn_command=self.set_flag())
+            popup.size = 800 / 2, 600 / 3
+            popup.pos_hint = {'top': 1}
+            popup.background_color = [0, 0, 0, 0]
+            popup.open()
+            # TODO Implement reconnection strategy
+
+    def set_flag(self):
+        if self.not_again_flag is False:
+            self.not_again_flag = True
+        else:
+            self.not_again_flag = False
 
     def close_app(self, *args):
         App.get_running_app().stop()
