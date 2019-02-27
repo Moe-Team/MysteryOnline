@@ -657,10 +657,7 @@ class ConnectionManager:
             # TODO Implement reconnection strategy
 
     def set_flag(self):
-        if self.not_again_flag is False:
-            self.not_again_flag = True
-        else:
-            self.not_again_flag = False
+        self.not_again_flag = not self.not_again_flag
 
     def close_app(self, *args):
         App.get_running_app().stop()
