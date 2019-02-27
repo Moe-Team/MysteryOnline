@@ -84,7 +84,7 @@ class MainScreenManager(ScreenManager):
         self.popup_.dismiss()
         del self.popup_
         config = App.get_running_app().config
-        sfx = SoundLoader.load('sounds/general/login.wav')
+        sfx = SoundLoader.load('sounds/general/login.mp3')
         v = config.getdefaultint('sound', 'effect_volume', 100)
         sfx.volume = v / 100
         sfx.play()
