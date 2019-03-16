@@ -60,7 +60,7 @@ class TextBox(Label):
         self.rainbow_sfx.volume = vol * 0.5
 
     def load_sounds(self):
-        self.blip = self.load_wav('sounds/general/blip.mp3')
+        self.blip = self.load_wav('sounds/general/blip.wav')
         self.red_sfx = self.load_wav('sounds/general/red.mp3')
         self.blue_sfx = self.load_wav('sounds/general/blue.mp3')
         self.gold_sfx = self.load_wav('sounds/general/gold.mp3')
