@@ -60,13 +60,13 @@ class TextBox(Label):
         self.rainbow_sfx.volume = vol * 0.5
 
     def load_sounds(self):
-        self.blip = self.load_wav('sounds/general/blip.wav')
-        self.red_sfx = self.load_wav('sounds/general/red.wav')
-        self.blue_sfx = self.load_wav('sounds/general/blue.wav')
-        self.gold_sfx = self.load_wav('sounds/general/gold.wav')
-        self.green_sfx = self.load_wav('sounds/general/green.wav')
-        self.purple_sfx = self.load_wav('sounds/general/purple.wav')
-        self.rainbow_sfx = self.load_wav('sounds/general/rainbow.wav')
+        self.blip = self.load_wav('sounds/general/blip.mp3')
+        self.red_sfx = self.load_wav('sounds/general/red.mp3')
+        self.blue_sfx = self.load_wav('sounds/general/blue.mp3')
+        self.gold_sfx = self.load_wav('sounds/general/gold.mp3')
+        self.green_sfx = self.load_wav('sounds/general/green.mp3')
+        self.purple_sfx = self.load_wav('sounds/general/purple.mp3')
+        self.rainbow_sfx = self.load_wav('sounds/general/rainbow.mp3')
 
     def load_wav(self, filename):
         """Use SDL2 to load wav files cuz it's better"""

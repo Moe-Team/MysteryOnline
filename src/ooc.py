@@ -154,8 +154,8 @@ class OOCWindow(TabbedPanel):
         super(OOCWindow, self).__init__(**kwargs)
         self.online_users = {}
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
-        self.pm_notif = SoundLoader.load('sounds/general/codeccall.wav')
-        self.pm_open_sound = SoundLoader.load('sounds/general/codecopen.wav')
+        self.pm_notif = SoundLoader.load('sounds/general/codeccall.mp3')
+        self.pm_open_sound = SoundLoader.load('sounds/general/codecopen.mp3')
         self.ooc_play = True
         self.chat = PrivateMessageScreen()
         self.muted_users = []
