@@ -25,7 +25,6 @@ class PrivateMessageScreen(ModalView):
         self.current_conversation = None
         self.conversation_list = getattr(self.ids, 'prv_users_list')
         self.text_box = getattr(self.ids, 'pm_input')
-        self.pm_close_sound = SoundLoader.load('sounds/general/codecover.mp3')
         self.pm_window_open_flag = False
         self.pm_flag = False
         self.pm_body.bind(minimum_height=self.pm_body.setter('height'))
@@ -47,6 +46,12 @@ class PrivateMessageScreen(ModalView):
         self.set_current_conversation(conversation)
         self.pm_body.clear_widgets()
         self.update_pms()
+        main_scr = App.get_running_app().get_main_screen()
+        ooc = main_scr.ooc_window
+        username = conversation.username
+        for pm_button in ooc.pm_buttons:
+            if pm_button.id == username:
+                pm_button.background_normal = 'atlas://data/images/defaulttheme/button'
 
     def get_conversation_for_user(self, username):
         if len(self.conversations) is 0:
@@ -63,10 +68,12 @@ class PrivateMessageScreen(ModalView):
 
     def prv_chat_close_btn(self):
         vol = App.get_running_app().config.getdefaultint('sound', 'effect_volume', 100)
-        self.pm_close_sound.volume = vol / 100
-        self.pm_close_sound.play()
+        pm_close_sound = SoundLoader.load('sounds/general/codecover.mp3')
+        pm_close_sound.volume = vol / 100
+        pm_close_sound.play()
         self.pm_window_open_flag = False
         self.pm_flag = False
+        self.text_box.text = ''
         self.dismiss()
 
     def build_conversation(self, username):
