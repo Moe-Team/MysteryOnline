@@ -1,0 +1,19 @@
+#:kivy 1.10
+<DownloadableCharactersScreen>:
+    main_window: main_window
+    scroll_lay: scroll_lay
+    title: 'Click the buttons to download the character'
+    size_hint: 0.33, 0.7
+    background_color: [0, 0, 0, 0]
+
+    FloatLayout:
+        orientation: 'vertical'
+        id: main_window
+
+        ScrollView:
+            pos_hint: {'top': 1, 'x': 0}
+            size_hint: 1, None
+            height: root.height - 100
+            scroll_type: ['content', 'bars']
+            bar_width: 5
+            id: scroll_lay

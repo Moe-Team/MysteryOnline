@@ -307,6 +307,7 @@ class OOCWindow(TabbedPanel):
     def delete_user(self, username):
         try:
             label = self.online_users[username]
+            #TODO don't delete if it has a PM widnow that wasn't seen
         except KeyError:
             return
         self.user_list.remove_widget(label)

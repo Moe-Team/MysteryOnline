@@ -5,6 +5,7 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 
 from character_select import CharacterSelect
+from DownloadableCharactersScreen import DownloadableCharactersScreen
 from location import location_manager
 from debug_mode import DebugModePopup
 
@@ -43,6 +44,10 @@ class RightClickMenu(ModalView):
         self.dismiss(animation=False)
         popup.open()
 
+    def on_dlc_clicked(self, *args):
+        popup = DownloadableCharactersScreen()
+        self.dismiss(animation=False)
+        popup.open()
 
     def on_loc_select_clicked(self, *args):
         self.create_loc_drop()
