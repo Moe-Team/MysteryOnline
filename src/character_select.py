@@ -178,5 +178,5 @@ class CharacterSelect(Popup):
             user.set_char(self.picked_char)
             user.get_char().load()
             main_scr = App.get_running_app().get_main_screen()
-            main_scr.on_new_char(user.get_char())
+            main_scr.on_new_char(user.get_char(), user.get_char().link)
         super(CharacterSelect, self).dismiss(animation=False)

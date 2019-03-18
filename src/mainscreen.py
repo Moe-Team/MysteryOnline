@@ -11,6 +11,7 @@ from debug_mode import DebugModePopup
 
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
+from character import characters
 
 
 class RightClickMenu(ModalView):
@@ -144,19 +145,19 @@ class MainScreen(Screen):
         self.sprite_preview.set_subloc(user_handler.get_current_subloc())
         char = self.user.get_char()
         if char is not None:
-            self.on_new_char(char)
+            self.on_new_char(char, char.link)
         App.get_running_app().keyboard_listener.bind_keyboard()
 
-    def on_new_char(self, char):
+    def on_new_char(self, char, link):
         self.msg_input.readonly = False
         self.icons_layout.load_icons(char)
         self.set_first_sprite(char)
         user_handler = App.get_running_app().get_user_handler()
         connection_manager = user_handler.get_connection_manager()
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_character_message(char.name)
+        message = message_factory.build_character_message(char.name, char.link)
         connection_manager.send_msg(message)
-        connection_manager.update_char(self, char.name, self.user.username)
+        connection_manager.update_char(self, char.name, self.user.username, char.link)
 
     def set_first_sprite(self, char):
         first_icon = sorted(char.get_icons().textures.keys())[0]
@@ -170,6 +171,9 @@ class MainScreen(Screen):
     def get_toolbar(self):
         return self.toolbar
 
-    def add_character_to_dlc_list(self, char):
-        if char not in self.character_list_for_dlc:
-            self.character_list_for_dlc.append(char)
+    def add_character_to_dlc_list(self, char, link):
+        if char not in self.character_list_for_dlc and link is not None:
+            if char not in characters:
+                char = char+'#'+link
+                if char not in self.character_list_for_dlc:
+                    self.character_list_for_dlc.append(char)

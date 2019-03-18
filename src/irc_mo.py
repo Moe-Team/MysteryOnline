@@ -33,8 +33,8 @@ class MessageFactory:
             result = ChatMessage("default", **kwargs)
         return result
 
-    def build_character_message(self, character):
-        result = CharacterMessage("default", character)
+    def build_character_message(self, character, link=None):
+        result = CharacterMessage("default", character, link)
         return result
 
     def build_location_message(self, location):
@@ -263,20 +263,23 @@ class ChoiceReturnMessage:
 
 class CharacterMessage:
 
-    def __init__(self, sender, character=None):
+    def __init__(self, sender, character=None, link=None):
         self.sender = sender
         self.character = character
+        self.character_link = link
 
     def to_irc(self):
-        msg = "c#{0}".format(self.character)
+        msg = "c#{0}#{1}".format(self.character, self.character_link)
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 1)
+        arguments = message.split('#', 2)
         self.character = arguments[1]
+        if len(arguments) > 2: #TODO remove this after done with tests and having 3 arguments is standar
+            self.character_link = arguments[2]
 
     def execute(self, connection_manager, main_screen, user_handler):
-        connection_manager.update_char(main_screen, self.character, self.sender)
+        connection_manager.update_char(main_screen, self.character, self.sender, self.character_link)
 
 
 class LocationMessage:
@@ -689,7 +692,7 @@ class ConnectionManager:
         message = message_factory.build_music_message(track_name, url)
         self.send_msg(message)
 
-    def update_char(self, main_scr, char, username):
+    def update_char(self, main_scr, char, username, char_link):
         main_scr.ooc_window.update_char(username, char)
         user = App.get_running_app().get_user()
         if username == user.username:
@@ -701,7 +704,7 @@ class ConnectionManager:
             main_scr.users[username].set_char(characters[char])
         main_scr.users[username].get_char().load_without_icons()
         main_scr.users[username].remove()
-
+        main_scr.add_character_to_dlc_list(char, char_link)
 
     def on_join(self, username):
         main_scr = App.get_running_app().get_main_screen()
@@ -720,7 +723,7 @@ class ConnectionManager:
         char = user.get_char()
         if char is not None:
             message_factory = App.get_running_app().get_message_factory()
-            char_msg = message_factory.build_character_message(char.name)
+            char_msg = message_factory.build_character_message(char.name, char.link)
             self.send_msg(char_msg)
 
     def on_disconnect(self, username):
