@@ -44,7 +44,7 @@ class DownloadableCharactersScreen(Popup):
         KeyboardListener.refresh_characters()
         self.dismiss(animation=False)
 
-    def download_all(self,):
+    def download_all(self):
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         for text in dlc_list:
             arguments = text.split('#', 1)
