@@ -1,12 +1,9 @@
 import os
-import shutil
-from zipfile import ZipFile
-
 import requests
+from zipfile import ZipFile
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.app import App
-import tarfile
 
 
 class DownloadableCharactersScreen(Popup):
@@ -27,7 +24,7 @@ class DownloadableCharactersScreen(Popup):
     def download_rar(self, char):
         shared_link = 'https://drive.google.com/open?id=1Uo2Hivdv_-mS1qNUDZKwKnj5SMRY0Mck'
         file_id = shared_link.split('id=')
-        direct_link = 'https://drive.google.com/uc?export=download&id=' +file_id[1]
+        direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
         path = 'characters/'+char+'.zip'
         r = requests.get(direct_link, allow_redirects=True)
         open(path, 'wb').write(r.content)

@@ -649,7 +649,7 @@ class ConnectionManager:
         if self.not_again_flag is False:
             self.ping_event.cancel()
             popup = MOPopup("Disconnected", "Seems you might be disconnected from IRC :(", "Okay.")
-            popup.create_button('Not again!', False, btn_command=self.set_flag())
+            popup.create_button("Don't show this again", False, btn_command=self.set_flag())
             popup.size = 800 / 2, 600 / 3
             popup.pos_hint = {'top': 1}
             popup.background_color = [0, 0, 0, 0]
@@ -701,6 +701,7 @@ class ConnectionManager:
             main_scr.users[username].set_char(characters[char])
         main_scr.users[username].get_char().load_without_icons()
         main_scr.users[username].remove()
+
 
     def on_join(self, username):
         main_scr = App.get_running_app().get_main_screen()

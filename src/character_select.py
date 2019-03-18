@@ -172,7 +172,6 @@ class CharacterSelect(Popup):
             except AttributeError:
                 pass
 
-
     def dismiss(self, inst):
         user = App.get_running_app().get_user()
         if self.picked_char and user is not None:

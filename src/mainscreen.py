@@ -99,6 +99,7 @@ class MainScreen(Screen):
         super(MainScreen, self).__init__(**kwargs)
         self.user = None
         self.users = {}
+        self.character_list_for_dlc = []
         App.get_running_app().set_main_screen(self)
         self.config = App.get_running_app().config
 
@@ -168,3 +169,7 @@ class MainScreen(Screen):
 
     def get_toolbar(self):
         return self.toolbar
+
+    def add_character_to_dlc_list(self, char):
+        if char not in self.character_list_for_dlc:
+            self.character_list_for_dlc.append(char)
