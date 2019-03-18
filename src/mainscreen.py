@@ -145,10 +145,10 @@ class MainScreen(Screen):
         self.sprite_preview.set_subloc(user_handler.get_current_subloc())
         char = self.user.get_char()
         if char is not None:
-            self.on_new_char(char, char.link)
+            self.on_new_char(char)
         App.get_running_app().keyboard_listener.bind_keyboard()
 
-    def on_new_char(self, char, link):
+    def on_new_char(self, char):
         self.msg_input.readonly = False
         self.icons_layout.load_icons(char)
         self.set_first_sprite(char)
@@ -175,5 +175,5 @@ class MainScreen(Screen):
         if char not in self.character_list_for_dlc and link is not None:
             if char not in characters:
                 char = char+'#'+link
-                if char not in self.character_list_for_dlc:
+                if char not in self.character_list_for_dlc and link != 'no link':
                     self.character_list_for_dlc.append(char)

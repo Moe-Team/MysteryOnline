@@ -1,3 +1,4 @@
+import configparser
 import os
 import requests
 from zipfile import ZipFile
@@ -6,6 +7,7 @@ from kivy.uix.popup import Popup
 from kivy.app import App
 from keyboard_listener import KeyboardListener
 from kivy.uix.button import Button
+from kivy.config import ConfigParser
 
 
 class DownloadableCharactersScreen(Popup):
@@ -41,6 +43,7 @@ class DownloadableCharactersScreen(Popup):
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         char = char_name + '#' + link
         dlc_list.remove(char)
+        self.overwrite_ini(char_name, link)
         KeyboardListener.refresh_characters()
         self.dismiss(animation=False)
 
@@ -60,5 +63,15 @@ class DownloadableCharactersScreen(Popup):
             os.remove(path)
             char = arguments[0] + '#' + arguments[1]
             dlc_list.remove(char)
+            self.overwrite_ini(arguments[0], arguments[1])
             KeyboardListener.refresh_characters()
             self.dismiss(animation=False)
+
+    def overwrite_ini(self, char_name, link):
+        config = configparser.ConfigParser()
+        path = "characters/{0}/".format(char_name)
+        config.read(path + "settings.ini")
+        char = config['character']
+        char['download'] = link
+        with open(path + "settings.ini", 'w') as configfile:
+            config.write(configfile)
