@@ -98,7 +98,9 @@ class MusicTab(TabbedPanelItem):
             else:
                 try:
                     os.remove("temp.mp3")  # ytdl doesn't overwrite the temp.mp3, this is a roundabout way
-                except FileNotFoundError:
+                    os.remove("temp.mp3.info.json")
+                except FileNotFoundError as e:
+                    print(e)
                     print("No temp in directory.")  # if the first thing they play when joining MO is a yt link
                 with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
                     ydl.download([url])

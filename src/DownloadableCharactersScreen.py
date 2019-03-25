@@ -64,8 +64,8 @@ class DownloadableCharactersScreen(Popup):
             char = arguments[0] + '#' + arguments[1]
             dlc_list.remove(char)
             self.overwrite_ini(arguments[0], arguments[1])
-            KeyboardListener.refresh_characters()
-            self.dismiss(animation=False)
+        KeyboardListener.refresh_characters()
+        self.dismiss(animation=False)
 
     def overwrite_ini(self, char_name, link):
         config = configparser.ConfigParser()

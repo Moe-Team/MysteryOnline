@@ -550,6 +550,13 @@ class IrcConnection:
         return self.p_msg_q.dequeue()
 
     def send_msg(self, msg):
+        if '\n' in msg:
+            messages = msg.splitlines()
+            new_msg = ""
+            for m in messages:
+                new_msg = new_msg + m
+            self.connection.privmsg(self.channel, new_msg)
+            return
         self.connection.privmsg(self.channel, msg)
 
     def send_private_msg(self, receiver, sender, msg):
