@@ -1,8 +1,8 @@
 # How to Contribute:
-First of all, thank you for taking interest in Mystery Online and considering helping with it's growth.
+First of all, thank you for taking interest in Sea of Fragments Online and considering helping with it's growth.
 
 To help with Documentation we have a Github wikia at our disposition that you can edit.
-If you're looking to create content for MysteryOnline, instructions are on that wikia too.
+If you're looking to create content for Sea of Fragments Online, instructions are on that wikia too.
 
 This guide is for those who want to help with the development of the program.
 
