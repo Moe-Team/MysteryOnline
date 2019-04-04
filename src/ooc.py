@@ -77,6 +77,7 @@ class MusicTab(TabbedPanelItem):
             return
 
         def play_song(root):
+            main_scr = App.get_running_app().get_main_screen()
             track = root.track
             if track is not None and track.state == 'play':
                 track.stop()
@@ -98,12 +99,18 @@ class MusicTab(TabbedPanelItem):
             else:
                 try:
                     os.remove("temp.mp3")  # ytdl doesn't overwrite the temp.mp3, this is a roundabout way
-                    os.remove("temp.mp3.info.json")
                 except FileNotFoundError as e:
-                    print(e)
                     print("No temp in directory.")  # if the first thing they play when joining MO is a yt link
-                with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
-                    ydl.download([url])
+                try:
+                    with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
+                        ydl.download([url])
+                except Exception as e:
+                    root.is_loading_music = False
+                    if e is AttributeError:
+                        main_scr.music_name_display.text = "Error: bad url"
+                    else:
+                        main_scr.music_name_display.text = "Error"
+                    return
             track = SoundLoader.load("temp.mp3")
             config_ = App.get_running_app().config
             track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
@@ -112,7 +119,6 @@ class MusicTab(TabbedPanelItem):
             root.track = track
             root.is_loading_music = False
             if 'youtube' in url and track_name != "Hidden track":
-                main_scr = App.get_running_app().get_main_screen()
                 with open('temp.mp3.info.json', 'r') as f:
                     video_info = json.load(f)
                 main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
