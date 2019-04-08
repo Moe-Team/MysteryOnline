@@ -84,7 +84,7 @@
     loc_button: loc_select
     char_select: char_select
     size_hint: None, None
-    size: 140, 180
+    size: 140, 220
     padding: 20, 20
 
     BoxLayout:
@@ -109,6 +109,11 @@
             id: inventory
             text: 'Inventory'
             on_release: root.on_inventory_clicked()
+
+        RightClickMenuButton:
+            id: dlc
+            text: 'DLC'
+            on_release: root.on_dlc_clicked()
 
         RightClickMenuButton:
             id: debug_menu

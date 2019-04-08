@@ -25,6 +25,7 @@ class Character:
         self.loaded_icons = False
         self.sprites = None
         self.icons = None
+        self.link = None
         # Hash tables for faster membership checking
         self.nsfw_sprites = {}
         self.spoiler_sprites = {}
@@ -59,6 +60,10 @@ class Character:
         self.read_nsfw_sprites()
         self.read_spoiler_sprites()
         self.read_cg_sprites()
+        try:
+            self.link = char['download']
+        except KeyError:
+            self.link = "no link"
 
     def read_nsfw_sprites(self):
         try:
