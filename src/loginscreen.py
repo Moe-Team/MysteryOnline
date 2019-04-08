@@ -13,7 +13,15 @@ import configparser
 
 config = configparser.ConfigParser()
 config.read('irc_channel_name.ini')
-channel_in_config = config.get("Channel name", 'Channel')
+try:
+    channel_in_config = config.get("Channel name", 'Channel')
+except configparser.NoSectionError:
+    config.read('irc_channel_name.ini')
+    config.add_section('Channel name')
+    config.set('Channel name', 'Channel', '##mysteryonlinetest')
+    channel_in_config = config.get("Channel name", 'Channel')
+    with open('irc_channel_name.ini', "w+") as configfile:
+        config.write(configfile)
 
 SERVER = "chat.freenode.net"
 PORT = 6665

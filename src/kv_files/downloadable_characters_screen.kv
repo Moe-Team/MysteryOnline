@@ -1,0 +1,36 @@
+#:kivy 1.10
+<DownloadableCharactersScreen>:
+    main_window: main_window
+    scroll_lay: scroll_lay
+    dlc_window: dlc_window
+    download_all_button: download_all_button
+    title: 'Click the buttons to download the character'
+    size_hint: 0.33, 0.7
+    background_color: [0, 0, 0, 0]
+
+    BoxLayout:
+        orientation: 'vertical'
+        id: main_window
+
+        ScrollView:
+            pos_hint: {'top': 1, 'x': 0}
+            size_hint: 1, None
+            height: root.height - 100
+            scroll_type: ['content', 'bars']
+            bar_width: 5
+            id: scroll_lay
+
+            GridLayout:
+                cols: 1
+                spacing: 10
+                size_hint_y: None
+                size: main_window.width, main_window.height
+                id: dlc_window
+
+        Button:
+            id: download_all_button
+            text: "Download All"
+            size_hint: 1, None
+            height: 40
+            pos_hint: {'y': 0, 'x': 0}
+            on_release: root.dismiss(self)

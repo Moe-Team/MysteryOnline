@@ -62,9 +62,7 @@ class KeyboardListener(Widget):
     def refresh(self):
         location_manager.is_loaded = False
         location_manager.get_locations()
-        characters.clear()
-        char = {name: Character(name) for name in os.listdir("characters") if os.path.isdir("characters/" + name)}
-        characters.update(char)
+        self.refresh_characters()
         main_scr = App.get_running_app().get_main_screen()
         toolbar = main_scr.get_toolbar()
         toolbar.sfx_dropdown.clear_widgets()
@@ -83,3 +81,9 @@ class KeyboardListener(Widget):
         user.set_char(user.get_char())
         user.get_char().load()
         main_scr.on_new_char(user.get_char())
+
+    @staticmethod
+    def refresh_characters():
+        characters.clear()
+        char = {name: Character(name) for name in os.listdir("characters") if os.path.isdir("characters/" + name)}
+        characters.update(char)

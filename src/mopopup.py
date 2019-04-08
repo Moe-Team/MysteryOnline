@@ -107,7 +107,7 @@ class MOPopupFile(Popup):
             return
         label = Label(text=file.read(), markup=True, size_hint_y=None,
                       size=[scroll.width, 600], text_size=[scroll.width, None],
-                      halign='center', valign='top', padding_x=60)
+                      valign='top', padding_x=60)
         label.bind(texture_size=lambda instance, value: setattr(instance, 'height', value[1]))
         scroll.add_widget(label)
         box_lay = BoxLayout(orientation='vertical')

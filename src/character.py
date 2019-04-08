@@ -25,6 +25,7 @@ class Character:
         self.loaded_icons = False
         self.sprites = None
         self.icons = None
+        self.link = None
         # Hash tables for faster membership checking
         self.nsfw_sprites = {}
         self.spoiler_sprites = {}
@@ -59,6 +60,10 @@ class Character:
         self.read_nsfw_sprites()
         self.read_spoiler_sprites()
         self.read_cg_sprites()
+        try:
+            self.link = char['download']
+        except KeyError:
+            self.link = "no link"
 
     def read_nsfw_sprites(self):
         try:
@@ -79,7 +84,15 @@ class Character:
         series.insert(0, self.series)
         config = ConfigParser()
         config.read('mysteryonline.ini')
-        whitelist = config.get('other', 'whitelisted_series')
+        try:
+            whitelist = config.get('other', 'whitelisted_series')
+        except:
+            for key, s in zip(sorted(spoiler_section), series):
+                spoiler_sprites = spoiler_section[key].split(',')
+                spoiler_list.extend(spoiler_sprites)
+            for sprite_name in spoiler_list:
+                self.spoiler_sprites[sprite_name] = None
+            return
         whitelist = whitelist.strip('[]')
         whitelist = whitelist.replace("'", "")
         whitelist = whitelist.split(',')

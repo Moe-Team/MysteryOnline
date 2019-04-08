@@ -5,11 +5,13 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 
 from character_select import CharacterSelect
+from DownloadableCharactersScreen import DownloadableCharactersScreen
 from location import location_manager
 from debug_mode import DebugModePopup
 
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
+from character import characters
 
 
 class RightClickMenu(ModalView):
@@ -43,6 +45,10 @@ class RightClickMenu(ModalView):
         self.dismiss(animation=False)
         popup.open()
 
+    def on_dlc_clicked(self, *args):
+        popup = DownloadableCharactersScreen()
+        self.dismiss(animation=False)
+        popup.open()
 
     def on_loc_select_clicked(self, *args):
         self.create_loc_drop()
@@ -68,7 +74,10 @@ class RightClickMenu(ModalView):
     def on_loc_select(self, inst, loc_name):
         main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
-        loc = location_manager.get_locations()[loc_name]
+        try:
+            loc = location_manager.get_locations()[loc_name]
+        except KeyError:
+            return
         user_handler.set_current_loc(loc)
         main_scr.sprite_settings.update_sub(loc)
         main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
@@ -91,6 +100,7 @@ class MainScreen(Screen):
         super(MainScreen, self).__init__(**kwargs)
         self.user = None
         self.users = {}
+        self.character_list_for_dlc = []
         App.get_running_app().set_main_screen(self)
         self.config = App.get_running_app().config
 
@@ -145,9 +155,9 @@ class MainScreen(Screen):
         user_handler = App.get_running_app().get_user_handler()
         connection_manager = user_handler.get_connection_manager()
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_character_message(char.name)
+        message = message_factory.build_character_message(char.name, char.link)
         connection_manager.send_msg(message)
-        connection_manager.update_char(self, char.name, self.user.username)
+        connection_manager.update_char(self, char.name, self.user.username, char.link)
 
     def set_first_sprite(self, char):
         first_icon = sorted(char.get_icons().textures.keys())[0]
@@ -160,3 +170,10 @@ class MainScreen(Screen):
 
     def get_toolbar(self):
         return self.toolbar
+
+    def add_character_to_dlc_list(self, char, link):
+        if char not in self.character_list_for_dlc and link is not None:
+            if char not in characters:
+                char = char+'#'+link
+                if char not in self.character_list_for_dlc and link != 'no link':
+                    self.character_list_for_dlc.append(char)

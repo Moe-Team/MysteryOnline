@@ -1,1 +1,47 @@
-Here will be tips like keyboard shortcuts, tutorials and good to have links
+[u]Introduction:[/u]
+
+MO is a fancy IRC client that lets you chat in a VN format, All characters and locations are optional with the exception of RedHerring, Narrator and the Hakuryou location.
+
+Adding new content is as simple as dropping a folder in the corresponding category folder (example: a character will go in the characters folder), see the wiki for more details on creating new characters.
+
+The Github wiki can be found here: https://github.com/Moe-Team/MysteryOnline/wiki
+
+The Discord community is at your disposal for bug report, content sharing, updates or just generally hangout and shitpost here: https://discord.gg/PTPzNsm
+
+[u]Default Keyboard Shortcuts:[/u]
+
+ctrl+p = open character select
+
+ctrl+i = open inventory
+
+ctrl+r = refresh MO (useful when adding new things without rebooting the program)
+
+[u]Command list:[/u]
+
+/roll['no_of_dice', 'die_type', 'mod']: let's you roll dice. (example: /roll 1d20 or /roll 4dF (for fate dice))
+
+/clear: Clears current textbox.
+
+/color['color', 'text']: colors text (as if you used the toolbar for it.) (example: /color red 'This is the truth')
+
+/refresh: same as ctrl+r
+
+/choice:['list_of_users', 'choice_text', 'options']: Lets you make a choice popup on selected  or to everyone if nobody is selected. (example: /choice @user "Is this cool?" "Yes;No")
+
+/move['str:location']: let's you move Location.(not sublocation.) (example: /move Courtroom)
+
+[u]Protips:[/u]
+
+Right clicking on the main screen gives you a right click menu (might seem obvious but some people miss it.) which gives you quick access to a lot of features and the settings.
+
+While on the userlist, clicking on one of the users will let you know the character they're using as well as their location and sublocation.
+
+Characters and sfx can be added to a favorite list for easier access in the settings.
+
+While on character select, you can right click any character to quickly add them to your favorites.
+
+Creating your own server is as simple as editing irc_channel_name.ini.
+
+rules.txt and and help.txt can also be customised as you see fit for your own server or version of MO.
+
+If you start a message with >, It will be automatically greentexted.

@@ -33,8 +33,8 @@ class MessageFactory:
             result = ChatMessage("default", **kwargs)
         return result
 
-    def build_character_message(self, character):
-        result = CharacterMessage("default", character)
+    def build_character_message(self, character, link=None):
+        result = CharacterMessage("default", character, link)
         return result
 
     def build_location_message(self, location):
@@ -91,7 +91,7 @@ class MessageFactory:
         elif irc_message.startswith('ch2#'):
             result = ChoiceReturnMessage(username)
         else:
-            raise IncorrectMessageTypeError(irc_message)
+            result = OOCMessage(username)
         result.from_irc(irc_message)
         return result
 
@@ -146,7 +146,10 @@ class ChatMessage:
             user = main_screen.users.get(username, None)
             if user is None:
                 connection_manager.on_join(username)
-            user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+            try:
+                user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+            except AttributeError:
+                return
         if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
             option = int(self.sprite_option)
             user.set_sprite_option(option)
@@ -202,6 +205,13 @@ class ChoiceMessage:
         username = user.username
         log = main_screen.log_window
         options = re.split(r'(?<!\\);', self.options)
+        try:
+            user = main_screen.users[self.sender]
+            if user.get_loc() is not None:
+                if user.get_loc().name != user_handler.get_current_loc().name:
+                    return
+        except KeyError:
+            pass
         self.list_of_users = self.list_of_users.replace('@', '')
         if user.has_choice_popup:
             ChoicePopup('', self.sender, self.text, options, user_handler.get_user())
@@ -253,20 +263,23 @@ class ChoiceReturnMessage:
 
 class CharacterMessage:
 
-    def __init__(self, sender, character=None):
+    def __init__(self, sender, character=None, link=None):
         self.sender = sender
         self.character = character
+        self.character_link = link
 
     def to_irc(self):
-        msg = "c#{0}".format(self.character)
+        msg = "c#{0}#{1}".format(self.character, self.character_link)
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 1)
+        arguments = message.split('#', 2)
         self.character = arguments[1]
+        if len(arguments) > 2: #TODO remove this after done with tests and having 3 arguments is standar
+            self.character_link = arguments[2]
 
     def execute(self, connection_manager, main_screen, user_handler):
-        connection_manager.update_char(main_screen, self.character, self.sender)
+        connection_manager.update_char(main_screen, self.character, self.sender, self.character_link)
 
 
 class LocationMessage:
@@ -286,6 +299,13 @@ class LocationMessage:
     def execute(self, connection_manager, main_screen, user_handler):
         username = self.sender
         loc = self.location
+        if username not in main_screen.users:
+            try:
+                main_screen.ooc_window.delete_user('@'+username)
+            except AttributeError:
+                pass
+            main_screen.users[username] = User(username)
+            main_screen.ooc_window.add_user(main_screen.users[username])
         user = main_screen.users.get(username, None)
         if user.get_loc() is not None and user.get_loc().get_name() != loc:
             main_screen.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
@@ -312,8 +332,11 @@ class OOCMessage:
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 1)
-        self.content = arguments[1]
+        try:
+            arguments = message.split('#', 1)
+            self.content = arguments[1]
+        except IndexError:
+            self.content = message
 
     def execute(self, connection_manager, main_screen, user_handler):
         main_screen.ooc_window.update_ooc(self.content, self.sender)
@@ -527,6 +550,13 @@ class IrcConnection:
         return self.p_msg_q.dequeue()
 
     def send_msg(self, msg):
+        if '\n' in msg:
+            messages = msg.splitlines()
+            new_msg = ""
+            for m in messages:
+                new_msg = new_msg + m
+            self.connection.privmsg(self.channel, new_msg)
+            return
         self.connection.privmsg(self.channel, msg)
 
     def send_private_msg(self, receiver, sender, msg):
@@ -581,6 +611,10 @@ class IrcConnection:
         Logger.info('IRC: {}'.format(server_response))
 
     def on_nicknameinuse(self, c, e):
+        if len(App.get_running_app().get_user().username) < 16:
+            c.nick(App.get_running_app().get_user().username + '_')
+            App.get_running_app().get_user().username += '_'
+            return
         temp_pop = MOPopup("Username in use", "Username in use, pick another one.", "OK")
         text_inp = TextInput(multiline=False, size_hint=(1, 0.4))
         temp_pop.box_lay.add_widget(text_inp)
@@ -604,6 +638,7 @@ class ConnectionManager:
     def __init__(self, irc_connection):
         self.irc_connection = irc_connection
         self.irc_connection.set_connection_manager(self)
+        self.not_again_flag = False
         self.ping_event = None
         self.disconnected_event = None
         self.reschedule_ping()
@@ -621,10 +656,18 @@ class ConnectionManager:
         self.disconnected_event = Clock.schedule_once(self.get_disconnected, 10)
 
     def get_disconnected(self, *args):
-        self.ping_event.cancel()
-        popup = MOPopup("Disconnected", "Seems you got disconnected from IRC :(", "RIP")
-        popup.open()
-        # TODO Implement reconnection strategy
+        if self.not_again_flag is False:
+            self.ping_event.cancel()
+            popup = MOPopup("Disconnected", "Seems you might be disconnected from IRC :(", "Okay.")
+            popup.create_button("Don't show this again", False, btn_command=self.set_flag())
+            popup.size = 800 / 2, 600 / 3
+            popup.pos_hint = {'top': 1}
+            popup.background_color = [0, 0, 0, 0]
+            popup.open()
+            # TODO Implement reconnection strategy
+
+    def set_flag(self):
+        self.not_again_flag = not self.not_again_flag
 
     def close_app(self, *args):
         App.get_running_app().stop()
@@ -656,7 +699,7 @@ class ConnectionManager:
         message = message_factory.build_music_message(track_name, url)
         self.send_msg(message)
 
-    def update_char(self, main_scr, char, username):
+    def update_char(self, main_scr, char, username, char_link):
         main_scr.ooc_window.update_char(username, char)
         user = App.get_running_app().get_user()
         if username == user.username:
@@ -668,6 +711,7 @@ class ConnectionManager:
             main_scr.users[username].set_char(characters[char])
         main_scr.users[username].get_char().load_without_icons()
         main_scr.users[username].remove()
+        main_scr.add_character_to_dlc_list(char, char_link)
 
     def on_join(self, username):
         main_scr = App.get_running_app().get_main_screen()
@@ -686,7 +730,7 @@ class ConnectionManager:
         char = user.get_char()
         if char is not None:
             message_factory = App.get_running_app().get_message_factory()
-            char_msg = message_factory.build_character_message(char.name)
+            char_msg = message_factory.build_character_message(char.name, char.link)
             self.send_msg(char_msg)
 
     def on_disconnect(self, username):

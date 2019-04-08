@@ -171,7 +171,10 @@ class SpriteSettings(BoxLayout):
         self.add_widget(subloc_drop_main_btn)
         subloc_drop_main_btn.pos = (
             self.subloc_btn.x + self.subloc_btn.width, self.subloc_btn.y + self.subloc_btn.height)
-        self.subloc_drop.open(subloc_drop_main_btn)
+        try:
+            self.subloc_drop.open(subloc_drop_main_btn)
+        except:
+            pass
         self.remove_widget(subloc_drop_main_btn)
 
     def create_pos_drop(self):
