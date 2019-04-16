@@ -1,5 +1,5 @@
 # How to Contribute:
-First of all, thank you for taking interest in Mystery Online and considering helping with it's growth.
+First of all, thank you for taking interest in Mystery Online and considering helping with its growth.
 
 To help with Documentation we have a Github wikia at our disposition that you can edit.
 If you're looking to create content for MysteryOnline, instructions are on that wikia too.
