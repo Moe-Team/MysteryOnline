@@ -14,6 +14,7 @@ from kivy.utils import platform
 
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
+from mopopup import MOPopup
 
 import json
 import youtube_dl
@@ -364,6 +365,10 @@ class OOCWindow(TabbedPanel):
         self.ooc_play = True
 
     def send_ooc(self):
+        if len(self.ooc_input.text) > 400:
+            popup = MOPopup("Warning", "Message too long", "OK")
+            popup.open()
+            return
         if self.ooc_input.text != "":
             Clock.schedule_once(self.refocus_text)
             msg = self.ooc_input.text
