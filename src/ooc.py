@@ -62,6 +62,10 @@ class MusicTab(TabbedPanelItem):
         if self.hide_title and sender == 'Default':
             track_name = "Hidden track"
         if url is None:
+            if len(self.url_input.text) > 400:
+                popup = MOPopup("Warning", "URL too long", "OK")
+                popup.open()
+                return
             url = self.url_input.text
         if track_name is not None:
             main_screen.music_name_display.text = "Playing: {}".format(track_name)
