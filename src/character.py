@@ -34,7 +34,11 @@ class Character:
             self.config = ConfigParser(self.name)
         except ValueError:
             self.config = ConfigParser.get_configparser(self.name)
-        self.read_config()
+        try:
+            self.read_config()
+        except KeyError:
+            Logger.exception('Problematic character located in: ' + self.path)
+
 
     def read_config(self):
         global main_series_list
