@@ -148,12 +148,7 @@ class MusicTab(TabbedPanelItem):
 
     def on_hide(self, value):
         self.hide_title = value
-
-    def reset_music(self, *args):
-        self.is_loading_music = False
-        if self.track is not None:
-            self.track.stop()
-
+        
 
 class OOCWindow(TabbedPanel):
     user_list = ObjectProperty(None)
