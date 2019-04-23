@@ -2,6 +2,7 @@ import threading
 from datetime import datetime
 
 import requests
+from irc.client import MessageTooLong
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
@@ -12,6 +13,7 @@ from kivy.utils import escape_markup
 from kivy.logger import Logger
 from kivy.utils import platform
 
+from mopopup import MOPopup
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
 
@@ -66,15 +68,20 @@ class MusicTab(TabbedPanelItem):
             main_screen.music_name_display.text = "Playing: {}".format(track_name)
         else:
             main_screen.music_name_display.text = "Playing: URL Track"
-        if send_to_all:
+        try:
+            if send_to_all:
+                self.url_input.text = ""
+                connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+                connection_manager.update_music(track_name, url)
+                main_screen.log_window.add_entry("You changed the music.\n")
+            if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):  # watch is for yt links
+                Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
+                self.is_loading_music = False
+                return
+        except MessageTooLong:
             self.url_input.text = ""
-            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-            connection_manager.update_music(track_name, url)
-            main_screen.log_window.add_entry("You changed the music.\n")
-        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):  # watch is for yt links
-            Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
-            self.is_loading_music = False
-            return
+            temp_pop = MOPopup("Error playing music", "Link too long", "OK")
+            temp_pop.open()
 
         def play_song(root):
             main_scr = App.get_running_app().get_main_screen()
