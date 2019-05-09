@@ -5,6 +5,8 @@ from sprite import SpriteSettings
 from kivy.app import App
 from kivy.core.window import Window
 
+from mopopup import MOPopup
+
 
 class CommandError(Exception):
     pass
@@ -177,7 +179,11 @@ class CommandProcessor:
     #                       #
     
     def process_roll(self):
-        dice_game.process_input(self.command)
+        try:
+            dice_game.process_input(self.command)
+        except ValueError:
+            temp_pop = MOPopup("Command error", "Rolling format is: xdy+z", "OK")
+            temp_pop.open()
 
     def process_clear(self):
         main_scr = App.get_running_app().get_main_screen()

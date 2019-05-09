@@ -43,14 +43,22 @@ class Icarus(EventDispatcher):
 
         # must be a name finished by .atlas ?
         filename = self._filename
-        assert(filename.endswith('.atlas'))
-        # noinspection PyUnresolvedReferences
-        filename = filename.replace('/', os.sep)
+        try:
+            assert(filename.endswith('.atlas'))
+            # noinspection PyUnresolvedReferences
+            filename = filename.replace('/', os.sep)
 
-        Logger.debug('Atlas: Load <%s>' % filename)
-        with open(filename, 'r') as fd:
-            meta = json.load(fd)
+            Logger.debug('Atlas: Load <%s>' % filename)
+        except AttributeError:
+            self.textures[image_name] = NullSprite(image_name)
+            return
 
+        try:
+            with open(filename, 'r') as fd:
+                meta = json.load(fd)
+        except FileNotFoundError:
+            self.textures[image_name] = NullSprite(image_name)
+            return
         d = dirname(filename)
         textures = {}
         found = None
