@@ -60,8 +60,11 @@ class KeyboardListener(Widget):
         toolbar.text_item_btn.text = "no item"
 
     def refresh(self):
+        from mainscreen import RightClickMenu
+        user = App.get_running_app().get_user()
         location_manager.is_loaded = False
         location_manager.get_locations()
+        RightClickMenu.on_loc_select(None, None, user.location.name)
         self.refresh_characters()
         main_scr = App.get_running_app().get_main_screen()
         toolbar = main_scr.get_toolbar()
@@ -70,7 +73,6 @@ class KeyboardListener(Widget):
         toolbar.load_sfx()
         toolbar.create_sfx_dropdown()
         main_scr.left_tab.music_list.ready()
-        user = App.get_running_app().get_user()
         user.get_char().nsfw_sprites = {}
         user.get_char().spoiler_sprites = {}
         user.get_char().cg_sprites = {}
