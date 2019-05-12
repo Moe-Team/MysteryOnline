@@ -6,6 +6,7 @@ from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
+from kivy.config import ConfigParser
 from sprite_organizer import SpriteOrganizer
 
 
@@ -208,10 +209,25 @@ class SpriteSettings(BoxLayout):
     def update_sub(self, loc):
         if self.subloc_btn is not None:
             self.subloc_drop.clear_widgets()
+        fav_subloc = App.get_running_app().get_fav_subloc()
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
+        fav_list = str(config.get('other', 'fav_subloc').strip('[]'))
+        fav_list = fav_list.replace("'", "")
+        fav_list = fav_list.split(',')
+        fav_list = [x.strip() for x in fav_list]
         for sub in loc.list_sub():
-            btn = Button(text=sub, size_hint=(None, None), size=(200, 30))
-            btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
-            self.subloc_drop.add_widget(btn)
+            if sub in fav_list and sub in fav_subloc.value:
+                btn = Button(text=sub, size_hint=(None, None), size=(200, 30),
+                             background_normal='atlas://data/images/defaulttheme/button_pressed',
+                             background_down='atlas://data/images/defaulttheme/button')
+                btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
+                self.subloc_drop.add_widget(btn)
+        for sub in loc.list_sub():
+            if sub not in fav_subloc.value or sub not in fav_list:
+                btn = Button(text=sub, size_hint=(None, None), size=(200, 30))
+                btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
+                self.subloc_drop.add_widget(btn)
         self.subloc_btn.text = loc.get_first_sub()
 
 

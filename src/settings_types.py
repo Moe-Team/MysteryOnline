@@ -5,6 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.metrics import dp
+from kivy.config import ConfigParser
 from kivy.app import App
 from location import location_manager
 from character import main_series_list, extra_series_list, characters
@@ -117,6 +118,7 @@ class FavSubLocationList(MultiChoiceOptions):
         App.get_running_app().set_fav_subloc(self)
 
     def _create_options(self, loc):
+        self.options.clear()
         selected_loc = location_manager.get_locations()[loc.text]
         for location in location_manager.get_locations():
             location = location_manager.get_locations()[location]
@@ -154,9 +156,15 @@ class FavSubLocationList(MultiChoiceOptions):
         content = BoxLayout(orientation='vertical', spacing='5dp', size_hint_y=None, height=500)
         content.bind(minimum_height=content.setter('height'))
         self.popup = popup = ScrollablePopup()
-
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
+        fav_list = str(config.get('other', 'fav_subloc').strip('[]'))
+        fav_list = fav_list.replace("'", "")
+        fav_list = fav_list.split(',')
+        fav_list = [x.strip() for x in fav_list]
         for option in sorted(self.options):
-            state = 'down' if option in self.value else 'normal'
+
+            state = 'down' if option in self.value and option in fav_list else 'normal'
             btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
             self.buttons.append(btn)
             if btn.text in loc.sublocations:
