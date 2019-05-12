@@ -10,5 +10,11 @@
   "desc": "Choose which SFX you'd like at the top of the list. (might need to refresh for it to display.)",
   "section": "other",
   "key": "fav_sfx"
+  },
+  {"type": "favsubloclist",
+  "title": "Favorite your Sub-Locations",
+  "desc": "Choose which Sub-Locations you'd like at the top of the list. (might need to refresh for it to display.)",
+  "section": "other",
+  "key": "fav_subloc"
   }
 ]
