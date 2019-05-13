@@ -16,6 +16,7 @@ from kivy.utils import platform
 from mopopup import MOPopup
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
+from requests.exceptions import Timeout, MissingSchema
 from mopopup import MOPopup
 
 import json
@@ -36,7 +37,7 @@ ytdl_format_options = {
     'source_address': '0.0.0.0',
     'writeinfojson': True
 }
-# this thing let's you declare what shit you want ur download to be, neat!!
+# this thing lets you declare what shit you want ur download to be, neat!!
 
 
 class OOCLogLabel(Label):
@@ -60,6 +61,7 @@ class MusicTab(TabbedPanelItem):
             return
         self.is_loading_music = True
         main_screen = App.get_running_app().get_main_screen()
+        # TODO : Variable user not being used, need to give it a purpose?
         user = App.get_running_app().get_user()
         if self.hide_title and sender == 'Default':
             track_name = "Hidden track"
@@ -91,20 +93,32 @@ class MusicTab(TabbedPanelItem):
         def play_song(root):
             main_scr = App.get_running_app().get_main_screen()
             track = root.track
+            root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
             if track is not None and track.state == 'play':
                 track.stop()
             if url.find("youtube") == -1:  # checks if youtube is not in url string
                 try:  # does the normal stuff
-                    r = requests.get(url)
-                except requests.exceptions.MissingSchema:
-                    Logger.warning('Music: Invalid URL')
-                    root.is_loading_music = False
+                    r = requests.get(url, timeout=(5, 20))
+                    """If no request were established within 5 seconds, it will raise a Timeout exception.
+                       If no data was received within 20 seconds, it will also raise the same exception."""
+                    r.raise_for_status()
+                    """ Any HTTP Error that's between 400 and 600 will force the HTTPError exception to be raised.
+                        root.is_loading_music was moved to be more global inside the method because if a http error is 
+                        raised, the value of the variable won't be changed when it should be set to false. It also
+                        removes the need to have to set it to false within each exception block."""
+                except MissingSchema:
+                    Logger.warning('Music Error: Invalid URL. Did you forget to add http:// at the beginning '
+                                   'by any chance?')
+                    main_scr.music_name_display.text = "Error: Invalid URL. See warning logs for more details."
                     return
-                # TODO too broad an exception
-                except:
-                    Logger.warning('Music: Unexpected error occurred while loading music')
-                    root.is_loading_music = False
+                except Timeout:
+                    Logger.warning('Music Error: Request timed out. Either the server is not responding back or you '
+                                   'lost connection to internet.')
+                    main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
                     return
+
+                if r.ok:  # no errors were raised, it's now loading the music.
+                    root.is_loading_music = True
                 f = open("temp.mp3", mode="wb")
                 f.write(r.content)
                 f.close()
@@ -116,6 +130,7 @@ class MusicTab(TabbedPanelItem):
                 try:
                     with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
                         ydl.download([url])
+                        root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
                 except Exception as e:
                     root.is_loading_music = False
                     if e is AttributeError:

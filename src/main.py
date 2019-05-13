@@ -44,6 +44,8 @@ from os import listdir
 from commands import command_processor
 from kivy.core.window import Window
 
+
+
 KV_DIR = "kv_files/"
 
 for kv_file in listdir(KV_DIR):
@@ -281,8 +283,7 @@ class MysteryOnlineApp(App):
             import win32con
             try:
                 self.cursor = win32gui.LoadImage(0, 'cursor.cur', win32con.IMAGE_CURSOR, 0, 0, win32con.LR_LOADFROMFILE)
-        # TODO too broad an exception
-            except:
+            except win32gui.error:
                 self.cursor = 'default'
         else:
             self.cursor = 'default'
