@@ -123,7 +123,7 @@ class FavSubLocationList(MultiChoiceOptions):
         for location in location_manager.get_locations():
             location = location_manager.get_locations()[location]
             for sublocation in location.sublocations:
-                self.options.append(sublocation)
+                self.options.append(location.name+'_'+sublocation)
         self.popup.scroll_lay.clear_widgets()
         self.popup.dismiss()
         self._create_sub_popup(self, selected_loc)
@@ -167,8 +167,9 @@ class FavSubLocationList(MultiChoiceOptions):
             state = 'down' if option in self.value and option in fav_list else 'normal'
             btn = ToggleButton(text=option, state=state, size_hint_y=None, height=50)
             self.buttons.append(btn)
-            if btn.text in loc.sublocations:
-                content.add_widget(btn)
+            for subloc in loc.sublocations:
+                if btn.text == loc.name+'_'+subloc:
+                    content.add_widget(btn)
 
         popup.scroll_lay.add_widget(content)
 

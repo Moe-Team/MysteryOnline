@@ -217,14 +217,14 @@ class SpriteSettings(BoxLayout):
         fav_list = fav_list.split(',')
         fav_list = [x.strip() for x in fav_list]
         for sub in loc.list_sub():
-            if sub in fav_list and sub in fav_subloc.value:
+            if loc.name+'_'+sub in fav_list and loc.name+'_'+sub in fav_subloc.value:
                 btn = Button(text=sub, size_hint=(None, None), size=(200, 30),
                              background_normal='atlas://data/images/defaulttheme/button_pressed',
                              background_down='atlas://data/images/defaulttheme/button')
                 btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
                 self.subloc_drop.add_widget(btn)
         for sub in loc.list_sub():
-            if sub not in fav_subloc.value or sub not in fav_list:
+            if loc.name+'_'+sub not in fav_subloc.value or loc.name+'_'+sub not in fav_list:
                 btn = Button(text=sub, size_hint=(None, None), size=(200, 30))
                 btn.bind(on_release=lambda btn_: self.subloc_drop.select(btn_.text))
                 self.subloc_drop.add_widget(btn)
