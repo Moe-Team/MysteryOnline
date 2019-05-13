@@ -30,13 +30,15 @@ ctrl+r = refresh MO (useful when adding new things without rebooting the program
 
 /move['str:location']: let's you move Location.(not sublocation.) (example: /move Courtroom)
 
+/subloc['str:sublocation']: let's you move SubLocation. (example: /subloc Hill)
+
 [u]Protips:[/u]
 
 Right clicking on the main screen gives you a right click menu (might seem obvious but some people miss it.) which gives you quick access to a lot of features and the settings.
 
 While on the userlist, clicking on one of the users will let you know the character they're using as well as their location and sublocation.
 
-Characters and sfx can be added to a favorite list for easier access in the settings.
+Characters, sublocations and sfx can be added to a favorite list for easier access in the settings.
 
 While on character select, you can right click any character to quickly add them to your favorites.
 
