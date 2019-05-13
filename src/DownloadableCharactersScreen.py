@@ -36,7 +36,16 @@ class DownloadableCharactersScreen(Popup):
     def download_character(self, char_name, link):
         try:
             file_id = link.split('id=')
-            direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+            try:
+                direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+            except IndexError:
+                dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+                char = char_name + '#' + link
+                dlc_list.remove(char)
+                self.dismiss()
+                temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
+                temp_pop.open()
+                return
             path = 'characters/' + char_name + '.zip'
             r = requests.get(direct_link, allow_redirects=True)
             open(path, 'wb').write(r.content)
