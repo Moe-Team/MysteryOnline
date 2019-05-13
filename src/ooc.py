@@ -2,6 +2,7 @@ import threading
 from datetime import datetime
 
 import requests
+from irc.client import MessageTooLong
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
@@ -12,9 +13,11 @@ from kivy.utils import escape_markup
 from kivy.logger import Logger
 from kivy.utils import platform
 
+from mopopup import MOPopup
 from private_message_screen import PrivateMessageScreen
 from user_box import UserBox
 from requests.exceptions import Timeout, MissingSchema
+from mopopup import MOPopup
 
 import json
 import youtube_dl
@@ -63,20 +66,29 @@ class MusicTab(TabbedPanelItem):
         if self.hide_title and sender == 'Default':
             track_name = "Hidden track"
         if url is None:
+            if len(self.url_input.text) > 400:
+                popup = MOPopup("Warning", "URL too long", "OK")
+                popup.open()
+                return
             url = self.url_input.text
         if track_name is not None:
             main_screen.music_name_display.text = "Playing: {}".format(track_name)
         else:
             main_screen.music_name_display.text = "Playing: URL Track"
-        if send_to_all:
+        try:
+            if send_to_all:
+                self.url_input.text = ""
+                connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+                connection_manager.update_music(track_name, url)
+                main_screen.log_window.add_entry("You changed the music.\n")
+            if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):  # watch is for yt links
+                Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
+                self.is_loading_music = False
+                return
+        except MessageTooLong:
             self.url_input.text = ""
-            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
-            connection_manager.update_music(track_name, url)
-            main_screen.log_window.add_entry("You changed the music.\n")
-        if not any(s in url.lower() for s in ('mp3', 'wav', 'ogg', 'flac', 'watch')):  # watch is for yt links
-            Logger.warning("Music: The file you tried to play doesn't appear to contain music.")
-            self.is_loading_music = False
-            return
+            temp_pop = MOPopup("Error playing music", "Link too long", "OK")
+            temp_pop.open()
 
         def play_song(root):
             main_scr = App.get_running_app().get_main_screen()
@@ -156,12 +168,7 @@ class MusicTab(TabbedPanelItem):
 
     def on_hide(self, value):
         self.hide_title = value
-
-    def reset_music(self, *args):
-        self.is_loading_music = False
-        if self.track is not None:
-            self.track.stop()
-
+        
 
 class OOCWindow(TabbedPanel):
     user_list = ObjectProperty(None)
@@ -379,6 +386,10 @@ class OOCWindow(TabbedPanel):
         self.ooc_play = True
 
     def send_ooc(self):
+        if len(self.ooc_input.text) > 400:
+            popup = MOPopup("Warning", "Message too long", "OK")
+            popup.open()
+            return
         if self.ooc_input.text != "":
             Clock.schedule_once(self.refocus_text)
             msg = self.ooc_input.text

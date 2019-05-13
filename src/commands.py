@@ -1,8 +1,11 @@
 import re
 from dicegame import dice_game
 from mainscreen import RightClickMenu
+from sprite import SpriteSettings
 from kivy.app import App
 from kivy.core.window import Window
+
+from mopopup import MOPopup
 
 
 class CommandError(Exception):
@@ -157,6 +160,8 @@ class CommandProcessor:
                                           '(@.*\S)? *"(.*)"\s*"(.*)"'),
             'move': CommandHandler('move', 'str:location'),
 
+            'subloc': CommandHandler('subloc', 'str:sublocation'),
+
             'startim': CommandHandler('startim')
         }
 
@@ -174,7 +179,11 @@ class CommandProcessor:
     #                       #
     
     def process_roll(self):
-        dice_game.process_input(self.command)
+        try:
+            dice_game.process_input(self.command)
+        except ValueError:
+            temp_pop = MOPopup("Command error", "Rolling format is: xdy+z", "OK")
+            temp_pop.open()
 
     def process_clear(self):
         main_scr = App.get_running_app().get_main_screen()
@@ -211,6 +220,22 @@ class CommandProcessor:
     def process_move(self):
         # TODO Don't use the class instead of its instance pls, gotta find a way around this
         RightClickMenu.on_loc_select(None, None, self.command['location'])
+
+    def process_subloc(self):
+        app = App.get_running_app()
+        main_scr = App.get_running_app().get_main_screen()
+        sprite_settings = main_scr.sprite_settings
+        sublocations = app.get_user_handler().get_current_loc().sublocations
+        try:
+            subloc = sublocations[self.command['sublocation']]
+            sprite_settings.on_subloc_select(None, subloc.get_name())
+        except KeyError:
+            try:
+                for subloc in sublocations:
+                    if (self.command['sublocation']).lower() in sublocations[subloc].get_name().lower():
+                        sprite_settings.on_subloc_select(None, subloc)
+            except IndexError:
+                pass
 
     def process_startim(self):
         Window.set_title("Sonata's Revenge")

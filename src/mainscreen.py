@@ -3,6 +3,7 @@ from kivy.core.window import Window
 from kivy.properties import ObjectProperty
 from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
+from kivy.config import ConfigParser
 
 from character_select import CharacterSelect
 from DownloadableCharactersScreen import DownloadableCharactersScreen
@@ -138,8 +139,14 @@ class MainScreen(Screen):
         self.log_window.ready()
         user_handler = App.get_running_app().get_user_handler()
         locations = location_manager.get_locations()
-        user_handler.set_current_loc(locations['Hakuryou'])
-        self.sprite_settings.update_sub(locations['Hakuryou'])
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
+        try:
+            user_handler.set_current_loc(locations[str(config.get('other', 'last_location'))])
+            self.sprite_settings.update_sub(locations[str(config.get('other', 'last_location'))])
+        except KeyError:
+            user_handler.set_current_loc(locations['Hakuryou'])
+            self.sprite_settings.update_sub(locations['Hakuryou'])
         self.toolbar.set_user(self.user)
         self.toolbar.create_sfx_dropdown()
         self.sprite_preview.set_subloc(user_handler.get_current_subloc())

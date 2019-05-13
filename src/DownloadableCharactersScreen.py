@@ -5,9 +5,10 @@ from zipfile import ZipFile
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.app import App
+from kivy.uix.textinput import TextInput
 from keyboard_listener import KeyboardListener
 from kivy.uix.button import Button
-from kivy.config import ConfigParser
+from mopopup import MOPopup
 
 
 class DownloadableCharactersScreen(Popup):
@@ -15,6 +16,7 @@ class DownloadableCharactersScreen(Popup):
     scroll_lay = ObjectProperty(None)
     download_all_button = ObjectProperty(None)
     dlc_window = ObjectProperty(None)
+    download_from_catalogue_button = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(DownloadableCharactersScreen, self).__init__(**kwargs)
@@ -32,20 +34,36 @@ class DownloadableCharactersScreen(Popup):
             self.dlc_window.add_widget(button)
 
     def download_character(self, char_name, link):
-        file_id = link.split('id=')
-        direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
-        path = 'characters/' + char_name + '.zip'
-        r = requests.get(direct_link, allow_redirects=True)
-        open(path, 'wb').write(r.content)
-        with ZipFile(path) as zipArch:
-            zipArch.extractall("characters")
-        os.remove(path)
-        dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
-        char = char_name + '#' + link
-        dlc_list.remove(char)
-        self.overwrite_ini(char_name, link)
-        KeyboardListener.refresh_characters()
-        self.dismiss(animation=False)
+        try:
+            file_id = link.split('id=')
+            try:
+                direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+            except IndexError:
+                dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+                char = char_name + '#' + link
+                dlc_list.remove(char)
+                self.dismiss()
+                temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
+                temp_pop.open()
+                return
+            path = 'characters/' + char_name + '.zip'
+            r = requests.get(direct_link, allow_redirects=True)
+            open(path, 'wb').write(r.content)
+            with ZipFile(path) as zipArch:
+                zipArch.extractall("characters")
+            os.remove(path)
+            dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+            char = char_name + '#' + link
+            dlc_list.remove(char)
+            self.overwrite_ini(char_name, link)
+            KeyboardListener.refresh_characters()
+            self.dismiss(animation=False)
+        except KeyError:
+            self.dismiss()
+            temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
+            temp_pop.open()
+
+
 
     def download_all(self):
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
@@ -62,8 +80,8 @@ class DownloadableCharactersScreen(Popup):
                 zipArch.extractall("characters")
             os.remove(path)
             char = arguments[0] + '#' + arguments[1]
-            dlc_list.remove(char)
             self.overwrite_ini(arguments[0], arguments[1])
+        App.get_running_app().get_main_screen().character_list_for_dlc = []
         KeyboardListener.refresh_characters()
         self.dismiss(animation=False)
 
@@ -75,3 +93,6 @@ class DownloadableCharactersScreen(Popup):
         char['download'] = link
         with open(path + "settings.ini", 'w') as configfile:
             config.write(configfile)
+
+    def downnload_from_catalogue(self):
+        return

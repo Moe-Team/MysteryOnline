@@ -34,7 +34,7 @@ from toolbar import Toolbar
 from left_tab import LeftTab
 from irc_mo import MessageFactory
 from keyboard_listener import KeyboardListener
-from settings_types import MultiChoiceOptions, SeriesWhitelist, FavCharacterList, FavSFXList
+import settings_types
 
 from mopopup import MOPopup
 from mopopup import MOPopupYN
@@ -119,6 +119,7 @@ class MysteryOnlineApp(App):
         self.keyboard_listener = None
         self.fav_chars = None
         self.fav_sfx = None
+        self.fav_subloc = None
         self.cursor = None
 
     def build(self):
@@ -149,9 +150,13 @@ class MysteryOnlineApp(App):
             'spoiler_mode': 1,
             'sprite_tooltips': 1,
             'graceful_exit': 'True',
+            'last_location': 'Hakuryou',
+            'last_sublocation': 'Aqua1',
+            'last_character': 'RedHerring',
             'whitelisted_series': [],
             'fav_characters': [],
-            'fav_sfx': []
+            'fav_sfx': [],
+            'fav_subloc': []
         })
         config.setdefaults('command_shortcuts', {
             '>': "/color green '>"
@@ -163,10 +168,11 @@ class MysteryOnlineApp(App):
         })
 
     def build_settings(self, settings):
-        settings.register_type('multioptions', MultiChoiceOptions)
-        settings.register_type('serieswhitelist', SeriesWhitelist)
-        settings.register_type('favcharacterlist', FavCharacterList)
-        settings.register_type('favsfxlist', FavSFXList)
+        settings.register_type('multioptions', settings_types.MultiChoiceOptions)
+        settings.register_type('serieswhitelist', settings_types.SeriesWhitelist)
+        settings.register_type('favcharacterlist', settings_types.FavCharacterList)
+        settings.register_type('favsfxlist', settings_types.FavSFXList)
+        settings.register_type('favsubloclist', settings_types.FavSubLocationList)
         settings.add_json_panel('Display', self.config, 'settings.json')
         settings.add_json_panel('Sound', self.config, 'settings2.json')
         settings.add_json_panel('Other', self.config, 'settings3.json')
@@ -190,6 +196,12 @@ class MysteryOnlineApp(App):
     def get_fav_sfx(self):
         return self.fav_sfx
 
+    def set_fav_subloc(self, fav_subloc):
+        self.fav_subloc = fav_subloc
+
+    def get_fav_subloc(self):
+        return self.fav_subloc
+
     def set_main_screen(self, scr):
         self.main_screen = scr
 
@@ -208,6 +220,9 @@ class MysteryOnlineApp(App):
     def on_stop(self):
         config = self.config
         self.set_graceful_flag(True)
+        self.config.set('other', 'last_location', self.user.get_loc().name)
+        self.config.set('other', 'last_sublocation', self.user.get_subloc().name)
+        self.config.set('other', 'last_character', self.user.get_char().name)
         if self.main_screen:
             self.main_screen.on_stop()
         config.write()

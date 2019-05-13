@@ -1,5 +1,6 @@
 import os
 from kivy.uix.image import Image
+from kivy.config import ConfigParser
 
 
 class SubLocation:
@@ -105,7 +106,12 @@ class Location:
         return self.sublocations[name]
 
     def get_first_sub(self):
-        return self.list_sub()[0]
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
+        try:
+            return self.sublocations[str(config.get('other', 'last_sublocation'))].name
+        except KeyError:
+            return self.list_sub()[0]
 
     def get_name(self):
         return self.name

@@ -362,7 +362,10 @@ class MusicMessage:
         self.track_name = arguments[1]
         if self.track_name == "0":
             self.track_name = None
-        self.url = arguments[2]
+        try:
+            self.url = arguments[2]
+        except IndexError:
+            self.url = None
         if self.url == "0":
             self.url = None
 
