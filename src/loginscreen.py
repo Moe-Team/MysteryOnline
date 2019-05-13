@@ -5,7 +5,7 @@ from mopopup import MOPopup, MOPopupFile
 from character_select import CharacterSelect
 from character import characters
 import re
-
+from kivy.config import ConfigParser
 from irc_mo import IrcConnection, ConnectionManager
 from user import User, CurrentUserHandler
 
@@ -51,15 +51,21 @@ class LoginScreen(Screen):
         self.manager.irc_connection = connection
 
     def set_current_user(self):
+        config = ConfigParser()
+        config.read('mysteryonline.ini')
         user = User(self.username)
         user_handler = CurrentUserHandler(user)
         if self.picked_char is not None:
             user.set_char(self.picked_char)
             user.get_char().load()
         else:
-            red_herring = characters['RedHerring']
-            user.set_char(red_herring)
-            user.get_char().load()
+            try:
+                user.set_char(characters[str(config.get('other', 'last_character'))])
+                user.get_char().load()
+            except KeyError:
+                red_herring = characters['RedHerring']
+                user.set_char(red_herring)
+                user.get_char().load()
         App.get_running_app().set_user(user)
         App.get_running_app().set_user_handler(user_handler)
 

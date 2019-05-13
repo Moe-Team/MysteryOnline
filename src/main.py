@@ -148,6 +148,9 @@ class MysteryOnlineApp(App):
             'spoiler_mode': 1,
             'sprite_tooltips': 1,
             'graceful_exit': 'True',
+            'last_location': 'Hakuryou',
+            'last_sublocation': 'Aqua1',
+            'last_character': 'RedHerring',
             'whitelisted_series': [],
             'fav_characters': [],
             'fav_sfx': [],
@@ -215,6 +218,9 @@ class MysteryOnlineApp(App):
     def on_stop(self):
         config = self.config
         self.set_graceful_flag(True)
+        self.config.set('other', 'last_location', self.user.get_loc().name)
+        self.config.set('other', 'last_sublocation', self.user.get_subloc().name)
+        self.config.set('other', 'last_character', self.user.get_char().name)
         if self.main_screen:
             self.main_screen.on_stop()
         config.write()
