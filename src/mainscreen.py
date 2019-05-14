@@ -101,8 +101,10 @@ class MainScreen(Screen):
         super(MainScreen, self).__init__(**kwargs)
         self.user = None
         self.users = {}
+        self.last_input = None
         self.character_list_for_dlc = []
         App.get_running_app().set_main_screen(self)
+        Window.bind(focus=self.unfocused_window)
         self.config = App.get_running_app().config
 
     def on_stop(self):
@@ -174,6 +176,20 @@ class MainScreen(Screen):
     def refocus_text(self, *args):
         # Refocusing the text input has to be done this way cause Kivy
         self.msg_input.focus = True
+
+    def unfocused_window(self, *args):
+        if Window.focus:
+            try:
+                self.last_input.focus = True
+            except AttributeError:
+                self.msg_input.focus = True
+        if not Window.focus:
+            if self.msg_input.focus:
+                self.msg_input.focus = False
+                self.last_input = self.msg_input
+            if self.ooc_window.ooc_input.focus:
+                self.ooc_window.ooc_input.focus = False
+                self.last_input = self.ooc_window.ooc_input
 
     def get_toolbar(self):
         return self.toolbar
