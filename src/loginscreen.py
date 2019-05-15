@@ -16,6 +16,7 @@ config.read('irc_channel_name.ini')
 try:
     channel_in_config = config.get("Channel name", 'Channel')
     irc_server = config.get("IRC Server name", 'irc_server')
+    irc_server_port = config.get("IRC Server name", 'irc_server_port')
 except configparser.NoSectionError:
     config.read('irc_channel_name.ini')
     if not config.has_section('Channel name'):
@@ -24,13 +25,17 @@ except configparser.NoSectionError:
     if not config.has_section('IRC Server name'):
         config.add_section('IRC Server name')
         config.set('IRC Server name', 'irc_server', 'chat.freenode.net')
+        config.set('IRC Server name', 'irc_server_port', '6665')
     channel_in_config = config.get("Channel name", 'Channel')
     irc_server = config.get("IRC Server name", 'irc_server')
+    irc_server_port = config.get("IRC Server name", 'irc_server_port')
     with open('irc_channel_name.ini', "w+") as configfile:
         config.write(configfile)
 
 SERVER = irc_server
-PORT = 6665
+PORT = int(irc_server_port)
+'''the method config.set needs every argument to be of type string. But the PORT variable needs an integer to work
+so we convert the irc_server_port variable into an integer and that does the job.'''
 CHANNEL = channel_in_config
 
 
