@@ -220,9 +220,12 @@ class MysteryOnlineApp(App):
     def on_stop(self):
         config = self.config
         self.set_graceful_flag(True)
-        self.config.set('other', 'last_location', self.user.get_loc().name)
-        self.config.set('other', 'last_sublocation', self.user.get_subloc().name)
-        self.config.set('other', 'last_character', self.user.get_char().name)
+        try:
+            self.config.set('other', 'last_location', self.user.get_loc().name)
+            self.config.set('other', 'last_sublocation', self.user.get_subloc().name)
+            self.config.set('other', 'last_character', self.user.get_char().name)
+        except AttributeError:
+            pass
         if self.main_screen:
             self.main_screen.on_stop()
         config.write()
