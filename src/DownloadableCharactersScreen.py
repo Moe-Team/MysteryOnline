@@ -63,24 +63,37 @@ class DownloadableCharactersScreen(Popup):
             temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
             temp_pop.open()
 
-
-
     def download_all(self):
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         for text in dlc_list:
             arguments = text.split('#', 1)
             char = arguments[0]
             shared_link = arguments[1]
-            file_id = shared_link.split('id=')
-            direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
-            path = 'characters/'+char+'.zip'
-            r = requests.get(direct_link, allow_redirects=True)
-            open(path, 'wb').write(r.content)
-            with ZipFile(path) as zipArch:
-                zipArch.extractall("characters")
-            os.remove(path)
-            char = arguments[0] + '#' + arguments[1]
-            self.overwrite_ini(arguments[0], arguments[1])
+            try:
+                file_id = shared_link.split('id=')
+                try:
+                    direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+                except IndexError:
+                    dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+                    char_link = char + '#' + shared_link
+                    dlc_list.remove(char_link)
+                    temp_pop = MOPopup("Error downloading", "Can't download " + char, "OK")
+                    temp_pop.open()
+                    return
+                path = 'characters/'+char+'.zip'
+                r = requests.get(direct_link, allow_redirects=True)
+                open(path, 'wb').write(r.content)
+                with ZipFile(path) as zipArch:
+                    zipArch.extractall("characters")
+                os.remove(path)
+                char = arguments[0] + '#' + arguments[1]
+                self.overwrite_ini(arguments[0], arguments[1])
+            except KeyError:
+                dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+                char_link = char + '#' + shared_link
+                dlc_list.remove(char_link)
+                temp_pop = MOPopup("Error downloading", "Can't download " + char, "OK")
+                temp_pop.open()
         App.get_running_app().get_main_screen().character_list_for_dlc = []
         KeyboardListener.refresh_characters()
         self.dismiss(animation=False)
@@ -94,5 +107,5 @@ class DownloadableCharactersScreen(Popup):
         with open(path + "settings.ini", 'w') as configfile:
             config.write(configfile)
 
-    def downnload_from_catalogue(self):
+    def download_from_catalogue(self):
         return
