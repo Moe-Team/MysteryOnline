@@ -25,7 +25,7 @@ except configparser.NoSectionError:
     if not config.has_section('IRC Server name'):
         config.add_section('IRC Server name')
         config.set('IRC Server name', 'irc_server', 'chat.freenode.net')
-        config.set('IRC Server name', 'irc_server_port', 6665)
+        config.set('IRC Server name', 'irc_server_port', '6665')
     channel_in_config = config.get("Channel name", 'Channel')
     irc_server = config.get("IRC Server name", 'irc_server')
     irc_server_port = config.get("IRC Server name", 'irc_server_port')
