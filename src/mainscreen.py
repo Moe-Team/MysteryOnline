@@ -184,6 +184,15 @@ class MainScreen(Screen):
             except AttributeError:
                 self.msg_input.focus = True
         if not Window.focus:
+            if self.ooc_window.chat.text_box.focus:
+                self.ooc_window.chat.text_box.focus = False
+                self.last_input = self.ooc_window.chat.text_box
+            if self.ooc_window.music_tab.url_input.focus:
+                self.ooc_window.music_tab.url_input.focus = False
+                self.last_input = self.ooc_window.music_tab.url_input
+            if self.left_tab.music_list.search_bar.focus:
+                self.left_tab.music_list.search_bar.focus = False
+                self.last_input = self.left_tab.music_list.search_bar
             if self.msg_input.focus:
                 self.msg_input.focus = False
                 self.last_input = self.msg_input
