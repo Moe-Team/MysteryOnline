@@ -15,15 +15,21 @@ config = configparser.ConfigParser()
 config.read('irc_channel_name.ini')
 try:
     channel_in_config = config.get("Channel name", 'Channel')
+    irc_server = config.get("IRC Server name", 'irc_server')
 except configparser.NoSectionError:
     config.read('irc_channel_name.ini')
-    config.add_section('Channel name')
-    config.set('Channel name', 'Channel', '##mysteryonlinetest')
+    if not config.has_section('Channel name'):
+        config.add_section('Channel name')
+        config.set('Channel name', 'Channel', '##mysteryonlinetest')
+    if not config.has_section('IRC Server name'):
+        config.add_section('IRC Server name')
+        config.set('IRC Server name', 'irc_server', 'chat.freenode.net')
     channel_in_config = config.get("Channel name", 'Channel')
+    irc_server = config.get("IRC Server name", 'irc_server')
     with open('irc_channel_name.ini', "w+") as configfile:
         config.write(configfile)
 
-SERVER = "chat.freenode.net"
+SERVER = irc_server
 PORT = 6665
 CHANNEL = channel_in_config
 
