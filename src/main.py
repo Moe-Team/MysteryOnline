@@ -130,7 +130,7 @@ class MysteryOnlineApp(App):
 
     def build_config(self, config):
         config.setdefaults('display', {
-            'resolution': '1920x1080',
+            'resolution': '1366x768',
             'rpg_mode': 0,
         })
         config.setdefaults('sound', {

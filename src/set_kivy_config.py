@@ -1,5 +1,8 @@
 from kivy.config import Config, ConfigParser
+import os
 
+Config.set('kivy', 'log_name', 'MO_%y-%m-%d_%_.txt')
+Config.set('kivy', 'log_dir', os.getcwd()+'/kivy_logs')
 Config.set('kivy', 'desktop', 1)
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 Config.set('kivy', 'exit_on_escape', 0)

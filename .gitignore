@@ -98,7 +98,7 @@ src/temp\.mp3
 /src/ooc_log.txt
 /src/musiclist.txt
 /src/temp.mp3.info.json
-
+src/kivy_logs
 src/locations/
 .vscode/
 /src/irc_channel_name.ini
