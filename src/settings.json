@@ -2,7 +2,7 @@
   "title": "Display"},
   {"type": "options",
   "title": "Resolution",
-  "desc": "Set your resolution",
+  "desc": "Set your resolution(need restart)",
   "section": "display",
   "key": "resolution",
   "options": ["1920x1080", "1366x768"]
