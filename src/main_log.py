@@ -21,9 +21,10 @@ class LogWindow(ScrollView):
         super(LogWindow, self).__init__(**kwargs)
         self.log = LogLabel()
         self.log.bind(on_ref_press=self.copy_text)
-        self.last_pos = None
+        self.last_pos = 0
         self.counter = 0
-        self.original_size = None
+        self.distance_to_top = 0
+        self.original_size = []
 
     def ready(self):
         self.grid_l.bind(minimum_height=self.grid_l.setter('height'))
@@ -34,7 +35,7 @@ class LogWindow(ScrollView):
         if self.collide_point(*touch.pos):
             if touch.is_mouse_scrolling:
                 self.last_pos = (self.vbar[0] * self.viewport_size[1]) + self.original_size[1]
-                print("mouse registered", self.original_size[1], self.last_pos, self.viewport_size, self.vbar[1])
+                print("mouse registered", self.original_size[1], self.last_pos, self.viewport_size, self.vbar[0])
         return super(LogWindow, self).on_touch_down(touch)
 
     def add_entry(self, msg, *args):
@@ -46,10 +47,9 @@ class LogWindow(ScrollView):
             bar_position = self.last_pos - self.original_size[1]
             if not bar_position:  # if the bar is at the bottom
                 self.scroll_y = 0
-            else:
-                distance_to_top = self.viewport_size[1] - self.last_pos
-                distance_to_scroll_x, distance_to_scroll_y = self.convert_distance_to_scroll(0, distance_to_top
-                                                                                             +0.000001)
+            else:  # when the scrollbar is at the top, it will go up by 300pixels and then go back to the first message.
+                self.distance_to_top = self.viewport_size[1] - self.last_pos
+                distance_to_scroll_x, distance_to_scroll_y = self.convert_distance_to_scroll(0, self.distance_to_top)
                 self.scroll_y = distance_to_scroll_y
                 '''After 8 hours of trying to solve an issue, the problem was because I initialized original_size
                 to viewport_size in the init and didn't know why it gave me 0 back instead of its actual height.
