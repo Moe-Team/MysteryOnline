@@ -32,11 +32,17 @@ class LogWindow(ScrollView):
         self.grid_l.add_widget(self.log)
         self.original_size = self.viewport_size
 
-    def on_touch_down(self, touch):
+    def on_touch_up(self, touch):
         if self.collide_point(*touch.pos):
-            if touch.is_mouse_scrolling:
+            if touch.is_mouse_scrolling or touch.button == 'left':
                 self.distance_to_top = (1 - self.scroll_y) * self.scrollable_distance
-        return super(LogWindow, self).on_touch_down(touch)
+        return super(LogWindow, self).on_touch_up(touch)
+
+    def on_scroll_stop(self, touch, check_children=True):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'left':
+                self.distance_to_top = (1 - self.scroll_y) * self.scrollable_distance
+        return super(LogWindow, self).on_scroll_stop(touch)
 
     def maintain_scrolling(self, *args):
         self.scrollable_distance = self.original_size[1] - self.viewport_size[1]
