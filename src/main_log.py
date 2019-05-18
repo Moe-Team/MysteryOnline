@@ -21,7 +21,7 @@ class LogWindow(ScrollView):
         super(LogWindow, self).__init__(**kwargs)
         self.log = LogLabel()
         self.log.bind(on_ref_press=self.copy_text)
-        self.last_pos = 0
+        self.scrollable_distance = 0
         self.counter = 0
         self.distance_to_top = 0
         self.original_size = []
@@ -35,18 +35,15 @@ class LogWindow(ScrollView):
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             if touch.is_mouse_scrolling:
-                self.last_pos = self.scroll_y * self.viewport_size[1]
-                self.last_viewport_size = self.viewport_size[1]
+                self.distance_to_top = (1 - self.scroll_y) * self.scrollable_distance
         return super(LogWindow, self).on_touch_down(touch)
 
     def maintain_scrolling(self, *args):
-        if not self.vbar[0]:  # if the bar is at the bottom
-            self.scroll_y = 0
-        else:
-            message_height = self.viewport_size[1] - self.last_viewport_size
-            self.scroll_y = self.last_pos / self.viewport_size[1]  # we out there doing simple maths
-            self.last_pos += message_height
-            self.last_viewport_size = self.viewport_size[1]
+        self.scrollable_distance = self.original_size[1] - self.viewport_size[1]
+        if self.scroll_y > 0:
+            self.scroll_y = 1 - self.distance_to_top / self.scrollable_distance
+
+    '''thank you https://gist.github.com/tshirtman/41e533d077567762b3bd981f718f3cd6 for the auto scroll fix'''
 
     def add_entry(self, msg, *args):
         self.log.text += msg
