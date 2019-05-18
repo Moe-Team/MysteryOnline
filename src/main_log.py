@@ -32,25 +32,21 @@ class LogWindow(ScrollView):
         self.grid_l.add_widget(self.log)
         self.original_size = self.viewport_size
 
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.is_mouse_scrolling:
+                self.last_pos = self.scroll_y * self.viewport_size[1]
+                self.last_viewport_size = self.viewport_size[1]
+        return super(LogWindow, self).on_touch_down(touch)
+
     def maintain_scrolling(self, *args):
-        self.last_pos = self.viewport_size[1] * self.scroll_y
-        self.distance_to_top = self.viewport_size[1] - self.last_pos
-        print(self.viewport_size[1], "- (" , self.viewport_size[1], "*", self.scroll_y, ") = ", self.distance_to_top)
         if not self.vbar[0]:  # if the bar is at the bottom
             self.scroll_y = 0
         else:
-            distance_to_scroll_x, distance_to_scroll_y = self.convert_distance_to_scroll(0,
-                                                                                         self.viewport_size[1] -
-                                                                                         self.original_size[1])
-            print("distance to scroll: ", distance_to_scroll_y, "last viewport size:", self.last_viewport_size)
-
-            self.scroll_y += distance_to_scroll_y
-            '''After 8 hours of trying to solve an issue, the problem was because I initialized original_size
-            to viewport_size in the init and didn't know why it gave me 0 back instead of its actual height.
-            Programming is all tears and suffering.
-            Had a breakdown writing it. Here's what I made. Probably not quite I wanted it to do, but it looks
-            good.'''
-        self.last_viewport_size = self.viewport_size[1]
+            message_height = self.viewport_size[1] - self.last_viewport_size
+            self.scroll_y = self.last_pos / self.viewport_size[1]  # we out there doing simple maths
+            self.last_pos += message_height
+            self.last_viewport_size = self.viewport_size[1]
 
     def add_entry(self, msg, *args):
         self.log.text += msg
