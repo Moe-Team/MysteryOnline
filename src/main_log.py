@@ -21,13 +21,37 @@ class LogWindow(ScrollView):
         super(LogWindow, self).__init__(**kwargs)
         self.log = LogLabel()
         self.log.bind(on_ref_press=self.copy_text)
+        self.scrollable_distance = 0
         self.counter = 0
+        self.distance_to_top = 0
+        self.original_size = []
+        self.last_viewport_size = 0
 
     def ready(self):
-        self.grid_l.bind(minimum_height=self.grid_l.setter('height'))
+        self.grid_l.bind(minimum_height=self.grid_l.setter('height'), size=self.maintain_scrolling)
         self.grid_l.add_widget(self.log)
+        self.original_size = self.viewport_size
 
-    def add_entry(self, msg):
+    def on_touch_up(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.is_mouse_scrolling or touch.button == 'left':
+                self.distance_to_top = (1 - self.scroll_y) * self.scrollable_distance
+        return super(LogWindow, self).on_touch_up(touch)
+
+    def on_scroll_stop(self, touch, check_children=True):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'left':
+                self.distance_to_top = (1 - self.scroll_y) * self.scrollable_distance
+        return super(LogWindow, self).on_scroll_stop(touch)
+
+    def maintain_scrolling(self, *args):
+        self.scrollable_distance = self.original_size[1] - self.viewport_size[1]
+        if self.scroll_y > 0:
+            self.scroll_y = 1 - self.distance_to_top / self.scrollable_distance
+
+    '''thank you https://gist.github.com/tshirtman/41e533d077567762b3bd981f718f3cd6 for the auto scroll fix'''
+
+    def add_entry(self, msg, *args):
         self.log.text += msg
         config = App.get_running_app().config
         if config.getdefaultint('other', 'log_scrolling', 1):
