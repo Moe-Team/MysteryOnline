@@ -21,7 +21,7 @@ class LogWindow(ScrollView):
         super(LogWindow, self).__init__(**kwargs)
         self.log = LogLabel()
         self.log.bind(on_ref_press=self.copy_text)
-        self.last_pos = 0
+        self.scrollable_distance = 0
         self.counter = 0
         self.distance_to_top = 0
         self.original_size = []
@@ -32,25 +32,24 @@ class LogWindow(ScrollView):
         self.grid_l.add_widget(self.log)
         self.original_size = self.viewport_size
 
-    def maintain_scrolling(self, *args):
-        self.last_pos = self.viewport_size[1] * self.scroll_y
-        self.distance_to_top = self.viewport_size[1] - self.last_pos
-        print(self.viewport_size[1], "- (" , self.viewport_size[1], "*", self.scroll_y, ") = ", self.distance_to_top)
-        if not self.vbar[0]:  # if the bar is at the bottom
-            self.scroll_y = 0
-        else:
-            distance_to_scroll_x, distance_to_scroll_y = self.convert_distance_to_scroll(0,
-                                                                                         self.viewport_size[1] -
-                                                                                         self.original_size[1])
-            print("distance to scroll: ", distance_to_scroll_y, "last viewport size:", self.last_viewport_size)
+    def on_touch_up(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.is_mouse_scrolling or touch.button == 'left':
+                self.distance_to_top = (1 - self.scroll_y) * self.scrollable_distance
+        return super(LogWindow, self).on_touch_up(touch)
 
-            self.scroll_y += distance_to_scroll_y
-            '''After 8 hours of trying to solve an issue, the problem was because I initialized original_size
-            to viewport_size in the init and didn't know why it gave me 0 back instead of its actual height.
-            Programming is all tears and suffering.
-            Had a breakdown writing it. Here's what I made. Probably not quite I wanted it to do, but it looks
-            good.'''
-        self.last_viewport_size = self.viewport_size[1]
+    def on_scroll_stop(self, touch, check_children=True):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'left':
+                self.distance_to_top = (1 - self.scroll_y) * self.scrollable_distance
+        return super(LogWindow, self).on_scroll_stop(touch)
+
+    def maintain_scrolling(self, *args):
+        self.scrollable_distance = self.original_size[1] - self.viewport_size[1]
+        if self.scroll_y > 0:
+            self.scroll_y = 1 - self.distance_to_top / self.scrollable_distance
+
+    '''thank you https://gist.github.com/tshirtman/41e533d077567762b3bd981f718f3cd6 for the auto scroll fix'''
 
     def add_entry(self, msg, *args):
         self.log.text += msg
