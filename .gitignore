@@ -92,6 +92,7 @@ src/mysteryonline\.ini
 
 
 src/temp\.mp3
+src/mucache/*
 /src/characters/
 .idea/
 /src/msg_log.txt
