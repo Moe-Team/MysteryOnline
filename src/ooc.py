@@ -24,7 +24,6 @@ import json
 import youtube_dl
 import os
 import shutil
-import cgi
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
