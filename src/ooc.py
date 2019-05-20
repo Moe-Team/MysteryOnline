@@ -128,8 +128,10 @@ class MusicTab(TabbedPanelItem):
                     main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
                     return
                 if r.ok:  # no errors were raised, it's now loading the music.
-                    #get filename from the url without extension
-                    songtitle = urllib.request.urlopen(urllib.request.Request(url,method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename().rpartition(".")[0].strip(".")
+                    '''I should write a function for this.'''
+                    songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent':'Mozilla/5.0'})).info().get_filename()
+                    songtitle = os.path.basename(songtitle)
+                    songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
                     root.is_loading_music = True
                 if not os.path.isfile('mucache/'+songtitle+'.mp3'):
                     f = open("mucache/"+songtitle+".mp3", mode="wb")
