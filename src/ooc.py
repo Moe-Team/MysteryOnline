@@ -24,6 +24,7 @@ import json
 import youtube_dl
 import os
 import shutil
+import cgi
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -61,7 +62,6 @@ class MusicTab(TabbedPanelItem):
 
     def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
         if self.is_loading_music or not self.download:
-            print("woo")
             return
         self.is_loading_music = True
         main_screen = App.get_running_app().get_main_screen()
@@ -100,6 +100,8 @@ class MusicTab(TabbedPanelItem):
                 try:
                     shutil.rmtree('mucache/')
                     os.makedirs('mucache') #deleting all files instead of nuking dirs breaks youtube jsons when playing the same song.
+                except FileNotFoundError: #can't delete what doesn't exist
+                    os.makedirs('mucache')
                 except Exception as e:
                     print(e)
             main_scr = App.get_running_app().get_main_screen()
@@ -128,10 +130,12 @@ class MusicTab(TabbedPanelItem):
                     main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
                     return
                 if r.ok:  # no errors were raised, it's now loading the music.
-                    '''I should write a function for this.'''
-                    songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent':'Mozilla/5.0'})).info().get_filename()
+                    '''write a function for this?'''
+                    songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
                     songtitle = os.path.basename(songtitle)
                     songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
+                    songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
+                    print(songtitle)
                     root.is_loading_music = True
                 if not os.path.isfile('mucache/'+songtitle+'.mp3'):
                     f = open("mucache/"+songtitle+".mp3", mode="wb")
@@ -160,10 +164,13 @@ class MusicTab(TabbedPanelItem):
             track.play()
             root.track = track
             root.is_loading_music = False
-            if 'youtube' in url and track_name != "Hidden track":
-                with open('mucache/'+songtitle+'.mp3.info.json', 'r') as f:
-                    video_info = json.load(f)
-                main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
+            if track_name != "Hidden track":
+                if 'youtube' in url:
+                    with open('mucache/'+songtitle+'.mp3.info.json', 'r') as f:
+                        video_info = json.load(f)
+                    main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
+                else:
+                    main_scr.music_name_display.text = "Playing: " + songtitle
 
         threading.Thread(target=play_song, args=(self,)).start()
 
