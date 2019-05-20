@@ -2,6 +2,7 @@ import threading
 from datetime import datetime
 
 import requests
+import urllib
 from irc.client import MessageTooLong
 from kivy.app import App
 from kivy.clock import Clock
@@ -22,10 +23,11 @@ from mopopup import MOPopup
 import json
 import youtube_dl
 import os
+import shutil
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
-    'outtmpl': 'temp.mp3',
+    'outtmpl': 'mucache/%(title)s.mp3',
     'restrictfilenames': True,
     'noplaylist': True,
     'nocheckcertificate': True,
@@ -53,11 +55,12 @@ class MusicTab(TabbedPanelItem):
         super(MusicTab, self).__init__(**kwargs)
         self.track = None
         self.loop = True
+        self.download = True
         self.hide_title = False
         self.is_loading_music = False
 
     def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
-        if self.is_loading_music:
+        if self.is_loading_music or not self.download:
             return
         self.is_loading_music = True
         main_screen = App.get_running_app().get_main_screen()
@@ -91,6 +94,15 @@ class MusicTab(TabbedPanelItem):
             temp_pop.open()
 
         def play_song(root):
+            config_ = App.get_running_app().config
+            if not config_.getboolean('sound', 'musiccache'):
+                try:
+                    shutil.rmtree('mucache/')
+                    os.makedirs('mucache') #deleting all files instead of nuking dirs breaks youtube jsons when playing the same song.
+                except FileNotFoundError: #can't delete what doesn't exist
+                    os.makedirs('mucache')
+                except Exception as e:
+                    print(e)
             main_scr = App.get_running_app().get_main_screen()
             track = root.track
             root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
@@ -116,20 +128,27 @@ class MusicTab(TabbedPanelItem):
                                    'lost connection to internet.')
                     main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
                     return
-
                 if r.ok:  # no errors were raised, it's now loading the music.
+                    '''write a function for this?'''
+                    songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
+                    songtitle = os.path.basename(songtitle)
+                    songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
+                    songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
+                    print(songtitle)
                     root.is_loading_music = True
-                f = open("temp.mp3", mode="wb")
-                f.write(r.content)
-                f.close()
+                if not os.path.isfile('mucache/'+songtitle+'.mp3'):
+                    f = open("mucache/"+songtitle+".mp3", mode="wb")
+                    f.write(r.content)
+                    f.close()
             else:
                 try:
-                    os.remove("temp.mp3")  # ytdl doesn't overwrite the temp.mp3, this is a roundabout way
-                except FileNotFoundError as e:
-                    print("No temp in directory.")  # if the first thing they play when joining MO is a yt link
-                try:
                     with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
-                        ydl.download([url])
+                        info = ydl.extract_info(url, download=False)
+                        songtitle = ydl.prepare_filename(info)
+                        songtitle = os.path.basename(songtitle)
+                        songtitle = os.path.splitext(songtitle)[0] #safer way to get the song title
+                        if not os.path.isfile('mucache/' + songtitle + '.mp3'):
+                            ydl.download([url])
                         root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
                 except Exception as e:
                     root.is_loading_music = False
@@ -138,17 +157,19 @@ class MusicTab(TabbedPanelItem):
                     else:
                         main_scr.music_name_display.text = "Error"
                     return
-            track = SoundLoader.load("temp.mp3")
-            config_ = App.get_running_app().config
+            track = SoundLoader.load("mucache/"+songtitle+".mp3")
             track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
             track.loop = root.loop
             track.play()
             root.track = track
             root.is_loading_music = False
-            if 'youtube' in url and track_name != "Hidden track":
-                with open('temp.mp3.info.json', 'r') as f:
-                    video_info = json.load(f)
-                main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
+            if track_name != "Hidden track":
+                if 'youtube' in url:
+                    with open('mucache/'+songtitle+'.mp3.info.json', 'r') as f:
+                        video_info = json.load(f)
+                    main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
+                else:
+                    main_scr.music_name_display.text = "Playing: " + songtitle
 
         threading.Thread(target=play_song, args=(self,)).start()
 
@@ -168,7 +189,9 @@ class MusicTab(TabbedPanelItem):
 
     def on_hide(self, value):
         self.hide_title = value
-        
+
+    def on_download(self, value):
+        self.download = value
 
 class OOCWindow(TabbedPanel):
     user_list = ObjectProperty(None)
