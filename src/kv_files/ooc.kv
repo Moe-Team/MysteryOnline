@@ -17,6 +17,19 @@
     BoxLayout:
         orientation: 'vertical'
 
+        BoxLayout:
+            size_hint: 1, None
+            height: 25
+
+            Label:
+                text: 'DL Music'
+
+            Switch:
+                id: download_switch
+                active: True
+                on_active: root.on_download(self.active)
+
+
         Label:
             text: "Music URL"
             size_hint: 1, None

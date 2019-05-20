@@ -17,5 +17,15 @@
   "desc": "Can also be set in the volume tab next to OOC",
   "section": "sound",
   "key": "effect_volume"
+  },
+    {"type": "title",
+  "title": "Misc"
+  },
+  {
+    "type": "bool",
+    "title": "Music Caching",
+    "desc": "Enables the storage of previously played audio files.",
+    "section": "sound",
+    "key": "musiccache"
   }
 ]

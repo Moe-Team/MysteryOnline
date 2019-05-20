@@ -136,7 +136,8 @@ class MysteryOnlineApp(App):
         config.setdefaults('sound', {
             'blip_volume': 100,
             'music_volume': 100,
-            'effect_volume': 100
+            'effect_volume': 100,
+            'musiccache': False
         })
         config.setdefaults('other', {
             'ooc_notif_delay': 60,
