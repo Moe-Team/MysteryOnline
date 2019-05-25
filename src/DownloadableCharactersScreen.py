@@ -81,17 +81,27 @@ class DownloadableCharactersScreen(Popup):
             char = arguments[0]
             shared_link = arguments[1]
             try:
-                file_id = shared_link.split('id=')
-                try:
-                    direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
-                except IndexError:
-                    dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
-                    char_link = char + '#' + shared_link
-                    dlc_list.remove(char_link)
-                    temp_pop = MOPopup("Error downloading", "Can't download " + char, "OK")
-                    temp_pop.open()
-                    return
-                path = 'characters/'+char+'.zip'
+                if shared_link.find("drive.google.com") == -1:  # checks for google drive shared_link
+                    try:
+                        direct_link = shared_link
+                    except Exception as e:
+                        print("Error: " + e)
+                else:
+                    try:
+                        file_id = shared_link.split('id=')
+                        try:
+                            direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+                        except IndexError:
+                            dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+                            char_link = char + '#' + shared_link
+                            dlc_list.remove(char)
+                            self.dismiss()
+                            temp_pop = MOPopup("Error downloading", "Can't download " + char, "OK")
+                            temp_pop.open()
+                            return
+                    except Exception as e:
+                        print("Error: " + e)
+                path = 'characters/' + char + '.zip'
                 r = requests.get(direct_link, allow_redirects=True)
                 open(path, 'wb').write(r.content)
                 with ZipFile(path) as zipArch:
