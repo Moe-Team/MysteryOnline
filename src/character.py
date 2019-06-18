@@ -26,6 +26,7 @@ class Character:
         self.sprites = None
         self.icons = None
         self.link = None
+        self.version = None
         # Hash tables for faster membership checking
         self.nsfw_sprites = {}
         self.spoiler_sprites = {}
@@ -67,6 +68,10 @@ class Character:
             self.link = char['download']
         except KeyError:
             self.link = "no link"
+        try:
+            self.version = self.config['ver']
+        except KeyError:
+            self.version = 0
 
     def read_nsfw_sprites(self):
         try:

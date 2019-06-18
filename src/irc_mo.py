@@ -33,8 +33,8 @@ class MessageFactory:
             result = ChatMessage("default", **kwargs)
         return result
 
-    def build_character_message(self, character, link=None):
-        result = CharacterMessage("default", character, link)
+    def build_character_message(self, character, link=None, version=None):
+        result = CharacterMessage("default", character, link, version)
         return result
 
     def build_location_message(self, location):
@@ -263,13 +263,14 @@ class ChoiceReturnMessage:
 
 class CharacterMessage:
 
-    def __init__(self, sender, character=None, link=None):
+    def __init__(self, sender, character=None, link=None, version=None):
         self.sender = sender
         self.character = character
         self.character_link = link
+        self.version = version
 
     def to_irc(self):
-        msg = "c#{0}#{1}".format(self.character, self.character_link)
+        msg = "c#{0}#{1}#{2}".format(self.character, self.character_link, self.version)
         return msg
 
     def from_irc(self, message):
@@ -733,7 +734,7 @@ class ConnectionManager:
         char = user.get_char()
         if char is not None:
             message_factory = App.get_running_app().get_message_factory()
-            char_msg = message_factory.build_character_message(char.name, char.link)
+            char_msg = message_factory.build_character_message(char.name, char.link, char.version)
             self.send_msg(char_msg)
 
     def on_disconnect(self, username):

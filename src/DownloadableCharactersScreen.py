@@ -67,6 +67,7 @@ class DownloadableCharactersScreen(Popup):
             self.overwrite_ini(char_name, link)
             KeyboardListener.refresh_characters()
             self.dismiss(animation=False)
+            self.clean(char_name)
         except KeyError:
             self.dismiss()
             temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
@@ -107,6 +108,7 @@ class DownloadableCharactersScreen(Popup):
                 with ZipFile(path) as zipArch:
                     zipArch.extractall("characters")
                 os.remove(path)
+                self.clean(arguments[0])
                 char = arguments[0] + '#' + arguments[1]
                 self.overwrite_ini(arguments[0], arguments[1])
             except KeyError:
@@ -118,6 +120,13 @@ class DownloadableCharactersScreen(Popup):
         App.get_running_app().get_main_screen().character_list_for_dlc = []
         KeyboardListener.refresh_characters()
         self.dismiss(animation=False)
+
+    def clean(self, char_name):
+        path = "characters/{0}/".format(char_name)
+        for fname in os.listdir(path):
+            fname = fname.lower()
+            if not fname.endswith(".png") and not fname.endswith(".atlas") and not fname.endswith(".ini"):
+                os.remove(path + fname)
 
     def overwrite_ini(self, char_name, link):
         config = configparser.ConfigParser()
