@@ -29,6 +29,7 @@ class DownloadableCharactersScreen(Popup):
             arguments = text.split('#', 1)
             char = arguments[0]
             link = arguments[1]
+            ver = arguments[2]
             button = Button(text=char, size_hint_y=None, height=50, width=self.width)
             button.bind(on_press=lambda x: self.download_character(char, link))
             self.dlc_window.add_widget(button)

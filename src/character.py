@@ -69,7 +69,7 @@ class Character:
         except KeyError:
             self.link = "no link"
         try:
-            self.version = self.config['ver']
+            self.version = char['ver']
         except KeyError:
             self.version = 0
 

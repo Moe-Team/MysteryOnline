@@ -274,13 +274,15 @@ class CharacterMessage:
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 2)
+        arguments = message.split('#', 3)
         self.character = arguments[1]
-        if len(arguments) > 2: #TODO remove this after done with tests and having 3 arguments is standar
+        if len(arguments[2]) > 2: #Fuck you.
             self.character_link = arguments[2]
+        if len(arguments[3]) > 0:
+            self.version = arguments[3]
 
     def execute(self, connection_manager, main_screen, user_handler):
-        connection_manager.update_char(main_screen, self.character, self.sender, self.character_link)
+        connection_manager.update_char(main_screen, self.character, self.sender, self.character_link, self.version)
 
 
 class LocationMessage:
@@ -703,7 +705,7 @@ class ConnectionManager:
         message = message_factory.build_music_message(track_name, url)
         self.send_msg(message)
 
-    def update_char(self, main_scr, char, username, char_link):
+    def update_char(self, main_scr, char, username, char_link, version):
         main_scr.ooc_window.update_char(username, char)
         user = App.get_running_app().get_user()
         if username == user.username:
@@ -715,7 +717,7 @@ class ConnectionManager:
             main_scr.users[username].set_char(characters[char])
         main_scr.users[username].get_char().load_without_icons()
         main_scr.users[username].remove()
-        main_scr.add_character_to_dlc_list(char, char_link)
+        main_scr.add_character_to_dlc_list(char, char_link, version)
 
     def on_join(self, username):
         main_scr = App.get_running_app().get_main_screen()

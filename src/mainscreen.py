@@ -164,9 +164,9 @@ class MainScreen(Screen):
         user_handler = App.get_running_app().get_user_handler()
         connection_manager = user_handler.get_connection_manager()
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_character_message(char.name, char.link)
+        message = message_factory.build_character_message(char.name, char.link, char.version)
         connection_manager.send_msg(message)
-        connection_manager.update_char(self, char.name, self.user.username, char.link)
+        connection_manager.update_char(self, char.name, self.user.username, char.link, char.version)
 
     def set_first_sprite(self, char):
         first_icon = sorted(char.get_icons().textures.keys())[0]
@@ -192,7 +192,7 @@ class MainScreen(Screen):
                 self.last_input = self.ooc_window.music_tab.url_input
             if self.left_tab.music_list.search_bar.focus:
                 self.left_tab.music_list.search_bar.focus = False
-                self.last_input = self.left_tab.music_list.search_bar
+                self.last_input = self.left_tab.music_list.searcxch_bar
             if self.msg_input.focus:
                 self.msg_input.focus = False
                 self.last_input = self.msg_input
@@ -203,9 +203,17 @@ class MainScreen(Screen):
     def get_toolbar(self):
         return self.toolbar
 
-    def add_character_to_dlc_list(self, char, link):
+    def add_character_to_dlc_list(self, char, link, version):
+        try:
+            config = ConfigParser()
+            path = "characters/{0}/".format(char)
+            config.read(path + "settings.ini")
+            char = config['character']
+            oldver = char['ver']
+        except Exception as e:
+            oldver = -1
         if char not in self.character_list_for_dlc and link is not None:
-            if char not in characters:
+            if char not in characters or version > oldver:
                 char = char+'#'+link
                 if char not in self.character_list_for_dlc and link != 'no link':
                     self.character_list_for_dlc.append(char)
