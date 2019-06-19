@@ -26,15 +26,15 @@ class DownloadableCharactersScreen(Popup):
         self.download_all_button.bind(on_press=lambda x: self.download_all())
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         for text in dlc_list:
-            arguments = text.split('#', 1)
+            arguments = text.split('#', 3)
             char = arguments[0]
             link = arguments[1]
             ver = arguments[2]
             button = Button(text=char, size_hint_y=None, height=50, width=self.width)
-            button.bind(on_press=lambda x: self.download_character(char, link))
+            button.bind(on_press=lambda x: self.download_character(char, link, ver))
             self.dlc_window.add_widget(button)
 
-    def download_character(self, char_name, link):
+    def download_character(self, char_name, link, ver):
         try:
             if link.find("drive.google.com") == -1: #checks for google drive link
                 try:
@@ -63,9 +63,9 @@ class DownloadableCharactersScreen(Popup):
                 zipArch.extractall("characters")
             os.remove(path)
             dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
-            char = char_name + '#' + link
+            char = char_name + '#' + link + '#' + ver
             dlc_list.remove(char)
-            self.overwrite_ini(char_name, link)
+            self.overwrite_ini(char_name, link, ver)
             KeyboardListener.refresh_characters()
             self.dismiss(animation=False)
             self.clean(char_name)
@@ -129,12 +129,13 @@ class DownloadableCharactersScreen(Popup):
             if not fname.endswith(".png") and not fname.endswith(".atlas") and not fname.endswith(".ini"):
                 os.remove(path + fname)
 
-    def overwrite_ini(self, char_name, link):
+    def overwrite_ini(self, char_name, link, ver):
         config = configparser.ConfigParser()
         path = "characters/{0}/".format(char_name)
         config.read(path + "settings.ini")
         char = config['character']
         char['download'] = link
+        char['ver'] = ver
         with open(path + "settings.ini", 'w') as configfile:
             config.write(configfile)
 

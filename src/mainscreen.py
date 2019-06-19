@@ -208,12 +208,12 @@ class MainScreen(Screen):
             config = ConfigParser()
             path = "characters/{0}/".format(char)
             config.read(path + "settings.ini")
-            char = config['character']
-            oldver = char['ver']
+            charconf = config['character']
+            oldver = charconf['ver']
         except Exception as e:
-            oldver = -1
+            oldver = 0
         if char not in self.character_list_for_dlc and link is not None:
-            if char not in characters or version > oldver:
-                char = char+'#'+link
+            if char not in characters or float(version) > float(oldver): #because strings
+                char = char+'#'+link+'#'+version
                 if char not in self.character_list_for_dlc and link != 'no link':
                     self.character_list_for_dlc.append(char)
