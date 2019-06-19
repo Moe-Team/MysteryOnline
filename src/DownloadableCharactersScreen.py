@@ -26,26 +26,36 @@ class DownloadableCharactersScreen(Popup):
         self.download_all_button.bind(on_press=lambda x: self.download_all())
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         for text in dlc_list:
-            arguments = text.split('#', 1)
+            arguments = text.split('#', 2)
             char = arguments[0]
             link = arguments[1]
-            button = Button(text=char, size_hint_y=None, height=50, width=self.width)
-            button.bind(on_press=lambda x: self.download_character(char, link))
+            ver = arguments[2]
+            button = Button(text=char+" {version "+ver+"}", size_hint_y=None, height=50, width=self.width)
+            button.bind(on_press=lambda x: self.download_character(char, link, ver))
             self.dlc_window.add_widget(button)
 
-    def download_character(self, char_name, link):
+    def download_character(self, char_name, link, ver):
         try:
-            file_id = link.split('id=')
-            try:
-                direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
-            except IndexError:
-                dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
-                char = char_name + '#' + link
-                dlc_list.remove(char)
-                self.dismiss()
-                temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
-                temp_pop.open()
-                return
+            if link.find("drive.google.com") == -1: #checks for google drive link
+                try:
+                    direct_link = link
+                except Exception as e:
+                    print("Error: " + e)
+            else:
+                try:
+                    file_id = link.split('id=')
+                    try:
+                        direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+                    except IndexError:
+                        dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+                        char = char_name + '#' + link
+                        dlc_list.remove(char)
+                        self.dismiss()
+                        temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
+                        temp_pop.open()
+                        return
+                except Exception as e:
+                    print("Error: " + e)
             path = 'characters/' + char_name + '.zip'
             r = requests.get(direct_link, allow_redirects=True)
             open(path, 'wb').write(r.content)
@@ -53,41 +63,55 @@ class DownloadableCharactersScreen(Popup):
                 zipArch.extractall("characters")
             os.remove(path)
             dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
-            char = char_name + '#' + link
+            char = char_name + '#' + link + '#' + ver
             dlc_list.remove(char)
-            self.overwrite_ini(char_name, link)
+            self.overwrite_ini(char_name, link, ver)
             KeyboardListener.refresh_characters()
             self.dismiss(animation=False)
+            self.clean(char_name)
         except KeyError:
             self.dismiss()
             temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
             temp_pop.open()
+        except Exception as e:
+            print("Error 2: " + e)
 
     def download_all(self):
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         for text in dlc_list:
-            arguments = text.split('#', 1)
+            arguments = text.split('#', 2)
             char = arguments[0]
             shared_link = arguments[1]
             try:
-                file_id = shared_link.split('id=')
-                try:
-                    direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
-                except IndexError:
-                    dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
-                    char_link = char + '#' + shared_link
-                    dlc_list.remove(char_link)
-                    temp_pop = MOPopup("Error downloading", "Can't download " + char, "OK")
-                    temp_pop.open()
-                    return
-                path = 'characters/'+char+'.zip'
+                if shared_link.find("drive.google.com") == -1:  # checks for google drive shared_link
+                    try:
+                        direct_link = shared_link
+                    except Exception as e:
+                        print("Error: " + e)
+                else:
+                    try:
+                        file_id = shared_link.split('id=')
+                        try:
+                            direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+                        except IndexError:
+                            dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+                            char_link = char + '#' + shared_link
+                            dlc_list.remove(char)
+                            self.dismiss()
+                            temp_pop = MOPopup("Error downloading", "Can't download " + char, "OK")
+                            temp_pop.open()
+                            return
+                    except Exception as e:
+                        print("Error: " + e)
+                path = 'characters/' + char + '.zip'
                 r = requests.get(direct_link, allow_redirects=True)
                 open(path, 'wb').write(r.content)
                 with ZipFile(path) as zipArch:
                     zipArch.extractall("characters")
                 os.remove(path)
-                char = arguments[0] + '#' + arguments[1]
-                self.overwrite_ini(arguments[0], arguments[1])
+                self.clean(arguments[0])
+                char = arguments[0] + '#' + arguments[1] + '#' + arguments[2]
+                self.overwrite_ini(arguments[0], arguments[1], arguments[2])
             except KeyError:
                 dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
                 char_link = char + '#' + shared_link
@@ -98,12 +122,20 @@ class DownloadableCharactersScreen(Popup):
         KeyboardListener.refresh_characters()
         self.dismiss(animation=False)
 
-    def overwrite_ini(self, char_name, link):
+    def clean(self, char_name):
+        path = "characters/{0}/".format(char_name)
+        for fname in os.listdir(path):
+            fname = fname.lower()
+            if not fname.endswith(".png") and not fname.endswith(".atlas") and not fname.endswith(".ini"):
+                os.remove(path + fname)
+
+    def overwrite_ini(self, char_name, link, ver):
         config = configparser.ConfigParser()
         path = "characters/{0}/".format(char_name)
         config.read(path + "settings.ini")
         char = config['character']
         char['download'] = link
+        char['ver'] = ver
         with open(path + "settings.ini", 'w') as configfile:
             config.write(configfile)
 

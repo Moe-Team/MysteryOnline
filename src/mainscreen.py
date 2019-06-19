@@ -164,9 +164,9 @@ class MainScreen(Screen):
         user_handler = App.get_running_app().get_user_handler()
         connection_manager = user_handler.get_connection_manager()
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_character_message(char.name, char.link)
+        message = message_factory.build_character_message(char.name, char.link, char.version)
         connection_manager.send_msg(message)
-        connection_manager.update_char(self, char.name, self.user.username, char.link)
+        connection_manager.update_char(self, char.name, self.user.username, char.link, char.version)
 
     def set_first_sprite(self, char):
         first_icon = sorted(char.get_icons().textures.keys())[0]
@@ -203,9 +203,24 @@ class MainScreen(Screen):
     def get_toolbar(self):
         return self.toolbar
 
-    def add_character_to_dlc_list(self, char, link):
+    def add_character_to_dlc_list(self, char, link, version):
+        try:
+            config = ConfigParser()
+            path = "characters/{0}/".format(char)
+            config.read(path + "settings.ini")
+            charconf = config['character']
+            oldver = charconf['ver']
+        except Exception as e:
+            oldver = 0
+
         if char not in self.character_list_for_dlc and link is not None:
-            if char not in characters:
-                char = char+'#'+link
-                if char not in self.character_list_for_dlc and link != 'no link':
-                    self.character_list_for_dlc.append(char)
+            try:
+                if char not in characters or float(version) > float(oldver): #because strings
+                    char = char + '#' + link + '#' + version
+                    if char not in self.character_list_for_dlc and link != 'no link':
+                        self.character_list_for_dlc.append(char)
+            except ValueError: #because bad strings.
+                if char not in characters or 0 > float(oldver):
+                    char = char+'#'+link+'#'+version
+                    if char not in self.character_list_for_dlc and link != 'no link':
+                        self.character_list_for_dlc.append(char)
