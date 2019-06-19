@@ -276,10 +276,12 @@ class CharacterMessage:
     def from_irc(self, message):
         arguments = message.split('#', 3)
         self.character = arguments[1]
-        if len(arguments[2]) > 2: #Fuck you.
+        if len(arguments) > 2: #If it works...
             self.character_link = arguments[2]
-        if len(arguments[3]) > 0:
+        if len(arguments) > 3:
             self.version = arguments[3]
+        else:
+            self.version = ''
 
     def execute(self, connection_manager, main_screen, user_handler):
         connection_manager.update_char(main_screen, self.character, self.sender, self.character_link, self.version)

@@ -26,11 +26,11 @@ class DownloadableCharactersScreen(Popup):
         self.download_all_button.bind(on_press=lambda x: self.download_all())
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         for text in dlc_list:
-            arguments = text.split('#', 3)
+            arguments = text.split('#', 2)
             char = arguments[0]
             link = arguments[1]
             ver = arguments[2]
-            button = Button(text=char, size_hint_y=None, height=50, width=self.width)
+            button = Button(text=char+" {version "+ver+"}", size_hint_y=None, height=50, width=self.width)
             button.bind(on_press=lambda x: self.download_character(char, link, ver))
             self.dlc_window.add_widget(button)
 
@@ -79,7 +79,7 @@ class DownloadableCharactersScreen(Popup):
     def download_all(self):
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         for text in dlc_list:
-            arguments = text.split('#', 1)
+            arguments = text.split('#', 2)
             char = arguments[0]
             shared_link = arguments[1]
             try:
@@ -110,8 +110,8 @@ class DownloadableCharactersScreen(Popup):
                     zipArch.extractall("characters")
                 os.remove(path)
                 self.clean(arguments[0])
-                char = arguments[0] + '#' + arguments[1]
-                self.overwrite_ini(arguments[0], arguments[1])
+                char = arguments[0] + '#' + arguments[1] + '#' + arguments[2]
+                self.overwrite_ini(arguments[0], arguments[1], arguments[2])
             except KeyError:
                 dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
                 char_link = char + '#' + shared_link

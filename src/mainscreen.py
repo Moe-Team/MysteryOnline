@@ -212,8 +212,15 @@ class MainScreen(Screen):
             oldver = charconf['ver']
         except Exception as e:
             oldver = 0
+
         if char not in self.character_list_for_dlc and link is not None:
-            if char not in characters or float(version) > float(oldver): #because strings
-                char = char+'#'+link+'#'+version
-                if char not in self.character_list_for_dlc and link != 'no link':
-                    self.character_list_for_dlc.append(char)
+            try:
+                if char not in characters or float(version) > float(oldver): #because strings
+                    char = char + '#' + link + '#' + version
+                    if char not in self.character_list_for_dlc and link != 'no link':
+                        self.character_list_for_dlc.append(char)
+            except ValueError: #because bad strings.
+                if char not in characters or 0 > float(oldver):
+                    char = char+'#'+link+'#'+version
+                    if char not in self.character_list_for_dlc and link != 'no link':
+                        self.character_list_for_dlc.append(char)
