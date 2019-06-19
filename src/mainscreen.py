@@ -192,7 +192,7 @@ class MainScreen(Screen):
                 self.last_input = self.ooc_window.music_tab.url_input
             if self.left_tab.music_list.search_bar.focus:
                 self.left_tab.music_list.search_bar.focus = False
-                self.last_input = self.left_tab.music_list.searcxch_bar
+                self.last_input = self.left_tab.music_list.search_bar
             if self.msg_input.focus:
                 self.msg_input.focus = False
                 self.last_input = self.msg_input
