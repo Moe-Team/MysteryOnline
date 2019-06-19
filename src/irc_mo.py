@@ -33,8 +33,8 @@ class MessageFactory:
             result = ChatMessage("default", **kwargs)
         return result
 
-    def build_character_message(self, character, link=None):
-        result = CharacterMessage("default", character, link)
+    def build_character_message(self, character, link=None, version=None):
+        result = CharacterMessage("default", character, link, version)
         return result
 
     def build_location_message(self, location):
@@ -263,23 +263,28 @@ class ChoiceReturnMessage:
 
 class CharacterMessage:
 
-    def __init__(self, sender, character=None, link=None):
+    def __init__(self, sender, character=None, link=None, version=None):
         self.sender = sender
         self.character = character
         self.character_link = link
+        self.version = version
 
     def to_irc(self):
-        msg = "c#{0}#{1}".format(self.character, self.character_link)
+        msg = "c#{0}#{1}#{2}".format(self.character, self.character_link, self.version)
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 2)
+        arguments = message.split('#', 3)
         self.character = arguments[1]
-        if len(arguments) > 2: #TODO remove this after done with tests and having 3 arguments is standar
+        if len(arguments) > 2: #If it works...
             self.character_link = arguments[2]
+        if len(arguments) > 3:
+            self.version = arguments[3]
+        else:
+            self.version = ''
 
     def execute(self, connection_manager, main_screen, user_handler):
-        connection_manager.update_char(main_screen, self.character, self.sender, self.character_link)
+        connection_manager.update_char(main_screen, self.character, self.sender, self.character_link, self.version)
 
 
 class LocationMessage:
@@ -702,7 +707,7 @@ class ConnectionManager:
         message = message_factory.build_music_message(track_name, url)
         self.send_msg(message)
 
-    def update_char(self, main_scr, char, username, char_link):
+    def update_char(self, main_scr, char, username, char_link, version):
         main_scr.ooc_window.update_char(username, char)
         user = App.get_running_app().get_user()
         if username == user.username:
@@ -714,7 +719,7 @@ class ConnectionManager:
             main_scr.users[username].set_char(characters[char])
         main_scr.users[username].get_char().load_without_icons()
         main_scr.users[username].remove()
-        main_scr.add_character_to_dlc_list(char, char_link)
+        main_scr.add_character_to_dlc_list(char, char_link, version)
 
     def on_join(self, username):
         main_scr = App.get_running_app().get_main_screen()
@@ -733,7 +738,7 @@ class ConnectionManager:
         char = user.get_char()
         if char is not None:
             message_factory = App.get_running_app().get_message_factory()
-            char_msg = message_factory.build_character_message(char.name, char.link)
+            char_msg = message_factory.build_character_message(char.name, char.link, char.version)
             self.send_msg(char_msg)
 
     def on_disconnect(self, username):
