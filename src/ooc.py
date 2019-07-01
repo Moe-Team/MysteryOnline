@@ -101,6 +101,8 @@ class MusicTab(TabbedPanelItem):
                     os.makedirs('mucache') #deleting all files instead of nuking dirs breaks youtube jsons when playing the same song.
                 except FileNotFoundError: #can't delete what doesn't exist
                     os.makedirs('mucache')
+                except PermissionError:
+                    print("Cannot clear music cache due to permission error.")
                 except Exception as e:
                     print(e)
             main_scr = App.get_running_app().get_main_screen()
@@ -131,10 +133,12 @@ class MusicTab(TabbedPanelItem):
                 if r.ok:  # no errors were raised, it's now loading the music.
                     '''write a function for this?'''
                     songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
-                    songtitle = os.path.basename(songtitle)
-                    songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
-                    songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
-                    print(songtitle)
+                    if songtitle is None:
+                        songtitle = "temp"
+                    else:
+                        songtitle = os.path.basename(songtitle)
+                        songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
+                        songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
                     root.is_loading_music = True
                 if not os.path.isfile('mucache/'+songtitle+'.mp3'):
                     f = open("mucache/"+songtitle+".mp3", mode="wb")

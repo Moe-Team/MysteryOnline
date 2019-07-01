@@ -8,7 +8,10 @@ from kivy.properties import ObjectProperty
 from kivy.core.audio import SoundLoader
 from mopopup import MOPopup
 import webbrowser
-
+import requests
+import urllib
+import os
+import shutil
 
 class UserInventory(Popup):
     main_lay = ObjectProperty(None)
@@ -48,6 +51,15 @@ class UserInventory(Popup):
         self.inv_open_sound.volume = v / 100
         item.open_popup()
         self.inv_open_sound.play()
+        try:
+            shutil.rmtree('imgcache/')
+            os.makedirs('imgcache')  #this is the exact same code used for the music cache
+        except FileNotFoundError:  #i disgust myself too.
+            os.makedirs('imgcache')
+        except PermissionError:
+            print("Cannot clear music cache due to permission error.")
+        except Exception as e:
+            print(e)
 
     def delete_item(self, name):
         if name in self.item_dictionary_logic:
@@ -78,6 +90,10 @@ class UserInventory(Popup):
 class Item(GridLayout):
     def __init__(self, name, description, image_link, inventory: UserInventory, username, **kwargs):
         super(Item, self).__init__(**kwargs)
+        try:
+            os.makedirs('imgcache')
+        except FileExistsError:
+            print("Image Cache Exists.")
         self.size_hint_y = None
         self.height = 50
         self.cols = 3
@@ -86,7 +102,17 @@ class Item(GridLayout):
         self.name.bind(on_touch_down=self.on_item_pressed)
         self.add_widget(self.name)
         self.description = Label(text=description)
-        self.image = AsyncImage(source=image_link, pos_hint={'left': 1})
+        self.image_link = image_link
+        r = requests.get(image_link, timeout=(5, 20))
+        r.raise_for_status()
+        if r.ok:
+            picname = urllib.request.urlopen(urllib.request.Request(image_link, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
+            if picname is None:
+                picname = "temp.jpg"
+            f = open("imgcache/" + picname, mode="wb")
+            f.write(r.content)
+            f.close()
+        self.image = AsyncImage(source="imgcache/"+picname, pos_hint={'left': 1})
         self.image.bind(on_touch_down=self.open_image)
         self.owner_username = username
         delete_btn = Button(text="X", size_hint=[None, 1], width=60)
@@ -94,6 +120,7 @@ class Item(GridLayout):
         self.add_widget(delete_btn)
         self.popup = None
         self.description.text_size = [self.description.size[0]*3, self.description.size[1]]
+
 
     def on_item_pressed(self, inst, touch):
         if self.name.collide_point(*touch.pos):
@@ -144,7 +171,7 @@ class Item(GridLayout):
 
     # Encoded by: name#description#image_link#owner_name
     def encode(self):
-        return self.name.text+'#'+self.description.text+'#'+self.image.source+'#'+self.owner_username
+        return self.name.text+'#'+self.description.text+'#'+self.image_link+'#'+self.owner_username
 
 
 class ItemCreator(Popup):
