@@ -57,7 +57,7 @@ class UserInventory(Popup):
         except FileNotFoundError:  #i disgust myself too.
             os.makedirs('imgcache')
         except PermissionError:
-            print("Cannot clear music cache due to permission error.")
+            print("Cannot clear inventory cache due to permission error.")
         except Exception as e:
             print(e)
 
