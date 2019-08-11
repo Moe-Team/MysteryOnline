@@ -220,7 +220,7 @@ class MainScreen(Screen):
                     if char not in self.character_list_for_dlc and link != 'no link':
                         self.character_list_for_dlc.append(char)
             except ValueError: #because bad strings.
-                if char not in characters or 0 > float(oldver):
+                if char not in characters:
                     char = char+'#'+link+'#'+version
                     if char not in self.character_list_for_dlc and link != 'no link':
                         self.character_list_for_dlc.append(char)
