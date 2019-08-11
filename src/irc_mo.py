@@ -57,8 +57,8 @@ class MessageFactory:
         result = ItemMessage("default", item)
         return result
 
-    def build_clear_message(self):
-        result = ClearMessage("default")
+    def build_clear_message(self, location):
+        result = ClearMessage("default", location)
         return result
 
     def build_choice_message(self, sender, text, options, list_of_users):
@@ -451,20 +451,27 @@ class ItemMessage:
 
 class ClearMessage:
 
-    def __init__(self, sender):
+    def __init__(self, sender, location=None):
         self.sender = sender
+        self.location = location
 
     def to_irc(self):
-        msg = "cl#"
+        msg = "cl#{0}".format(self.location)
         return msg
 
     def from_irc(self, message):
-        pass
+        arguments = message.split('#', 1)
+        self.location = arguments[1]
 
     def execute(self, connection_manager, main_screen, user_handler):
         # TODO Make it work only for the person who is currently speaking
-        textbox = main_screen.text_box
-        textbox.clear_textbox()
+        loc = self.location
+        try:
+            if loc == user_handler.get_current_loc().name:
+                textbox = main_screen.text_box
+                textbox.clear_textbox()
+        except TypeError:
+            return None
 
 
 class MessageQueue:
