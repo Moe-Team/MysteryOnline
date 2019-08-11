@@ -12,7 +12,7 @@
 import set_kivy_config
 # import irc.client
 # import requests
-# import youtube_dl
+import youtube_dl
 # import json
 # noinspection PyPackageRequirements
 from kivy.app import App
@@ -22,6 +22,8 @@ from kivy.clock import Clock
 from kivy.lang.builder import Builder
 from kivy.core.audio import SoundLoader
 from kivy.utils import platform
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 
 from loginscreen import LoginScreen
 from mainscreen import MainScreen
@@ -245,9 +247,15 @@ class MysteryOnlineApp(App):
         else:
             self.set_graceful_flag(False)
             config.write()
+        youtube_dl.update_self(self.ytdl_popup, False, youtube_dl.YoutubeDL()._opener)
         App.get_running_app().open_settings()  # Necessary to not crash upon setting favorites outside settings
         App.get_running_app().close_settings()  # Maybe we'll find a better option one day
         super().on_start()
+
+    def ytdl_popup(self, msg):
+        #TODO See how to make ytdl autoupdate work.
+        popup = Popup(title='ytdl warning', content=Label(text=msg), size_hint=(0.8, 0.3))
+        popup.open()
 
     def was_last_exit_graceful(self):
         graceful_exit = self.config.getboolean('other', 'graceful_exit')
