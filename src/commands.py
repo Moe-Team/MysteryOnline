@@ -190,12 +190,14 @@ class CommandProcessor:
 
     def process_clear(self):
         main_scr = App.get_running_app().get_main_screen()
+        app = App.get_running_app()
         textbox = main_scr.text_box
         user = App.get_running_app().get_user()
         if textbox.prev_user == user and textbox.is_displaying_msg is False:
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
             message_factory = App.get_running_app().get_message_factory()
-            message = message_factory.build_clear_message()
+            location = app.get_user_handler().get_current_loc().name
+            message = message_factory.build_clear_message(location)
             connection_manager.send_msg(message)
             connection_manager.send_local(message)
 
