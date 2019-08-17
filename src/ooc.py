@@ -28,7 +28,7 @@ import shutil
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': 'mucache/%(title)s.mp3',
-    'restrictfilenames': True,
+    'restrictfilenames': False,
     'noplaylist': True,
     'nocheckcertificate': True,
     'ignoreerrors': False,
@@ -95,8 +95,10 @@ class MusicTab(TabbedPanelItem):
 
         def play_song(root):
             config_ = App.get_running_app().config
-            if not os.path.isfile('mucache/'): #kebab
+            try: #kebab
                 os.makedirs('mucache')
+            except FileExistsError:
+                pass
             if not config_.getboolean('sound', 'musiccache'):
                 try:
                     shutil.rmtree('mucache/')
