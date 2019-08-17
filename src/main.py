@@ -256,6 +256,7 @@ class MysteryOnlineApp(App):
         #TODO See how to make ytdl auto-update work.
         #popup = Popup(title='ytdl warning', content=Label(text=msg), size_hint=(0.8, 0.3))
         #popup.open()
+        pass
 
     def was_last_exit_graceful(self):
         graceful_exit = self.config.getboolean('other', 'graceful_exit')
