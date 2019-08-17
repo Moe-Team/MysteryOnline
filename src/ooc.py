@@ -95,6 +95,8 @@ class MusicTab(TabbedPanelItem):
 
         def play_song(root):
             config_ = App.get_running_app().config
+            if not os.path.isfile('mucache/'): #kebab
+                os.makedirs('mucache')
             if not config_.getboolean('sound', 'musiccache'):
                 try:
                     shutil.rmtree('mucache/')
