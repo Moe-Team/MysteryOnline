@@ -1,10 +1,11 @@
 import re
+import random
 from dicegame import dice_game
 from mainscreen import RightClickMenu
 from sprite import SpriteSettings
 from kivy.app import App
 from kivy.core.window import Window
-
+from character import characters
 from mopopup import MOPopup
 
 
@@ -162,7 +163,9 @@ class CommandProcessor:
 
             'subloc': CommandHandler('subloc', 'str:sublocation'),
 
-            'startim': CommandHandler('startim')
+            'startim': CommandHandler('startim'),
+
+            'random': CommandHandler('random', 'str:option')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -238,6 +241,26 @@ class CommandProcessor:
                         sprite_settings.on_subloc_select(None, subloc)
             except IndexError:
                 pass
+
+    def process_random(self):
+        user = App.get_running_app().get_user()
+        user_handler = App.get_running_app().get_user_handler()
+        main_scr = App.get_running_app().get_main_screen()
+        if self.command['option'].lower() == 'char' or self.command['option'].lower() == 'character':
+            user.set_char((random.choice(list(characters.values()))))
+            user.get_char().load()
+            main_scr.on_new_char(user.get_char())
+        elif self.command['option'].lower() == 'subloc' or self.command['option'].lower() == 'sublocation':
+            user_handler.set_current_subloc_name(random.choice(user.get_loc().list_sub()))
+            main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
+        elif self.command['option'].lower() == 'music' or self.command['option'].lower() == 'track':
+            try:
+                main_scr.left_tab.music_list.tracks[random.choice(list(main_scr.left_tab.music_list.tracks))].on_selected()
+            except IndexError:
+                pass
+        else:
+            print('no random option found')
+            pass
 
     def process_startim(self):
         Window.set_title("Sonata's Revenge")
