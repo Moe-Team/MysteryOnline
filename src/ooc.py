@@ -429,8 +429,12 @@ class OOCWindow(TabbedPanel):
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
             message_factory = App.get_running_app().get_message_factory()
             message = message_factory.build_ooc_message(msg)
-            connection_manager.send_msg(message)
-            connection_manager.send_local(message)
+            try:
+                connection_manager.send_msg(message)
+                connection_manager.send_local(message)
+            except:
+                popup = MOPopup("Warning", "Something went wrong.", "OK")
+                popup.open()
             self.ooc_input.text = ""
 
     def refocus_text(self, *args):
