@@ -208,8 +208,8 @@ class MainTextInput(TextInput):
             user_handler = App.get_running_app().get_user_handler()
             try:
                 user_handler.send_message(msg)
-            except:
-                popup = MOPopup("Warning", "Something went wrong.", "OK")
+            except Exception as e:
+                popup = MOPopup("Warning", "Something went wrong. "+str(e), "OK")
                 popup.open()
 
     def message_is_valid(self, msg):

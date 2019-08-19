@@ -432,8 +432,8 @@ class OOCWindow(TabbedPanel):
             try:
                 connection_manager.send_msg(message)
                 connection_manager.send_local(message)
-            except:
-                popup = MOPopup("Warning", "Something went wrong.", "OK")
+            except Exception as e:
+                popup = MOPopup("Warning", "Something went wrong. "+str(e), "OK")
                 popup.open()
             self.ooc_input.text = ""
 
