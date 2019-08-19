@@ -60,6 +60,8 @@ class MusicTab(TabbedPanelItem):
         self.is_loading_music = False
 
     def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
+        if "dropbox" in self.url_input.text:
+            self.url_input.text = self.url_input.text.replace(self.url_input.text[len(self.url_input.text) - 1], '1')
         if self.is_loading_music or not self.download:
             return
         self.is_loading_music = True
