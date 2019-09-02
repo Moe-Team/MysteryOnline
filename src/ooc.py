@@ -28,7 +28,7 @@ import shutil
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': 'mucache/%(title)s.mp3',
-    'restrictfilenames': True,
+    'restrictfilenames': False,
     'noplaylist': True,
     'nocheckcertificate': True,
     'ignoreerrors': False,
@@ -60,6 +60,8 @@ class MusicTab(TabbedPanelItem):
         self.is_loading_music = False
 
     def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
+        if "dropbox" in self.url_input.text:
+            self.url_input.text = self.url_input.text.replace(self.url_input.text[len(self.url_input.text) - 1], '1')
         if self.is_loading_music or not self.download:
             return
         self.is_loading_music = True
@@ -95,6 +97,10 @@ class MusicTab(TabbedPanelItem):
 
         def play_song(root):
             config_ = App.get_running_app().config
+            try: #kebab
+                os.makedirs('mucache')
+            except FileExistsError:
+                pass
             if not config_.getboolean('sound', 'musiccache'):
                 try:
                     shutil.rmtree('mucache/')
@@ -423,8 +429,12 @@ class OOCWindow(TabbedPanel):
             connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
             message_factory = App.get_running_app().get_message_factory()
             message = message_factory.build_ooc_message(msg)
-            connection_manager.send_msg(message)
-            connection_manager.send_local(message)
+            try:
+                connection_manager.send_msg(message)
+                connection_manager.send_local(message)
+            except Exception as e:
+                popup = MOPopup("Warning", "Something went wrong. "+str(e), "OK")
+                popup.open()
             self.ooc_input.text = ""
 
     def refocus_text(self, *args):
