@@ -1,5 +1,7 @@
 import configparser
 import os
+import shutil
+
 import requests
 from zipfile import ZipFile
 from kivy.properties import ObjectProperty
@@ -117,6 +119,11 @@ class DownloadableCharactersScreen(Popup):
                 char_link = char + '#' + shared_link
                 dlc_list.remove(char_link)
                 temp_pop = MOPopup("Error downloading", "Can't download " + char, "OK")
+                temp_pop.open()
+            except PermissionError:
+                os.remove(path)
+                shutil.rmtree('characters/' + char)
+                temp_pop = MOPopup("Error downloading", "Can't download " + char + ". Permission Error, character folder deleted, try again.", "OK")
                 temp_pop.open()
         App.get_running_app().get_main_screen().character_list_for_dlc = []
         KeyboardListener.refresh_characters()
