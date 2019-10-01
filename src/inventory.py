@@ -149,7 +149,7 @@ class Item(GridLayout):
 
     def open_image(self, inst, touch):
         if self.image.collide_point(*touch.pos):
-            webbrowser.open(self.image.source)
+            webbrowser.open(self.image_link)
 
     def delete_item(self):
         if self.inventory is not None:
