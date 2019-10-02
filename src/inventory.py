@@ -13,6 +13,7 @@ import urllib
 import os
 import shutil
 
+
 class UserInventory(Popup):
     main_lay = ObjectProperty(None)
     scroll = ObjectProperty(None)
@@ -51,15 +52,6 @@ class UserInventory(Popup):
         self.inv_open_sound.volume = v / 100
         item.open_popup()
         self.inv_open_sound.play()
-        try:
-            shutil.rmtree('imgcache/')
-            os.makedirs('imgcache')  #this is the exact same code used for the music cache
-        except FileNotFoundError:  #i disgust myself too.
-            os.makedirs('imgcache')
-        except PermissionError:
-            print("Cannot clear inventory cache due to permission error.")
-        except Exception as e:
-            print(e)
 
     def delete_item(self, name):
         if name in self.item_dictionary_logic:
@@ -121,6 +113,16 @@ class Item(GridLayout):
         self.popup = None
         self.description.text_size = [self.description.size[0]*3, self.description.size[1]]
 
+    def clear_cache(self, instance):
+        try:
+            shutil.rmtree('imgcache/')
+            os.makedirs('imgcache')  #this is the exact same code used for the music cache
+        except FileNotFoundError:  #i disgust myself too.
+            os.makedirs('imgcache')
+        except PermissionError:
+            print("Cannot clear inventory cache due to permission error.")
+        except Exception as e:
+            print(e)
 
     def on_item_pressed(self, inst, touch):
         if self.name.collide_point(*touch.pos):
@@ -167,6 +169,7 @@ class Item(GridLayout):
 
     def open_popup(self):
         popup = self.build_item_window()
+        popup.bind(on_dismiss=self.clear_cache)
         popup.open()
 
     # Encoded by: name#description#image_link#owner_name
