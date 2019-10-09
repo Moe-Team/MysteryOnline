@@ -151,11 +151,17 @@ class ChatMessage:
             except AttributeError:
                 return
         if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
-            option = int(self.sprite_option)
+            try:
+                option = int(self.sprite_option)
+            except ValueError:
+                return
             user.set_sprite_option(option)
             main_screen.sprite_window.set_subloc(user.get_subloc())
             main_screen.sprite_window.set_sprite(user)
-            col = user.color_ids[int(self.color_id)]
+            try:
+                col = user.color_ids[int(self.color_id)]
+            except ValueError:
+                return
             if self.sfx_name is not None:
                 main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
