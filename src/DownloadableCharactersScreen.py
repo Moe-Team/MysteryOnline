@@ -3,6 +3,7 @@ import os
 import shutil
 import requests
 from zipfile import ZipFile
+import zipfile
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.app import App
@@ -74,7 +75,7 @@ class DownloadableCharactersScreen(Popup):
             KeyboardListener.refresh_characters()
             self.dismiss(animation=False)
             self.clean(char_name)
-        except KeyError:
+        except (KeyError, zipfile.BadZipFile) as e:
             self.dismiss()
             temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
             temp_pop.open()
@@ -121,7 +122,7 @@ class DownloadableCharactersScreen(Popup):
                 self.clean(arguments[0])
                 char = arguments[0] + '#' + arguments[1] + '#' + arguments[2]
                 self.overwrite_ini(arguments[0], arguments[1], arguments[2])
-            except KeyError:
+            except (KeyError, zipfile.BadZipFile) as e:
                 dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
                 char_link = char + '#' + shared_link
                 dlc_list.remove(char_link)
