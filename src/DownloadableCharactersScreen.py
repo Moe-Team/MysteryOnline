@@ -82,6 +82,8 @@ class DownloadableCharactersScreen(Popup):
             temp_pop.open()
         except Exception as e:
             print("Error 2: " + e)
+        temp_pop = MOPopup("Download complete", "Downloaded " + char_name, "OK")
+        temp_pop.open()
 
     def download_all(self):
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
@@ -136,6 +138,8 @@ class DownloadableCharactersScreen(Popup):
                 temp_pop.open()
         App.get_running_app().get_main_screen().character_list_for_dlc = []
         KeyboardListener.refresh_characters()
+        temp_pop = MOPopup("Download complete", "You downloaded everything.", "OK")
+        temp_pop.open()
         self.dismiss(animation=False)
 
     def clean(self, char_name):
