@@ -24,6 +24,7 @@ class Toolbar(BoxLayout):
         self.text_item_btn.bind(on_release=self.item_drop.open)
         self.add_widget(self.text_item_btn)
         self.item_drop.bind(on_select=self.on_item_select)
+        self.item_drop.bind(on_dismiss=self.refocus_screen)
 
         self.sfx_main_btn = Button(text='SFX')
         self.sfx_dropdown = None    
@@ -51,7 +52,7 @@ class Toolbar(BoxLayout):
         if user is None:
             user = main_scr.user
         user.on_col_select(col, self.text_col_btn)
-        main_scr.refocus_text()
+        self.refocus_screen()
 
     def on_item_select(self, inst, item):
         self.text_item_btn.text = item
