@@ -158,15 +158,20 @@ class MainScreen(Screen):
         App.get_running_app().keyboard_listener.bind_keyboard()
 
     def on_new_char(self, char):
-        self.msg_input.readonly = False
-        self.icons_layout.load_icons(char)
-        self.set_first_sprite(char)
-        user_handler = App.get_running_app().get_user_handler()
-        connection_manager = user_handler.get_connection_manager()
-        message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_character_message(char.name, char.link, char.version)
-        connection_manager.send_msg(message)
-        connection_manager.update_char(self, char.name, self.user.username, char.link, char.version)
+        try:
+            self.msg_input.readonly = False
+            self.icons_layout.load_icons(char)
+            self.set_first_sprite(char)
+            user_handler = App.get_running_app().get_user_handler()
+            connection_manager = user_handler.get_connection_manager()
+            message_factory = App.get_running_app().get_message_factory()
+            message = message_factory.build_character_message(char.name, char.link, char.version)
+            connection_manager.send_msg(message)
+            connection_manager.update_char(self, char.name, self.user.username, char.link, char.version)
+        except AttributeError:
+            red_herring = characters['RedHerring']
+            self.on_new_char(red_herring)
+
 
     def set_first_sprite(self, char):
         first_icon = sorted(char.get_icons().textures.keys())[0]
