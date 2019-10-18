@@ -24,6 +24,7 @@ class Toolbar(BoxLayout):
         self.text_item_btn.bind(on_release=self.item_drop.open)
         self.add_widget(self.text_item_btn)
         self.item_drop.bind(on_select=self.on_item_select)
+        self.item_drop.bind(on_dismiss=self.refocus_screen)
 
         self.sfx_main_btn = Button(text='SFX')
         self.sfx_dropdown = None    
@@ -51,7 +52,7 @@ class Toolbar(BoxLayout):
         if user is None:
             user = main_scr.user
         user.on_col_select(col, self.text_col_btn)
-        main_scr.refocus_text()
+        self.refocus_screen()
 
     def on_item_select(self, inst, item):
         self.text_item_btn.text = item
@@ -77,6 +78,9 @@ class Toolbar(BoxLayout):
     def create_sfx_dropdown(self):
         self.sfx_dropdown = DropDown()
         fav_sfx = App.get_running_app().get_fav_sfx()
+        btn = Button(text="None", size_hint_y=None, height=40)
+        btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
+        self.sfx_dropdown.add_widget(btn)
         for sfx in fav_sfx.value:
             if sfx in self.sfx_list:
                 btn = Button(text=sfx, size_hint_y=None, height=40,
@@ -96,3 +100,8 @@ class Toolbar(BoxLayout):
         self.sfx_dropdown.add_widget(btn)
         self.sfx_dropdown.bind(on_select=lambda instance, x: setattr(self.sfx_main_btn, 'text', x))
         self.sfx_dropdown.bind(on_select=lambda instance, x: setattr(self, 'sfx_name', x))
+        self.sfx_dropdown.bind(on_dismiss=self.refocus_screen)
+
+    def refocus_screen(self, inst):
+        main_scr = App.get_running_app().get_main_screen()
+        main_scr.refocus_text()

@@ -3,6 +3,7 @@ from kivy.atlas import Atlas
 from kivy.logger import Logger
 from icarus import Icarus
 from kivy.app import App
+from mopopup import MOPopup
 import os
 
 
@@ -125,12 +126,17 @@ class Character:
         return self.display_name
 
     def load(self):
-        if self.loaded_icons and self.loaded_sprites:
-            return
-        if not self.loaded_sprites:
-            self.load_sprites()
-        if not self.loaded_icons:
-            self.load_icons()
+        try:
+            if self.loaded_icons and self.loaded_sprites:
+                return
+            if not self.loaded_sprites:
+                self.load_sprites()
+            if not self.loaded_icons:
+                self.load_icons()
+        except Exception as e:
+            popup = MOPopup("Warning", "Something went wrong with " + self.name + "\n" + str(e), "OK")
+            popup.open()
+
 
     def load_icons(self):
         self.icons = Atlas(self.icons_path)
