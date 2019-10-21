@@ -11,7 +11,7 @@ from kivy.uix.textinput import TextInput
 from keyboard_listener import KeyboardListener
 from kivy.uix.button import Button
 from mopopup import MOPopup
-import _thread
+import threading
 
 
 class DownloadableCharactersScreen(Popup):
@@ -26,7 +26,7 @@ class DownloadableCharactersScreen(Popup):
         self.fill_popup()
 
     def fill_popup(self):
-        self.download_all_button.bind(on_press=lambda x: _thread.start_new_thread(self.download_all, ()))
+        self.download_all_button.bind(on_press=lambda x: threading.Thread(target=self.download_all, args=()).start())
         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
         for text in dlc_list:
             arguments = text.split('#', 2)
@@ -34,7 +34,7 @@ class DownloadableCharactersScreen(Popup):
             link = arguments[1]
             ver = arguments[2]
             button = Button(text=char+" {version "+ver+"}", size_hint_y=None, height=50, width=self.width)
-            button.bind(on_press=lambda x: _thread.start_new_thread(self.download_character, (char, link, ver)))
+            button.bind(on_press=lambda x: threading.Thread(target=self.download_character, args=(char, link, ver)).start())
             self.dlc_window.add_widget(button)
 
     def download_character(self, char_name, link, ver):
