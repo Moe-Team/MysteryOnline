@@ -141,13 +141,19 @@ class MusicTab(TabbedPanelItem):
                     songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
                     if songtitle is None:
                         songtitle = "temp"
+                    elif track_name != None:
+                        songtitle = track_name
                     else:
                         songtitle = os.path.basename(songtitle)
                         songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
                         songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
                     root.is_loading_music = True
                 if not os.path.isfile('mucache/'+songtitle+'.mp3'):
-                    f = open("mucache/"+songtitle+".mp3", mode="wb")
+                    try:
+                        f = open("mucache/"+songtitle+".mp3", mode="wb")
+                    except OSError:
+                        songtitle = 'Error Name'
+                        f = open("mucache/" + songtitle + ".mp3", mode="wb")
                     f.write(r.content)
                     f.close()
             else:
