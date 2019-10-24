@@ -32,6 +32,8 @@ ctrl+r = refresh MO (useful when adding new things without rebooting the program
 
 /subloc['str:sublocation']: let's you move SubLocation. (example: /subloc Hill)
 
+/random['arg']: lets you pick a random thing, arg being, character, sublocation or music. (example: /random subloc)
+
 [u]Protips:[/u]
 
 Right clicking on the main screen gives you a right click menu (might seem obvious but some people miss it.) which gives you quick access to a lot of features and the settings.

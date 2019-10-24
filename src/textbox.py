@@ -203,7 +203,10 @@ class MainTextInput(TextInput):
         self.text = ""
         msg = self.extend_message(msg)
         if self.message_is_command(msg):
-            self.handle_command(msg)
+            try:
+                self.handle_command(msg)
+            except AttributeError:
+                return
         else:
             user_handler = App.get_running_app().get_user_handler()
             try:
