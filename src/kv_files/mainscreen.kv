@@ -84,7 +84,7 @@
     loc_button: loc_select
     char_select: char_select
     size_hint: None, None
-    size: 140, 220
+    size: 140, 190
     padding: 20, 20
 
     BoxLayout:
@@ -115,7 +115,3 @@
             text: 'DLC'
             on_release: root.on_dlc_clicked()
 
-        RightClickMenuButton:
-            id: debug_menu
-            text: "Debug"
-            on_release: root.on_debug_menu_clicked()
