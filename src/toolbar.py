@@ -52,7 +52,7 @@ class Toolbar(BoxLayout):
         if user is None:
             user = main_scr.user
         user.on_col_select(col, self.text_col_btn)
-        self.refocus_screen()
+        self.refocus_screen(inst)
 
     def on_item_select(self, inst, item):
         self.text_item_btn.text = item
