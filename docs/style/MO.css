@@ -1,0 +1,865 @@
+/*------------------------------------*\
+#FONTS
+\*------------------------------------*/
+
+@font-face {
+  font-family: 'IBMPlexSans';
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Regular.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'IBMPlexSans';
+  font-weight: 500;
+  src: url('../fonts/IBMPlexSans-Medium.otf') format('opentype');
+}
+
+/*------------------------------------*\
+#Variables
+\*------------------------------------*/
+
+:root {
+  /* colors */
+  --global-color-alpha-light: #4f95ff;
+  --global-color-alpha: #3385ff;
+  --global-color-alpha-dark: #2e77e6;
+  --global-color-alpha-x-dark: #1b4186;
+  --global-color-alpha-transparent: #3385ffbf;
+  --global-color-alpha-x-transparent: #3385ff4d;
+
+  --global-color-neutral-xxxx-light: #f5f6fa;
+  --global-color-neutral-xxx-light: #e2e3e7;
+  --global-color-neutral-xx-light: #caccd4;
+  --global-color-neutral-x-light: #b5b6c0;
+  --global-color-neutral-light: #a0a1ad;
+  --global-color-neutral-dark: #757787;
+  --global-color-neutral-x-dark: #606274;
+  --global-color-neutral-xx-dark: #4b4c60;
+  --global-color-neutral-xxx-dark: #35374d;
+  --global-color-neutral-xxxx-dark: #20223a;
+
+  --global-color-alpha--top: #009de6;
+  --global-color-alpha--bottom: #1ab6ff;
+  --global-color-white: #ffffff;
+  --global-color-dark: #17191a;
+  --global-color-neutral: #616466;
+  --global-color-neutral--light: #c6cacc;
+
+  /* fonts */
+
+  /* shadows */
+
+  /* borders */
+  --global-borderRadius: 3px;
+  --global-borderWidth: 2px;
+
+  /* transitions */
+  --global-transitionTiming-alpha: 0.1s ease-out;
+
+  /* colors */
+
+  /* Baseline settings */
+  --global-baseline: 8px;
+  --global-whitespace: calc(var(--global-baseline) * 3); /* = 24px */
+
+  --global-whitespace-xs: calc(var(--global-baseline) / 2); /* = 4px */
+  --global-whitespace-sm: calc(var(--global-baseline) * 1); /*  = 8px */
+  --global-whitespace-md: calc(var(--global-baseline) * 2); /*  = 16px */
+  --global-whitespace-lg: calc(var(--global-baseline) * 4); /*  = 32px */
+  --global-whitespace-xl: calc(var(--global-whitespace) * 2); /*  = 48px */
+  --global-whitespace-xxl: calc(var(--global-whitespace) * 3); /*  = 72px */
+
+  /* Global input styles */
+  --global-container-borderColor: #1ab6ff;
+  --global-input-backgroundColor: White;
+  --global-input-color: var(--global-color-neutral-xxxx-dark);
+  --global-input-borderColor: var(--global-color-neutral-xxx-light);
+  --global-input-hover-borderColor: var(--global-color-neutral-xx-light);
+  --global-input-focus-borderColor: var(--global-color-alpha);
+  --global-input-focus-boxShadow: 0 0 0 3px var(--global-color-alpha-x-transparent);
+}
+
+/*------------------------------------*\
+#GENERIC
+\*------------------------------------*/
+
+/*
+    Generic: Page
+    ---
+    Global page styles + universal box-sizing:
+*/
+
+html {
+  font-size: calc(var(--global-baseline) * 2);
+  line-height: 1.5;
+  font-family: 'IBMPlexSans', sans-serif;
+  color: var(--global-color-neutral);
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: linear-gradient(to bottom right, #076e4f, #063957);
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+/*
+* Remove text-shadow in selection highlight:
+* https://twitter.com/miketaylr/status/12228805301
+*
+* Customize the background color to match your design.
+*/
+
+::-moz-selection {
+  background: rgb(133, 18, 18);
+  color: white;
+  text-shadow: none;
+}
+
+::selection {
+  background: rgb(133, 18, 18);
+  color: white;
+  text-shadow: none;
+}
+
+/*------------------------------------*\
+#Elements
+\*------------------------------------*/
+
+/*
+Elements: Images
+---
+Default markup for images to make them responsive
+*/
+
+img {
+  max-width: 100%;
+  vertical-align: top;
+}
+
+/*
+    Elements: typography
+    ---
+    Default markup for typographic elements
+*/
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 36px;
+  line-height: 48px;
+  margin: 0 0 24px;
+}
+
+h2 {
+  font-size: 32px;
+  line-height: 40px;
+  margin: 0 0 24px;
+}
+
+h3 {
+  font-size: 26px;
+  line-height: 32px;
+  margin: 0 0 24px;
+}
+
+h4,
+h5,
+h6 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  margin: 0 0 24px;
+}
+
+p,
+ol,
+ul,
+dl,
+table,
+address,
+figure {
+  margin: 0 0 24px;
+}
+
+ul,
+ol {
+  padding-left: 24px;
+}
+
+li ul,
+li ol {
+  margin-bottom: 0;
+}
+
+blockquote {
+  font-style: normal;
+  font-size: 23px;
+  line-height: 32px;
+  margin: 0 0 24px;
+}
+
+blockquote * {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+figcaption {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  margin-top: 8px;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: LightGrey;
+  margin: 0 0 24px;
+}
+
+a {
+  transition: all var(--transition-alpha);
+  color: var(--color-alpha);
+  outline-color: var(--color-alpha);
+  outline-width: medium;
+  outline-offset: 2px;
+}
+
+a:visited,
+a:active {
+  color: var(--color-alpha);
+}
+
+a:hover,
+a:focus {
+  color: var(--color-alpha-light);
+}
+
+label,
+input {
+  display: inline-block;
+}
+
+select {
+  width: 100%;
+}
+
+input::placeholder {
+  color: var(--color-neutral);
+}
+
+input:disabled {
+  cursor: not-allowed;
+}
+
+/*------------------------------------*\
+#OBJECTS
+\*------------------------------------*/
+
+/*
+    Objects: Row
+    ---
+    Creates a horizontal row that stretches the viewport and adds padding around children
+*/
+
+.o-row {
+  position: relative;
+  padding: var(--global-whitespace) var(--global-whitespace) 0;
+}
+
+/* size modifiers */
+
+.o-row--lg {
+  padding-top: var(--global-whitespace-xl);
+  padding-bottom: var(--global-whitespace);
+}
+
+.o-row--xl {
+  padding-top: 72px;
+  padding-bottom: 48px;
+}
+
+@media (min-width: 768px) {
+  .o-row {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+
+@media (min-width: 992px) {
+  .o-row--xl {
+    padding-top: 96px;
+    padding-bottom: 72px;
+  }
+}
+
+.o-row--evaluatie {
+  min-height: 100vh;
+  display: -webkit-flex;
+  display: -ms-flex;
+  display: flex;
+  -ms-align-items: center;
+  align-items: center;
+}
+
+/*
+    Objects: Container
+    ---
+    Creates a horizontal container that sets de global max-width
+*/
+
+.o-container {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 79.5em; /* 79.5 * 16px = 1272 */
+  width: 100%;
+  
+}
+
+.o-container--evaluatie {
+  border-radius: calc(var(--global-baseline) / 2);
+}
+
+/*
+    Objects: section
+    ---
+    Creates vertical whitespace between adjacent sections inside a row
+*/
+
+.o-section {
+  position: relative;
+}
+
+.o-section + .o-section {
+  padding-top: 8px;
+}
+
+/*
+    Objects: List
+    ---
+    Small reusable object to remove default list styling from lists
+*/
+
+.o-list {
+  list-style: none;
+  padding: 0;
+}
+
+/*
+    Object: Button reset
+    ---
+    Small button reset object
+*/
+
+.o-button-reset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  overflow: visible;
+  background: transparent;
+
+  /* inherit font & color from ancestor */
+  color: inherit;
+  font: inherit;
+
+  /* Normalize `line-height`. Cannot be changed from `normal` in Firefox 4+. */
+  line-height: normal;
+
+  /* Corrects font smoothing for webkit */
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
+
+  /* Corrects inability to style clickable `input` types in iOS */
+  -webkit-appearance: none;
+}
+
+/*
+    Object: Hide accessible
+    ---
+    Accessibly hide any element
+*/
+
+.o-hide-accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/*------------------------------------*\
+#COMPONENTS
+\*------------------------------------*/
+
+/*
+  CARDS
+*/
+
+.c-image {
+  width: 448px;
+  text-align: center;
+}
+
+.c-card {
+  background-color: var(--global-color-white);
+  box-shadow: 0px 1px 4px var(--global-color-dark);
+  border-top: var(--global-baseline) solid rgb(133, 18, 18);
+  border-radius: calc(var(--global-baseline) / 2);
+}
+
+.c-card__body {
+  padding: var(--global-whitespace-lg);
+}
+
+.c-card__info {
+  display: flex;
+  justify-content: center;
+  color: var(--global-color-dark);
+  font-size: calc(var(--global-baseline) * 2.5);
+}
+
+.c-card__title {
+  color: var(--global-color-dark);
+  margin-bottom: var(--global-whitespace-lg);
+  font-weight: 500;
+  font-size: calc(var(--global-baseline) / 2 * 7);
+  line-height: calc(var(--global-baseline) / 8 * 37);
+  display: flex;
+  justify-content: center;
+}
+
+/*
+  FORM FIELD
+*/
+
+.c-form-field--container {
+  margin-bottom: var(--global-whitespace-lg);
+}
+
+.c-form-field__info {
+  color: var(--global-color-dark);
+  font-weight: 500;
+  font-size: calc(var(--global-baseline) * 2);
+  line-height: var(--global-whitespace);
+}
+
+.c-form-field__button {
+  margin-top: var(--global-whitespace-lg);
+}
+
+.c-label__info {
+  margin-bottom: var(--global-baseline);
+}
+
+/*
+  CUSTOM OPTIONS
+*/
+
+.c-custom-option__symbol {
+  height: 10px;
+}
+
+.c-custom-option__textarea {
+  display: block;
+  width: 100%;
+  height: calc(var(--global-whitespace-md) * 10);
+  border: calc(var(--global-baseline) / 4) solid var(--global-color-neutral--light);
+  border-radius: var(--global-borderRadius);
+  padding: 12px;
+}
+
+.c-custom-option__text {
+  display: block;
+  width: 100%;
+  border: calc(var(--global-baseline) / 4) solid var(--global-color-neutral--light);
+  border-radius: var(--global-borderRadius);
+  padding: 12px;
+}
+
+.c-custom-option__textarea:focus,
+.c-custom-option__text:focus {
+  border-color: var(--global-input-focus-borderColor);
+  box-shadow: var(--global-input-focus-boxShadow);
+  transition: all var(--global-transitionTiming-alpha);
+}
+
+/*
+    Component: Input
+    ---
+    Class to put on all input="text" like form inputs
+*/
+
+.c-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 100%;
+  border: var(--global-borderWidth) solid var(--global-input-borderColor);
+  border-radius: var(--global-borderRadius);
+  color: var(--global-input-color);
+  background-color: var(--input-backgroundColor);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: calc(var(--global-baseline) * 3);
+  padding: calc(var(--global-baseline) * 1.5 - var(--global-borderWidth)) var(--global-whitespace-md);
+  outline: none;
+  transition: border var(--global-transition-timing-alpha);
+}
+
+.c-input:hover {
+  border-color: var(--global-input-hover-borderColor);
+}
+
+.c-input:focus,
+.c-input:active {
+  border-color: var(--global-input-focus-borderColor);
+  box-shadow: 0 0 0 3px var(--global-input-focus-boxShadow);
+}
+
+/* option input for checkboxes and radio buttons */
+
+.c-option {
+  margin-right: var(--global-whitespace-sm);
+}
+
+/*
+    Component: Label
+    ---
+    Class to put on all form labels
+*/
+
+.c-label {
+  margin-bottom: 0;
+  font-size: 14px;
+  padding-bottom: var(--global-whitespace-xs);
+  line-height: calc(var(--global-baseline) * 2);
+  color: var(--global-color-neutral-xx-dark);
+}
+
+.c-label--option {
+  padding-bottom: 0;
+}
+
+/*
+    Component: Button
+    ---
+    Class to put on form buttons or
+*/
+
+.c-button {
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: var(--global-borderRadius);
+  border: var(--global-borderWidth) solid var(--global-color-alpha--top);
+  background-color: var(--global-color-alpha--top);
+  color: #fff;
+  padding: calc(var(--global-baseline) * 1.5 - var(--global-borderWidth)) var(--global-whitespace-md);
+  line-height: calc(var(--global-baseline) * 3);
+  width: 100%;
+  outline: none;
+  transition: all var(--global-transition-timing-alpha);
+}
+
+.c-button:hover {
+  box-shadow: 0 0 0 3px var(--global-color-alpha--bottom);
+}
+
+.c-button:focus {
+  background-color: var(--global-color-alpha-light);
+  border-color: var(--global-color-alpha-light);
+}
+
+.c-button:active {
+  background-color: var(--global-color-alpha--bottom);
+  box-shadow: none;
+}
+
+.c-custom-option {
+  align-items: center;
+  display: flex;
+}
+
+.c-custom-option__fake-input--radio {
+  border-radius: 100%;
+}
+
+.c-option--hidden:checked + .c-custom-option .c-custom-option__symbol {
+  opacity: 1;
+  fill: var(--global-color-white);
+  transform: none;
+}
+
+.c-custom-option__fake-input--checkbox .c-custom-option__symbol {
+  opacity: 0;
+  width: 10px;
+  height: 10px;
+  fill: var(--global-color-alpha);
+}
+
+.c-custom-option__symbol {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all var(--global-transitionTiming-alpha);
+}
+
+.c-custom-option__fake-input--radio .c-custom-option__symbol {
+  opacity: 0;
+  width: 6px;
+  height: 6px;
+  background-color: var(--global-color-alpha);
+  border-radius: 100%;
+}
+
+.c-option-list {
+  margin-top: calc(var(--global-baseline) / 4 * 5);
+  margin-bottom: calc(var(--global-whitespace-sm) * 3);
+}
+
+.c-option-list__item {
+  margin-bottom: calc(var(--global-whitespace-sm) * 3 / 2);
+}
+
+.c-custom-option__fake-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--global-baseline) * 2);
+  height: calc(var(--global-baseline) * 2);
+  border: var(--global-borderWidth) solid var(--global-input-borderColor);
+  margin-right: var(--global-whitespace-sm);
+}
+
+.c-custom-option__fake-input--checkbox {
+  border-radius: var(--global-borderRadius);
+}
+
+.c-custom-option__fake-input:hover {
+  border-color: var(--global-input-focus-borderColor);
+  transition: all var(--global-transitionTiming-alpha);
+}
+
+.c-option--hidden:focus + .c-custom-option .c-custom-option__fake-input {
+  border-color: var(--global-input-focus-borderColor);
+  box-shadow: var(--global-input-focus-boxShadow);
+  transition: all var(--global-transitionTiming-alpha);
+}
+
+.u-fill-white {
+}
+
+.c-option--hidden:checked + .c-custom-option .u-fill-white {
+  background-color: var(--global-color-alpha);
+  border-color: var(--global-color-alpha);
+}
+
+/*------------------------------------*\
+#UTILITIES
+\*------------------------------------*/
+
+/*
+    Utilities: color
+    ---
+    Utility classes to put specific colors onto elements
+*/
+
+.u-color-neutral-light {
+  color: lightGray;
+}
+
+.u-color-neutral {
+  color: Gray;
+}
+
+/*
+    Utilities: spacing
+    ---
+    Utility classes to put specific margins and paddings onto elements
+*/
+
+.u-pt-clear {
+  padding-top: 0 !important;
+}
+
+.u-mb-clear {
+  margin-bottom: 0 !important;
+}
+
+.u-mb-xs {
+  margin-bottom: 4px !important;
+}
+
+.u-mb-sm {
+  margin-bottom: 8px !important;
+}
+
+.u-mb-md {
+  margin-bottom: 16px !important;
+}
+
+.u-mb-lg {
+  margin-bottom: 32px !important;
+}
+
+.u-mb-xl {
+  margin-bottom: 48px !important;
+}
+
+/*
+    Utilities: max-width
+    ---
+    Utility classes to put specific max widths onto elements
+*/
+
+.u-max-width-xs {
+  max-width: 27em !important;
+}
+
+.u-max-width-sm {
+  max-width: 32em !important;
+}
+
+.u-max-width-md {
+  max-width: 50em !important;
+}
+
+.u-max-width-lg {
+  max-width: 63.5em !important;
+}
+
+.u-max-width-none {
+  max-width: none !important;
+}
+
+/*
+    Utilities: align
+    ---
+    Utility classes align text or components
+*/
+
+.u-align-text-center {
+  text-align: center;
+}
+
+.u-align-center {
+  margin: 0 auto;
+}
+
+/*
+    Utilities: text
+    Utility classes to create smaller or bigger test
+*/
+
+.u-text-sm {
+  font-size: 14px;
+}
+
+/*------------------------------------*\
+#MEDIA
+\*------------------------------------*/
+
+/*
+    Media Queries
+    ---
+    EXAMPLE Media Queries for Responsive Design.
+    These examples override the primary ('mobile first') styles.
+    USE THEM INLINE!
+*/
+
+/* Extra small devices (portrait phones, less than 576px)
+No media query since this is the default in mobile first design
+*/
+
+/* Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) {}
+*/
+
+/* Medium devices (tablets, 768px and up)
+@media (min-width: 768px) {}
+*/
+
+/* Large devices (landscape tablets, desktops, 992px and up)
+@media (min-width: 992px) {}
+*/
+
+/* Extra large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) {}
+*/
+
+/*
+    Print styles.
+    ---
+    Inlined to avoid the additional HTTP request:
+    http://www.phpied.com/delay-loading-your-print-css/
+*/
+
+@media print {
+  *,
+  *:before,
+  *:after {
+    background: transparent !important;
+    color: #000 !important;
+    /* Black prints faster:
+        http://www.sanbeiji.com/archives/953 */
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+  a[href]:after {
+    content: ' (' attr(href) ')';
+  }
+  abbr[title]:after {
+    content: ' (' attr(title) ')';
+  }
+  /*
+    * Don't show links that are fragment identifiers,
+    * or use the `javascript:` pseudo protocol
+    */
+  a[href^='#']:after,
+  a[href^='javascript:']:after {
+    content: '';
+  }
+  pre {
+    white-space: pre-wrap !important;
+  }
+  pre,
+  blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+  /*
+    * Printing Tables:
+    * http://css-discuss.incutio.com/wiki/Printing_Tables
+    */
+  thead {
+    display: table-header-group;
+  }
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}
