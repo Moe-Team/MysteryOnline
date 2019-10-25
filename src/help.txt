@@ -6,7 +6,7 @@ Adding new content is as simple as dropping a folder in the corresponding catego
 
 The Github wiki can be found here: https://github.com/Moe-Team/MysteryOnline/wiki
 
-The Discord community is at your disposal for bug report, content sharing, updates or just generally hangout and shitpost here: https://discord.gg/PTPzNsm
+The Discord community is at your disposal for bug report, content sharing, updates or just generally hangout and shitpost here: https://discord.gg/JaWNuyc
 
 [u]Default Keyboard Shortcuts:[/u]
 
