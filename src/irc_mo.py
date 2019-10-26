@@ -148,7 +148,8 @@ class ChatMessage:
                 connection_manager.on_join(username)
             try:
                 user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
-            except AttributeError:
+            except (AttributeError, KeyError) as e:
+                print(e)
                 return
         if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
             try:
