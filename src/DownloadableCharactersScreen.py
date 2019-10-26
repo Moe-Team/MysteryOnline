@@ -38,6 +38,13 @@ class DownloadableCharactersScreen(Popup):
             self.dlc_window.add_widget(button)
 
     def download_character(self, char_name, link, ver):
+        def get_confirm_token(response):
+            for key, value in response.cookies.items():
+                if key.startswith('download_warning'):
+                    return value
+
+            return None
+
         try:
             if link.find("drive.google.com") == -1: #checks for google drive link
                 try:
@@ -48,7 +55,19 @@ class DownloadableCharactersScreen(Popup):
                 try:
                     file_id = link.split('id=')
                     try:
-                        direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+                        id = file_id[1]
+                        URL = "https://docs.google.com/uc?export=download"
+
+                        session = requests.Session()
+
+                        response = session.get(URL, params={'id': id}, stream=True)
+                        token = get_confirm_token(response)
+
+                        if token:
+                            params = {'id': id, 'confirm': token}
+                            response = session.get(URL, params=params, stream=True)
+
+                        direct_link = response.url
                     except IndexError:
                         dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
                         char = char_name + '#' + link
