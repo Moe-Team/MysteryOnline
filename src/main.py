@@ -265,8 +265,9 @@ class MysteryOnlineApp(App):
         return False
 
     def show_ungraceful_exit_popup(self):
-        popup = MOPopupYN('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
-                                             'Do you wish to send us the error log?', [self.send_error_log, None])
+        popup = MOPopup('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
+                        'Get the log from /kivy_logs, and send it to us for support.', 'OK')
+        popup.size = [500, 200]
         popup.open()
 
     def set_graceful_flag(self, boolean):
