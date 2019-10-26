@@ -37,14 +37,14 @@ class DownloadableCharactersScreen(Popup):
             button.bind(on_press=lambda x: threading.Thread(target=self.download_character, args=(char, link, ver)).start())
             self.dlc_window.add_widget(button)
 
+    def get_confirm_token(self, response):
+        for key, value in response.cookies.items():
+            if key.startswith('download_warning'):
+                return value
+
+        return None
+
     def download_character(self, char_name, link, ver):
-        def get_confirm_token(response):
-            for key, value in response.cookies.items():
-                if key.startswith('download_warning'):
-                    return value
-
-            return None
-
         try:
             if link.find("drive.google.com") == -1: #checks for google drive link
                 try:
@@ -61,7 +61,7 @@ class DownloadableCharactersScreen(Popup):
                         session = requests.Session()
 
                         response = session.get(URL, params={'id': id}, stream=True)
-                        token = get_confirm_token(response)
+                        token = self.get_confirm_token(response)
 
                         if token:
                             params = {'id': id, 'confirm': token}
@@ -122,7 +122,19 @@ class DownloadableCharactersScreen(Popup):
                     try:
                         file_id = shared_link.split('id=')
                         try:
-                            direct_link = 'https://drive.google.com/uc?export=download&id=' + file_id[1]
+                            id = file_id[1]
+                            URL = "https://docs.google.com/uc?export=download"
+
+                            session = requests.Session()
+
+                            response = session.get(URL, params={'id': id}, stream=True)
+                            token = self.get_confirm_token(response)
+
+                            if token:
+                                params = {'id': id, 'confirm': token}
+                                response = session.get(URL, params=params, stream=True)
+
+                            direct_link = response.url
                         except IndexError:
                             dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
                             char_link = char + '#' + shared_link
