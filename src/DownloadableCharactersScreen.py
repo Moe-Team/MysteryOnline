@@ -77,9 +77,11 @@ class DownloadableCharactersScreen(Popup):
             self.dismiss(animation=False)
             self.clean(char_name)
         except (KeyError, zipfile.BadZipFile) as e:
+            print(e)
             self.dismiss()
             temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
             temp_pop.open()
+            return
         except Exception as e:
             print("Error 2: " + e)
         temp_pop = MOPopup("Download complete", "Downloaded " + char_name, "OK")
@@ -126,9 +128,12 @@ class DownloadableCharactersScreen(Popup):
                 char = arguments[0] + '#' + arguments[1] + '#' + arguments[2]
                 self.overwrite_ini(arguments[0], arguments[1], arguments[2])
             except (KeyError, zipfile.BadZipFile) as e:
-                dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
-                char_link = char + '#' + shared_link
-                dlc_list.remove(char_link)
+                try:
+                    dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
+                    char_link = char + '#' + shared_link
+                    dlc_list.remove(char_link)
+                except ValueError:
+                    pass
                 temp_pop = MOPopup("Error downloading", "Can't download " + char, "OK")
                 temp_pop.open()
             except PermissionError:
