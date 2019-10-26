@@ -205,7 +205,8 @@ class MainTextInput(TextInput):
         if self.message_is_command(msg):
             try:
                 self.handle_command(msg)
-            except AttributeError:
+            except (AttributeError, IndexError) as e:
+                print(e)
                 return
         else:
             user_handler = App.get_running_app().get_user_handler()
