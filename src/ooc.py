@@ -209,6 +209,12 @@ class MusicTab(TabbedPanelItem):
     def on_download(self, value):
         self.download = value
 
+    def reset_music(self, *args):
+        self.is_loading_music = False
+        if self.track is not None:
+            self.track.stop()
+
+
 class OOCWindow(TabbedPanel):
     user_list = ObjectProperty(None)
     ooc_chat_header = ObjectProperty(None)
