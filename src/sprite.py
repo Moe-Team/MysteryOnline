@@ -258,6 +258,7 @@ class SpriteWindow(Widget):
 
     def __init__(self, **kwargs):
         super(SpriteWindow, self).__init__(**kwargs)
+        self.subloc = None
         self.sprite_organizer = SpriteOrganizer()
         self.center_sprite = Image(allow_stretch=True, keep_ratio=False,
                                    opacity=0, size_hint=(None, None), size=(800, 600),
@@ -273,7 +274,7 @@ class SpriteWindow(Widget):
         self.sprite_organizer.add_sprite(self.right_sprite)
         self.sprite_organizer.add_sprite(self.overlay)
 
-    def set_sprite(self, user):
+    def set_sprite(self, user, display_sub=True):
         sprite = user.get_current_sprite()
         if sprite.is_cg():
             self.set_cg(sprite, user)
@@ -299,7 +300,8 @@ class SpriteWindow(Widget):
         for index, organized_sprite in enumerate(self.sprite_organizer.get_sprites()):
             self.sprite_layout.add_widget(organized_sprite, index=index)
 
-        self.display_sub(subloc)
+        if(display_sub):
+            self.display_sub(subloc)
 
     def set_cg(self, sprite, user):
         self.sprite_layout.clear_widgets()
@@ -316,6 +318,7 @@ class SpriteWindow(Widget):
         self.background.texture = subloc.get_img().texture
 
     def display_sub(self, subloc):
+        self.subloc = subloc
         if subloc.o_users:
             sprite = subloc.get_o_user().get_current_sprite()
             option = subloc.get_o_user().get_sprite_option()

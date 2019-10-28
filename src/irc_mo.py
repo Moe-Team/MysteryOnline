@@ -236,10 +236,12 @@ class IconMessage:
                 connection_manager.on_join(username)
         try:
             option = int(self.sprite_option)
+            old_subloc = main_screen.sprite_window.subloc
             user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
             user.set_sprite_option(option)
-            main_screen.sprite_window.set_sprite(user)
+            main_screen.sprite_window.set_sprite(user, False)
             main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
+            main_screen.sprite_window.display_sub(old_subloc)
         except (AttributeError, KeyError, ValueError) as e:
             print(e)
             return
