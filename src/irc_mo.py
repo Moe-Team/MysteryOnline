@@ -33,6 +33,14 @@ class MessageFactory:
             result = ChatMessage("default", **kwargs)
         return result
 
+    def build_icon_message(self, **kwargs):
+        username = kwargs.get('username', None)
+        if username is not None:
+            result = IconMessage(username, **kwargs)
+        else:
+            result = IconMessage("default", **kwargs)
+        return result
+
     def build_character_message(self, character, link=None, version=None):
         result = CharacterMessage("default", character, link, version)
         return result
@@ -68,10 +76,12 @@ class MessageFactory:
     def build_choice_return_message(self, sender, questioner, whisper, selected_option):
         result = ChoiceReturnMessage(sender, questioner, whisper, selected_option)
         return result
-    
+
     def build_from_irc(self, irc_message, username):
         if irc_message.count('#') >= 8:
             result = ChatMessage(username)
+        elif irc_message.startswith("sc#"):
+            result = IconMessage(username)
         elif irc_message.startswith('c#'):
             result = CharacterMessage(username)
         elif irc_message.startswith('OOC#'):
@@ -167,7 +177,7 @@ class ChatMessage:
                 main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
             main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
-            
+
         if self.need_to_notify(self.content, user_handler.get_user().username):
             self.notify_user()
 
@@ -182,6 +192,59 @@ class ChatMessage:
             import ctypes
             ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
 
+
+class IconMessage:
+
+    def __init__(self, sender, **kwargs):
+        self.components = kwargs
+        self.sender = sender
+        self.content = kwargs.get('content')
+        self.location = kwargs.get('location')
+        self.sublocation = kwargs.get('sublocation')
+        self.character = kwargs.get('character')
+        self.sprite = kwargs.get('sprite')
+        self.position = kwargs.get('position')
+        self.sprite_option = kwargs.get('sprite_option')
+        self.remove_line_breaks()
+
+    def remove_line_breaks(self):
+        if self.content is None:
+            return
+        if '\n' in self.content or '\r' in self.content:
+            self.content = self.content.replace('\n', ' ')
+            self.content = self.content.replace('\r', ' ')
+
+    def to_irc(self):
+        msg = "sc#{0[location]}#{0[sublocation]}#{0[character]}#{0[sprite]}#" \
+              "{0[position]}#{0[sprite_option]}".format(self.components)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 6)
+        arguments.remove("sc")
+        self.location, self.sublocation, self.character, self.sprite, self.position, \
+        self.sprite_option = arguments
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        username = self.sender
+        if username == "default":
+            user = App.get_running_app().get_user()
+        else:
+            connection_manager.reschedule_ping()
+            user = main_screen.users.get(username, None)
+            if user is None:
+                connection_manager.on_join(username)
+        try:
+            option = int(self.sprite_option)
+            old_subloc = main_screen.sprite_window.subloc
+            user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+            user.set_sprite_option(option)
+            main_screen.sprite_window.set_sprite(user, False)
+            main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
+            main_screen.sprite_window.display_sub(old_subloc)
+        except (AttributeError, KeyError, ValueError) as e:
+            print(e)
+            return
 
 class ChoiceMessage:
 
@@ -208,7 +271,7 @@ class ChoiceMessage:
         self.text, self.options, self.list_of_users = arguments
 
     def execute(self, connection_manager, main_screen, user_handler):
-        user = user_handler.get_user()            
+        user = user_handler.get_user()
         username = user.username
         log = main_screen.log_window
         options = re.split(r'(?<!\\);', self.options)
@@ -266,7 +329,7 @@ class ChoiceReturnMessage:
         else:
             if username == self.sender:
                 user_handler.send_message(self.selected_option)
-                
+
 
 class CharacterMessage:
 

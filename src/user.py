@@ -171,6 +171,18 @@ class CurrentUserHandler:
         self.connection_manager.send_msg(message)
         self.connection_manager.send_local(message)
 
+    def send_icon(self):
+        self.user.set_pos(self.current_pos_name)
+        loc = self.user.get_loc().name
+        char = self.user.get_char().name
+        sprite_option = self.user.get_sprite_option()
+        message_factory = App.get_running_app().get_message_factory()
+        message = message_factory.build_icon_message(location=loc, sublocation=self.current_subloc_name,
+                                                     character=char, sprite=self.current_sprite_name,
+                                                     position=self.current_pos_name, sprite_option=sprite_option)
+        self.connection_manager.send_msg(message)
+        self.connection_manager.send_local(message)
+
     def on_current_loc(self, *args):
         self.user.set_loc(self.current_loc)
         subloc_name = self.current_loc.get_first_sub()

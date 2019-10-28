@@ -200,14 +200,23 @@ class TextBox(Label):
 class MainTextInput(TextInput):
     def __init__(self, **kwargs):
         super(MainTextInput, self).__init__(**kwargs)
+        self.icon_change_spam = False
 
     def ready(self, main_screen):
         Clock.schedule_once(main_screen.refocus_text)
+
+    def enable_icon_change(self, dt=None):
+        self.icon_change_spam = False
 
     def send_message(self, *args):
         if len(self.text) > 250:
             popup = MOPopup("Warning", "Message too long", "OK")
             popup.open()
+            return
+        elif len(self.text) == 0 and not self.icon_change_spam:
+            self.icon_change_spam = True
+            Clock.schedule_once(self.enable_icon_change, 1)
+            App.get_running_app().get_user_handler().send_icon()
             return
         main_scr = App.get_running_app().get_main_screen()
         Clock.schedule_once(main_scr.refocus_text)
