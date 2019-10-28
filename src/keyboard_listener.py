@@ -72,6 +72,7 @@ class KeyboardListener(Widget):
         toolbar.sfx_list = []
         toolbar.load_sfx()
         toolbar.create_sfx_dropdown()
+        main_scr.left_tab.music_list.music_list_view.music_box_layout.clear_widgets()
         main_scr.left_tab.music_list.ready()
         user.get_char().nsfw_sprites = {}
         user.get_char().spoiler_sprites = {}
