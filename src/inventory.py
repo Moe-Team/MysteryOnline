@@ -96,7 +96,10 @@ class Item(GridLayout):
         self.add_widget(self.name)
         self.description = Label(text=description)
         self.image_link = image_link
-        r = requests.get(image_link, timeout=(5, 20))
+        try:
+            r = requests.get(image_link, timeout=(5, 20))
+        except requests.exceptions.MissingSchema:
+            return
         r.raise_for_status()
         if r.ok:
             picname = urllib.request.urlopen(urllib.request.Request(image_link, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
