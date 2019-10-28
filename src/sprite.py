@@ -138,14 +138,17 @@ class SpriteSettings(BoxLayout):
         self.create_subloc_drop()
 
     def apply_post_processing(self, sprite, setting):
-        if setting == 0:
-            if sprite not in self.flipped:
-                self.flip_sprite(sprite.texture)
-                self.flipped.append(sprite)
-        else:
-            if sprite in self.flipped:
-                self.flip_sprite(sprite.texture)
-                self.flipped.remove(sprite)
+        try:
+            if setting == 0:
+                if sprite not in self.flipped:
+                    self.flip_sprite(sprite.texture)
+                    self.flipped.append(sprite)
+            else:
+                if sprite in self.flipped:
+                    self.flip_sprite(sprite.texture)
+                    self.flipped.remove(sprite)
+        except AttributeError:
+            pass
         return sprite
 
     def flip_sprite(self, sprite_texture):
