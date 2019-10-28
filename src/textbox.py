@@ -209,6 +209,9 @@ class MainTextInput(TextInput):
             popup = MOPopup("Warning", "Message too long", "OK")
             popup.open()
             return
+        elif len(self.text) == 0:
+            App.get_running_app().get_user_handler().send_icon()
+            return
         main_scr = App.get_running_app().get_main_screen()
         Clock.schedule_once(main_scr.refocus_text)
         msg = escape_markup(self.text)
