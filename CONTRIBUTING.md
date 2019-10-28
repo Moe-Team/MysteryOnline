@@ -12,6 +12,7 @@ This guide is for those who want to help with the development of the program.
 * Python(3.6 32bit)
 * Modules in requirements.txt
 * Make sure you have gstreamer installed alongside kivy (separate kivy.deps.gstreamer package on windows)
+* If on Linux run `# pip install https://github.com/matham/ffpyplayer/archive/master.zip`
 * Mandatory characters and location (RedHerring, Narrator, and the Hakuryou location)
 * Github account
 
