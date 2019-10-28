@@ -71,6 +71,7 @@ class PrivateMessageScreen(ModalView):
         pm_close_sound = SoundLoader.load('sounds/general/codecover.mp3')
         pm_close_sound.volume = vol / 100
         pm_close_sound.play()
+        pm_close_sound.seek(0)
         self.pm_window_open_flag = False
         self.pm_flag = False
         self.text_box.text = ''

@@ -271,7 +271,7 @@ class CommandProcessor:
             
     def load_shortcuts(self):
         config = App.get_running_app().config
-        for shortcut in config.items('command_shortcuts'):
+        for shortcut in config.items('command-shortcuts'):
             self.shortcuts[shortcut[0]] = shortcut[1]
 
     def get_commands(self):
