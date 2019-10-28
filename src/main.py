@@ -8,7 +8,6 @@
 # fixed_path = wrong_path.replace(pattern, to_replace)
 # os.environ['GST_PLUGIN_PATH'] = fixed_path
 
-
 import set_kivy_config
 # import irc.client
 # import requests
@@ -163,7 +162,7 @@ class MysteryOnlineApp(App):
             'fav_sfx': [],
             'fav_subloc': []
         })
-        config.setdefaults('command_shortcuts', {
+        config.setdefaults('command-shortcuts', {
             '>': "/color green '>"
         })
         config.setdefaults('keybindings', {
