@@ -95,7 +95,7 @@ class DownloadableCharactersScreen(Popup):
             KeyboardListener.refresh_characters()
             self.dismiss(animation=False)
             self.clean(char_name)
-        except (KeyError, zipfile.BadZipFile) as e:
+        except (KeyError, zipfile.BadZipFile, Exception) as e:
             print(e)
             self.dismiss()
             temp_pop = MOPopup("Error downloading", "Can't download " + char_name, "OK")
@@ -158,7 +158,8 @@ class DownloadableCharactersScreen(Popup):
                 self.clean(arguments[0])
                 char = arguments[0] + '#' + arguments[1] + '#' + arguments[2]
                 self.overwrite_ini(arguments[0], arguments[1], arguments[2])
-            except (KeyError, zipfile.BadZipFile) as e:
+            except (KeyError, zipfile.BadZipFile, Exception) as e:
+                print(e)
                 try:
                     dlc_list = App.get_running_app().get_main_screen().character_list_for_dlc
                     char_link = char + '#' + shared_link
