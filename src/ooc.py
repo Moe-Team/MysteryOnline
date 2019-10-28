@@ -177,6 +177,7 @@ class MusicTab(TabbedPanelItem):
             track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
             track.loop = root.loop
             track.play()
+            track.seek(0)
             root.track = track
             root.is_loading_music = False
             if track_name != "Hidden track":
@@ -338,6 +339,7 @@ class OOCWindow(TabbedPanel):
         pm_open_sound = SoundLoader.load('sounds/general/codecopen.mp3')
         pm_open_sound.volume = self.pm_open_sound_volume
         pm_open_sound.play()
+        pm_open_sound.seek(0)
 
     def restore_pm_button_to_normal(self, pm):
         pm.background_normal = 'atlas://data/images/defaulttheme/button'
@@ -364,6 +366,7 @@ class OOCWindow(TabbedPanel):
                             pm_notif = SoundLoader.load('sounds/general/codeccall.mp3')
                             pm_notif.volume = self.pm_notif_volume
                             pm_notif.play()
+                            pm_notif.seek(0)
                             if platform == 'win':
                                 import ctypes
                                 ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
@@ -422,6 +425,7 @@ class OOCWindow(TabbedPanel):
                 self.ooc_chat_header.background_color = color
             if self.ooc_play:
                 self.ooc_notif.play()
+                self.ooc_notif.seek(0)
                 config = App.get_running_app().config
                 delay = config.getdefaultint('other', 'ooc_notif_delay', 60)
                 Clock.schedule_once(self.ooc_time_callback, delay)

@@ -1,4 +1,5 @@
 # import os
+
 #
 # wrong_path = os.environ['GST_PLUGIN_PATH']
 # right_path = os.getcwd()
@@ -7,7 +8,6 @@
 #
 # fixed_path = wrong_path.replace(pattern, to_replace)
 # os.environ['GST_PLUGIN_PATH'] = fixed_path
-
 
 import set_kivy_config
 # import irc.client
@@ -94,6 +94,7 @@ class MainScreenManager(ScreenManager):
         v = config.getdefaultint('sound', 'effect_volume', 100)
         sfx.volume = v / 100
         sfx.play()
+        sfx.seek(0)
         self.current = "main"
         self.main_screen.on_ready()
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
@@ -163,7 +164,7 @@ class MysteryOnlineApp(App):
             'fav_sfx': [],
             'fav_subloc': []
         })
-        config.setdefaults('command_shortcuts', {
+        config.setdefaults('command-shortcuts', {
             '>': "/color green '>"
         })
         config.setdefaults('keybindings', {

@@ -5,9 +5,11 @@ from kivy.graphics.vertex_instructions import Rectangle
 from kivy.properties import ObjectProperty
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
-from kivy.utils import escape_markup
+from kivy.utils import escape_markup, platform
 from kivy.resources import resource_find
 from kivy.core.audio.audio_sdl2 import SoundSDL2
+
+from kivy.core.audio import SoundLoader
 
 import re
 from commands import command_processor, CommandInvalidArgumentsError, CommandNoArgumentsError
@@ -69,11 +71,14 @@ class TextBox(Label):
         self.rainbow_sfx = self.load_wav('sounds/general/rainbow.mp3')
 
     def load_wav(self, filename):
-        """Use SDL2 to load wav files cuz it's better"""
+        """Use SDL2 to load wav files cuz it's better, but only on windows"""
         rfn = resource_find(filename)
         if rfn is not None:
             filename = rfn
-        return SoundSDL2(source=filename)
+        if platform == 'win':
+            return SoundSDL2(source=filename)
+        else:
+            return SoundLoader.load(filename)
 
     def update_ui(self, dt):
         with self.char_name.canvas.before:
@@ -97,6 +102,7 @@ class TextBox(Label):
         vol = config.getdefaultint('sound', 'effect_volume', 100) / 100
         sfx.volume = vol
         sfx.play()
+        sfx.seek(0)
 
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
@@ -127,18 +133,25 @@ class TextBox(Label):
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
                 if user.color == 'ff3333':
                     self.red_sfx.play()
+                    self.red_sfx.seek(0)
                 elif user.color == '00adfc':
                     self.blue_sfx.play()
+                    self.blue_sfx.seek(0)
                 elif user.color == 'ffd700':
                     self.gold_sfx.play()
+                    self.gold_sfx.seek(0)
                 elif user.color == '8b6fba':
                     self.purple_sfx.play()
+                    self.purple_sfx.seek(0)
                 elif user.color == '00cd00':
                     self.green_sfx.play()
+                    self.green_sfx.seek(0)
                 elif user.color == 'ffffff':
                     self.blip.play()
+                    self.blip.seek(0)
             else:
                 self.rainbow_sfx.play()
+                self.rainbow_sfx.seek(0)
                 msg_array = list(self.msg)
                 self.msg = ''
                 color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '00adfc', '8b6fba', 'ee82ee']
@@ -163,6 +176,7 @@ class TextBox(Label):
     def _animate(self, dt):
         try:
             self.blip.play()
+            self.blip.seek(0)
             self.text += next(self.gen)
         except StopIteration:
             self.text += " "
