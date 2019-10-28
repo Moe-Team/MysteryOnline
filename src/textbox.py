@@ -205,7 +205,7 @@ class MainTextInput(TextInput):
         Clock.schedule_once(main_screen.refocus_text)
 
     def send_message(self, *args):
-        if len(self.text) > 400:
+        if len(self.text) > 250:
             popup = MOPopup("Warning", "Message too long", "OK")
             popup.open()
             return
