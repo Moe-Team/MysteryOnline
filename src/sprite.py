@@ -157,11 +157,11 @@ class SpriteSettings(BoxLayout):
     def on_checked_flip_h(self, value):
         user_handler = App.get_running_app().get_user_handler()
         if value:
-            user_handler.set_current_sprite_option(0)
+            user_handler.set_chosen_sprite_option(0)
         else:
-            user_handler.set_current_sprite_option(1)
-        sprite = user_handler.get_current_sprite()
-        sprite_option = user_handler.get_current_sprite_option()
+            user_handler.set_chosen_sprite_option(1)
+        sprite = user_handler.get_chosen_sprite()
+        sprite_option = user_handler.get_chosen_sprite_option()
         sprite = self.apply_post_processing(sprite, sprite_option)
         main_scr = App.get_running_app().get_main_screen()
         main_scr.sprite_preview.set_sprite(sprite)
@@ -193,7 +193,7 @@ class SpriteSettings(BoxLayout):
         self.pos_btn.text = pos
         main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
-        user_handler.set_current_pos_name(pos)
+        user_handler.set_chosen_pos_name(pos)
         main_scr.refocus_text()
 
     def create_subloc_drop(self):
@@ -204,8 +204,8 @@ class SpriteSettings(BoxLayout):
         self.subloc_btn.text = subloc_name
         main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
-        user_handler.set_current_subloc_name(subloc_name)
-        sub = user_handler.get_current_subloc()
+        user_handler.set_chosen_subloc_name(subloc_name)
+        sub = user_handler.get_chosen_subloc()
         main_scr.sprite_preview.set_subloc(sub)
         main_scr.refocus_text()
 
@@ -246,7 +246,7 @@ class SpritePreview(Image):
     def set_sprite(self, sprite):
         user_handler = App.get_running_app().get_user_handler()
         main_scr = App.get_running_app().get_main_screen()
-        sprite_option = user_handler.get_current_sprite_option()
+        sprite_option = user_handler.get_chosen_sprite_option()
         sprite = main_scr.sprite_settings.apply_post_processing(sprite, sprite_option)
         self.center_sprite.texture = None
         self.center_sprite.texture = sprite.get_texture()

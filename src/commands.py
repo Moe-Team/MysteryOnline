@@ -251,8 +251,8 @@ class CommandProcessor:
             user.get_char().load()
             main_scr.on_new_char(user.get_char())
         elif self.command['option'].lower() == 'subloc' or self.command['option'].lower() == 'sublocation':
-            user_handler.set_current_subloc_name(random.choice(user.get_loc().list_sub()))
-            main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
+            user_handler.set_chosen_subloc_name(random.choice(user.get_loc().list_sub()))
+            main_scr.sprite_preview.set_subloc(user_handler.get_chosen_subloc())
         elif self.command['option'].lower() == 'music' or self.command['option'].lower() == 'track':
             try:
                 main_scr.left_tab.music_list.tracks[random.choice(list(main_scr.left_tab.music_list.tracks))].on_selected()

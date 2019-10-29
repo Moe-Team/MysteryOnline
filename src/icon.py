@@ -116,17 +116,22 @@ class IconsLayout(BoxLayout):
         self.loading = True
         self.current_page = 1
         self.add_widget(self.grids[0], index=1)
-        self.sprite_picked(self.grids[0].children[-1])
+        self.sprite_picked(self.grids[0].children[-1], None, True)
         self.loading = False
 
-    def sprite_picked(self, icon, sprite_name=None):
+    def sprite_picked(self, icon, sprite_name=None, current=False):
         if sprite_name is None:
             sprite_name = icon.name
         main_scr = App.get_running_app().get_main_screen()
         user_handler = App.get_running_app().get_user_handler()
-        user_handler.set_current_sprite_name(sprite_name)
-        sprite = user_handler.get_current_sprite()
-        setting = user_handler.get_current_sprite_option
+        if current:
+            user_handler.set_current_sprite_name(sprite_name)
+            sprite = user_handler.get_current_sprite()
+            setting = user_handler.get_current_sprite_option
+        else:
+            user_handler.set_chosen_sprite_name(sprite_name)
+            sprite = user_handler.get_chosen_sprite()
+            setting = user_handler.get_chosen_sprite_option
         sprite = main_scr.sprite_settings.apply_post_processing(sprite, setting)
         main_scr.sprite_preview.set_sprite(sprite)
         Clock.schedule_once(main_scr.refocus_text, 0.2)
@@ -142,7 +147,7 @@ class IconsLayout(BoxLayout):
         main_scr = App.get_running_app().get_main_screen()
         char = main_scr.user.get_char()
         user_handler = App.get_running_app().get_user_handler()
-        sprite_option = user_handler.get_current_sprite_option()
+        sprite_option = user_handler.get_chosen_sprite_option()
         sprite = char.get_sprite(sprite_name)
         main_scr.sprite_settings.apply_post_processing(sprite, sprite_option)
         sprite_texture = char.get_sprite(sprite_name).get_texture()
