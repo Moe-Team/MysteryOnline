@@ -81,7 +81,7 @@ class RightClickMenu(ModalView):
             return
         user_handler.set_current_loc(loc)
         main_scr.sprite_settings.update_sub(loc)
-        main_scr.sprite_preview.set_subloc(user_handler.get_current_subloc())
+        main_scr.sprite_preview.set_subloc(user_handler.get_chosen_subloc())
 
 
 class MainScreen(Screen):
@@ -151,7 +151,7 @@ class MainScreen(Screen):
             self.sprite_settings.update_sub(locations['Hakuryou'])
         self.toolbar.set_user(self.user)
         self.toolbar.create_sfx_dropdown()
-        self.sprite_preview.set_subloc(user_handler.get_current_subloc())
+        self.sprite_preview.set_subloc(user_handler.get_chosen_subloc())
         char = self.user.get_char()
         if char is not None:
             self.on_new_char(char)

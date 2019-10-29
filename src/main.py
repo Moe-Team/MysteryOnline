@@ -1,4 +1,7 @@
-# import os
+import os, platform
+
+if(platform.system() == "Linux"):
+    os.environ["KIVY_WINDOW"] = "x11"
 
 #
 # wrong_path = os.environ['GST_PLUGIN_PATH']

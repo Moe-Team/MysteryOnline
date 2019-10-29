@@ -153,40 +153,55 @@ class CurrentUserHandler:
         self.current_subloc_name = ""
         self.current_pos_name = ""
         self.current_sprite_option = -1
+        self.chosen_sprite_name = ""
+        self.chosen_subloc_name = ""
+        self.chosen_pos_name = ""
+        self.chosen_sprite_option = -1
 
     def send_message(self, msg):
-        self.user.set_pos(self.current_pos_name)
         col_id = 0
         if self.user.colored:
             col_id = self.user.color_ids.index(self.user.get_color())
         loc = self.user.get_loc().name
         char = self.user.get_char().name
-        sprite_option = self.user.get_sprite_option()
         message_factory = App.get_running_app().get_message_factory()
         sfx_name = App.get_running_app().get_main_screen().get_toolbar().get_sfx_name()
-        message = message_factory.build_chat_message(content=msg, location=loc, sublocation=self.current_subloc_name,
-                                                     character=char, sprite=self.current_sprite_name,
-                                                     position=self.current_pos_name, color_id=col_id,
-                                                     sprite_option=sprite_option, sfx_name=sfx_name)
+        message = message_factory.build_chat_message(content=msg, location=loc, sublocation=self.chosen_subloc_name,
+                                                     character=char, sprite=self.chosen_sprite_name,
+                                                     position=self.chosen_pos_name, color_id=col_id,
+                                                     sprite_option=self.get_chosen_sprite_option(), sfx_name=sfx_name)
+
+        self.chosen_to_current()
+        self.user.set_pos(self.current_pos_name)
+
         self.connection_manager.send_msg(message)
         self.connection_manager.send_local(message)
 
     def send_icon(self):
-        self.user.set_pos(self.current_pos_name)
         loc = self.user.get_loc().name
         char = self.user.get_char().name
-        sprite_option = self.user.get_sprite_option()
         message_factory = App.get_running_app().get_message_factory()
-        message = message_factory.build_icon_message(location=loc, sublocation=self.current_subloc_name,
-                                                     character=char, sprite=self.current_sprite_name,
-                                                     position=self.current_pos_name, sprite_option=sprite_option)
+        message = message_factory.build_icon_message(location=loc, sublocation=self.chosen_subloc_name,
+                                                     character=char, sprite=self.chosen_sprite_name,
+                                                     position=self.chosen_pos_name,
+                                                     sprite_option=self.chosen_sprite_option)
+
+        self.chosen_to_current()
+        self.user.set_pos(self.current_pos_name)
+
         self.connection_manager.send_msg(message)
         self.connection_manager.send_local(message)
+
+    def chosen_to_current(self):
+        self.set_current_pos_name(self.get_chosen_pos_name())
+        self.set_current_sprite_name(self.get_chosen_sprite_name())
+        self.set_current_sprite_option(self.get_chosen_sprite_option())
+        self.set_current_subloc_name(self.get_chosen_subloc_name())
 
     def on_current_loc(self, *args):
         self.user.set_loc(self.current_loc)
         subloc_name = self.current_loc.get_first_sub()
-        self.set_current_subloc_name(subloc_name)
+        self.set_chosen_subloc_name(subloc_name)
         message_factory = App.get_running_app().get_message_factory()
         message = message_factory.build_location_message(self.current_loc.name)
         self.connection_manager.send_msg(message)
@@ -207,6 +222,9 @@ class CurrentUserHandler:
     def get_current_sprite(self):
         return self.user.get_current_sprite()
 
+    def get_chosen_sprite(self):
+        return self.user.get_char().get_sprite(self.chosen_sprite_name)
+
     def set_connection_manager(self, connection_manager):
         self.connection_manager = connection_manager
 
@@ -216,6 +234,33 @@ class CurrentUserHandler:
     def set_current_sprite_name(self, sprite_name):
         self.current_sprite_name = sprite_name
         self.on_current_sprite_name()
+
+    def set_chosen_sprite_name(self, sprite_name):
+        self.chosen_sprite_name = sprite_name
+
+    def get_chosen_sprite_name(self):
+        return self.chosen_sprite_name
+
+    def set_chosen_subloc_name(self, subloc_name):
+        self.chosen_subloc_name = subloc_name
+
+    def get_chosen_subloc(self):
+        return self.user.get_loc().get_sub(self.get_chosen_subloc_name())
+
+    def get_chosen_subloc_name(self):
+        return self.chosen_subloc_name
+
+    def set_chosen_pos_name(self, pos_name):
+        self.chosen_pos_name = pos_name
+
+    def get_chosen_pos_name(self):
+        return self.chosen_pos_name
+
+    def set_chosen_sprite_option(self, sprite_option):
+        self.chosen_sprite_option = sprite_option
+
+    def get_chosen_sprite_option(self):
+        return self.chosen_sprite_option
 
     def get_current_sprite_name(self):
         return self.current_sprite_name
