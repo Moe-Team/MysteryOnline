@@ -117,6 +117,7 @@ class IconsLayout(BoxLayout):
         self.current_page = 1
         self.add_widget(self.grids[0], index=1)
         self.sprite_picked(self.grids[0].children[-1], None, True)
+        self.sprite_picked(self.grids[0].children[-1], None, False)
         self.loading = False
 
     def sprite_picked(self, icon, sprite_name=None, current=False):
