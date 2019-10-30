@@ -496,6 +496,7 @@ input:disabled {
 
 .c-image--download__lg {
   width: 6em;
+  height: 6em;
   opacity: 0.5;
 }
 
