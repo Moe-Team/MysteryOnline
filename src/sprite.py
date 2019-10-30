@@ -8,6 +8,7 @@ from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.config import ConfigParser
 from sprite_organizer import SpriteOrganizer
+import copy
 
 
 class NullSprite:
@@ -63,7 +64,7 @@ class Sprite:
             texture = self.return_nsfw_texture()
         elif self.is_spoiler():
             texture = self.return_spoiler_texture()
-        return texture
+        return copy.copy(texture)
 
     def return_nsfw_texture(self):
         spoiler_sprite = self.load_dummy_character_sprite('5')
