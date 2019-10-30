@@ -5,8 +5,10 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.config import ConfigParser
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.clock import Clock
 from character import characters, main_series_list
 from math import ceil
+from utils import binary_search
 
 
 class CharacterToggle(ToggleButton):
@@ -37,6 +39,7 @@ class CharacterSelect(Popup):
 
     button_lay = ObjectProperty(None)
     scroll_lay = ObjectProperty(None)
+    search_bar = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(CharacterSelect, self).__init__(**kwargs)
@@ -45,7 +48,17 @@ class CharacterSelect(Popup):
         self.scroll_lay.add_widget(self.main_lay)
         self.save = CharacterSelectSaved(self.main_lay)
         self.value = []
+        chars = list(characters.values())
+        self.chars = {x.name.lower(): x for x in chars}
+        self.search_space = sorted(self.chars.keys())
+        self.search_results = []
+        self.search_done = False
+        self.search_button = None
+        self.ready()
         self.fill_with_chars()
+
+    def ready(self):
+        self.search_bar.focus = True
 
     def on_size(self, *args):
         self.fill_with_chars()
@@ -69,6 +82,17 @@ class CharacterSelect(Popup):
         if fav_button.state is 'down':
             grids['Favorites'] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
             self.main_lay.add_widget(grids['Favorites'])
+
+        mod = ceil(len(self.search_results) / 7)
+        self.search_button = ToggleButton(text='Search', size_hint=(1, None), height=25)
+        if self.search_button.text in self.value:
+            self.search_button.state = 'down'
+        self.search_button.bind(state=self.series_dropdown)
+        self.main_lay.add_widget(self.search_button)
+        if self.search_button.state is 'down':
+            grids['Search'] = GridLayout(cols=7, size_hint=(1, None), height=60 * mod)
+            self.main_lay.add_widget(grids['Search'])
+
         for s in sorted(main_series_list):
             self.create_series_rows(grids, s)
 
@@ -88,6 +112,17 @@ class CharacterSelect(Popup):
         fav_list = fav_list.replace("'", "")
         fav_list = fav_list.split(',')
         fav_list = [x.strip() for x in fav_list]
+
+        if g == 'Search':
+            for char_name in self.search_results:
+                found_char = self.chars[char_name]
+                btn = CharacterToggle(found_char, group='char', size=[60, 60], text_size=[60, 60], valign='center',
+                                      halign='center', markup=True)
+                btn.bind(on_touch_down=self.right_click, state=self.character_chosen)
+                if char_name == self.picked_char:
+                    btn.state = 'down'
+                grids[g].add_widget(btn)
+
         for c in chars:
             if c.name in fav_list and c.name in fav.value and 'Favorites' in self.value:
                 fav_btn = CharacterToggle(c, group='char', size=[60, 60], text_size=[60, 60], valign='center',
@@ -172,9 +207,63 @@ class CharacterSelect(Popup):
             except AttributeError:
                 pass
 
+    def search(self, target):
+        if target == "":
+            self.clear_search()
+            return
+        if self.search_done:
+            self.clear_search()
+        self.search_bar.text = ""
+        Clock.schedule_once(self.refocus)
+        self.search_button.state = 'down'
+        self.search_results = self.find_char(target)
+        self.save.is_saved = False
+        self.main_lay.clear_widgets()
+        self.fill_with_chars()
+
+    def find_char(self, target):
+        found_index = binary_search(self.search_space, target)
+        if found_index is None:
+            return []
+        self.search_done = True
+        i = found_index
+        current_char = self.search_space[i].lower()
+        result = []
+        while current_char.startswith(target.lower()):
+            result.append(current_char)
+            if i == len(self.search_space) - 1:
+                break
+            i += 1
+            current_char = self.search_space[i].lower()
+        i = found_index
+        if i > 0:
+            i -= 1
+            current_char = self.search_space[i].lower()
+            while current_char.startswith(target.lower()):
+                result.append(current_char)
+                if i == 0:
+                    break
+                i -= 1
+                current_char = self.search_space[i].lower()
+        return result
+
+    def clear_search(self):
+        if not self.search_done:
+            return
+        self.search_done = False
+        self.search_results = []
+        self.search_button.state = 'normal'
+        self.save.is_saved = False
+        self.main_lay.clear_widgets()
+        self.fill_with_chars()
+
+    def refocus(self, *args):
+        self.search_bar.focus = True
+
     def dismiss(self, inst):
         user = App.get_running_app().get_user()
         if self.picked_char and user is not None:
+            print(self.picked_char)
             user.set_char(self.picked_char)
             user.get_char().load()
             main_scr = App.get_running_app().get_main_screen()

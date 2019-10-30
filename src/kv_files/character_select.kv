@@ -2,6 +2,7 @@
 <CharacterSelect>:
     button_lay: button_lay
     scroll_lay: scroll_lay
+    search_bar: search_bar
 
     title: 'Select your character'
     size_hint: 0.33, 0.7
@@ -11,6 +12,22 @@
     FloatLayout:
         orientation: 'vertical'
         id: button_lay
+
+        BoxLayout:
+            pos_hint: {'bottom': 1, 'x': 0}
+            size_hint: 1, None
+            height: 30
+
+            TextInput:
+                id: search_bar
+                size_hint: 0.8, 1
+                multiline: False
+                on_text_validate: root.search(self.text)
+
+            Button:
+                text: "Clear"
+                size_hint: 0.2, 1
+                on_release: root.clear_search()
 
         ScrollView:
             pos_hint: {'top': 1, 'x': 0}
