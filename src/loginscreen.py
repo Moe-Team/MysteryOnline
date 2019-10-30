@@ -51,6 +51,9 @@ class LoginScreen(Screen):
             popup = MOPopup("Error", "Invalid username", "Whatever you say, mate")
             popup.open()
             return
+        if len(self.username) > 16:
+            MOPopup("Error", "Username too long (max 16 characters)", "Oh, okay").open()
+            return
         self.set_username_as_last_used()
         self.set_current_user()
         self.create_irc_connection()
