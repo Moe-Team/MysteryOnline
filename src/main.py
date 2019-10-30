@@ -1,6 +1,6 @@
 import os, platform
 
-if(platform.system() == "Linux"):
+if platform.system() == "Linux":
     os.environ["KIVY_WINDOW"] = "x11"
 
 #
