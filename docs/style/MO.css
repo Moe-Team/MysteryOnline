@@ -340,7 +340,7 @@ input:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 36px;
+  margin-bottom: var(--global-baseline);
 }
 
 .o-container--info {
