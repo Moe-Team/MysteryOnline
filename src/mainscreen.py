@@ -80,6 +80,7 @@ class RightClickMenu(ModalView):
         except KeyError:
             return
         user_handler.set_current_loc(loc)
+        main_scr.log_window.add_entry("\nYou moved to %s.\n" % loc_name)
         main_scr.sprite_settings.update_sub(loc)
         main_scr.sprite_preview.set_subloc(user_handler.get_chosen_subloc())
 
@@ -149,6 +150,8 @@ class MainScreen(Screen):
         except KeyError:
             user_handler.set_current_loc(locations['Hakuryou'])
             self.sprite_settings.update_sub(locations['Hakuryou'])
+        App.get_running_app().get_main_screen().log_window.add_entry("You moved to %s.\n" %
+                                                                     user_handler.get_current_loc().name)
         self.toolbar.set_user(self.user)
         self.toolbar.create_sfx_dropdown()
         self.sprite_preview.set_subloc(user_handler.get_chosen_subloc())
