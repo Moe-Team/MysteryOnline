@@ -56,11 +56,11 @@ class Command:
 
     def get_process(self):
         return self.process
-    
+
     def execute(self, command_proc):
         self.process = getattr(command_proc, self.process_name)
         self.process()
-        
+
 
 class CommandHandler:
 
@@ -165,7 +165,9 @@ class CommandProcessor:
 
             'startim': CommandHandler('startim'),
 
-            'random': CommandHandler('random', 'str:option')
+            'random': CommandHandler('random', 'str:option'),
+
+            'help': CommandHandler('help')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -176,11 +178,11 @@ class CommandProcessor:
         args = cmd_handler.parse_command(cmd)
         self.command = Command(cmd_name, args)
         self.command.execute(self)
-        
+
     #                       #
     # v Command Processes v #
     #                       #
-    
+
     def process_roll(self):
         try:
             dice_game.process_input(self.command)
@@ -255,7 +257,8 @@ class CommandProcessor:
             main_scr.sprite_preview.set_subloc(user_handler.get_chosen_subloc())
         elif self.command['option'].lower() == 'music' or self.command['option'].lower() == 'track':
             try:
-                main_scr.left_tab.music_list.tracks[random.choice(list(main_scr.left_tab.music_list.tracks))].on_selected()
+                main_scr.left_tab.music_list.tracks[
+                    random.choice(list(main_scr.left_tab.music_list.tracks))].on_selected()
             except IndexError:
                 pass
         else:
@@ -264,11 +267,17 @@ class CommandProcessor:
 
     def process_startim(self):
         Window.set_title("Sonata's Revenge")
-        
+
+    def process_help(self):
+        log = App.get_running_app().get_main_screen().log_window
+        log.add_entry("\nAvailable commands:\n")
+        for i in self.handlers:
+            log.add_entry("/{0}\n".format(i))
+        log.add_entry("\n")
     #                       #
     # ^ Command Processes ^ #
     #                       #
-            
+
     def load_shortcuts(self):
         config = App.get_running_app().config
         for shortcut in config.items('command-shortcuts'):
@@ -276,6 +285,6 @@ class CommandProcessor:
 
     def get_commands(self):
         return list(self.handlers)
-        
+
 
 command_processor = CommandProcessor()
