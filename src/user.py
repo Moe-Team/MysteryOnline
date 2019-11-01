@@ -68,7 +68,12 @@ class User:
         self.current_sprite = num
 
     def get_current_sprite(self):
-        return self.character.get_sprite(self.current_sprite)
+        if self.character is not None:
+            return self.character.get_sprite(self.current_sprite)
+        else:
+            red_herring = characters["RedHerring"]
+            red_herring.load()
+            return red_herring.get_sprite("3")
 
     def set_char(self, char):
         self.character = char
@@ -223,7 +228,13 @@ class CurrentUserHandler:
         return self.user.get_current_sprite()
 
     def get_chosen_sprite(self):
-        return self.user.get_char().get_sprite(self.chosen_sprite_name)
+        character = self.user.get_char()
+        if character is not None:
+            return character.get_sprite(self.chosen_sprite_name)
+        else:
+            red_herring = characters["RedHerring"]
+            red_herring.load()
+            return red_herring.get_sprite("3")
 
     def set_connection_manager(self, connection_manager):
         self.connection_manager = connection_manager
