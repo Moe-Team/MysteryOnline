@@ -479,6 +479,10 @@ class RollMessage:
         username = self.sender
         if username == "default":
             username = "You"
+        else:
+            sender = main_screen.users[username]
+            if sender.get_loc().name != user_handler.get_current_loc().name:
+                return
         main_screen.log_window.add_entry("{} rolled {}.\n".format(username, self.roll))
 
 
