@@ -286,26 +286,35 @@ class SpriteWindow(Widget):
         subloc = user.get_subloc()
         pos = user.get_pos()
         char = user.get_char()
-        self.sprite_layout.clear_widgets()
-        if char.name == 'Narrator':
-            self.sprite_organizer.add_sprite(self.overlay)
-            subloc.add_o_user(user)
+        if display_sub:
+            self.sprite_layout.clear_widgets()
+            if char.name == 'Narrator':
+                self.sprite_organizer.add_sprite(self.overlay)
+                subloc.add_o_user(user)
 
-        elif pos == 'right':
-            self.sprite_organizer.add_sprite(self.right_sprite)
-            subloc.add_r_user(user)
-        elif pos == 'left':
-            self.sprite_organizer.add_sprite(self.left_sprite)
-            subloc.add_l_user(user)
-        else:
-            self.sprite_organizer.add_sprite(self.center_sprite)
-            subloc.add_c_user(user)
+            elif pos == 'right':
+                self.sprite_organizer.add_sprite(self.right_sprite)
+                subloc.add_r_user(user)
+            elif pos == 'left':
+                self.sprite_organizer.add_sprite(self.left_sprite)
+                subloc.add_l_user(user)
+            else:
+                self.sprite_organizer.add_sprite(self.center_sprite)
+                subloc.add_c_user(user)
 
-        for index, organized_sprite in enumerate(self.sprite_organizer.get_sprites()):
-            self.sprite_layout.add_widget(organized_sprite, index=index)
+            for index, organized_sprite in enumerate(self.sprite_organizer.get_sprites()):
+                self.sprite_layout.add_widget(organized_sprite, index=index)
 
-        if(display_sub):
             self.display_sub(subloc)
+        else:
+            if char.name == 'Narrator':
+                subloc.add_o_user(user)
+            elif pos == 'right':
+                subloc.add_r_user(user)
+            elif pos == 'left':
+                subloc.add_l_user(user)
+            else:
+                subloc.add_c_user(user)
 
     def set_cg(self, sprite, user):
         self.sprite_layout.clear_widgets()
@@ -342,6 +351,9 @@ class SpriteWindow(Widget):
             main_scr = App.get_running_app().get_main_screen()
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
+                if sprite.is_cg():
+                    self.set_cg(sprite, subloc.get_c_user())
+                    return
                 self.center_sprite.texture = None
                 self.center_sprite.texture = sprite.get_texture()
                 self.center_sprite.opacity = 1
