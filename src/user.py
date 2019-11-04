@@ -4,6 +4,8 @@ from inventory import UserInventory
 
 from kivy.app import App
 
+from src.sprite import Sprite
+
 
 class User:
     def __init__(self, username):
@@ -67,7 +69,7 @@ class User:
     def set_current_sprite(self, num):
         self.current_sprite = num
 
-    def get_current_sprite(self):
+    def get_current_sprite(self) -> Sprite:
         if self.character is not None:
             return self.character.get_sprite(self.current_sprite)
         else:
@@ -224,7 +226,7 @@ class CurrentUserHandler:
     def get_current_subloc(self):
         return self.user.get_subloc()
 
-    def get_current_sprite(self):
+    def get_current_sprite(self) -> Sprite:
         return self.user.get_current_sprite()
 
     def get_chosen_sprite(self):
