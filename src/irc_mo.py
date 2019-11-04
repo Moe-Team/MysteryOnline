@@ -11,6 +11,8 @@ from user import User
 from choice import ChoicePopup
 import re
 
+from src.user import CurrentUserHandler
+
 
 class ChannelConnectionError(Exception):
     pass
@@ -198,21 +200,12 @@ class IconMessage:
     def __init__(self, sender, **kwargs):
         self.components = kwargs
         self.sender = sender
-        self.content = kwargs.get('content')
         self.location = kwargs.get('location')
         self.sublocation = kwargs.get('sublocation')
         self.character = kwargs.get('character')
         self.sprite = kwargs.get('sprite')
         self.position = kwargs.get('position')
         self.sprite_option = kwargs.get('sprite_option')
-        self.remove_line_breaks()
-
-    def remove_line_breaks(self):
-        if self.content is None:
-            return
-        if '\n' in self.content or '\r' in self.content:
-            self.content = self.content.replace('\n', ' ')
-            self.content = self.content.replace('\r', ' ')
 
     def to_irc(self):
         msg = "sc#{0[location]}#{0[sublocation]}#{0[character]}#{0[sprite]}#" \
@@ -808,7 +801,7 @@ class ConnectionManager:
 
     def on_join(self, username):
         main_scr = App.get_running_app().get_main_screen()
-        user_handler = App.get_running_app().get_user_handler()
+        user_handler: CurrentUserHandler = App.get_running_app().get_user_handler()
         user = user_handler.get_user()
         if user.username == username:
             return
@@ -825,6 +818,11 @@ class ConnectionManager:
             message_factory = App.get_running_app().get_message_factory()
             char_msg = message_factory.build_character_message(char.name, char.link, char.version)
             self.send_msg(char_msg)
+            np_message = message_factory \
+                .build_icon_message(location=user.get_loc().name, sublocation=user_handler.get_current_subloc_name(),
+                                    character=user.get_char().name, sprite=user.get_current_sprite().name,
+                                    position=user.get_pos(), sprite_option=user_handler.get_current_sprite_option())
+            self.send_msg(np_message)
 
     def on_disconnect(self, username):
         main_scr = App.get_running_app().get_main_screen()
