@@ -323,6 +323,7 @@ class OOCWindow(TabbedPanel):
         if user_box is None:
             return
         user_box.set_loc_label(loc)
+        user_box.set_sub_label("")
 
     def update_subloc(self, username, subloc):
         user_box = self.online_users.get(username, None)

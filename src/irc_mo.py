@@ -11,6 +11,7 @@ from user import User
 from choice import ChoicePopup
 import re
 
+from src.mainscreen import MainScreen
 from src.user import CurrentUserHandler
 
 
@@ -178,7 +179,7 @@ class ChatMessage:
             if self.sfx_name is not None:
                 main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
-            main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
+        main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
 
         if self.need_to_notify(self.content, user_handler.get_user().username):
             self.notify_user()
@@ -227,19 +228,23 @@ class IconMessage:
             user = main_screen.users.get(username, None)
             if user is None:
                 connection_manager.on_join(username)
+
+        user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+
         if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
             try:
                 option = int(self.sprite_option)
                 old_subloc = main_screen.sprite_window.subloc
                 if user.get_char().get_sprite(self.sprite).is_cg():
                     return # No nullposting for cgs!
-                user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
                 user.set_sprite_option(option)
                 main_screen.sprite_window.set_sprite(user, False)
                 main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
                 main_screen.sprite_window.display_sub(old_subloc)
             except (AttributeError, KeyError, ValueError) as e:
                 return
+        else:
+            main_screen.ooc_window.update_subloc(user.username, self.sublocation)
 
 class ChoiceMessage:
 
@@ -366,7 +371,7 @@ class LocationMessage:
         arguments = message.split('#', 1)
         self.location = arguments[1]
 
-    def execute(self, connection_manager, main_screen, user_handler):
+    def execute(self, connection_manager, main_screen, user_handler: CurrentUserHandler):
         username = self.sender
         loc = self.location
         if username not in main_screen.users:
@@ -381,7 +386,8 @@ class LocationMessage:
             main_screen.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
         user.set_loc(loc, True)
         main_screen.ooc_window.update_loc(user.username, loc)
-
+        main_screen.ooc_window.update_subloc(user.username, user.get_loc().get_real_first_sub())
+        main_screen.sprite_window.refresh_sub()
 
 class OOCMessage:
 
@@ -800,7 +806,7 @@ class ConnectionManager:
         main_scr.add_character_to_dlc_list(char, char_link, version)
 
     def on_join(self, username):
-        main_scr = App.get_running_app().get_main_screen()
+        main_scr: MainScreen = App.get_running_app().get_main_screen()
         user_handler: CurrentUserHandler = App.get_running_app().get_user_handler()
         user = user_handler.get_user()
         if user.username == username:
@@ -818,11 +824,7 @@ class ConnectionManager:
             message_factory = App.get_running_app().get_message_factory()
             char_msg = message_factory.build_character_message(char.name, char.link, char.version)
             self.send_msg(char_msg)
-            np_message = message_factory \
-                .build_icon_message(location=user.get_loc().name, sublocation=user_handler.get_current_subloc_name(),
-                                    character=user.get_char().name, sprite=user.get_current_sprite().name,
-                                    position=user.get_pos(), sprite_option=user_handler.get_current_sprite_option())
-            self.send_msg(np_message)
+            App.get_running_app().send_current_nullpost()
 
     def on_disconnect(self, username):
         main_scr = App.get_running_app().get_main_screen()

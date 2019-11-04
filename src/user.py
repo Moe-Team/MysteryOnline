@@ -4,6 +4,7 @@ from inventory import UserInventory
 
 from kivy.app import App
 
+from src.location import Location
 from src.sprite import Sprite
 
 
@@ -90,6 +91,8 @@ class User:
         else:
             self.location = loc
 
+        self.set_subloc(self.location.get_sub(self.location.get_first_sub()))
+
     def set_subloc(self, subloc):
         self.prev_subloc = self.subloc
         self.subloc = subloc
@@ -119,7 +122,7 @@ class User:
     def get_char(self):
         return self.character
 
-    def get_loc(self):
+    def get_loc(self) -> Location:
         return self.location
 
     def get_subloc(self):

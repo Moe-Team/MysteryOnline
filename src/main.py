@@ -318,6 +318,14 @@ class MysteryOnlineApp(App):
             Window.bind(mouse_pos=self.reset_cursor)
             Window.bind(on_motion=self.reset_cursor)
 
+    def send_current_nullpost(self):
+        """Sends your current parameters as a nullpost. Useful for sending your parameters to new users."""
+        np_message = self.message_factory \
+            .build_icon_message(location=self.user.get_loc().name, sublocation=self.user_handler.get_current_subloc_name(),
+                                character=self.user.get_char().name, sprite=self.user.get_current_sprite().name,
+                                position=self.user.get_pos(), sprite_option=self.user_handler.get_current_sprite_option())
+        self.user_handler.get_connection_manager().send_msg(np_message)
+
 
 if __name__ == "__main__":
     MysteryOnlineApp().run()
