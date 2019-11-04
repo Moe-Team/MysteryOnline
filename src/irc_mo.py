@@ -13,6 +13,7 @@ import re
 
 from src.mainscreen import MainScreen
 from src.user import CurrentUserHandler
+from jaraco.stream import buffer
 
 
 class ChannelConnectionError(Exception):
@@ -607,6 +608,7 @@ class PrivateMessageQueue:
 class IrcConnection:
 
     def __init__(self, server, port, channel, username):
+        irc.client.ServerConnection.buffer_class = buffer.LenientDecodingLineBuffer
         self.reactor = irc.client.Reactor()
         self.username = username
         self.server = server
