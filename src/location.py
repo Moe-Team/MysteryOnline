@@ -76,11 +76,15 @@ class LocationManager:
         self.is_loaded = True
 
     def get_locations(self):
-        if not self.is_loaded:
-            self.load_locations()
+        self.ensure_loaded()
         return self.locations
 
+    def ensure_loaded(self):
+        if not self.is_loaded:
+            self.load_locations()
+
     def has_location(self, location_name: str):
+        self.ensure_loaded()
         return location_name in self.locations
 
 
