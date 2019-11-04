@@ -80,6 +80,9 @@ class LocationManager:
             self.load_locations()
         return self.locations
 
+    def has_location(self, location_name: str):
+        return location_name in self.locations
+
 
 class Location:
 
@@ -105,13 +108,16 @@ class Location:
     def get_sub(self, name):
         return self.sublocations[name]
 
-    def get_first_sub(self):
+    def get_first_sub(self) -> str:
         config = ConfigParser()
         config.read('mysteryonline.ini')
         try:
             return self.sublocations[str(config.get('other', 'last_sublocation'))].name
         except KeyError:
-            return self.list_sub()[0]
+            return self.get_real_first_sub()
+
+    def get_real_first_sub(self) -> str:
+        return self.list_sub()[0]
 
     def get_name(self):
         return self.name

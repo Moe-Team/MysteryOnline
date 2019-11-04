@@ -331,6 +331,9 @@ class SpriteWindow(Widget):
         self.background.texture = subloc.get_img().texture
 
     def display_sub(self, subloc):
+        if subloc is None:
+            return
+
         self.subloc = subloc
         if subloc.o_users:
             sprite = subloc.get_o_user().get_current_sprite()
@@ -387,3 +390,6 @@ class SpriteWindow(Widget):
         else:
             self.right_sprite.texture = None
             self.right_sprite.opacity = 0
+
+    def refresh_sub(self):
+        self.display_sub(self.subloc)

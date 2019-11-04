@@ -179,7 +179,7 @@ class ChatMessage:
             if self.sfx_name is not None:
                 main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
-            main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
+        main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
 
         if self.need_to_notify(self.content, user_handler.get_user().username):
             self.notify_user()
@@ -243,6 +243,8 @@ class IconMessage:
                 main_screen.sprite_window.display_sub(old_subloc)
             except (AttributeError, KeyError, ValueError) as e:
                 return
+        else:
+            main_screen.ooc_window.update_subloc(user.username, self.sublocation)
 
 class ChoiceMessage:
 
@@ -369,7 +371,7 @@ class LocationMessage:
         arguments = message.split('#', 1)
         self.location = arguments[1]
 
-    def execute(self, connection_manager, main_screen, user_handler):
+    def execute(self, connection_manager, main_screen, user_handler: CurrentUserHandler):
         username = self.sender
         loc = self.location
         if username not in main_screen.users:
@@ -384,7 +386,8 @@ class LocationMessage:
             main_screen.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
         user.set_loc(loc, True)
         main_screen.ooc_window.update_loc(user.username, loc)
-
+        main_screen.ooc_window.update_subloc(user.username, user.get_loc().get_real_first_sub())
+        main_screen.sprite_window.refresh_sub()
 
 class OOCMessage:
 

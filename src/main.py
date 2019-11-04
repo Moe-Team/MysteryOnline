@@ -324,7 +324,7 @@ class MysteryOnlineApp(App):
             .build_icon_message(location=self.user.get_loc().name, sublocation=self.user_handler.get_current_subloc_name(),
                                 character=self.user.get_char().name, sprite=self.user.get_current_sprite().name,
                                 position=self.user.get_pos(), sprite_option=self.user_handler.get_current_sprite_option())
-        self.user_handler.get_connection_handler().send_msg(np_message)
+        self.user_handler.get_connection_manager().send_msg(np_message)
 
 
 if __name__ == "__main__":
