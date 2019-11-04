@@ -183,7 +183,7 @@ class SpriteSettings(BoxLayout):
         self.remove_widget(subloc_drop_main_btn)
 
     def create_pos_drop(self):
-        self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30))
+        self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30), scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
         for pos in ('center', 'right', 'left'):
             btn = Button(text=pos, size_hint=(None, None), size=(100, 30))
             btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
@@ -198,7 +198,7 @@ class SpriteSettings(BoxLayout):
         main_scr.refocus_text()
 
     def create_subloc_drop(self):
-        self.subloc_drop = DropDown(size_hint=(None, None), size=(100, 30))
+        self.subloc_drop = DropDown(size_hint=(None, None), size=(100, 30), scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
         self.subloc_drop.bind(on_select=self.on_subloc_select)
 
     def on_subloc_select(self, inst, subloc_name):

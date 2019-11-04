@@ -68,7 +68,7 @@ class RightClickMenu(ModalView):
 
     # noinspection PyTypeChecker
     def create_loc_drop(self):
-        self.loc_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        self.loc_drop = DropDown(size_hint=(None, None), size=(200, 30), scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
         self.create_location_buttons(self.loc_drop)
         self.loc_drop.bind(on_select=self.on_loc_select_clicked)
         

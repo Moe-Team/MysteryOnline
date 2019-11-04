@@ -66,7 +66,7 @@ class UserManagementInterface(ModalView):
     def __init__(self, caller, **kwargs):
         super(UserManagementInterface, self).__init__(**kwargs)
         self.caller = caller
-        self.dropdown = DropDown()
+        self.dropdown = DropDown(scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
 
     def ready(self):
         users = self.caller.debug_mode.get_created_users()
