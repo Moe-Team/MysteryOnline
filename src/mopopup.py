@@ -98,7 +98,7 @@ class MOPopupFile(Popup):
         self.title = title
         self.size_hint = (None, None)
         self.size = [400, 600]
-        scroll = ScrollView(size_hint=[1, 1], size=[self.width, self.height - 50])
+        scroll = ScrollView(size_hint=[1, 1], size=[self.width, self.height - 50], scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
         try:
             file = open(file)
         except FileNotFoundError:

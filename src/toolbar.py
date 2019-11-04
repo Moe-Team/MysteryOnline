@@ -9,7 +9,7 @@ class Toolbar(BoxLayout):
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
         self.user = None
-        self.color_drop = DropDown(size_hint=(None, None), size=(100, 30))
+        self.color_drop = DropDown(size_hint=(None, None), size=(100, 30), scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
         for col in ('red', 'blue', 'golden', 'green', 'rainbow', 'purple', 'normal'):
             btn = Button(text=col, size_hint=(None, None), size=(100, 30))
             btn.bind(on_release=lambda btn_: self.color_drop.select(btn_.text))
@@ -18,7 +18,7 @@ class Toolbar(BoxLayout):
         self.text_col_btn.bind(on_release=self.color_drop.open)
         self.add_widget(self.text_col_btn)
         self.color_drop.bind(on_select=self.on_col_select)
-        self.item_drop = DropDown(size_hint=(None, None), size=(200, 30))
+        self.item_drop = DropDown(size_hint=(None, None), size=(200, 30), scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
         self.text_item_btn = Button(text='no item', size_hint=(None, None), size=(200, 30))
         self.text_item_btn.bind(on_release=self.build_item_drop)
         self.text_item_btn.bind(on_release=self.item_drop.open)
@@ -76,7 +76,7 @@ class Toolbar(BoxLayout):
                 self.sfx_list.append(file)
 
     def create_sfx_dropdown(self):
-        self.sfx_dropdown = DropDown()
+        self.sfx_dropdown = DropDown(scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
         fav_sfx = App.get_running_app().get_fav_sfx()
         btn = Button(text="None", size_hint_y=None, height=40)
         btn.bind(on_release=lambda x: self.sfx_dropdown.select(x.text))
