@@ -102,7 +102,7 @@ class Item(GridLayout):
             return
         r.raise_for_status()
         if r.ok:
-            picname = urllib.request.urlopen(urllib.request.Request(image_link, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
+            picname = os.path.basename(urllib.parse.urlparse(image_link).path)
             if picname is None:
                 picname = "temp.jpg"
             f = open("imgcache/" + picname, mode="wb")
