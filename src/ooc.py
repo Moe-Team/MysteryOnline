@@ -7,6 +7,7 @@ from irc.client import MessageTooLong
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
+from kivy.core.window import Window
 from kivy.properties import ObjectProperty
 from kivy.uix.label import Label
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
@@ -368,9 +369,9 @@ class OOCWindow(TabbedPanel):
                             pm_notif.volume = self.pm_notif_volume
                             pm_notif.play()
                             pm_notif.seek(0)
-                            if platform == 'win':
-                                import ctypes
-                                ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
+                            App.get_running_app().flash_window()
+                            if not Window.focus:
+                                App.get_running_app().notification("Mystery Online", "You've got a PM from {0}".format(pm.sender))
                     self.chat.pm_flag = True
                     self.chat.build_conversation(pm.sender)
                     self.chat.update_conversation(pm.sender, pm.msg)

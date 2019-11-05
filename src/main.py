@@ -1,4 +1,4 @@
-import os, platform
+import os, platform, ctypes
 from sys import argv
 from src import set_dev, get_dev
 
@@ -213,10 +213,10 @@ class MysteryOnlineApp(App):
     def get_fav_subloc(self):
         return self.fav_subloc
 
-    def set_main_screen(self, scr):
+    def set_main_screen(self, scr: MainScreen):
         self.main_screen = scr
 
-    def get_main_screen(self):
+    def get_main_screen(self) -> MainScreen:
         return self.main_screen
 
     def set_user_handler(self, user_handler):
@@ -321,6 +321,23 @@ class MysteryOnlineApp(App):
         if self.cursor != 'default':
             Window.bind(mouse_pos=self.reset_cursor)
             Window.bind(on_motion=self.reset_cursor)
+
+    def flash_window(self):
+        if platform == 'win':
+            ctypes.windll.user32.FlashWindow(self.get_window_handle(), True)
+
+    def notification(self, title: str = "Mystery Online", content: str = "Bottom text"):
+        icon: str = os.path.join(os.path.dirname(os.path.realpath(__file__)), "icon.png")
+        if platform == 'linux':
+            import subprocess
+            subprocess.run(["notify-send", "-u", "normal", "-t", "10000", "-i", icon, title, content])
+        elif platform == 'win':
+            try:
+                from win10toast import ToastNotifier
+            except ImportError as e:
+                print("Missing win10toast library.")
+                return
+            ToastNotifier().show_toast(title, content, duration=10, icon_path=icon)
 
     def send_current_nullpost(self):
         """Sends your current parameters as a nullpost. Useful for sending your parameters to new users."""
