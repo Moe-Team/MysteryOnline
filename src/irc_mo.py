@@ -225,7 +225,8 @@ class IconMessage:
             if user is None:
                 connection_manager.on_join(username)
 
-        user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+        if user is not None:
+            user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
 
         if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
             try:
