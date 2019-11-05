@@ -307,7 +307,7 @@ class SpriteWindow(Widget):
                 self.sprite_organizer.add_sprite(self.left_sprite)
                 self.sprite_organizer.add_sprite(self.foreground)
                 subloc.add_l_user(user)
-                
+
             else:
                 self.sprite_organizer.add_sprite(self.center_sprite)
                 self.sprite_organizer.add_sprite(self.foreground)
@@ -362,6 +362,7 @@ class SpriteWindow(Widget):
             self.overlay.texture = None
             self.overlay.opacity = 0
 
+        self.foreground.opacity = 0
         if subloc.has_foreground():
             self.foreground.texture = None
             self.foreground.texture = subloc.get_foreground_img().texture
