@@ -1,10 +1,10 @@
-connect = False
+dev = False
 
 
-def set_connect(value: bool):
-    global connect
-    connect = value
+def set_dev(value: bool):
+    global dev
+    dev = value
 
 
-def get_connect() -> bool:
-    return connect
+def get_dev() -> bool:
+    return dev

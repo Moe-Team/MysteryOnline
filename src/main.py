@@ -1,9 +1,9 @@
 import os, platform
 from sys import argv
-from src import set_connect, get_connect
+from src import set_dev, get_dev
 
-if len(argv) > 1 and argv[1] == "--connect":
-    set_connect(True)
+if len(argv) > 1 and argv[1] == "--dev":
+    set_dev(True)
     del argv[1]
 
 if platform.system() == "Linux":

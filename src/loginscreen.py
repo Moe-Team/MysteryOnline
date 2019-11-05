@@ -11,7 +11,7 @@ from kivy.properties import StringProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
 from mopopup import MOPopup, MOPopupFile
 from user import User, CurrentUserHandler
-from src import get_connect
+from src import get_dev
 
 config = configparser.ConfigParser()
 config.read('irc_channel_name.ini')
@@ -47,7 +47,7 @@ class LoginScreen(Screen):
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
         self.picked_char = None
-        if get_connect():
+        if get_dev():
             Clock.schedule_once(self.on_login_clicked, 0)
 
     def on_login_clicked(self, *args):
