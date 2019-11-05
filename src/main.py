@@ -1,4 +1,10 @@
 import os, platform
+from sys import argv
+from src import set_connect, get_connect
+
+if len(argv) > 1 and argv[1] == "--connect":
+    set_connect(True)
+    del argv[1]
 
 if platform.system() == "Linux":
     os.environ["KIVY_WINDOW"] = "x11"
@@ -48,10 +54,6 @@ from os import listdir
 
 from commands import command_processor
 from kivy.core.window import Window
-import os
-import shutil
-
-
 
 KV_DIR = "kv_files/"
 
@@ -269,6 +271,8 @@ class MysteryOnlineApp(App):
         return False
 
     def show_ungraceful_exit_popup(self):
+        if get_connect():
+            return
         popup = MOPopup('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
                         'Get the log from /kivy_logs, and send it to us for support.', 'OK')
         popup.size = [500, 200]

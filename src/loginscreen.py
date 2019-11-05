@@ -1,15 +1,17 @@
-from kivy.uix.screenmanager import Screen
-from kivy.app import App
-from kivy.properties import StringProperty
-from mopopup import MOPopup, MOPopupFile
-from character_select import CharacterSelect
-from character import characters
-import re
-from kivy.config import ConfigParser
-from irc_mo import IrcConnection, ConnectionManager
-from user import User, CurrentUserHandler
-
 import configparser
+import re
+
+from character import characters
+from character_select import CharacterSelect
+from irc_mo import IrcConnection, ConnectionManager
+from kivy.app import App
+from kivy.clock import Clock
+from kivy.config import ConfigParser
+from kivy.properties import StringProperty, ObjectProperty
+from kivy.uix.screenmanager import Screen
+from mopopup import MOPopup, MOPopupFile
+from user import User, CurrentUserHandler
+from src import get_connect
 
 config = configparser.ConfigParser()
 config.read('irc_channel_name.ini')
@@ -45,6 +47,8 @@ class LoginScreen(Screen):
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
         self.picked_char = None
+        if get_connect():
+            Clock.schedule_once(self.on_login_clicked, 0)
 
     def on_login_clicked(self, *args):
         if self.username == '' or not self.is_username_valid():
