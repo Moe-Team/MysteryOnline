@@ -116,7 +116,7 @@ class Location:
         for file in os.listdir(self.path):
             strip: str = self.strip_ext(file)
             if strip.endswith("_foreground"):
-                return
+                continue
             self.sublocations[strip] = SubLocation(strip, self.path+file)
 
     @staticmethod
