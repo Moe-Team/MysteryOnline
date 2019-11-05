@@ -1,4 +1,6 @@
 import os
+
+from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
 from kivy.config import ConfigParser
 
@@ -8,6 +10,14 @@ class SubLocation:
     def __init__(self, name, img_path):
         self.name = name
         self.img_path = img_path
+        self.foreground_path: str = None
+
+        dir_path: str = os.path.dirname(img_path)
+        foreground_png: str = os.path.join(dir_path, name+"_foreground.png")  # We only support png
+
+        if os.path.exists(foreground_png):
+            self.foreground_path = foreground_png
+
         self.c_users = []
         self.l_users = []
         self.r_users = []
@@ -15,6 +25,12 @@ class SubLocation:
 
     def get_img(self):
         return Image(source=self.img_path)
+
+    def get_foreground_img(self):
+        return Image(source=self.foreground_path)
+
+    def has_foreground(self) -> bool:
+        return self.foreground_path is not None
 
     def get_name(self):
         return self.name
@@ -97,11 +113,14 @@ class Location:
         self.placeholder_subloc = SubLocation('Missingno',  "misc_img/Missingno.jpg")
 
     def load(self):
-        self.sublocations = {self.strip_ext(file):
-                             SubLocation(self.strip_ext(file),
-                                         self.path+file) for file in os.listdir(self.path)}
+        for file in os.listdir(self.path):
+            strip: str = self.strip_ext(file)
+            if strip.endswith("_foreground"):
+                return
+            self.sublocations[strip] = SubLocation(strip, self.path+file)
 
-    def strip_ext(self, name):
+    @staticmethod
+    def strip_ext(name: str) -> str:
         # Strips extension from sublocation names
         if name.lower().endswith((".jpg", ".png")):
             return name[:-4]

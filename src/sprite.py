@@ -10,6 +10,8 @@ from kivy.config import ConfigParser
 from sprite_organizer import SpriteOrganizer
 import copy
 
+from src.location import SubLocation
+
 
 class NullSprite:
 
@@ -271,11 +273,14 @@ class SpriteWindow(Widget):
                                  pos_hint={'center_x': 0.25, 'y': 0})
         self.right_sprite = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                                   pos_hint={'center_x': 0.75, 'y': 0})
+        self.foreground = Image(opacity=0, size_hint=(None, None), size=(800, 600),
+                             pos_hint={'center_x': 0.5, 'y': 0})
         self.overlay = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                              pos_hint={'center_x': 0.5, 'y': 0})
         self.sprite_organizer.add_sprite(self.center_sprite)
         self.sprite_organizer.add_sprite(self.left_sprite)
         self.sprite_organizer.add_sprite(self.right_sprite)
+        self.sprite_organizer.add_sprite(self.foreground)
         self.sprite_organizer.add_sprite(self.overlay)
 
     def set_sprite(self, user, display_sub=True):
@@ -289,18 +294,25 @@ class SpriteWindow(Widget):
         if display_sub:
             self.sprite_layout.clear_widgets()
             if char.name == 'Narrator':
+                self.sprite_organizer.add_sprite(self.foreground)
                 self.sprite_organizer.add_sprite(self.overlay)
                 subloc.add_o_user(user)
 
             elif pos == 'right':
                 self.sprite_organizer.add_sprite(self.right_sprite)
+                self.sprite_organizer.add_sprite(self.foreground)
                 subloc.add_r_user(user)
+
             elif pos == 'left':
                 self.sprite_organizer.add_sprite(self.left_sprite)
+                self.sprite_organizer.add_sprite(self.foreground)
                 subloc.add_l_user(user)
+                
             else:
                 self.sprite_organizer.add_sprite(self.center_sprite)
+                self.sprite_organizer.add_sprite(self.foreground)
                 subloc.add_c_user(user)
+
 
             for index, organized_sprite in enumerate(self.sprite_organizer.get_sprites()):
                 self.sprite_layout.add_widget(organized_sprite, index=index)
@@ -328,17 +340,18 @@ class SpriteWindow(Widget):
         self.center_sprite.size = 800, 600
 
     def set_subloc(self, subloc):
+        self.subloc = subloc
         self.background.texture = subloc.get_img().texture
 
-    def display_sub(self, subloc):
+    def display_sub(self, subloc: SubLocation):
         if subloc is None:
             return
 
+        main_scr = App.get_running_app().get_main_screen()
         self.subloc = subloc
         if subloc.o_users:
             sprite = subloc.get_o_user().get_current_sprite()
             option = subloc.get_o_user().get_sprite_option()
-            main_scr = App.get_running_app().get_main_screen()
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.overlay.texture = None
@@ -348,10 +361,15 @@ class SpriteWindow(Widget):
         else:
             self.overlay.texture = None
             self.overlay.opacity = 0
+
+        if subloc.has_foreground():
+            self.foreground.texture = None
+            self.foreground.texture = subloc.get_foreground_img().texture
+            self.foreground.opacity = 1
+
         if subloc.c_users:
             sprite = subloc.get_c_user().get_current_sprite()
             option = subloc.get_c_user().get_sprite_option()
-            main_scr = App.get_running_app().get_main_screen()
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 if sprite.is_cg():
@@ -367,7 +385,6 @@ class SpriteWindow(Widget):
         if subloc.l_users:
             sprite = subloc.get_l_user().get_current_sprite()
             option = subloc.get_l_user().get_sprite_option()
-            main_scr = App.get_running_app().get_main_screen()
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.left_sprite.texture = None
@@ -380,7 +397,6 @@ class SpriteWindow(Widget):
         if subloc.r_users:
             sprite = subloc.get_r_user().get_current_sprite()
             option = subloc.get_r_user().get_sprite_option()
-            main_scr = App.get_running_app().get_main_screen()
             sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
             if sprite is not None:
                 self.right_sprite.texture = None
