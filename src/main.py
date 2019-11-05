@@ -271,7 +271,7 @@ class MysteryOnlineApp(App):
         return False
 
     def show_ungraceful_exit_popup(self):
-        if get_connect():
+        if get_dev():
             return
         popup = MOPopup('Ungraceful Exit', 'It seems MO closed unexpectedly last time.\n'
                         'Get the log from /kivy_logs, and send it to us for support.', 'OK')
