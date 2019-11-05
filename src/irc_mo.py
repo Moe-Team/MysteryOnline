@@ -4,6 +4,7 @@ from kivy.uix.textinput import TextInput
 from kivy.app import App
 from kivy.logger import Logger
 from kivy.clock import Clock
+from kivy.core.window import Window
 from kivy.utils import platform
 
 from character import characters
@@ -183,19 +184,13 @@ class ChatMessage:
         main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
 
         if self.need_to_notify(self.content, user_handler.get_user().username):
-            self.notify_user()
+            App.get_running_app().flash_window()
+            if not Window.focus:
+                App.get_running_app().notification("Mystery Online", "You've been mentioned by {0}!".format(user.username))
 
     def need_to_notify(self, msg, username):
-        p = re.compile('@'+username+'([ ]|$)', re.I)
-        if re.search(p, msg):
-            return True
-        return False
-
-    def notify_user(self):
-        if platform == 'win':
-            import ctypes
-            ctypes.windll.user32.FlashWindow(App.get_running_app().get_window_handle(), True)
-
+        mention: str = "@{0}".format(username)
+        return msg == mention or mention+" " in msg
 
 class IconMessage:
 
