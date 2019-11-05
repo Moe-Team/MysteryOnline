@@ -329,8 +329,7 @@ class SpriteWindow(Widget):
                 subloc.add_c_user(user)
 
     def set_cg(self, sprite, user):
-        self.sprite_layout.clear_widgets()
-        self.sprite_layout.add_widget(self.center_sprite, index=0)
+        self.set_all_sprites_opacity(0)
         option = user.get_sprite_option()
         main_scr = App.get_running_app().get_main_screen()
         sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
@@ -338,6 +337,13 @@ class SpriteWindow(Widget):
         self.center_sprite.texture = sprite.get_texture()
         self.center_sprite.opacity = 1
         self.center_sprite.size = 800, 600
+
+    def set_all_sprites_opacity(self, value: float):
+        self.left_sprite.opacity = value
+        self.right_sprite.opacity = value
+        self.center_sprite.opacity = value
+        self.foreground.opacity = value
+        self.overlay.opacity = value
 
     def set_subloc(self, subloc):
         self.subloc = subloc
