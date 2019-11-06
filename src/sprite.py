@@ -291,6 +291,8 @@ class SpriteWindow(Widget):
         subloc = user.get_subloc()
         pos = user.get_pos()
         char = user.get_char()
+        if char.name != 'Narrator':
+            subloc.remove_o_user(user)
         if display_sub:
             self.sprite_layout.clear_widgets()
             if char.name == 'Narrator':
