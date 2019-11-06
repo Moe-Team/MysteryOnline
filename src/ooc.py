@@ -175,7 +175,7 @@ class MusicTab(TabbedPanelItem):
                         main_scr.music_name_display.text = "Error"
                     return
             track = SoundLoader.load("mucache/"+songtitle+".mp3")
-            track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
+            track.volume = config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0
             track.loop = root.loop
             track.play()
             track.seek(0)
