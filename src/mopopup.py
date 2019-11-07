@@ -130,7 +130,7 @@ class FormPopup(Popup):
     field_layout = ObjectProperty(None)
 
     def __init__(self, title, on_validate, on_submit, on_error, **kwargs):
-        super(FormPopup, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.title = title
         self.on_validate = on_validate
         self.on_submit = on_submit
