@@ -6,7 +6,7 @@ from kivy.uix.image import AsyncImage
 from kivy.app import App
 from kivy.properties import ObjectProperty
 from kivy.core.audio import SoundLoader
-from mopopup import MOPopup
+from mopopup import MOPopup, FormPopup
 import webbrowser
 import requests
 import urllib
@@ -62,7 +62,9 @@ class UserInventory(Popup):
             self.item_list.height = self.number_of_items * 60
 
     def display_item_creator(self):
-        item_creator = ItemCreator(self, self.user)
+        # item_creator = ItemCreator(self, self.user)
+        # item_creator.open()
+        item_creator = FormPopup("test")
         item_creator.open()
 
     def get_item_by_name(self, name):
