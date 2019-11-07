@@ -1,0 +1,29 @@
+<FormPopup>:
+    submit_button: _submit_button
+    field_layout: _field_layout
+
+    auto_dismiss: False
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 30
+
+        BoxLayout:
+            id: _field_layout
+            orientation: 'vertical'
+            spacing: 20
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            size_hint_y: 0.2
+
+            Button:
+                text: "Close"
+                on_release: root.dismiss()
+
+            Button:
+                id: _submit_button
+                text: "Submit"
+                disabled: True
+                on_release: root.submit()

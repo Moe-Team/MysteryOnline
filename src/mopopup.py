@@ -1,8 +1,10 @@
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
+from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
+from kivy.properties import ObjectProperty
 
 
 class MOPopupBase(Popup):
@@ -114,3 +116,70 @@ class MOPopupFile(Popup):
         box_lay.add_widget(scroll)
         content = box_lay
         self.add_widget(content)
+
+
+class FormPopup(Popup):
+    """
+    :param title: Title of popup
+    :param on_validate: called when validating data, takes list of fields
+    :param on_submit: called when submitting validated data, takes popup instance and list of fields
+    :param on_error: called when data isn't valid, takes popup instance and list of fields
+    :param kwargs: kivy args for text fields
+    """
+    submit_button = ObjectProperty(None)
+    field_layout = ObjectProperty(None)
+
+    def __init__(self, title, on_validate, on_submit, on_error, **kwargs):
+        super().__init__(**kwargs)
+        self.title = title
+        self.on_validate = on_validate
+        self.on_submit = on_submit
+        self.on_error = on_error
+        self._fields = {}
+        self._required_fields = []
+
+    @property
+    def on_validate(self):
+        return self._on_validate
+
+    @on_validate.setter
+    def on_validate(self, x):
+        self._on_validate = x
+
+    @property
+    def on_submit(self):
+        return self._on_submit
+
+    @on_submit.setter
+    def on_submit(self, x):
+        self._on_submit = x
+
+    @property
+    def on_error(self):
+        return self._on_error
+
+    @on_error.setter
+    def on_error(self, x):
+        self._on_error = x
+
+    def add_field(self, name, is_required=False, **kwargs):
+        field = TextInput(**kwargs)
+        self._fields[name] = field
+        if is_required:
+            field.bind(text=self.check_required)
+            self._required_fields.append(field)
+        self.field_layout.add_widget(Label(text=name, size_hint=(1, 1)))
+        self.field_layout.add_widget(field)
+
+    def check_required(self, instance, value):
+        for field in self._required_fields:
+            if field.text == "":
+                self.submit_button.disabled = True
+                return
+        self.submit_button.disabled = False
+
+    def submit(self):
+        if self.on_validate(self._fields):
+            self.on_submit(self, self._fields)
+        else:
+            self.on_error(self, self._fields)
