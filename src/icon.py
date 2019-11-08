@@ -16,27 +16,11 @@ class Icon(Image):
         self.texture = texture
         self.size_hint = None, None
         self.size = 40, 40
-        Window.bind(mouse_pos=self.on_mouse_pos)
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             self.parent.parent.sprite_picked(self, self.name)
             return True
-
-    def on_mouse_pos(self, *args):
-        if not self.parent or not self.parent.parent:
-            return
-        if not self.get_root_window():
-            return
-        config = App.get_running_app().config
-        if config.getdefaultint('other', 'sprite_tooltips', 1) == 0:
-            return
-        pos = args[1]
-        Clock.unschedule(self.display_tooltip)  # cancel scheduled event since I moved the cursor
-        self.close_tooltip()  # close if it's opened
-        if self.collide_point(*self.to_widget(*pos)):
-            Clock.schedule_once(self.display_tooltip, 0.4)
-            self.parent.scheduled_icon = self
 
     def display_tooltip(self, *args):
         if not self.parent or not self.parent.parent:
@@ -73,6 +57,7 @@ class IconsLayout(BoxLayout):
         self.scheduled_icon = None
         self.max_pages = 0
         self.loading = False
+        Window.bind(mouse_pos=self.on_mouse_pos)
 
     def prev_page(self, *args):
         if self.current_page > 1:
@@ -87,6 +72,28 @@ class IconsLayout(BoxLayout):
             self.remove_widget(self.children[1])
             grid_index = self.current_page - 1
             self.add_widget(self.grids[grid_index], index=1)
+
+    def on_mouse_pos(self, window, pos):
+        if len(self.grids) == 0 or App.get_running_app().config.getdefaultint('other', 'sprite_tooltips', 1) == 0:
+            return
+
+        if not self.collide_point(*pos):
+            if self.scheduled_icon is not None:
+                Clock.unschedule(self.scheduled_icon.display_tooltip)
+                self.scheduled_icon.close_tooltip()
+            return
+
+        for child in self.grids[self.current_page-1].children:
+            if not isinstance(child, Icon):
+                continue
+
+            if child.collide_point(*pos):
+                Clock.schedule_once(child.display_tooltip, 0.4)
+                self.scheduled_icon = child
+                break
+            else:
+                Clock.unschedule(child.display_tooltip)  # cancel scheduled event since I moved the cursor
+                child.close_tooltip()  # close if it's opened
 
     def load_icons(self, char):
         icons = char.get_icons()
