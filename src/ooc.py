@@ -176,13 +176,11 @@ class MusicTab(TabbedPanelItem):
                         main_scr.music_name_display.text = "Error"
                     return
             track = SoundLoader.load("mucache/"+songtitle+".mp3")
-            track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
-            track.loop = root.loop
-            track.play()
-            track.seek(0)
+            App.get_running_app().play_sound(track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
             with root.track_lock:
                 if root.track is not None:
                     root.track.stop()
+                    root.track.unload()
                 root.track = track
             root.is_loading_music = False
             if track_name != "Hidden track":
@@ -200,6 +198,7 @@ class MusicTab(TabbedPanelItem):
             if self.track is not None:
                 if self.track.state == 'play':
                     self.track.stop()
+                    self.track.unload()
                     main_screen = App.get_running_app().get_main_screen()
                     main_screen.music_name_display.text = "Playing: "
                     if local:
@@ -221,6 +220,7 @@ class MusicTab(TabbedPanelItem):
         with self.track_lock:
             if self.track is not None:
                 self.track.stop()
+                self.track.unload()
 
 
 class OOCWindow(TabbedPanel):
@@ -237,6 +237,7 @@ class OOCWindow(TabbedPanel):
         super(OOCWindow, self).__init__(**kwargs)
         self.online_users = {}
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
+        self.ooc_notif.unload()
         self.pm_notif_volume =0
         self.pm_open_sound_volume = 0
         self.ooc_play = True
@@ -267,9 +268,9 @@ class OOCWindow(TabbedPanel):
         self.chat.username = main_scr.user.username
         Clock.schedule_interval(self.update_private_messages, 1.0 / 60.0)
         v = config.getdefaultint('sound', 'effect_volume', 100)
-        self.ooc_notif.volume = v / 100
-        self.pm_notif_volume = v / 100
-        self.pm_open_sound_volume = v / 100
+        self.ooc_notif.volume = v / 100.0
+        self.pm_notif_volume = v / 100.0
+        self.pm_open_sound_volume = v / 100.0
         self.user_list.bind(minimum_height=self.user_list.setter('height'))
 
     def on_blip_volume_change(self, s, k, v):
@@ -292,9 +293,9 @@ class OOCWindow(TabbedPanel):
 
     def on_ooc_volume_change(self, s, k, v):
         self.effect_slider.value = v
-        self.ooc_notif.volume = int(v) / 100
-        self.pm_notif_volume = int(v) / 100
-        self.pm_open_sound_volume = int(v) / 100
+        self.ooc_notif.volume = int(v) / 100.0
+        self.pm_notif_volume = int(v) / 100.0
+        self.pm_open_sound_volume = int(v) / 100.0
 
     def on_slider_effect_value(self, *args):
         config = App.get_running_app().config
@@ -345,9 +346,7 @@ class OOCWindow(TabbedPanel):
         self.chat.set_current_conversation_user(username)
         self.chat.open()
         pm_open_sound = SoundLoader.load('sounds/general/codecopen.mp3')
-        pm_open_sound.volume = self.pm_open_sound_volume
-        pm_open_sound.play()
-        pm_open_sound.seek(0)
+        App.get_running_app().play_sound(pm_open_sound, volume=self.pm_open_sound_volume)
 
     def restore_pm_button_to_normal(self, pm):
         pm.background_normal = 'atlas://data/images/defaulttheme/button'
@@ -372,9 +371,7 @@ class OOCWindow(TabbedPanel):
                                 break
                         if not self.chat.pm_flag and not self.chat.pm_window_open_flag:
                             pm_notif = SoundLoader.load('sounds/general/codeccall.mp3')
-                            pm_notif.volume = self.pm_notif_volume
-                            pm_notif.play()
-                            pm_notif.seek(0)
+                            App.get_running_app().play_sound(pm_notif, volume=self.pm_notif_volume)
                             App.get_running_app().flash_window()
                             if not Window.focus:
                                 App.get_running_app().notification("Mystery Online", "You've got a PM from {0}".format(pm.sender))
@@ -432,8 +429,7 @@ class OOCWindow(TabbedPanel):
                 self.ooc_chat_header.background_normal = ''
                 self.ooc_chat_header.background_color = color
             if self.ooc_play:
-                self.ooc_notif.play()
-                self.ooc_notif.seek(0)
+                App.get_running_app().play_sound(self.ooc_notif)
                 config = App.get_running_app().config
                 delay = config.getdefaultint('other', 'ooc_notif_delay', 60)
                 Clock.schedule_once(self.ooc_time_callback, delay)

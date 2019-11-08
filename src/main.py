@@ -26,7 +26,7 @@ from kivy.uix.screenmanager import ScreenManager
 from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.clock import Clock
 from kivy.lang.builder import Builder
-from kivy.core.audio import SoundLoader
+from kivy.core.audio import SoundLoader, Sound
 from kivy.utils import platform
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
@@ -94,9 +94,7 @@ class MainScreenManager(ScreenManager):
         config = App.get_running_app().config
         sfx = SoundLoader.load('sounds/general/login.mp3')
         v = config.getdefaultint('sound', 'effect_volume', 100)
-        sfx.volume = v / 100
-        sfx.play()
-        sfx.seek(0)
+        App.get_running_app().play_sound(sfx, volume=v / 100.0)
         self.current = "main"
         self.main_screen.on_ready()
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
@@ -343,6 +341,16 @@ class MysteryOnlineApp(App):
                                 character=self.user.get_char().name, sprite=self.user.get_current_sprite().name,
                                 position=self.user.get_pos(), sprite_option=self.user_handler.get_current_sprite_option())
         self.user_handler.get_connection_manager().send_msg(np_message)
+
+    def play_sound(self, sound: Sound, loop=False, volume=1.0):
+        """Kivy is a mess, so we need to do this for *every* audio we want to play."""
+        sound.load()
+        sound.loop = loop
+        sound.volume = volume
+        sound.play()
+        if not loop:
+            Clock.schedule_once(lambda delta: sound.unload(), sound.length)
+        sound.seek(0)
 
 
 if __name__ == "__main__":

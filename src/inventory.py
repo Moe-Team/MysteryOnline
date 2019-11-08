@@ -24,7 +24,6 @@ class UserInventory(Popup):
         self.user = user
         self.item_dictionary_logic = {}
         self.number_of_items = len(self.item_dictionary_logic)
-        self.inv_open_sound = SoundLoader.load('sounds/general/takethat.mp3')
 
     def get_item_string_list(self):
         string_list = []
@@ -49,10 +48,10 @@ class UserInventory(Popup):
         self.item_list.add_widget(item)
         config = App.get_running_app().config
         v = config.getdefaultint('sound', 'effect_volume', 100)
-        self.inv_open_sound.volume = v / 100
         item.open_popup()
-        self.inv_open_sound.play()
-        self.inv_open_sound.seek(0)
+        inv_open_sound = SoundLoader.load('sounds/general/takethat.mp3')
+        App.get_running_app().play_sound(inv_open_sound, volume=v / 100.0)
+
 
     def delete_item(self, name):
         if name in self.item_dictionary_logic:
