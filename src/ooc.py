@@ -254,12 +254,19 @@ class OOCWindow(TabbedPanel):
         self.ooc_chat.bind(on_ref_press=main_scr.log_window.copy_text)
         self.chat_grid.add_widget(self.ooc_chat)
         config = App.get_running_app().config  # The main config
+        v = config.getdefaultint('sound', 'effect_volume', 100)
         config.add_callback(self.on_blip_volume_change, 'sound', 'blip_volume')
         self.blip_slider.value = config.getdefaultint('sound', 'blip_volume', 100)
         config.add_callback(self.on_music_volume_change, 'sound', 'music_volume')
         self.music_slider.value = config.getdefaultint('sound', 'music_volume', 100)
         config.add_callback(self.on_ooc_volume_change, 'sound', 'effect_volume')
-        self.effect_slider.value = config.getdefaultint('sound', 'effect_volume', 100)
+        self.effect_slider.value = v
+        try:
+            self.ooc_notif.volume = int(v) / 100.0
+            self.pm_notif_volume = int(v) / 100.0
+            self.pm_open_sound_volume = int(v) / 100.0
+        except AttributeError:
+            pass
         self.ooc_chat_header.bind(on_press=self.on_ooc_checked)
         self.chat.ready()
         main_scr = App.get_running_app().get_main_screen()
@@ -267,10 +274,6 @@ class OOCWindow(TabbedPanel):
             self.chat.irc = main_scr.manager.irc_connection
         self.chat.username = main_scr.user.username
         Clock.schedule_interval(self.update_private_messages, 1.0 / 60.0)
-        v = config.getdefaultint('sound', 'effect_volume', 100)
-        self.ooc_notif.volume = v / 100.0
-        self.pm_notif_volume = v / 100.0
-        self.pm_open_sound_volume = v / 100.0
         self.user_list.bind(minimum_height=self.user_list.setter('height'))
 
     def on_blip_volume_change(self, s, k, v):
@@ -293,9 +296,12 @@ class OOCWindow(TabbedPanel):
 
     def on_ooc_volume_change(self, s, k, v):
         self.effect_slider.value = v
-        self.ooc_notif.volume = int(v) / 100.0
-        self.pm_notif_volume = int(v) / 100.0
-        self.pm_open_sound_volume = int(v) / 100.0
+        try:
+            self.ooc_notif.volume = int(v) / 100.0
+            self.pm_notif_volume = int(v) / 100.0
+            self.pm_open_sound_volume = int(v) / 100.0
+        except AttributeError:
+            pass
 
     def on_slider_effect_value(self, *args):
         config = App.get_running_app().config

@@ -27,6 +27,7 @@ class TextBox(Label):
         self.markup = True
         self.gen = None
         self.sfx = {}
+        self.volume = 1.0
         self.char_name_color = None
         self.char_name_rect = None
         self.textbox_color = None
@@ -93,7 +94,7 @@ class TextBox(Label):
     def play_sfx(self, sfx_name):
         sfx = self.load_wav('sounds/sfx/{0}'.format(sfx_name))
         config = App.get_running_app().config
-        v = config.getdefaultint('sound', 'effect_volume', 100)
+        v = config.getdefaultint('sound', 'effect_volume', 100) / 100.0
         App.get_running_app().play_sound(sfx, volume=v)
 
     def display_text(self, msg, user, color, sender):
@@ -120,10 +121,11 @@ class TextBox(Label):
             config = App.get_running_app().config
             speed = config.getdefaultint('other', 'textbox_speed', 60)
             self.sfx["ffffff"].load()
+            self.sfx["ffffff"].volume = self.volume
             Clock.schedule_interval(self._animate, 1.0 / speed)
         else:
             if user.color in self.sfx:
-                App.get_running_app().play_sound(self.sfx[user.color])
+                App.get_running_app().play_sound(self.sfx[user.color], volume=self.volume)
 
             if user.color != 'rainbow':
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
@@ -164,10 +166,13 @@ class TextBox(Label):
         self.text = ""
 
     def on_volume_change(self, s, k, v):
-        vol = int(v) / 100.0
-        for sfx in self.sfx.values():
-            sfx.volume = vol * 0.5
-        self.sfx["ffffff"].volume = vol
+        self.volume = int(v) / 100.0
+        try:
+            for sfx in self.sfx.values():
+                sfx.volume = self.volume * 0.5
+            self.sfx["ffffff"].volume = self.volume
+        except AttributeError:
+            pass
 
 class MainTextInput(TextInput):
     def __init__(self, **kwargs):
