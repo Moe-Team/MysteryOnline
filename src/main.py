@@ -6,9 +6,6 @@ if len(argv) > 1 and argv[1] == "--dev":
     set_dev(True)
     del argv[1]
 
-if platform.system() == "Linux":
-    os.environ["KIVY_WINDOW"] = "x11"
-
 #
 # wrong_path = os.environ['GST_PLUGIN_PATH']
 # right_path = os.getcwd()
