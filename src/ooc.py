@@ -59,6 +59,7 @@ class MusicTab(TabbedPanelItem):
         self.download = True
         self.hide_title = False
         self.is_loading_music = False
+        self.track_lock = threading.Lock()
 
     def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
         if "dropbox" in self.url_input.text:
@@ -175,11 +176,14 @@ class MusicTab(TabbedPanelItem):
                         main_scr.music_name_display.text = "Error"
                     return
             track = SoundLoader.load("mucache/"+songtitle+".mp3")
-            track.volume = config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0
+            track.volume = config_.getdefaultint('sound', 'music_volume', 100) / 100
             track.loop = root.loop
             track.play()
             track.seek(0)
-            root.track = track
+            with root.track_lock:
+                if root.track is not None:
+                    root.track.stop()
+                root.track = track
             root.is_loading_music = False
             if track_name != "Hidden track":
                 if 'youtube' in url:
@@ -192,15 +196,16 @@ class MusicTab(TabbedPanelItem):
         threading.Thread(target=play_song, args=(self,)).start()
 
     def music_stop(self, local=True):
-        if self.track is not None:
-            if self.track.state == 'play':
-                self.track.stop()
-                main_screen = App.get_running_app().get_main_screen()
-                main_screen.music_name_display.text = "Playing: "
-                if local:
-                    connection = App.get_running_app().get_user_handler().get_connection_manager()
-                    connection.update_music("stop")
-                    main_screen.log_window.add_entry("You stopped the music.\n")
+        with self.track_lock:
+            if self.track is not None:
+                if self.track.state == 'play':
+                    self.track.stop()
+                    main_screen = App.get_running_app().get_main_screen()
+                    main_screen.music_name_display.text = "Playing: "
+                    if local:
+                        connection = App.get_running_app().get_user_handler().get_connection_manager()
+                        connection.update_music("stop")
+                        main_screen.log_window.add_entry("You stopped the music.\n")
 
     def on_loop(self, value):
         self.loop = value
@@ -213,8 +218,9 @@ class MusicTab(TabbedPanelItem):
 
     def reset_music(self, *args):
         self.is_loading_music = False
-        if self.track is not None:
-            self.track.stop()
+        with self.track_lock:
+            if self.track is not None:
+                self.track.stop()
 
 
 class OOCWindow(TabbedPanel):
