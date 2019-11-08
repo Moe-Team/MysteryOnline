@@ -64,6 +64,7 @@ class TextBox(Label):
         self.sfx["8b6fba"] = self.load_wav('sounds/general/purple.mp3')
         self.sfx["rainbow"] = self.load_wav('sounds/general/rainbow.mp3')
         self.sfx["ffffff"] = self.load_wav('sounds/general/blip.wav')
+        self.sfx["ffffff"].load()
 
     def load_wav(self, filename):
         """Use SDL2 to load wav files cuz it's better, but only on windows"""
@@ -126,7 +127,6 @@ class TextBox(Label):
             self.gen = text_gen(self.msg)
             config = App.get_running_app().config
             speed = config.getdefaultint('other', 'textbox_speed', 60)
-            self.sfx["ffffff"].load()
             self.sfx["ffffff"].volume = self.volume
             Clock.schedule_interval(self._animate, 1.0 / speed)
         else:
@@ -164,9 +164,11 @@ class TextBox(Label):
             self.text += next(self.gen)
         except StopIteration:
             self.text += " "
-            Clock.schedule_once(lambda delta: self.sfx["ffffff"].unload(), self.sfx["ffffff"].length)
             self.is_displaying_msg = False
             return False
+
+    def unload_blip(self, delta):
+        self.sfx["ffffff"].unload()
 
     def clear_textbox(self):
         self.text = ""
