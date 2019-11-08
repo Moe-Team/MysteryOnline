@@ -78,9 +78,7 @@ class IconsLayout(BoxLayout):
             return
 
         if not self.collide_point(*pos):
-            if self.scheduled_icon is not None:
-                Clock.unschedule(self.scheduled_icon.display_tooltip)
-                self.scheduled_icon.close_tooltip()
+            self.on_hover_out()
             return
 
         for child in self.grids[self.current_page-1].children:
@@ -88,12 +86,15 @@ class IconsLayout(BoxLayout):
                 continue
 
             if child.collide_point(*pos):
-                Clock.schedule_once(child.display_tooltip, 0.4)
-                self.scheduled_icon = child
+                if self.scheduled_icon != child:
+                    if self.scheduled_icon is not None:
+                        Clock.unschedule(self.scheduled_icon.display_tooltip)
+                        self.on_hover_out()
+                        Clock.schedule_once(child.display_tooltip, 0.2)
+                    else:
+                        Clock.schedule_once(child.display_tooltip, 0.4)
+                    self.scheduled_icon = child
                 break
-            else:
-                Clock.unschedule(child.display_tooltip)  # cancel scheduled event since I moved the cursor
-                child.close_tooltip()  # close if it's opened
 
     def load_icons(self, char):
         icons = char.get_icons()
