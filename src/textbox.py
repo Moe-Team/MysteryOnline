@@ -28,6 +28,7 @@ class TextBox(Label):
         self.gen = None
         self.sfx = {}
         self.volume = 1.0
+        self.sfx_volume = 1.0
         self.char_name_color = None
         self.char_name_rect = None
         self.textbox_color = None
@@ -46,11 +47,13 @@ class TextBox(Label):
     def setup_volume(self):
         config = App.get_running_app().config  # The main config
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
+        config.add_callback(self.on_sfx_volume_change, 'sound', 'effect_volume')
         config.add_callback(self.on_trans_change, 'other', 'textbox_transparency')
-        vol = config.getdefaultint('sound', 'blip_volume', 100) / 100.0
+        self.volume = config.getdefaultint('sound', 'blip_volume', 100) / 100.0
+        self.sfx_volume = config.getdefaultint('sound', 'effect_volume', 100) / 100.0
         for sfx in self.sfx.values():
-            sfx.volume = vol * 0.5
-        self.sfx["ffffff"].volume = vol
+            sfx.volume = self.sfx_volume
+        self.sfx["ffffff"].volume = self.volume
 
     def load_sounds(self):
         # TODO: Make this less hardcoded.
@@ -94,7 +97,10 @@ class TextBox(Label):
     def play_sfx(self, sfx_name):
         sfx = self.load_wav('sounds/sfx/{0}'.format(sfx_name))
         config = App.get_running_app().config
-        v = config.getdefaultint('sound', 'effect_volume', 100) / 100.0
+        if sfx_name != "blip":
+            v = config.getdefaultint('sound', 'effect_volume', 100) / 100.0
+        else:
+            v = config.getdefaultint('sound', 'blip_volume', 100) / 100.0
         App.get_running_app().play_sound(sfx, volume=v)
 
     def display_text(self, msg, user, color, sender):
@@ -125,7 +131,7 @@ class TextBox(Label):
             Clock.schedule_interval(self._animate, 1.0 / speed)
         else:
             if user.color in self.sfx:
-                App.get_running_app().play_sound(self.sfx[user.color], volume=self.volume)
+                App.get_running_app().play_sound(self.sfx[user.color], volume=self.sfx_volume)
 
             if user.color != 'rainbow':
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
@@ -158,7 +164,7 @@ class TextBox(Label):
             self.text += next(self.gen)
         except StopIteration:
             self.text += " "
-            self.sfx["ffffff"].unload()
+            Clock.schedule_once(lambda delta: self.sfx["ffffff"].unload(), self.sfx["ffffff"].length)
             self.is_displaying_msg = False
             return False
 
@@ -168,9 +174,18 @@ class TextBox(Label):
     def on_volume_change(self, s, k, v):
         self.volume = int(v) / 100.0
         try:
-            for sfx in self.sfx.values():
-                sfx.volume = self.volume * 0.5
             self.sfx["ffffff"].volume = self.volume
+        except AttributeError:
+            pass
+
+    def on_sfx_volume_change(self, s, k, v):
+        self.sfx_volume = int(v) / 100.0
+        try:
+            for sfx_name in self.sfx:
+                if sfx_name == "ffffff":
+                    continue
+                sfx = self.sfx[sfx_name]
+                sfx.volume = self.sfx_volume * 0.5
         except AttributeError:
             pass
 
