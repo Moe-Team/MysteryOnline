@@ -26,13 +26,9 @@ class TextBox(Label):
         self.is_displaying_msg = False
         self.markup = True
         self.gen = None
-        self.blip = None
-        self.red_sfx = None
-        self.blue_sfx = None
-        self.gold_sfx = None
-        self.green_sfx = None
-        self.purple_sfx = None
-        self.rainbow_sfx = None
+        self.sfx = {}
+        self.volume = 1.0
+        self.sfx_volume = 1.0
         self.char_name_color = None
         self.char_name_rect = None
         self.textbox_color = None
@@ -51,34 +47,37 @@ class TextBox(Label):
     def setup_volume(self):
         config = App.get_running_app().config  # The main config
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
+        config.add_callback(self.on_sfx_volume_change, 'sound', 'effect_volume')
         config.add_callback(self.on_trans_change, 'other', 'textbox_transparency')
-        vol = config.getdefaultint('sound', 'blip_volume', 100) / 100
-        self.blip.volume = vol
-        self.red_sfx.volume = vol * 0.5
-        self.blue_sfx.volume = vol * 0.5
-        self.gold_sfx.volume = vol * 0.5
-        self.green_sfx.volume = vol * 0.5
-        self.purple_sfx.volume = vol * 0.5
-        self.rainbow_sfx.volume = vol * 0.5
+        self.volume = config.getdefaultint('sound', 'blip_volume', 100) / 100.0
+        self.sfx_volume = config.getdefaultint('sound', 'effect_volume', 100) / 100.0
+        for sfx in self.sfx.values():
+            sfx.volume = self.sfx_volume
+        self.sfx["ffffff"].volume = self.volume
 
     def load_sounds(self):
-        self.blip = self.load_wav('sounds/general/blip.wav')
-        self.red_sfx = self.load_wav('sounds/general/red.mp3')
-        self.blue_sfx = self.load_wav('sounds/general/blue.mp3')
-        self.gold_sfx = self.load_wav('sounds/general/gold.mp3')
-        self.green_sfx = self.load_wav('sounds/general/green.mp3')
-        self.purple_sfx = self.load_wav('sounds/general/purple.mp3')
-        self.rainbow_sfx = self.load_wav('sounds/general/rainbow.mp3')
+        # TODO: Make this less hardcoded.
+        self.sfx["ff3333"] = self.load_wav('sounds/general/red.mp3')
+        self.sfx["00adfc"] = self.load_wav('sounds/general/blue.mp3')
+        self.sfx["ffd700"] = self.load_wav('sounds/general/gold.mp3')
+        self.sfx["00cd00"] = self.load_wav('sounds/general/green.mp3')
+        self.sfx["8b6fba"] = self.load_wav('sounds/general/purple.mp3')
+        self.sfx["rainbow"] = self.load_wav('sounds/general/rainbow.mp3')
+        self.sfx["ffffff"] = self.load_wav('sounds/general/blip.wav')
+        self.sfx["ffffff"].load()
 
     def load_wav(self, filename):
         """Use SDL2 to load wav files cuz it's better, but only on windows"""
         rfn = resource_find(filename)
+        sound = None
         if rfn is not None:
             filename = rfn
         if platform == 'win':
-            return SoundSDL2(source=filename)
+            sound = SoundSDL2(source=filename)
         else:
-            return SoundLoader.load(filename)
+            sound = SoundLoader.load(filename)
+        sound.unload()  # We don't need to keep these loaded all the time...
+        return sound
 
     def update_ui(self, dt):
         with self.char_name.canvas.before:
@@ -99,10 +98,11 @@ class TextBox(Label):
     def play_sfx(self, sfx_name):
         sfx = self.load_wav('sounds/sfx/{0}'.format(sfx_name))
         config = App.get_running_app().config
-        vol = config.getdefaultint('sound', 'effect_volume', 100) / 100
-        sfx.volume = vol
-        sfx.play()
-        sfx.seek(0)
+        if sfx_name != "blip":
+            v = config.getdefaultint('sound', 'effect_volume', 100) / 100.0
+        else:
+            v = config.getdefaultint('sound', 'blip_volume', 100) / 100.0
+        App.get_running_app().play_sound(sfx, volume=v)
 
     def display_text(self, msg, user, color, sender):
         self.is_displaying_msg = True
@@ -127,31 +127,15 @@ class TextBox(Label):
             self.gen = text_gen(self.msg)
             config = App.get_running_app().config
             speed = config.getdefaultint('other', 'textbox_speed', 60)
+            self.sfx["ffffff"].volume = self.volume
             Clock.schedule_interval(self._animate, 1.0 / speed)
         else:
+            if user.color in self.sfx:
+                App.get_running_app().play_sound(self.sfx[user.color], volume=self.sfx_volume)
+
             if user.color != 'rainbow':
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
-                if user.color == 'ff3333':
-                    self.red_sfx.play()
-                    self.red_sfx.seek(0)
-                elif user.color == '00adfc':
-                    self.blue_sfx.play()
-                    self.blue_sfx.seek(0)
-                elif user.color == 'ffd700':
-                    self.gold_sfx.play()
-                    self.gold_sfx.seek(0)
-                elif user.color == '8b6fba':
-                    self.purple_sfx.play()
-                    self.purple_sfx.seek(0)
-                elif user.color == '00cd00':
-                    self.green_sfx.play()
-                    self.green_sfx.seek(0)
-                elif user.color == 'ffffff':
-                    self.blip.play()
-                    self.blip.seek(0)
             else:
-                self.rainbow_sfx.play()
-                self.rainbow_sfx.seek(0)
                 msg_array = list(self.msg)
                 self.msg = ''
                 color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '00adfc', '8b6fba', 'ee82ee']
@@ -175,27 +159,37 @@ class TextBox(Label):
 
     def _animate(self, dt):
         try:
-            self.blip.play()
-            self.blip.seek(0)
+            self.sfx["ffffff"].play()
+            self.sfx["ffffff"].seek(0)
             self.text += next(self.gen)
         except StopIteration:
             self.text += " "
             self.is_displaying_msg = False
             return False
 
+    def unload_blip(self, delta):
+        self.sfx["ffffff"].unload()
+
     def clear_textbox(self):
         self.text = ""
 
     def on_volume_change(self, s, k, v):
-        vol = int(v) / 100
-        self.blip.volume = vol
-        self.red_sfx.volume = vol * 0.5
-        self.blue_sfx.volume = vol * 0.5
-        self.gold_sfx.volume = vol * 0.5
-        self.green_sfx.volume = vol * 0.5
-        self.purple_sfx.volume = vol * 0.5
-        self.rainbow_sfx.volume = vol * 0.5
+        self.volume = int(v) / 100.0
+        try:
+            self.sfx["ffffff"].volume = self.volume
+        except AttributeError:
+            pass
 
+    def on_sfx_volume_change(self, s, k, v):
+        self.sfx_volume = int(v) / 100.0
+        try:
+            for sfx_name in self.sfx:
+                if sfx_name == "ffffff":
+                    continue
+                sfx = self.sfx[sfx_name]
+                sfx.volume = self.sfx_volume * 0.5
+        except AttributeError:
+            pass
 
 class MainTextInput(TextInput):
     def __init__(self, **kwargs):

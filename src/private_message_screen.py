@@ -67,11 +67,9 @@ class PrivateMessageScreen(ModalView):
         self.current_conversation = conversation
 
     def prv_chat_close_btn(self):
-        vol = App.get_running_app().config.getdefaultint('sound', 'effect_volume', 100)
+        v = App.get_running_app().config.getdefaultint('sound', 'effect_volume', 100)
         pm_close_sound = SoundLoader.load('sounds/general/codecover.mp3')
-        pm_close_sound.volume = vol / 100
-        pm_close_sound.play()
-        pm_close_sound.seek(0)
+        App.get_running_app().play_sound(pm_close_sound, volume=v / 100.0)
         self.pm_window_open_flag = False
         self.pm_flag = False
         self.text_box.text = ''
