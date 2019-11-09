@@ -1,6 +1,6 @@
 from kivy.app import App
 from kivy.uix.button import Button
-from mopopup import FormPopup
+from MysteryOnline.mopopup import FormPopup
 from os import listdir
 from kivy.lang.builder import Builder
 

@@ -60,7 +60,7 @@ class KeyboardListener(Widget):
         toolbar.text_item_btn.text = "no item"
 
     def refresh(self):
-        from mainscreen import RightClickMenu
+        from MysteryOnline.mainscreen import RightClickMenu
         user = App.get_running_app().get_user()
         location_manager.is_loaded = False
         location_manager.get_locations()

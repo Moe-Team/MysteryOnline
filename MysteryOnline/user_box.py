@@ -62,7 +62,7 @@ class UserBoxPopup(ModalView):
         user: User = App.get_running_app().get_user()
         user_handler: CurrentUserHandler = App.get_running_app().get_user_handler()
 
-        from src.location import location_manager
+        from MysteryOnline.location import location_manager
         if not location_manager.has_location(self.loc_lbl.text):
             return
 
