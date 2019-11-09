@@ -176,7 +176,8 @@ class ChatMessage:
             main_screen.sprite_window.set_sprite(user)
             try:
                 col = user.color_ids[int(self.color_id)]
-            except ValueError:
+            except (ValueError, IndexError) as e:
+                print(e)
                 return
             if self.sfx_name is not None:
                 main_screen.text_box.play_sfx(self.sfx_name)
