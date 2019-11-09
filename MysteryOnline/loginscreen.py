@@ -84,6 +84,9 @@ class LoginScreen(Screen):
                 red_herring = characters['RedHerring']
                 user.set_char(red_herring)
                 user.get_char().load()
+            except configparser.NoSectionError:
+                App.get_running_app().build_config(config)
+                config.write()
         App.get_running_app().set_user(user)
         App.get_running_app().set_user_handler(user_handler)
 
