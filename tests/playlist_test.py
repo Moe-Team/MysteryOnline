@@ -1,5 +1,5 @@
 import unittest
-from utils import binary_search
+from MysteryOnline.utils import binary_search
 
 
 def search(track_list, target):

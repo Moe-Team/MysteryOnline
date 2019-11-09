@@ -1,5 +1,5 @@
 import unittest
-from sprite_organizer import SpriteOrganizer
+from MysteryOnline.sprite_organizer import SpriteOrganizer
 
 
 class MockSprite:

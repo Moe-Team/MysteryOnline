@@ -5,14 +5,14 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 from kivy.config import ConfigParser
 
-from character_select import CharacterSelect
-from DownloadableCharactersScreen import DownloadableCharactersScreen
-from location import location_manager
-from debug_mode import DebugModePopup
+from MysteryOnline.character_select import CharacterSelect
+from MysteryOnline.DownloadableCharactersScreen import DownloadableCharactersScreen
+from MysteryOnline.location import location_manager
+from MysteryOnline.debug_mode import DebugModePopup
 
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
-from character import characters
+from MysteryOnline.character import characters
 
 
 class RightClickMenu(ModalView):

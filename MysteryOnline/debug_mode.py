@@ -5,8 +5,8 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.app import App
-from user import User
-from character import characters
+from MysteryOnline.user import User
+from MysteryOnline.character import characters
 from random import randint, choice
 from functools import partial
 

@@ -6,9 +6,9 @@ from kivy.config import ConfigParser
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
-from character import characters, main_series_list
+from MysteryOnline.character import characters, main_series_list
 from math import ceil
-from utils import binary_search
+from MysteryOnline.utils import binary_search
 
 
 class CharacterToggle(ToggleButton):

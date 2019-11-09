@@ -1,9 +1,9 @@
 from kivy.config import ConfigParser
 from kivy.atlas import Atlas
 from kivy.logger import Logger
-from icarus import Icarus
+from MysteryOnline.icarus import Icarus
 from kivy.app import App
-from mopopup import MOPopup
+from MysteryOnline.mopopup import MOPopup
 import os
 
 

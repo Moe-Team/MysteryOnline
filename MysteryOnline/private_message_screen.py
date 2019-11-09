@@ -8,8 +8,8 @@ from kivy.utils import escape_markup
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 
-from irc_mo import PrivateConversation
-from character import characters
+from MysteryOnline.irc_mo import PrivateConversation
+from MysteryOnline.character import characters
 
 
 class PrivateMessageScreen(ModalView):

@@ -1,6 +1,6 @@
 import os, platform, ctypes
 from sys import argv
-from src import set_dev, get_dev
+from MysteryOnline import set_dev, get_dev
 
 if platform.system() == "Linux":
     os.environ["KIVY_AUDIO"] = "ffpyplayer"
@@ -18,7 +18,7 @@ if len(argv) > 1 and argv[1] == "--dev":
 # fixed_path = wrong_path.replace(pattern, to_replace)
 # os.environ['GST_PLUGIN_PATH'] = fixed_path
 
-import set_kivy_config
+import MysteryOnline.set_kivy_config
 # import irc.client
 # import requests
 import youtube_dl
@@ -34,25 +34,25 @@ from kivy.utils import platform
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 
-from loginscreen import LoginScreen
-from mainscreen import MainScreen
-from icon import Icon, IconsLayout
-from ooc import OOCWindow, OOCLogLabel
-from main_log import LogLabel, LogWindow
-from sprite import SpritePreview, SpriteSettings, SpriteWindow
-from textbox import MainTextInput, TextBox
-from toolbar import Toolbar
-from left_tab import LeftTab
-from irc_mo import MessageFactory
-from keyboard_listener import KeyboardListener
-import settings_types
+from MysteryOnline.loginscreen import LoginScreen
+from MysteryOnline.mainscreen import MainScreen
+from MysteryOnline.icon import Icon, IconsLayout
+from MysteryOnline.ooc import OOCWindow, OOCLogLabel
+from MysteryOnline.main_log import LogLabel, LogWindow
+from MysteryOnline.sprite import SpritePreview, SpriteSettings, SpriteWindow
+from MysteryOnline.textbox import MainTextInput, TextBox
+from MysteryOnline.toolbar import Toolbar
+from MysteryOnline.left_tab import LeftTab
+from MysteryOnline.irc_mo import MessageFactory
+from MysteryOnline.keyboard_listener import KeyboardListener
+import MysteryOnline.settings_types
 
-from mopopup import MOPopup
-from mopopup import MOPopupYN
-from location import location_manager
+from MysteryOnline.mopopup import MOPopup
+from MysteryOnline.mopopup import MOPopupYN
+from MysteryOnline.location import location_manager
 from os import listdir
 
-from commands import command_processor
+from MysteryOnline.commands import command_processor
 from kivy.core.window import Window
 
 KV_DIR = "kv_files/"
@@ -176,7 +176,11 @@ class MysteryOnlineApp(App):
             'refresh': 'ctrl+r'
         })
 
+    def get_application_config(self):
+        return super().get_application_config('mysteryonline.ini')
+
     def build_settings(self, settings):
+        import MysteryOnline.settings_types as settings_types
         settings.register_type('multioptions', settings_types.MultiChoiceOptions)
         settings.register_type('serieswhitelist', settings_types.SeriesWhitelist)
         settings.register_type('favcharacterlist', settings_types.FavCharacterList)
@@ -355,10 +359,5 @@ class MysteryOnlineApp(App):
             Clock.schedule_once(lambda delta: sound.unload(), sound.length)
         sound.seek(0)
 
-
 if __name__ == "__main__":
-    MysteryOnlineApp().run()
-
-__all__ = ['set_kivy_config', 'LoginScreen', 'MainScreen', 'Icon', 'IconsLayout', 'OOCWindow', 'OOCLogLabel',
-           'LogLabel', 'LogWindow', 'SpriteSettings', 'SpriteWindow', 'SpritePreview', 'TextBox', 'MainTextInput',
-           'Toolbar', 'LeftTab']
+    raise Exception("Please run the program with the launcher.")

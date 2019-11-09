@@ -15,18 +15,18 @@ from kivy.utils import escape_markup
 from kivy.logger import Logger
 from kivy.utils import platform
 
-from mopopup import MOPopup
-from private_message_screen import PrivateMessageScreen
-from user_box import UserBox
+from MysteryOnline.mopopup import MOPopup
+from MysteryOnline.private_message_screen import PrivateMessageScreen
+from MysteryOnline.user_box import UserBox
 from requests.exceptions import Timeout, MissingSchema
-from mopopup import MOPopup
+from MysteryOnline.mopopup import MOPopup
 
 import json
 import youtube_dl
 import os
 import shutil
 
-from src.user import CurrentUserHandler
+from MysteryOnline.user import CurrentUserHandler
 
 ytdl_format_options = {
     'format': 'bestaudio/best',

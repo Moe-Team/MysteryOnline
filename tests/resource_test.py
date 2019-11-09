@@ -1,5 +1,5 @@
 import unittest
-from location import Location, SubLocation
+from MysteryOnline.location import Location, SubLocation
 
 
 class MockUser:

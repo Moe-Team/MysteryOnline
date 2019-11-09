@@ -1,9 +1,9 @@
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
 from kivy.app import App
-from character_select import CharacterSelect
-from character import Character, characters
-from location import location_manager
+from MysteryOnline.character_select import CharacterSelect
+from MysteryOnline.character import Character, characters
+from MysteryOnline.location import location_manager
 import os
 
 

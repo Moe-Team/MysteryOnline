@@ -1,5 +1,5 @@
 import irc.client
-from mopopup import MOPopup
+from MysteryOnline.mopopup import MOPopup
 from kivy.uix.textinput import TextInput
 from kivy.app import App
 from kivy.logger import Logger
@@ -7,13 +7,13 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.utils import platform
 
-from character import characters
-from user import User
-from choice import ChoicePopup
+from MysteryOnline.character import characters
+from MysteryOnline.user import User
+from MysteryOnline.choice import ChoicePopup
 import re
 
-from src.mainscreen import MainScreen
-from src.user import CurrentUserHandler
+from MysteryOnline.mainscreen import MainScreen
+from MysteryOnline.user import CurrentUserHandler
 from jaraco.stream import buffer
 
 

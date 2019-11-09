@@ -6,7 +6,7 @@ from kivy.uix.image import AsyncImage
 from kivy.app import App
 from kivy.properties import ObjectProperty
 from kivy.core.audio import SoundLoader
-from mopopup import MOPopup
+from MysteryOnline.mopopup import MOPopup
 import webbrowser
 import requests
 import urllib

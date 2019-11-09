@@ -8,9 +8,9 @@ from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.app import App
 from kivy.uix.textinput import TextInput
-from keyboard_listener import KeyboardListener
+from MysteryOnline.keyboard_listener import KeyboardListener
 from kivy.uix.button import Button
-from mopopup import MOPopup
+from MysteryOnline.mopopup import MOPopup
 import threading
 
 

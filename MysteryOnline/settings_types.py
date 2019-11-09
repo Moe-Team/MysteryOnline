@@ -7,8 +7,8 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.metrics import dp
 from kivy.config import ConfigParser
 from kivy.app import App
-from location import location_manager
-from character import main_series_list, extra_series_list, characters
+from MysteryOnline.location import location_manager
+from MysteryOnline.character import main_series_list, extra_series_list, characters
 
 
 class ScrollablePopup(Popup):

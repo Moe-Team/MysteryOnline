@@ -1,17 +1,17 @@
 import configparser
 import re
 
-from character import characters
-from character_select import CharacterSelect
-from irc_mo import IrcConnection, ConnectionManager
+from MysteryOnline.character import characters
+from MysteryOnline.character_select import CharacterSelect
+from MysteryOnline.irc_mo import IrcConnection, ConnectionManager
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import ConfigParser
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
-from mopopup import MOPopup, MOPopupFile
-from user import User, CurrentUserHandler
-from src import get_dev
+from MysteryOnline.mopopup import MOPopup, MOPopupFile
+from MysteryOnline.user import User, CurrentUserHandler
+from MysteryOnline import get_dev
 
 config = configparser.ConfigParser()
 config.read('irc_channel_name.ini')
@@ -84,6 +84,9 @@ class LoginScreen(Screen):
                 red_herring = characters['RedHerring']
                 user.set_char(red_herring)
                 user.get_char().load()
+            except configparser.NoSectionError:
+                App.get_running_app().build_config(config)
+                config.write()
         App.get_running_app().set_user(user)
         App.get_running_app().set_user_handler(user_handler)
 
