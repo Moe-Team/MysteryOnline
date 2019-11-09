@@ -1,4 +1,5 @@
 from kivy.config import Config, ConfigParser
+from kivy.utils import platform
 import os
 
 Config.set('kivy', 'log_name', 'MO_%y-%m-%d_%_.txt')
@@ -6,7 +7,10 @@ Config.set('kivy', 'log_dir', os.getcwd()+'/kivy_logs')
 Config.set('kivy', 'desktop', 1)
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 Config.set('kivy', 'exit_on_escape', 0)
-Config.set('kivy', 'window_icon', 'icon.ico')
+if platform == "win":
+    Config.set('kivy', 'window_icon', 'icon.ico')
+else:
+    Config.set('kivy', 'window_icon', 'icon.png')
 config = ConfigParser()
 try:
     config.read('mysteryonline.ini')

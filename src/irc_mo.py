@@ -58,6 +58,10 @@ class MessageFactory:
         result = OOCMessage("default", content)
         return result
 
+    def build_looc_message(self, location, content):
+        result = LOOCMessage("default", location, content)
+        return result
+
     def build_music_message(self, track_name, url):
         result = MusicMessage("default", track_name, url)
         return result
@@ -89,6 +93,8 @@ class MessageFactory:
             result = IconMessage(username)
         elif irc_message.startswith('c#'):
             result = CharacterMessage(username)
+        elif irc_message.startswith('LOOC#'):
+            result = LOOCMessage(username)
         elif irc_message.startswith('OOC#'):
             result = OOCMessage(username)
         elif irc_message.startswith('m#'):
@@ -412,8 +418,52 @@ class OOCMessage:
         except IndexError:
             self.content = message
 
+        self.remove_line_breaks()
+
     def execute(self, connection_manager, main_screen, user_handler):
         main_screen.ooc_window.update_ooc(self.content, self.sender)
+
+class LOOCMessage:
+
+    def __init__(self, sender, location=None, content=None):
+        self.sender = sender
+        self.location = location
+        self.content = content
+        self.remove_line_breaks()
+
+    def remove_line_breaks(self):
+        if self.content is None:
+            return
+        if '\n' in self.content or '\r' in self.content:
+            self.content = self.content.replace('\n', ' ')
+            self.content = self.content.replace('\r', ' ')
+
+    def to_irc(self):
+        msg = "LOOC#{0}#{1}".format(self.location, self.content)
+        return msg
+
+    def from_irc(self, message):
+        try:
+            arguments = message.split('#', 2)
+            self.location = arguments[1]
+            self.content = arguments[2]
+        except IndexError:
+            self.content = message
+
+        self.remove_line_breaks()
+
+    def execute(self, connection_manager, main_screen, user_handler: CurrentUserHandler):
+        username = self.sender
+        if username == "default":
+            user = App.get_running_app().get_user()
+        else:
+            connection_manager.reschedule_ping()
+            user = main_screen.users.get(username, None)
+            if user is None:
+                connection_manager.on_join(username)
+
+        if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
+            main_screen.ooc_window.update_ooc(self.content, self.sender, True)
 
 
 class MusicMessage:

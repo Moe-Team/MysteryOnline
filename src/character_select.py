@@ -263,7 +263,6 @@ class CharacterSelect(Popup):
     def dismiss(self, inst):
         user = App.get_running_app().get_user()
         if self.picked_char and user is not None:
-            print(self.picked_char)
             user.set_char(self.picked_char)
             user.get_char().load()
             main_scr = App.get_running_app().get_main_screen()
