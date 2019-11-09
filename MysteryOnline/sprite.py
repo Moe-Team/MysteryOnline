@@ -7,10 +7,10 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.config import ConfigParser
-from sprite_organizer import SpriteOrganizer
+from MysteryOnline.sprite_organizer import SpriteOrganizer
 import copy
 
-from src.location import SubLocation
+from MysteryOnline.location import SubLocation
 
 
 class NullSprite:
@@ -45,7 +45,7 @@ class NullSprite:
         return spoiler_sprite.get_texture()
 
     def load_dummy_character_sprite(self, sprite_name):
-        from character import characters
+        from MysteryOnline.character import characters
         red_herring = characters['RedHerring']
         red_herring.load()
         return red_herring.get_sprite(sprite_name)
@@ -77,7 +77,7 @@ class Sprite:
         return spoiler_sprite.get_texture()
 
     def load_dummy_character_sprite(self, sprite_name):
-        from character import characters
+        from MysteryOnline.character import characters
         red_herring = characters['RedHerring']
         red_herring.load()
         return red_herring.get_sprite(sprite_name)

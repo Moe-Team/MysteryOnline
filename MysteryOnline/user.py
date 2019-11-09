@@ -1,11 +1,11 @@
-from character import characters
-from location import location_manager
-from inventory import UserInventory
+from MysteryOnline.character import characters
+from MysteryOnline.location import location_manager
+from MysteryOnline.inventory import UserInventory
 
 from kivy.app import App
 
-from src.location import Location
-from src.sprite import Sprite
+from MysteryOnline.location import Location
+from MysteryOnline.sprite import Sprite
 
 
 class User:

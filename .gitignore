@@ -88,18 +88,18 @@ ENV/
 # Rope project settings
 .ropeproject
 
-src/mysteryonline\.ini
+mysteryonline\.ini
 
 
-src/temp\.mp3
-src/mucache/*
-/src/characters/
+temp\.mp3
+mucache/*
+characters/
 .idea/
-/src/msg_log.txt
-/src/ooc_log.txt
-/src/musiclist.txt
-/src/temp.mp3.info.json
-src/kivy_logs
-src/locations/
+msg_log.txt
+ooc_log.txt
+musiclist.txt
+temp.mp3.info.json
+kivy_logs
+locations/
 .vscode/
-/src/irc_channel_name.ini
+irc_channel_name.ini

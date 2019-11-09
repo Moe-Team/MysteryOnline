@@ -1,4 +1,4 @@
-from icarus import Icarus
+from MysteryOnline.icarus import Icarus
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.clock import Clock

@@ -12,8 +12,8 @@ from kivy.core.audio.audio_sdl2 import SoundSDL2
 from kivy.core.audio import SoundLoader
 
 import re
-from commands import command_processor, CommandInvalidArgumentsError, CommandNoArgumentsError
-from mopopup import MOPopup
+from MysteryOnline.commands import command_processor, CommandInvalidArgumentsError, CommandNoArgumentsError
+from MysteryOnline.mopopup import MOPopup
 
 
 class TextBox(Label):

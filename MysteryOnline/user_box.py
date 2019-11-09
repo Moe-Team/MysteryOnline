@@ -3,8 +3,8 @@ from kivy.properties import ObjectProperty
 from kivy.uix.modalview import ModalView
 from kivy.uix.widget import Widget
 
-from src.mainscreen import MainScreen, RightClickMenu
-from src.user import User, CurrentUserHandler
+from MysteryOnline.mainscreen import MainScreen, RightClickMenu
+from MysteryOnline.user import User, CurrentUserHandler
 
 
 class UserBox(Widget):

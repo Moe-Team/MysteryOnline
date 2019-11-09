@@ -3,7 +3,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
 from kivy.logger import Logger
-from utils import binary_search
+from MysteryOnline.utils import binary_search
 from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout

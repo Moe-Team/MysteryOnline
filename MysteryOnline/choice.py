@@ -1,4 +1,4 @@
-from mopopup import MOPopupBase
+from MysteryOnline.mopopup import MOPopupBase
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label

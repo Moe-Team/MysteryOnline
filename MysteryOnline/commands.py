@@ -1,12 +1,12 @@
 import re
 import random
-from dicegame import dice_game
-from mainscreen import RightClickMenu
-from sprite import SpriteSettings
+from MysteryOnline.dicegame import dice_game
+from MysteryOnline.mainscreen import RightClickMenu
+from MysteryOnline.sprite import SpriteSettings
 from kivy.app import App
 from kivy.core.window import Window
-from character import characters
-from mopopup import MOPopup
+from MysteryOnline.character import characters
+from MysteryOnline.mopopup import MOPopup
 
 
 class CommandError(Exception):

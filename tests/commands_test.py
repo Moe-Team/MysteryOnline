@@ -1,4 +1,4 @@
-from commands import CommandHandler
+from MysteryOnline.commands import CommandHandler
 import unittest
 
 

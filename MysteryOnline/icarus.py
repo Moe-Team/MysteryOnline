@@ -4,7 +4,7 @@ from os.path import dirname, join
 from kivy.event import EventDispatcher
 from kivy.logger import Logger
 from kivy.properties import AliasProperty, DictProperty
-from sprite import Sprite, NullSprite
+from MysteryOnline.sprite import Sprite, NullSprite
 import os
 
 # late import to prevent recursion

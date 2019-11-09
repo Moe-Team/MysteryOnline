@@ -112,7 +112,7 @@ class IconsLayout(BoxLayout):
                 g = GridLayout(cols=6)
                 self.grids.append(g)
             if config.getdefaultint('other', 'spoiler_mode', 1) and i in spoiler_icons:
-                from character import characters
+                from MysteryOnline.character import characters
                 red_herring = characters['RedHerring']
                 red_herring.load()
                 spoiler_icon = red_herring.get_icons()['4']
