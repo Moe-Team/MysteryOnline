@@ -176,6 +176,10 @@ class MysteryOnlineApp(App):
             'refresh': 'ctrl+r'
         })
 
+    def get_application_config(self):
+        return super(MysteryOnlineApp, self).get_application_config(
+            'mysteryonline.ini')
+
     def build_settings(self, settings):
         import MysteryOnline.settings_types as settings_types
         settings.register_type('multioptions', settings_types.MultiChoiceOptions)
