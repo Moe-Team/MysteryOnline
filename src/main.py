@@ -2,6 +2,9 @@ import os, platform, ctypes
 from sys import argv
 from src import set_dev, get_dev
 
+if platform.system() == "Linux":
+    os.environ["KIVY_AUDIO"] = "ffpyplayer"
+
 if len(argv) > 1 and argv[1] == "--dev":
     set_dev(True)
     del argv[1]
