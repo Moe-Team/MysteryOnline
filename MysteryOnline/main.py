@@ -329,7 +329,7 @@ class MysteryOnlineApp(App):
             ctypes.windll.user32.FlashWindow(self.get_window_handle(), True)
 
     def notification(self, title: str = "Mystery Online", content: str = "Bottom text"):
-        icon: str = os.path.join(os.path.dirname(os.path.realpath(__file__)), "icon.png")
+        icon: str = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "icon.png")
         if platform == 'linux':
             import subprocess
             subprocess.run(["notify-send", "-u", "normal", "-t", "10000", "-i", icon, title, content])
