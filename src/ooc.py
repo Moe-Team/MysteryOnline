@@ -26,6 +26,8 @@ import youtube_dl
 import os
 import shutil
 
+from src.user import CurrentUserHandler
+
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': 'mucache/%(title)s.mp3',
@@ -406,7 +408,7 @@ class OOCWindow(TabbedPanel):
         self.ooc_chat_header.background_normal = 'atlas://data/images/defaulttheme/button'
         self.ooc_chat_header.background_color = [1, 1, 1, 1]
 
-    def update_ooc(self, msg, sender):
+    def update_ooc(self, msg, sender, local=False):
         ref = msg
         if sender == 'default':
             sender = App.get_running_app().get_user().username
@@ -418,7 +420,10 @@ class OOCWindow(TabbedPanel):
             self.chat_grid.add_widget(self.ooc_chat)
             main_scr = App.get_running_app().get_main_screen()
             self.ooc_chat.bind(on_ref_press=main_scr.log_window.copy_text)
-        self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
+        if not local:
+            self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
+        else:
+            self.ooc_chat.text += "[color=adffff]{0}: [ref={2}]{1}[/ref][/color]\n".format(sender, msg, escape_markup(ref))
         self.counter += 1
         config = App.get_running_app().config
         if config.getdefaultint('other', 'ooc_scrolling', 1):
@@ -452,9 +457,13 @@ class OOCWindow(TabbedPanel):
         if self.ooc_input.text != "":
             Clock.schedule_once(self.refocus_text)
             msg = self.ooc_input.text
-            connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
+            user_handler: CurrentUserHandler = App.get_running_app().get_user_handler()
+            connection_manager = user_handler.get_connection_manager()
             message_factory = App.get_running_app().get_message_factory()
-            message = message_factory.build_ooc_message(msg)
+            if self.ooc_input.text[0] == ";":
+                message = message_factory.build_looc_message(user_handler.current_loc.name, msg[1:])
+            else:
+                message = message_factory.build_ooc_message(msg)
             try:
                 connection_manager.send_msg(message)
                 connection_manager.send_local(message)
