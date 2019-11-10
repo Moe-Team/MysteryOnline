@@ -292,8 +292,9 @@ class OOCWindow(TabbedPanel):
     def on_slider_music_value(self, *args):
         config = App.get_running_app().config
         value = int(self.music_slider.value)
-        if self.music_tab.track is not None:
-            self.music_tab.track.volume = value / 100
+        with self.music_tab.track_lock:
+            if self.music_tab.track is not None:
+                self.music_tab.track.volume = value / 100.0
         config.set('sound', 'music_volume', value)
 
     def on_ooc_volume_change(self, s, k, v):
