@@ -352,8 +352,6 @@ class MysteryOnlineApp(App):
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
         """Kivy is a mess, so we need to do this for *every* audio we want to play."""
-        sound.unload()
-        sound.unload()
         sound.load()
         sound.loop = loop
         sound.volume = volume
