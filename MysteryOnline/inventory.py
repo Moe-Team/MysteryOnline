@@ -1,3 +1,4 @@
+from kivy import Logger
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 from kivy.uix.button import Button
@@ -85,7 +86,7 @@ class Item(GridLayout):
         try:
             os.makedirs('imgcache')
         except FileExistsError:
-            print("Image Cache Exists.")
+            Logger.warning("Image Cache Exists.")
         self.size_hint_y = None
         self.height = 50
         self.cols = 3
@@ -123,9 +124,9 @@ class Item(GridLayout):
         except FileNotFoundError:  #i disgust myself too.
             os.makedirs('imgcache')
         except PermissionError:
-            print("Cannot clear inventory cache due to permission error.")
+            Logger.warning("Cannot clear inventory cache due to permission error.")
         except Exception as e:
-            print(e)
+            Logger.warning(e)
 
     def on_item_pressed(self, inst, touch):
         if self.name.collide_point(*touch.pos):

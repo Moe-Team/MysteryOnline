@@ -112,9 +112,9 @@ class MusicTab(TabbedPanelItem):
                 except FileNotFoundError: #can't delete what doesn't exist
                     os.makedirs('mucache')
                 except PermissionError:
-                    print("Cannot clear music cache due to permission error.")
+                    Logger.warning("Cannot clear music cache due to permission error.")
                 except Exception as e:
-                    print(e)
+                    Logger.warning(e)
             main_scr = App.get_running_app().get_main_screen()
             track = root.track
             root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
@@ -220,9 +220,11 @@ class MusicTab(TabbedPanelItem):
     def reset_music(self, *args):
         self.is_loading_music = False
         with self.track_lock:
-            if self.track is not None:
+            try:
                 self.track.stop()
                 self.track.unload()
+            except AttributeError as e:
+                Logger.warning(e)
 
 
 class OOCWindow(TabbedPanel):
