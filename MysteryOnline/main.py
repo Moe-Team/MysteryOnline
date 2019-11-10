@@ -1,4 +1,5 @@
 import os, platform, ctypes
+from functools import partial
 from sys import argv
 from MysteryOnline import set_dev, get_dev
 
@@ -351,13 +352,19 @@ class MysteryOnlineApp(App):
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
         """Kivy is a mess, so we need to do this for *every* audio we want to play."""
+        sound.unload()
+        sound.unload()
         sound.load()
         sound.loop = loop
         sound.volume = volume
         sound.play()
         if not loop:
-            Clock.schedule_once(lambda delta: sound.unload(), sound.length)
+            Clock.schedule_once(partial(self.unload_sound, sound), sound.length+2.0)
         sound.seek(0)
+
+    def unload_sound(self, sound, dt):
+        if sound.state == "stop":
+            sound.unload()
 
 if __name__ == "__main__":
     raise Exception("Please run the program with the launcher.")
