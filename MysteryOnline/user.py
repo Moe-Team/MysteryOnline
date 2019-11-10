@@ -87,7 +87,8 @@ class User:
             if loc in locations:
                 self.location = locations[loc]
             else:
-                self.location= None
+                self.location = None
+                return
         else:
             self.location = loc
 

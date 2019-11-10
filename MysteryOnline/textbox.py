@@ -1,3 +1,6 @@
+import traceback
+
+from kivy import Logger
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.graphics.context_instructions import Color
@@ -223,7 +226,7 @@ class MainTextInput(TextInput):
             try:
                 self.handle_command(msg)
             except (AttributeError, IndexError) as e:
-                print(e)
+                Logger.warning(traceback.format_exc())
                 return
         else:
             user_handler = App.get_running_app().get_user_handler()
@@ -268,10 +271,10 @@ class MainTextInput(TextInput):
         try:
             command_processor.process_command(cmd_name, cmd)
         except CommandInvalidArgumentsError:
-            print("Invalid arguments")
+            Logger.warning("Invalid arguments")
             pass
         except CommandNoArgumentsError:
-            print("No arguments given")
+            Logger.warning("No arguments given")
             pass
 
     def cursor_offset(self):
