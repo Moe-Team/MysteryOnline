@@ -1,3 +1,5 @@
+import traceback
+
 from kivy import Logger
 from kivy.app import App
 from kivy.clock import Clock
@@ -224,7 +226,7 @@ class MainTextInput(TextInput):
             try:
                 self.handle_command(msg)
             except (AttributeError, IndexError) as e:
-                Logger.warning(e)
+                Logger.warning(traceback.format_exc())
                 return
         else:
             user_handler = App.get_running_app().get_user_handler()

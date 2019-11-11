@@ -1,3 +1,5 @@
+import traceback
+
 from kivy import Logger
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
@@ -126,7 +128,7 @@ class Item(GridLayout):
         except PermissionError:
             Logger.warning("Cannot clear inventory cache due to permission error.")
         except Exception as e:
-            Logger.warning(e)
+            Logger.warning(traceback.format_exc())
 
     def on_item_pressed(self, inst, touch):
         if self.name.collide_point(*touch.pos):

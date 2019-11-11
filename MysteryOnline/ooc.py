@@ -1,4 +1,5 @@
 import threading
+import traceback
 from datetime import datetime
 
 import requests
@@ -100,99 +101,112 @@ class MusicTab(TabbedPanelItem):
             temp_pop.open()
 
         def play_song(root):
-            with root.track_lock:
-                config_ = App.get_running_app().config
-                try: #kebab
+            config_ = App.get_running_app().config
+            try: #kebab
+                os.makedirs('mucache')
+            except FileExistsError:
+                pass
+            if not config_.getboolean('sound', 'musiccache'):
+                try:
+                    shutil.rmtree('mucache/')
+                    os.makedirs('mucache') #deleting all files instead of nuking dirs breaks youtube jsons when playing the same song.
+                except FileNotFoundError: #can't delete what doesn't exist
                     os.makedirs('mucache')
-                except FileExistsError:
-                    pass
-                if not config_.getboolean('sound', 'musiccache'):
+                except PermissionError:
+                    Logger.warning("Cannot clear music cache due to permission error.")
+                except Exception as e:
+                    Logger.warning(traceback.format_exc())
+            main_scr = App.get_running_app().get_main_screen()
+            track = root.track
+            root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
+            with root.track_lock:
+                try:
+                    if track is not None and track.state == 'play':
+                        track.stop()
+                except AttributeError as e:
+                    Logger.warning(traceback.format_exc())
+            if url.find("youtube") == -1:  # checks if youtube is not in url string
+                try:  # does the normal stuff
+                    r = requests.get(url, timeout=(5, 20))
+                    """If no request were established within 5 seconds, it will raise a Timeout exception.
+                       If no data was received within 20 seconds, it will also raise the same exception."""
+                    r.raise_for_status()
+                    """ Any HTTP Error that's between 400 and 600 will force the HTTPError exception to be raised.
+                        root.is_loading_music was moved to be more global inside the method because if a http error is 
+                        raised, the value of the variable won't be changed when it should be set to false. It also
+                        removes the need to have to set it to false within each exception block."""
+                except MissingSchema:
+                    Logger.warning('Music Error: Invalid URL. Did you forget to add http:// at the beginning '
+                                   'by any chance?')
+                    main_scr.music_name_display.text = "Error: Invalid URL. See warning logs for more details."
+                    return
+                except Timeout:
+                    Logger.warning('Music Error: Request timed out. Either the server is not responding back or you '
+                                   'lost connection to internet.')
+                    main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
+                    return
+                if r.ok:  # no errors were raised, it's now loading the music.
+                    '''write a function for this?'''
+                    songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
+                    if songtitle is None:
+                        songtitle = "temp"
+                    elif track_name != None:
+                        songtitle = track_name
+                    else:
+                        songtitle = os.path.basename(songtitle)
+                        songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
+                        songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
+                    root.is_loading_music = True
+                if not os.path.isfile('mucache/'+songtitle+'.mp3'):
                     try:
-                        shutil.rmtree('mucache/')
-                        os.makedirs('mucache') #deleting all files instead of nuking dirs breaks youtube jsons when playing the same song.
-                    except FileNotFoundError: #can't delete what doesn't exist
-                        os.makedirs('mucache')
-                    except PermissionError:
-                        Logger.warning("Cannot clear music cache due to permission error.")
-                    except Exception as e:
-                        Logger.warning(e)
-                main_scr = App.get_running_app().get_main_screen()
-                track = root.track
-                root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
-                if track is not None and track.state == 'play':
-                    track.stop()
-                if url.find("youtube") == -1:  # checks if youtube is not in url string
-                    try:  # does the normal stuff
-                        r = requests.get(url, timeout=(5, 20))
-                        """If no request were established within 5 seconds, it will raise a Timeout exception.
-                           If no data was received within 20 seconds, it will also raise the same exception."""
-                        r.raise_for_status()
-                        """ Any HTTP Error that's between 400 and 600 will force the HTTPError exception to be raised.
-                            root.is_loading_music was moved to be more global inside the method because if a http error is 
-                            raised, the value of the variable won't be changed when it should be set to false. It also
-                            removes the need to have to set it to false within each exception block."""
-                    except MissingSchema:
-                        Logger.warning('Music Error: Invalid URL. Did you forget to add http:// at the beginning '
-                                       'by any chance?')
-                        main_scr.music_name_display.text = "Error: Invalid URL. See warning logs for more details."
+                        f = open("mucache/"+songtitle+".mp3", mode="wb")
+                    except OSError:
+                        songtitle = 'Error Name'
+                        f = open("mucache/" + songtitle + ".mp3", mode="wb")
+                    f.write(r.content)
+                    f.close()
+            else:
+                try:
+                    with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
+                        info = ydl.extract_info(url, download=False)
+                        songtitle = ydl.prepare_filename(info)
+                        songtitle = os.path.basename(songtitle)
+                        songtitle = os.path.splitext(songtitle)[0] #safer way to get the song title
+                        if not os.path.isfile('mucache/' + songtitle + '.mp3'):
+                            ydl.download([url])
+                        root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
+                except FileNotFoundError as e:
+                    if not os.path.exists('mucache/' + songtitle + '.mp3'):
+                        Logger.warning(traceback.format_exc())
+                        main_scr.music_name_display.text = "Error"
                         return
-                    except Timeout:
-                        Logger.warning('Music Error: Request timed out. Either the server is not responding back or you '
-                                       'lost connection to internet.')
-                        main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
-                        return
-                    if r.ok:  # no errors were raised, it's now loading the music.
-                        '''write a function for this?'''
-                        songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
-                        if songtitle is None:
-                            songtitle = "temp"
-                        elif track_name != None:
-                            songtitle = track_name
-                        else:
-                            songtitle = os.path.basename(songtitle)
-                            songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
-                            songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
-                        root.is_loading_music = True
-                    if not os.path.isfile('mucache/'+songtitle+'.mp3'):
-                        try:
-                            f = open("mucache/"+songtitle+".mp3", mode="wb")
-                        except OSError:
-                            songtitle = 'Error Name'
-                            f = open("mucache/" + songtitle + ".mp3", mode="wb")
-                        f.write(r.content)
-                        f.close()
-                else:
+                except Exception as e:
+                    root.is_loading_music = False
+                    if e is AttributeError:
+                        Logger.warning(traceback.format_exc())
+                        main_scr.music_name_display.text = "Error: bad url"
+                    else:
+                        Logger.warning(traceback.format_exc())
+                        main_scr.music_name_display.text = "Error"
+                    return
+            track = SoundLoader.load("mucache/"+songtitle+".mp3")
+            with root.track_lock:
+                if root.track is not None:
                     try:
-                        with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
-                            info = ydl.extract_info(url, download=False)
-                            songtitle = ydl.prepare_filename(info)
-                            songtitle = os.path.basename(songtitle)
-                            songtitle = os.path.splitext(songtitle)[0] #safer way to get the song title
-                            if not os.path.isfile('mucache/' + songtitle + '.mp3'):
-                                ydl.download([url])
-                            root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
-                    except Exception as e:
-                        root.is_loading_music = False
-                        if e is AttributeError:
-                            main_scr.music_name_display.text = "Error: bad url"
-                        else:
-                            main_scr.music_name_display.text = "Error"
-                        return
-                track = SoundLoader.load("mucache/"+songtitle+".mp3")
-                App.get_running_app().play_sound(track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
-                with root.track_lock:
-                    if root.track is not None:
                         root.track.stop()
                         root.track.unload()
-                    root.track = track
-                root.is_loading_music = False
-                if track_name != "Hidden track":
-                    if 'youtube' in url:
-                        with open('mucache/'+songtitle+'.mp3.info.json', 'r') as f:
-                            video_info = json.load(f)
-                        main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
-                    else:
-                        main_scr.music_name_display.text = "Playing: " + songtitle
+                    except AttributeError:
+                        Logger.warning(traceback.format_exc())
+                root.track = track
+                App.get_running_app().play_sound(track, root.loop,config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
+            root.is_loading_music = False
+            if track_name != "Hidden track":
+                if 'youtube' in url:
+                    with open('mucache/'+songtitle+'.mp3.info.json', 'r') as f:
+                        video_info = json.load(f)
+                    main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
+                else:
+                    main_scr.music_name_display.text = "Playing: " + songtitle
 
         threading.Thread(target=play_song, args=(self,)).start()
 
@@ -225,7 +239,7 @@ class MusicTab(TabbedPanelItem):
                 self.track.stop()
                 self.track.unload()
             except AttributeError as e:
-                Logger.warning(e)
+                Logger.warning(traceback.format_exc())
 
 
 class OOCWindow(TabbedPanel):
