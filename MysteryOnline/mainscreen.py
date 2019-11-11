@@ -117,7 +117,7 @@ class MainScreen(Screen):
             if touch.is_triple_tap:
                 self.on_right_click(touch)
                 return True
-            super(MainScreen, self).on_touch_down(touch)
+            return super(MainScreen, self).on_touch_down(touch)
         if touch.button == 'right':
             self.on_right_click(touch)
             return True
