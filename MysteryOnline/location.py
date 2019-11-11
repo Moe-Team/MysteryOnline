@@ -128,7 +128,7 @@ class Location:
     def list_sub(self):
         return sorted(list(self.sublocations.keys()))
 
-    def get_sub(self, name):
+    def get_sub(self, name) -> SubLocation:
         return self.sublocations[name]
 
     def get_first_sub(self) -> str:

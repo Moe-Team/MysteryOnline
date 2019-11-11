@@ -1,4 +1,5 @@
 import threading
+import traceback
 from datetime import datetime
 
 import requests
@@ -112,14 +113,18 @@ class MusicTab(TabbedPanelItem):
                 except FileNotFoundError: #can't delete what doesn't exist
                     os.makedirs('mucache')
                 except PermissionError:
-                    print("Cannot clear music cache due to permission error.")
+                    Logger.warning("Cannot clear music cache due to permission error.")
                 except Exception as e:
-                    print(e)
+                    Logger.warning(traceback.format_exc())
             main_scr = App.get_running_app().get_main_screen()
             track = root.track
             root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
-            if track is not None and track.state == 'play':
-                track.stop()
+            with root.track_lock:
+                try:
+                    if track is not None and track.state == 'play':
+                        track.stop()
+                except AttributeError as e:
+                    Logger.warning(traceback.format_exc())
             if url.find("youtube") == -1:  # checks if youtube is not in url string
                 try:  # does the normal stuff
                     r = requests.get(url, timeout=(5, 20))
@@ -170,20 +175,30 @@ class MusicTab(TabbedPanelItem):
                         if not os.path.isfile('mucache/' + songtitle + '.mp3'):
                             ydl.download([url])
                         root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
+                except FileNotFoundError as e:
+                    if not os.path.exists('mucache/' + songtitle + '.mp3'):
+                        Logger.warning(traceback.format_exc())
+                        main_scr.music_name_display.text = "Error"
+                        return
                 except Exception as e:
                     root.is_loading_music = False
                     if e is AttributeError:
+                        Logger.warning(traceback.format_exc())
                         main_scr.music_name_display.text = "Error: bad url"
                     else:
+                        Logger.warning(traceback.format_exc())
                         main_scr.music_name_display.text = "Error"
                     return
             track = SoundLoader.load("mucache/"+songtitle+".mp3")
-            App.get_running_app().play_sound(track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
             with root.track_lock:
                 if root.track is not None:
-                    root.track.stop()
-                    root.track.unload()
+                    try:
+                        root.track.stop()
+                        root.track.unload()
+                    except AttributeError:
+                        Logger.warning(traceback.format_exc())
                 root.track = track
+                App.get_running_app().play_sound(track, root.loop,config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
             root.is_loading_music = False
             if track_name != "Hidden track":
                 if 'youtube' in url:
@@ -220,9 +235,11 @@ class MusicTab(TabbedPanelItem):
     def reset_music(self, *args):
         self.is_loading_music = False
         with self.track_lock:
-            if self.track is not None:
+            try:
                 self.track.stop()
                 self.track.unload()
+            except AttributeError as e:
+                Logger.warning(traceback.format_exc())
 
 
 class OOCWindow(TabbedPanel):
@@ -293,8 +310,11 @@ class OOCWindow(TabbedPanel):
         config = App.get_running_app().config
         value = int(self.music_slider.value)
         with self.music_tab.track_lock:
-            if self.music_tab.track is not None:
+            try:
                 self.music_tab.track.volume = value / 100.0
+            except AttributeError:
+                pass
+
         config.set('sound', 'music_volume', value)
 
     def on_ooc_volume_change(self, s, k, v):

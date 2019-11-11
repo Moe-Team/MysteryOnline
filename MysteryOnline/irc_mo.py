@@ -1,3 +1,5 @@
+import traceback
+
 import irc.client
 from MysteryOnline.mopopup import MOPopup
 from kivy.uix.textinput import TextInput
@@ -170,7 +172,7 @@ class ChatMessage:
             try:
                 user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
             except (AttributeError, KeyError) as e:
-                print(e)
+                Logger.warning(traceback.format_exc())
                 return
         if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
             try:
@@ -183,7 +185,7 @@ class ChatMessage:
             try:
                 col = user.color_ids[int(self.color_id)]
             except (ValueError, IndexError) as e:
-                print(e)
+                Logger.warning(traceback.format_exc())
                 return
             if self.sfx_name is not None:
                 main_screen.text_box.play_sfx(self.sfx_name)
@@ -246,6 +248,7 @@ class IconMessage:
                 main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
                 main_screen.sprite_window.display_sub(old_subloc)
             except (AttributeError, KeyError, ValueError) as e:
+                Logger.warning(traceback.format_exc())
                 return
         else:
             main_screen.ooc_window.update_subloc(user.username, self.sublocation)

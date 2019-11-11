@@ -1,6 +1,7 @@
 import os, platform, ctypes
 from functools import partial
 from sys import argv
+
 from MysteryOnline import set_dev, get_dev
 
 if platform.system() == "Linux":
@@ -32,6 +33,7 @@ from kivy.clock import Clock
 from kivy.lang.builder import Builder
 from kivy.core.audio import SoundLoader, Sound
 from kivy.utils import platform
+from kivy import Logger
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 
@@ -338,7 +340,7 @@ class MysteryOnlineApp(App):
             try:
                 from win10toast import ToastNotifier
             except ImportError as e:
-                print("Missing win10toast library.")
+                Logger.warning("Missing win10toast library.")
                 return
             ToastNotifier().show_toast(title, content, duration=10, icon_path=icon)
 
@@ -352,8 +354,6 @@ class MysteryOnlineApp(App):
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
         """Kivy is a mess, so we need to do this for *every* audio we want to play."""
-        sound.unload()
-        sound.unload()
         sound.load()
         sound.loop = loop
         sound.volume = volume
