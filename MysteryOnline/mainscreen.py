@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.core.window import Window
+from kivy.input.providers.wm_touch import WM_MotionEvent
 from kivy.properties import ObjectProperty
 from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
@@ -112,6 +113,9 @@ class MainScreen(Screen):
         pass
 
     def on_touch_down(self, touch):
+        if touch is WM_MotionEvent and touch.is_triple_tap:
+            self.on_right_click(touch)
+            return True
         if touch.button == 'right':
             self.on_right_click(touch)
             return True

@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.input.providers.wm_touch import WM_MotionEvent
 from kivy.properties import ObjectProperty
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
@@ -17,7 +18,10 @@ class SectionLabel(Label):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            if touch.button == 'left' and touch.is_double_tap:
+            if touch is WM_MotionEvent and touch.is_double_tap:
+                self.on_selected()
+                return True
+            if touch is touch.button == 'left' and touch.is_double_tap:
                 self.on_selected()
                 return True
 
@@ -33,6 +37,9 @@ class SubSectionLabel(Label):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
+            if touch is WM_MotionEvent and touch.is_double_tap:
+                self.on_selected()
+                return True
             if touch.button == 'left' and touch.is_double_tap:
                 self.on_selected()
                 return True
@@ -55,6 +62,9 @@ class TrackLabel(Label):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
+            if touch is WM_MotionEvent and touch.is_double_tap:
+                self.on_selected()
+                return True
             if touch.button == 'left' and touch.is_double_tap:
                 self.on_selected()
                 return True
