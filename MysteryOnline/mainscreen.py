@@ -113,9 +113,11 @@ class MainScreen(Screen):
         pass
 
     def on_touch_down(self, touch):
-        if touch is WM_MotionEvent and touch.is_triple_tap:
-            self.on_right_click(touch)
-            return True
+        if touch is WM_MotionEvent:
+            if touch.is_triple_tap:
+                self.on_right_click(touch)
+                return True
+            super(MainScreen, self).on_touch_down(touch)
         if touch.button == 'right':
             self.on_right_click(touch)
             return True
