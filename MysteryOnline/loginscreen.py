@@ -1,6 +1,7 @@
 import configparser
 import re
 
+from MysteryOnline import get_version, get_dev
 from MysteryOnline.character import characters
 from MysteryOnline.character_select import CharacterSelect
 from MysteryOnline.irc_mo import IrcConnection, ConnectionManager
@@ -11,7 +12,6 @@ from kivy.properties import StringProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
 from MysteryOnline.mopopup import MOPopup, MOPopupFile
 from MysteryOnline.user import User, CurrentUserHandler
-from MysteryOnline import get_dev
 
 config = configparser.ConfigParser()
 config.read('irc_channel_name.ini')
@@ -43,12 +43,17 @@ CHANNEL = channel_in_config
 
 class LoginScreen(Screen):
     username = StringProperty('')
+    version_label = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
         self.picked_char = None
         if get_dev():
             Clock.schedule_once(self.on_login_clicked, 0)
+        Clock.schedule_once(self.set_version_label, 0)
+
+    def set_version_label(self, *args):
+        self.version_label.text = get_version()
 
     def on_login_clicked(self, *args):
         if self.username == '' or not self.is_username_valid():

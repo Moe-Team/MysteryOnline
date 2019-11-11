@@ -1,6 +1,7 @@
 #:kivy 1.10
 <LoginScreen>:
     username: username_input.text
+    version_label: version_label
 
     Image:
         source: "misc_img/MOTitle.png"
@@ -46,5 +47,5 @@
             on_release: root.on_rules_clicked()
 
     Label:
-        text: "Version 1.3.0"
+        id: version_label
         pos_hint: {'center_x': 0.5, 'center_y': 0.1}
