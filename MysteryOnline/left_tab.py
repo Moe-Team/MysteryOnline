@@ -23,7 +23,7 @@ class SectionLabel(Label):
                 if isinstance(touch, WM_MotionEvent) and touch.is_double_tap:
                     self.on_selected()
                     return True
-            if touch is touch.button == 'left' and touch.is_double_tap:
+            if touch.button == 'left' and touch.is_double_tap:
                 self.on_selected()
                 return True
 
