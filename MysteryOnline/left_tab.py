@@ -18,7 +18,7 @@ class SectionLabel(Label):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            if touch is WM_MotionEvent and touch.is_double_tap:
+            if isinstance(touch, WM_MotionEvent) and touch.is_double_tap:
                 self.on_selected()
                 return True
             if touch is touch.button == 'left' and touch.is_double_tap:
@@ -37,7 +37,7 @@ class SubSectionLabel(Label):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            if touch is WM_MotionEvent and touch.is_double_tap:
+            if isinstance(touch, WM_MotionEvent) and touch.is_double_tap:
                 self.on_selected()
                 return True
             if touch.button == 'left' and touch.is_double_tap:
@@ -62,7 +62,7 @@ class TrackLabel(Label):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            if touch is WM_MotionEvent and touch.is_double_tap:
+            if isinstance(touch, WM_MotionEvent) and touch.is_double_tap:
                 self.on_selected()
                 return True
             if touch.button == 'left' and touch.is_double_tap:
