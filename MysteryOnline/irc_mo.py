@@ -391,9 +391,11 @@ class LocationMessage:
         user = main_screen.users.get(username, None)
         if user.get_loc() is not None and user.get_loc().get_name() != loc:
             main_screen.log_window.add_entry("{} moved to {}. \n".format(user.username, loc))
+            main_screen.ooc_window.update_subloc(user.username, user.get_loc().get_real_first_sub())
+        else:
+            main_screen.ooc_window.update_subloc(user.username, "Missingno")
         user.set_loc(loc, True)
         main_screen.ooc_window.update_loc(user.username, loc)
-        main_screen.ooc_window.update_subloc(user.username, user.get_loc().get_real_first_sub())
         main_screen.sprite_window.refresh_sub()
 
 class OOCMessage:
