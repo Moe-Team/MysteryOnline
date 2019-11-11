@@ -198,7 +198,7 @@ class MusicTab(TabbedPanelItem):
                     except AttributeError:
                         Logger.warning(traceback.format_exc())
                 root.track = track
-                App.get_running_app().play_sound(track, root.loop,config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
+            App.get_running_app().play_sound(root.track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
             root.is_loading_music = False
             if track_name != "Hidden track":
                 if 'youtube' in url:
