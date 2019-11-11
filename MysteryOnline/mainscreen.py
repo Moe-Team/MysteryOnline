@@ -118,9 +118,12 @@ class MainScreen(Screen):
                 self.on_right_click(touch)
                 return True
             return super(MainScreen, self).on_touch_down(touch)
-        if touch.button == 'right':
-            self.on_right_click(touch)
-            return True
+        try:
+            if touch.button == 'right':
+                self.on_right_click(touch)
+                return True
+        except AttributeError:
+            pass
         super(MainScreen, self).on_touch_down(touch)
 
     def on_right_click(self, touch):
