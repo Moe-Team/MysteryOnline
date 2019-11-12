@@ -7,10 +7,10 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.config import ConfigParser
-from MysteryOnline.sprite_organizer import SpriteOrganizer
-import copy
 
 from MysteryOnline.location import SubLocation
+from MysteryOnline.sprite_organizer import SpriteOrganizer
+import copy
 
 
 class NullSprite:
@@ -358,14 +358,20 @@ class SpriteWindow(Widget):
         main_scr = App.get_running_app().get_main_screen()
         self.subloc = subloc
         if subloc.o_users:
-            sprite = subloc.get_o_user().get_current_sprite()
-            option = subloc.get_o_user().get_sprite_option()
-            sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
-            if sprite is not None:
+            user = subloc.get_o_user()
+            if user.get_subloc() == subloc:
+                sprite = user.get_current_sprite()
+                option = user.get_sprite_option()
+                sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
+                if sprite is not None:
+                    self.overlay.texture = None
+                    self.overlay.texture = sprite.get_texture()
+                    self.overlay.opacity = 1
+                    self.overlay.size = self.overlay.texture.size
+            else:
+                subloc.remove_o_user(user)
+                self.overlay.opacity = 0
                 self.overlay.texture = None
-                self.overlay.texture = sprite.get_texture()
-                self.overlay.opacity = 1
-                self.overlay.size = self.overlay.texture.size
         else:
             self.overlay.texture = None
             self.overlay.opacity = 0
@@ -377,41 +383,61 @@ class SpriteWindow(Widget):
             self.foreground.opacity = 1
 
         if subloc.c_users:
-            sprite = subloc.get_c_user().get_current_sprite()
-            option = subloc.get_c_user().get_sprite_option()
-            sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
-            if sprite is not None:
-                if sprite.is_cg():
-                    self.set_cg(sprite, subloc.get_c_user())
-                    return
+            user = subloc.get_c_user()
+            if user.get_subloc() == subloc:
+                sprite = user.get_current_sprite()
+                option = user.get_sprite_option()
+                sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
+                if sprite is not None:
+                    if sprite.is_cg():
+                        self.set_cg(sprite, subloc.get_c_user())
+                        return
+                    self.center_sprite.texture = None
+                    self.center_sprite.texture = sprite.get_texture()
+                    self.center_sprite.opacity = 1
+                    self.center_sprite.size = self.center_sprite.texture.size
+            else:
+                subloc.remove_c_user(user)
+                self.center_sprite.opacity = 0
                 self.center_sprite.texture = None
-                self.center_sprite.texture = sprite.get_texture()
-                self.center_sprite.opacity = 1
-                self.center_sprite.size = self.center_sprite.texture.size
         else:
             self.center_sprite.texture = None
             self.center_sprite.opacity = 0
+
         if subloc.l_users:
-            sprite = subloc.get_l_user().get_current_sprite()
-            option = subloc.get_l_user().get_sprite_option()
-            sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
-            if sprite is not None:
+            user = subloc.get_l_user()
+            if user.get_subloc() == subloc:
+                sprite = user.get_current_sprite()
+                option = user.get_sprite_option()
+                sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
+                if sprite is not None:
+                    self.left_sprite.texture = None
+                    self.left_sprite.texture = sprite.get_texture()
+                    self.left_sprite.opacity = 1
+                    self.left_sprite.size = self.left_sprite.texture.size
+            else:
+                subloc.remove_l_user(user)
+                self.left_sprite.opacity = 0
                 self.left_sprite.texture = None
-                self.left_sprite.texture = sprite.get_texture()
-                self.left_sprite.opacity = 1
-                self.left_sprite.size = self.left_sprite.texture.size
         else:
             self.left_sprite.texture = None
             self.left_sprite.opacity = 0
+
         if subloc.r_users:
-            sprite = subloc.get_r_user().get_current_sprite()
-            option = subloc.get_r_user().get_sprite_option()
-            sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
-            if sprite is not None:
+            user = subloc.get_r_user()
+            if user.get_subloc() == subloc:
+                sprite = user.get_current_sprite()
+                option = user.get_sprite_option()
+                sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
+                if sprite is not None:
+                    self.right_sprite.texture = None
+                    self.right_sprite.texture = sprite.get_texture()
+                    self.right_sprite.opacity = 1
+                    self.right_sprite.size = self.right_sprite.texture.size
+            else:
+                subloc.remove_r_user(user)
+                self.right_sprite.opacity = 0
                 self.right_sprite.texture = None
-                self.right_sprite.texture = sprite.get_texture()
-                self.right_sprite.opacity = 1
-                self.right_sprite.size = self.right_sprite.texture.size
         else:
             self.right_sprite.texture = None
             self.right_sprite.opacity = 0
