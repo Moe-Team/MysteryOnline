@@ -119,12 +119,17 @@ class MusicTab(TabbedPanelItem):
             main_scr = App.get_running_app().get_main_screen()
             track = root.track
             root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
-            with root.track_lock:
-                try:
-                    if track is not None and track.state == 'play':
-                        track.stop()
-                except AttributeError as e:
-                    Logger.warning(traceback.format_exc())
+            root.track_lock.acquire()
+            try:
+                if track is not None and track.state == 'play':
+                    track.stop()
+            except AttributeError as e:
+                Logger.warning(traceback.format_exc())
+            except Exception as e:
+                root.track_lock.release()
+                raise e
+            finally:
+                root.track_lock.release()
             if url.find("youtube") == -1:  # checks if youtube is not in url string
                 try:  # does the normal stuff
                     r = requests.get(url, timeout=(5, 20))
@@ -185,12 +190,18 @@ class MusicTab(TabbedPanelItem):
                         main_scr.music_name_display.text = "Error"
                     return
             track = SoundLoader.load("mucache/"+songtitle+".mp3")
-            with root.track_lock:
-                if root.track is not None:
-                    root.track.stop()
-                    if platform != "win":
-                        root.track.unload()
-                root.track = track
+            root.track_lock.acquire()
+            try:
+                root.track.stop()
+                if platform != "win":
+                    root.track.unload()
+            except AttributeError:
+                pass
+            except Exception as e:
+                root.track_lock.release()
+                raise e
+            root.track = track
+            root.track_lock.release()
             App.get_running_app().play_sound(root.track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
             root.is_loading_music = False
             if track_name != "Hidden track":
@@ -204,18 +215,21 @@ class MusicTab(TabbedPanelItem):
         threading.Thread(target=play_song, args=(self,)).start()
 
     def music_stop(self, local=True):
-        with self.track_lock:
-            if self.track is not None:
-                if self.track.state == 'play':
-                    self.track.stop()
-                    if platform != "win":
-                        self.track.unload()
-                    main_screen = App.get_running_app().get_main_screen()
-                    main_screen.music_name_display.text = "Playing: "
-                    if local:
-                        connection = App.get_running_app().get_user_handler().get_connection_manager()
-                        connection.update_music("stop")
-                        main_screen.log_window.add_entry("You stopped the music.\n")
+        self.track_lock.acquire()
+        if self.track is not None:
+            if self.track.state == 'play':
+                self.track.stop()
+                if platform != "win":
+                    self.track.unload()
+                self.track_lock.release()
+                main_screen = App.get_running_app().get_main_screen()
+                main_screen.music_name_display.text = "Playing: "
+                if local:
+                    connection = App.get_running_app().get_user_handler().get_connection_manager()
+                    connection.update_music("stop")
+                    main_screen.log_window.add_entry("You stopped the music.\n")
+        else:
+            self.track_lock.release()
 
     def on_loop(self, value):
         self.loop = value
@@ -228,13 +242,17 @@ class MusicTab(TabbedPanelItem):
 
     def reset_music(self, *args):
         self.is_loading_music = False
-        with self.track_lock:
-            try:
-                self.track.stop()
-                if platform != "win":
-                    self.track.unload()
-            except AttributeError as e:
-                Logger.warning(traceback.format_exc())
+        self.track_lock.acquire()
+        try:
+            self.track.stop()
+            if platform != "win":
+                self.track.unload()
+        except AttributeError as e:
+            Logger.warning(traceback.format_exc())
+        except Exception as e:
+            self.track_lock.release()
+            raise e
+        self.track_lock.release()
 
 
 class OOCWindow(TabbedPanel):
