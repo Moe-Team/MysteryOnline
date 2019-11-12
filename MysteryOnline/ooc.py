@@ -1,7 +1,6 @@
 import threading
 import traceback
 from datetime import datetime
-from multiprocessing import Process
 
 import requests
 import urllib
@@ -115,9 +114,10 @@ class MusicTab(TabbedPanelItem):
                 except FileNotFoundError: #can't delete what doesn't exist
                     os.makedirs('mucache')
                 except PermissionError:
-                    print("Cannot clear music cache due to permission error.")
+                    Logger.warning("Cannot clear music cache due to permission error.")
+                    Logger.warning(traceback.format_exc())
                 except Exception as e:
-                    print(e)
+                    Logger.warning(traceback.format_exc())
             main_scr = App.get_running_app().get_main_screen()
             track = root.track
             root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
@@ -175,6 +175,7 @@ class MusicTab(TabbedPanelItem):
                         root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
                 except Exception as e:
                     root.is_loading_music = False
+                    Logger.warning(traceback.format_exc())
                     if e is AttributeError:
                         main_scr.music_name_display.text = "Error: bad url"
                     else:
