@@ -1,6 +1,7 @@
 import threading
 import traceback
 from datetime import datetime
+from multiprocessing import Process
 
 import requests
 import urllib
@@ -43,6 +44,8 @@ ytdl_format_options = {
     'source_address': '0.0.0.0',
     'writeinfojson': True
 }
+
+
 # this thing lets you declare what shit you want ur download to be, neat!!
 
 
@@ -62,7 +65,7 @@ class MusicTab(TabbedPanelItem):
         self.download = True
         self.hide_title = False
         self.is_loading_music = False
-        self.track_lock = threading.Lock()
+        self.music_process = None
 
     def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
         if "dropbox" in self.url_input.text:
@@ -100,136 +103,20 @@ class MusicTab(TabbedPanelItem):
             temp_pop = MOPopup("Error playing music", "Link too long", "OK")
             temp_pop.open()
 
-        def play_song(root):
-            config_ = App.get_running_app().config
-            try: #kebab
-                os.makedirs('mucache')
-            except FileExistsError:
-                pass
-            if not config_.getboolean('sound', 'musiccache'):
-                try:
-                    shutil.rmtree('mucache/')
-                    os.makedirs('mucache') #deleting all files instead of nuking dirs breaks youtube jsons when playing the same song.
-                except FileNotFoundError: #can't delete what doesn't exist
-                    os.makedirs('mucache')
-                except PermissionError:
-                    Logger.warning("Cannot clear music cache due to permission error.")
-                except Exception as e:
-                    Logger.warning(traceback.format_exc())
-            main_scr = App.get_running_app().get_main_screen()
-            track = root.track
-            root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
-            root.track_lock.acquire()
-            try:
-                if track is not None and track.state == 'play':
-                    track.stop()
-            except AttributeError as e:
-                Logger.warning(traceback.format_exc())
-            except Exception as e:
-                root.track_lock.release()
-                raise e
-            finally:
-                root.track_lock.release()
-            if url.find("youtube") == -1:  # checks if youtube is not in url string
-                try:  # does the normal stuff
-                    r = requests.get(url, timeout=(5, 20))
-                    """If no request were established within 5 seconds, it will raise a Timeout exception.
-                       If no data was received within 20 seconds, it will also raise the same exception."""
-                    r.raise_for_status()
-                    """ Any HTTP Error that's between 400 and 600 will force the HTTPError exception to be raised.
-                        root.is_loading_music was moved to be more global inside the method because if a http error is 
-                        raised, the value of the variable won't be changed when it should be set to false. It also
-                        removes the need to have to set it to false within each exception block."""
-                except MissingSchema:
-                    Logger.warning('Music Error: Invalid URL. Did you forget to add http:// at the beginning '
-                                   'by any chance?')
-                    main_scr.music_name_display.text = "Error: Invalid URL. See warning logs for more details."
-                    return
-                except Timeout:
-                    Logger.warning('Music Error: Request timed out. Either the server is not responding back or you '
-                                   'lost connection to internet.')
-                    main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
-                    return
-                if r.ok:  # no errors were raised, it's now loading the music.
-                    '''write a function for this?'''
-                    songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})).info().get_filename()
-                    if songtitle is None:
-                        songtitle = "temp"
-                    elif track_name != None:
-                        songtitle = track_name
-                    else:
-                        songtitle = os.path.basename(songtitle)
-                        songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
-                        songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
-                    root.is_loading_music = True
-                if not os.path.isfile('mucache/'+songtitle+'.mp3'):
-                    try:
-                        f = open("mucache/"+songtitle+".mp3", mode="wb")
-                    except OSError:
-                        songtitle = 'Error Name'
-                        f = open("mucache/" + songtitle + ".mp3", mode="wb")
-                    f.write(r.content)
-                    f.close()
-            else:
-                try:
-                    with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
-                        info = ydl.extract_info(url, download=False)
-                        songtitle = ydl.prepare_filename(info)
-                        songtitle = os.path.basename(songtitle)
-                        songtitle = os.path.splitext(songtitle)[0] #safer way to get the song title
-                        if not os.path.isfile('mucache/' + songtitle + '.mp3'):
-                            ydl.download([url])
-                        root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
-                except Exception as e:
-                    root.is_loading_music = False
-                    if e is AttributeError:
-                        Logger.warning(traceback.format_exc())
-                        main_scr.music_name_display.text = "Error: bad url"
-                    else:
-                        Logger.warning(traceback.format_exc())
-                        main_scr.music_name_display.text = "Error"
-                    return
-            track = SoundLoader.load("mucache/"+songtitle+".mp3")
-            root.track_lock.acquire()
-            try:
-                root.track.stop()
-                if platform != "win":
-                    root.track.unload()
-            except AttributeError:
-                pass
-            except Exception as e:
-                root.track_lock.release()
-                raise e
-            root.track = track
-            root.track_lock.release()
-            App.get_running_app().play_sound(root.track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
-            root.is_loading_music = False
-            if track_name != "Hidden track":
-                if 'youtube' in url:
-                    with open('mucache/'+songtitle+'.mp3.info.json', 'r') as f:
-                        video_info = json.load(f)
-                    main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
-                else:
-                    main_scr.music_name_display.text = "Playing: " + songtitle
-
-        threading.Thread(target=play_song, args=(self,)).start()
+        self.kill_process()
+        self.music_process = Process(target=self.play_song, name="MysteryOnlineMusic", args=(self, url, track_name), daemon=True)
+        self.music_process.start()
 
     def music_stop(self, local=True):
-        self.track_lock.acquire()
         if self.track is not None:
             if self.track.state == 'play':
                 self.track.stop()
-                if platform != "win":
-                    self.track.unload()
-                self.track_lock.release()
                 main_screen = App.get_running_app().get_main_screen()
                 main_screen.music_name_display.text = "Playing: "
                 if local:
                     connection = App.get_running_app().get_user_handler().get_connection_manager()
                     connection.update_music("stop")
                     main_screen.log_window.add_entry("You stopped the music.\n")
-        else:
-            self.track_lock.release()
 
     def on_loop(self, value):
         self.loop = value
@@ -242,17 +129,112 @@ class MusicTab(TabbedPanelItem):
 
     def reset_music(self, *args):
         self.is_loading_music = False
-        self.track_lock.acquire()
-        try:
+        self.kill_process()
+        if self.track is not None:
             self.track.stop()
-            if platform != "win":
-                self.track.unload()
-        except AttributeError as e:
-            Logger.warning(traceback.format_exc())
-        except Exception as e:
-            self.track_lock.release()
-            raise e
-        self.track_lock.release()
+
+    def kill_process(self):
+        if self.music_process is None or not self.music_process.is_alive():
+            return
+
+        self.music_process.join(1.0)
+
+        if self.music_process.is_alive():
+            self.music_threa.kill()
+
+
+    def play_song(self, url=None, track_name=None):
+        config_ = App.get_running_app().config
+        try:  # kebab
+            os.makedirs('mucache')
+        except FileExistsError:
+            pass
+        if not config_.getboolean('sound', 'musiccache'):
+            try:
+                shutil.rmtree('mucache/')
+                os.makedirs(
+                    'mucache')  # deleting all files instead of nuking dirs breaks youtube jsons when playing the same song.
+            except FileNotFoundError:  # can't delete what doesn't exist
+                os.makedirs('mucache')
+            except PermissionError:
+                print("Cannot clear music cache due to permission error.")
+            except Exception as e:
+                print(e)
+        main_scr = App.get_running_app().get_main_screen()
+        track = self.track
+        self.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
+        if track is not None and track.state == 'play':
+            track.stop()
+        if url.find("youtube") == -1:  # checks if youtube is not in url string
+            try:  # does the normal stuff
+                r = requests.get(url, timeout=(5, 20))
+                """If no request were established within 5 seconds, it will raise a Timeout exception.
+                   If no data was received within 20 seconds, it will also raise the same exception."""
+                r.raise_for_status()
+                """ Any HTTP Error that's between 400 and 600 will force the HTTPError exception to be raised.
+                    root.is_loading_music was moved to be more global inside the method because if a http error is 
+                    raised, the value of the variable won't be changed when it should be set to false. It also
+                    removes the need to have to set it to false within each exception block."""
+            except MissingSchema:
+                Logger.warning('Music Error: Invalid URL. Did you forget to add http:// at the beginning '
+                               'by any chance?')
+                main_scr.music_name_display.text = "Error: Invalid URL. See warning logs for more details."
+                return
+            except Timeout:
+                Logger.warning('Music Error: Request timed out. Either the server is not responding back or you '
+                               'lost connection to internet.')
+                main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
+                return
+            if r.ok:  # no errors were raised, it's now loading the music.
+                '''write a function for this?'''
+                songtitle = urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={
+                    'User-Agent': 'Mozilla/5.0'})).info().get_filename()
+                if songtitle is None:
+                    songtitle = "temp"
+                elif track_name != None:
+                    songtitle = track_name
+                else:
+                    songtitle = os.path.basename(songtitle)
+                    songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
+                    songtitle = songtitle.encode('latin-1').decode(
+                        'utf-8')  # nonascii names break otherwise, go figure
+                self.is_loading_music = True
+            if not os.path.isfile('mucache/' + songtitle + '.mp3'):
+                try:
+                    f = open("mucache/" + songtitle + ".mp3", mode="wb")
+                except OSError:
+                    songtitle = 'Error Name'
+                    f = open("mucache/" + songtitle + ".mp3", mode="wb")
+                f.write(r.content)
+                f.close()
+        else:
+            try:
+                with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
+                    info = ydl.extract_info(url, download=False)
+                    songtitle = ydl.prepare_filename(info)
+                    songtitle = os.path.basename(songtitle)
+                    songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
+                    if not os.path.isfile('mucache/' + songtitle + '.mp3'):
+                        ydl.download([url])
+                    self.is_loading_music = True  # no exceptions were raised, so it's loading the music.
+            except Exception as e:
+                self.is_loading_music = False
+                if e is AttributeError:
+                    main_scr.music_name_display.text = "Error: bad url"
+                else:
+                    main_scr.music_name_display.text = "Error"
+                return
+        track = SoundLoader.load("mucache/" + songtitle + ".mp3")
+        App.get_running_app().play_sound(track, self.loop, config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0)
+        self.track = track
+        self.is_loading_music = False
+        if track_name != "Hidden track":
+            if 'youtube' in url:
+                with open('mucache/' + songtitle + '.mp3.info.json', 'r') as f:
+                    video_info = json.load(f)
+                main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
+            else:
+                main_scr.music_name_display.text = "Playing: " + songtitle
 
 
 class OOCWindow(TabbedPanel):
@@ -270,7 +252,7 @@ class OOCWindow(TabbedPanel):
         self.online_users = {}
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
         self.ooc_notif.unload()
-        self.pm_notif_volume =0
+        self.pm_notif_volume = 0
         self.pm_open_sound_volume = 0
         self.ooc_play = True
         self.chat = PrivateMessageScreen()
@@ -322,11 +304,10 @@ class OOCWindow(TabbedPanel):
     def on_slider_music_value(self, *args):
         config = App.get_running_app().config
         value = int(self.music_slider.value)
-        with self.music_tab.track_lock:
-            try:
-                self.music_tab.track.volume = value / 100.0
-            except AttributeError:
-                pass
+        try:
+            self.music_tab.track.volume = value / 100.0
+        except AttributeError:
+            pass
 
         config.set('sound', 'music_volume', value)
 
@@ -416,7 +397,8 @@ class OOCWindow(TabbedPanel):
                             App.get_running_app().play_sound(pm_notif, volume=self.pm_notif_volume)
                             App.get_running_app().flash_window()
                             if not Window.focus:
-                                App.get_running_app().notification("Mystery Online", "You've got a PM from {0}".format(pm.sender))
+                                App.get_running_app().notification("Mystery Online",
+                                                                   "You've got a PM from {0}".format(pm.sender))
                     self.chat.pm_flag = True
                     self.chat.build_conversation(pm.sender)
                     self.chat.update_conversation(pm.sender, pm.msg)
@@ -432,7 +414,7 @@ class OOCWindow(TabbedPanel):
     def delete_user(self, username):
         try:
             label = self.online_users[username]
-            #TODO don't delete if it has a PM widnow that wasn't seen
+            # TODO don't delete if it has a PM widnow that wasn't seen
         except KeyError:
             return
         self.user_list.remove_widget(label)
@@ -457,7 +439,8 @@ class OOCWindow(TabbedPanel):
         if not local:
             self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
         else:
-            self.ooc_chat.text += "[color=adffff]{0}: [ref={2}]{1}[/ref][/color]\n".format(sender, msg, escape_markup(ref))
+            self.ooc_chat.text += "[color=adffff]{0}: [ref={2}]{1}[/ref][/color]\n".format(sender, msg,
+                                                                                           escape_markup(ref))
         self.counter += 1
         config = App.get_running_app().config
         if config.getdefaultint('other', 'ooc_scrolling', 1):
@@ -502,7 +485,7 @@ class OOCWindow(TabbedPanel):
                 connection_manager.send_msg(message)
                 connection_manager.send_local(message)
             except Exception as e:
-                popup = MOPopup("Warning", "Something went wrong. "+str(e), "OK")
+                popup = MOPopup("Warning", "Something went wrong. " + str(e), "OK")
                 popup.open()
             self.ooc_input.text = ""
 
