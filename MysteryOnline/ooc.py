@@ -65,6 +65,7 @@ class MusicTab(TabbedPanelItem):
         self.download = True
         self.hide_title = False
         self.is_loading_music = False
+        self.all_track_stop_lock = threading.Lock()
 
     def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
         if "dropbox" in self.url_input.text:
@@ -116,7 +117,7 @@ class MusicTab(TabbedPanelItem):
                 except FileExistsError:
                     pass
             main_scr = App.get_running_app().get_main_screen()
-            root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
+            root.is_loading_music = True
             root.stop_all_tracks()
             if url.find("youtube") == -1:  # checks if youtube is not in url string
                 try:  # does the normal stuff
@@ -170,14 +171,13 @@ class MusicTab(TabbedPanelItem):
                         songtitle = os.path.splitext(songtitle)[0] #safer way to get the song title
                         if not os.path.isfile(os.path.join(music_path, songtitle+'.mp3')):
                             ydl.download([url])
-                        root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
                 except Exception as e:
-                    root.is_loading_music = False
                     Logger.warning(traceback.format_exc())
                     if e is AttributeError:
                         main_scr.music_name_display.text = "Error: bad url"
                     else:
                         main_scr.music_name_display.text = "Error"
+                    root.is_loading_music = False
                     return
             track = SoundLoader.load(os.path.join(music_path, songtitle+".mp3"))
             App.get_running_app().play_sound(track, loop=root.loop, volume=config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0)
@@ -206,17 +206,18 @@ class MusicTab(TabbedPanelItem):
                     main_screen.log_window.add_entry("You stopped the music.\n")
 
     def stop_all_tracks(self):
-        for ref in self.tracks:
-            track = ref()
-            if track is None:
-                self.tracks.remove(ref)
-                continue
-            if track.state == "play":
-                track.stop()
-            if platform != "win":
-                track.unload()
-        self.tracks.clear()
-        self.track = None
+        with self.all_track_stop_lock:
+            for ref in self.tracks:
+                track = ref()
+                if track is None:
+                    self.tracks.remove(ref)
+                    continue
+                if track.state == "play":
+                    track.stop()
+                if platform != "win":
+                    track.unload()
+            self.tracks.clear()
+            self.track = None
 
     def on_loop(self, value):
         self.loop = value
