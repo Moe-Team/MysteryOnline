@@ -175,11 +175,6 @@ class MusicTab(TabbedPanelItem):
                         if not os.path.isfile('mucache/' + songtitle + '.mp3'):
                             ydl.download([url])
                         root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
-                except FileNotFoundError as e:
-                    if not os.path.exists('mucache/' + songtitle + '.mp3'):
-                        Logger.warning(traceback.format_exc())
-                        main_scr.music_name_display.text = "Error"
-                        return
                 except Exception as e:
                     root.is_loading_music = False
                     if e is AttributeError:
@@ -192,11 +187,8 @@ class MusicTab(TabbedPanelItem):
             track = SoundLoader.load("mucache/"+songtitle+".mp3")
             with root.track_lock:
                 if root.track is not None:
-                    try:
-                        root.track.stop()
-                        root.track.unload()
-                    except AttributeError:
-                        Logger.warning(traceback.format_exc())
+                    root.track.stop()
+                    root.track.unload()
                 root.track = track
             App.get_running_app().play_sound(root.track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
             root.is_loading_music = False
