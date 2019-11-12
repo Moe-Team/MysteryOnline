@@ -353,12 +353,12 @@ class MysteryOnlineApp(App):
         self.user_handler.get_connection_manager().send_msg(np_message)
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
-        """Kivy is a mess, so we need to do this for *every* audio we want to play."""
+        """Kivy is a mess, so we need to do this for *every* audio we want to play, on platforms other than windows."""
         sound.load()
         sound.loop = loop
         sound.volume = volume
         sound.play()
-        if not loop:
+        if not loop and platform != "win":
             Clock.schedule_once(partial(self.unload_sound, sound), sound.length+2.0)
         sound.seek(0)
 
