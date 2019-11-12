@@ -1,6 +1,7 @@
 import threading
 import traceback
 import tempfile
+import weakref
 from datetime import datetime
 
 import requests
@@ -180,7 +181,7 @@ class MusicTab(TabbedPanelItem):
                     return
             track = SoundLoader.load(os.path.join(music_path, songtitle+".mp3"))
             App.get_running_app().play_sound(track, loop=root.loop, volume=config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0)
-            root.tracks.append(track)
+            root.tracks.append(weakref.ref(track))
             root.track = track
             root.is_loading_music = False
             if track_name != "Hidden track":
@@ -205,7 +206,11 @@ class MusicTab(TabbedPanelItem):
                     main_screen.log_window.add_entry("You stopped the music.\n")
 
     def stop_all_tracks(self):
-        for track in self.tracks:
+        for ref in self.tracks:
+            track = ref()
+            if track is None:
+                self.tracks.remove(ref)
+                continue
             if track.state == "play":
                 track.stop()
             if platform != "win":
@@ -243,7 +248,8 @@ class OOCWindow(TabbedPanel):
         super(OOCWindow, self).__init__(**kwargs)
         self.online_users = {}
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
-        self.ooc_notif.unload()
+        if platform != "win":
+            self.ooc_notif.unload()
         self.pm_notif_volume = 0
         self.pm_open_sound_volume = 0
         self.ooc_play = True
