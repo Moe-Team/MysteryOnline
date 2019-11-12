@@ -119,10 +119,8 @@ class MusicTab(TabbedPanelItem):
                 except Exception as e:
                     Logger.warning(traceback.format_exc())
             main_scr = App.get_running_app().get_main_screen()
-            track = root.track
             root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
-            if track is not None and track.state == 'play':
-                track.stop()
+            root.stop_all_tracks()
             if url.find("youtube") == -1:  # checks if youtube is not in url string
                 try:  # does the normal stuff
                     r = requests.get(url, timeout=(5, 20))
@@ -194,7 +192,7 @@ class MusicTab(TabbedPanelItem):
                 else:
                     main_scr.music_name_display.text = "Playing: " + songtitle
 
-        threading.Thread(target=play_song, args=(self,)).start()
+        threading.Thread(target=play_song, args=(self,), daemon=True).start()
 
     def music_stop(self, local=True):
         if self.track is not None:
