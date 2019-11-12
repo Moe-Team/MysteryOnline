@@ -1,5 +1,6 @@
 import threading
 import traceback
+import tempfile
 from datetime import datetime
 
 import requests
@@ -31,7 +32,6 @@ from MysteryOnline.user import CurrentUserHandler
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
-    'outtmpl': 'mucache/%(title)s.mp3',
     'restrictfilenames': False,
     'noplaylist': True,
     'nocheckcertificate': True,
@@ -103,21 +103,17 @@ class MusicTab(TabbedPanelItem):
 
         def play_song(root):
             config_ = App.get_running_app().config
-            try: #kebab
-                os.makedirs('mucache')
-            except FileExistsError:
-                pass
+            music_path = "mucache"
+            temp_dir = None
+
             if not config_.getboolean('sound', 'musiccache'):
-                try:
-                    shutil.rmtree('mucache/')
-                    os.makedirs('mucache') #deleting all files instead of nuking dirs breaks youtube jsons when playing the same song.
-                except FileNotFoundError: #can't delete what doesn't exist
+                temp_dir: tempfile.TemporaryDirectory = tempfile.TemporaryDirectory()
+                music_path = temp_dir.name
+            else:
+                try:  # kebab
                     os.makedirs('mucache')
-                except PermissionError:
-                    Logger.warning("Cannot clear music cache due to permission error.")
-                    Logger.warning(traceback.format_exc())
-                except Exception as e:
-                    Logger.warning(traceback.format_exc())
+                except FileExistsError:
+                    pass
             main_scr = App.get_running_app().get_main_screen()
             root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
             root.stop_all_tracks()
@@ -153,22 +149,25 @@ class MusicTab(TabbedPanelItem):
                         songtitle = os.path.splitext(songtitle)[0]  # safer way to get the song title
                         songtitle = songtitle.encode('latin-1').decode('utf-8') #nonascii names break otherwise, go figure
                     root.is_loading_music = True
-                if not os.path.isfile('mucache/'+songtitle+'.mp3'):
+
+                file = os.path.join(music_path, songtitle+'.mp3')
+                if not os.path.isfile(file):
                     try:
-                        f = open("mucache/"+songtitle+".mp3", mode="wb")
+                        f = open(file, mode="wb")
                     except OSError:
                         songtitle = 'Error Name'
-                        f = open("mucache/" + songtitle + ".mp3", mode="wb")
+                        f = open(file, mode="wb")
                     f.write(r.content)
                     f.close()
             else:
                 try:
+                    ytdl_format_options['outtmpl'] = os.path.join(music_path, "%(title)s.mp3")
                     with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:  # the actual downloading
                         info = ydl.extract_info(url, download=False)
                         songtitle = ydl.prepare_filename(info)
                         songtitle = os.path.basename(songtitle)
                         songtitle = os.path.splitext(songtitle)[0] #safer way to get the song title
-                        if not os.path.isfile('mucache/' + songtitle + '.mp3'):
+                        if not os.path.isfile(os.path.join(music_path, songtitle+'.mp3')):
                             ydl.download([url])
                         root.is_loading_music = True  # no exceptions were raised, so it's loading the music.
                 except Exception as e:
@@ -179,14 +178,14 @@ class MusicTab(TabbedPanelItem):
                     else:
                         main_scr.music_name_display.text = "Error"
                     return
-            track = SoundLoader.load("mucache/"+songtitle+".mp3")
+            track = SoundLoader.load(os.path.join(music_path, songtitle+".mp3"))
             App.get_running_app().play_sound(track, loop=root.loop, volume=config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0)
             root.tracks.append(track)
             root.track = track
             root.is_loading_music = False
             if track_name != "Hidden track":
                 if 'youtube' in url:
-                    with open('mucache/'+songtitle+'.mp3.info.json', 'r') as f:
+                    with open(os.path.join(music_path, songtitle+'.mp3.info.json'), 'r') as f:
                         video_info = json.load(f)
                     main_scr.music_name_display.text = "Playing: {}".format(video_info['fulltitle'])
                 else:
