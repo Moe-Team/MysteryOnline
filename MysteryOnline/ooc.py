@@ -1,6 +1,7 @@
 import threading
 import traceback
 from datetime import datetime
+from multiprocessing import Process
 
 import requests
 import urllib
@@ -43,8 +44,9 @@ ytdl_format_options = {
     'source_address': '0.0.0.0',
     'writeinfojson': True
 }
-# this thing lets you declare what shit you want ur download to be, neat!!
 
+
+# this thing lets you declare what shit you want ur download to be, neat!!
 
 class OOCLogLabel(Label):
     def __init__(self, **kwargs):
@@ -58,11 +60,11 @@ class MusicTab(TabbedPanelItem):
     def __init__(self, **kwargs):
         super(MusicTab, self).__init__(**kwargs)
         self.track = None
+        self.tracks = []
         self.loop = True
         self.download = True
         self.hide_title = False
         self.is_loading_music = False
-        self.track_lock = threading.Lock()
 
     def on_music_play(self, sender='Default', url=None, send_to_all=True, track_name=None):
         if "dropbox" in self.url_input.text:
@@ -113,23 +115,14 @@ class MusicTab(TabbedPanelItem):
                 except FileNotFoundError: #can't delete what doesn't exist
                     os.makedirs('mucache')
                 except PermissionError:
-                    Logger.warning("Cannot clear music cache due to permission error.")
+                    print("Cannot clear music cache due to permission error.")
                 except Exception as e:
-                    Logger.warning(traceback.format_exc())
+                    print(e)
             main_scr = App.get_running_app().get_main_screen()
             track = root.track
             root.is_loading_music = False  # at first, nothing is being loaded, so we set this variable to False.
-            root.track_lock.acquire()
-            try:
-                if track is not None and track.state == 'play':
-                    track.stop()
-            except AttributeError as e:
-                Logger.warning(traceback.format_exc())
-            except Exception as e:
-                root.track_lock.release()
-                raise e
-            finally:
-                root.track_lock.release()
+            if track is not None and track.state == 'play':
+                track.stop()
             if url.find("youtube") == -1:  # checks if youtube is not in url string
                 try:  # does the normal stuff
                     r = requests.get(url, timeout=(5, 20))
@@ -183,26 +176,14 @@ class MusicTab(TabbedPanelItem):
                 except Exception as e:
                     root.is_loading_music = False
                     if e is AttributeError:
-                        Logger.warning(traceback.format_exc())
                         main_scr.music_name_display.text = "Error: bad url"
                     else:
-                        Logger.warning(traceback.format_exc())
                         main_scr.music_name_display.text = "Error"
                     return
             track = SoundLoader.load("mucache/"+songtitle+".mp3")
-            root.track_lock.acquire()
-            try:
-                root.track.stop()
-                if platform != "win":
-                    root.track.unload()
-            except AttributeError:
-                pass
-            except Exception as e:
-                root.track_lock.release()
-                raise e
+            App.get_running_app().play_sound(track, loop=root.loop, volume=config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0)
+            root.tracks.append(track)
             root.track = track
-            root.track_lock.release()
-            App.get_running_app().play_sound(root.track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
             root.is_loading_music = False
             if track_name != "Hidden track":
                 if 'youtube' in url:
@@ -215,21 +196,24 @@ class MusicTab(TabbedPanelItem):
         threading.Thread(target=play_song, args=(self,)).start()
 
     def music_stop(self, local=True):
-        self.track_lock.acquire()
         if self.track is not None:
             if self.track.state == 'play':
                 self.track.stop()
-                if platform != "win":
-                    self.track.unload()
-                self.track_lock.release()
                 main_screen = App.get_running_app().get_main_screen()
                 main_screen.music_name_display.text = "Playing: "
                 if local:
                     connection = App.get_running_app().get_user_handler().get_connection_manager()
                     connection.update_music("stop")
                     main_screen.log_window.add_entry("You stopped the music.\n")
-        else:
-            self.track_lock.release()
+
+    def stop_all_tracks(self):
+        for track in self.tracks:
+            if track.state == "play":
+                track.stop()
+            if platform != "win":
+                track.unload()
+        self.tracks.clear()
+        self.track = None
 
     def on_loop(self, value):
         self.loop = value
@@ -242,17 +226,9 @@ class MusicTab(TabbedPanelItem):
 
     def reset_music(self, *args):
         self.is_loading_music = False
-        self.track_lock.acquire()
-        try:
-            self.track.stop()
-            if platform != "win":
-                self.track.unload()
-        except AttributeError as e:
-            Logger.warning(traceback.format_exc())
-        except Exception as e:
-            self.track_lock.release()
-            raise e
-        self.track_lock.release()
+        main_screen = App.get_running_app().get_main_screen()
+        main_screen.music_name_display.text = "Playing: "
+        self.stop_all_tracks()
 
 
 class OOCWindow(TabbedPanel):
@@ -270,7 +246,7 @@ class OOCWindow(TabbedPanel):
         self.online_users = {}
         self.ooc_notif = SoundLoader.load('sounds/general/notification.mp3')
         self.ooc_notif.unload()
-        self.pm_notif_volume =0
+        self.pm_notif_volume = 0
         self.pm_open_sound_volume = 0
         self.ooc_play = True
         self.chat = PrivateMessageScreen()
@@ -322,11 +298,10 @@ class OOCWindow(TabbedPanel):
     def on_slider_music_value(self, *args):
         config = App.get_running_app().config
         value = int(self.music_slider.value)
-        with self.music_tab.track_lock:
-            try:
-                self.music_tab.track.volume = value / 100.0
-            except AttributeError:
-                pass
+        try:
+            self.music_tab.track.volume = value / 100.0
+        except AttributeError:
+            pass
 
         config.set('sound', 'music_volume', value)
 
@@ -416,7 +391,8 @@ class OOCWindow(TabbedPanel):
                             App.get_running_app().play_sound(pm_notif, volume=self.pm_notif_volume)
                             App.get_running_app().flash_window()
                             if not Window.focus:
-                                App.get_running_app().notification("Mystery Online", "You've got a PM from {0}".format(pm.sender))
+                                App.get_running_app().notification("Mystery Online",
+                                                                   "You've got a PM from {0}".format(pm.sender))
                     self.chat.pm_flag = True
                     self.chat.build_conversation(pm.sender)
                     self.chat.update_conversation(pm.sender, pm.msg)
@@ -432,7 +408,7 @@ class OOCWindow(TabbedPanel):
     def delete_user(self, username):
         try:
             label = self.online_users[username]
-            #TODO don't delete if it has a PM widnow that wasn't seen
+            # TODO don't delete if it has a PM widnow that wasn't seen
         except KeyError:
             return
         self.user_list.remove_widget(label)
@@ -457,7 +433,8 @@ class OOCWindow(TabbedPanel):
         if not local:
             self.ooc_chat.text += "{0}: [ref={2}]{1}[/ref]\n".format(sender, msg, escape_markup(ref))
         else:
-            self.ooc_chat.text += "[color=adffff]{0}: [ref={2}]{1}[/ref][/color]\n".format(sender, msg, escape_markup(ref))
+            self.ooc_chat.text += "[color=adffff]{0}: [ref={2}]{1}[/ref][/color]\n".format(sender, msg,
+                                                                                           escape_markup(ref))
         self.counter += 1
         config = App.get_running_app().config
         if config.getdefaultint('other', 'ooc_scrolling', 1):
@@ -502,7 +479,7 @@ class OOCWindow(TabbedPanel):
                 connection_manager.send_msg(message)
                 connection_manager.send_local(message)
             except Exception as e:
-                popup = MOPopup("Warning", "Something went wrong. "+str(e), "OK")
+                popup = MOPopup("Warning", "Something went wrong. " + str(e), "OK")
                 popup.open()
             self.ooc_input.text = ""
 
