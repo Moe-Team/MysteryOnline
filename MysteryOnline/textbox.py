@@ -67,7 +67,8 @@ class TextBox(Label):
         self.sfx["8b6fba"] = self.load_wav('sounds/general/purple.mp3')
         self.sfx["rainbow"] = self.load_wav('sounds/general/rainbow.mp3')
         self.sfx["ffffff"] = self.load_wav('sounds/general/blip.wav')
-        self.sfx["ffffff"].load()
+        if platform != "win":
+            self.sfx["ffffff"].load()
 
     def load_wav(self, filename):
         """Use SDL2 to load wav files cuz it's better, but only on windows"""
@@ -79,7 +80,7 @@ class TextBox(Label):
             sound = SoundSDL2(source=filename)
         else:
             sound = SoundLoader.load(filename)
-        sound.unload()  # We don't need to keep these loaded all the time...
+            sound.unload()  # We don't need to keep these loaded all the time... On linux.
         return sound
 
     def update_ui(self, dt):
@@ -171,7 +172,8 @@ class TextBox(Label):
             return False
 
     def unload_blip(self, delta):
-        self.sfx["ffffff"].unload()
+        if platform != "win":
+            self.sfx["ffffff"].unload()
 
     def clear_textbox(self):
         self.text = ""
