@@ -188,7 +188,8 @@ class MusicTab(TabbedPanelItem):
             with root.track_lock:
                 if root.track is not None:
                     root.track.stop()
-                    root.track.unload()
+                    if platform != "win":
+                        root.track.unload()
                 root.track = track
             App.get_running_app().play_sound(root.track, root.loop, config_.getdefaultint('sound', 'music_volume', 100) / 100.0)
             root.is_loading_music = False
@@ -207,7 +208,8 @@ class MusicTab(TabbedPanelItem):
             if self.track is not None:
                 if self.track.state == 'play':
                     self.track.stop()
-                    self.track.unload()
+                    if platform != "win":
+                        self.track.unload()
                     main_screen = App.get_running_app().get_main_screen()
                     main_screen.music_name_display.text = "Playing: "
                     if local:
@@ -229,7 +231,8 @@ class MusicTab(TabbedPanelItem):
         with self.track_lock:
             try:
                 self.track.stop()
-                self.track.unload()
+                if platform != "win":
+                    self.track.unload()
             except AttributeError as e:
                 Logger.warning(traceback.format_exc())
 
