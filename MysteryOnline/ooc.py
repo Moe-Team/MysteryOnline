@@ -180,9 +180,11 @@ class MusicTab(TabbedPanelItem):
                     root.is_loading_music = False
                     return
             track = SoundLoader.load(os.path.join(music_path, songtitle+".mp3"))
-            App.get_running_app().play_sound(track, loop=root.loop, volume=config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0)
-            root.tracks.append(weakref.ref(track))
+            track.loop = root.loop
+            track.volume = config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0
             root.track = track
+            track.play()
+            root.tracks.append(weakref.ref(track))
             root.is_loading_music = False
             if track_name != "Hidden track":
                 if 'youtube' in url:
