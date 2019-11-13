@@ -2,7 +2,7 @@ dev = False
 
 MAJOR = 1
 MINOR = 3
-REVISION = 1
+REVISION = 2
 
 
 def set_dev(value: bool):
