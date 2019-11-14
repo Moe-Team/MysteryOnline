@@ -140,6 +140,9 @@ class TextBox(Label):
             if user.color != 'rainbow':
                 self.msg = "[color={}]{}[/color]".format(user.color, self.msg)
             else:
+                self.msg = self.msg.replace("&bl;", "[")
+                self.msg = self.msg.replace("&br;", "]")
+                self.msg = self.msg.replace("&amp;", "&")
                 msg_array = list(self.msg)
                 self.msg = ''
                 color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '00adfc', '8b6fba', 'ee82ee']
@@ -148,7 +151,7 @@ class TextBox(Label):
                     if y == 7:
                         y = 0
                     col = color_spectrum[y]
-                    self.msg += "[color={}]{}[/color]".format(col, msg_array[x])
+                    self.msg += "[color={}]{}[/color]".format(col, escape_markup(msg_array[x]))
                     if msg_array[x] != ' ':
                         y = y + 1
             self.text = self.msg
