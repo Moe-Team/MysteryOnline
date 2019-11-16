@@ -1,15 +1,15 @@
 import os, platform, ctypes
+import sys
 from functools import partial
-from sys import argv
 
 from MysteryOnline import set_dev, get_dev
 
 if platform.system() == "Linux":
     os.environ["KIVY_AUDIO"] = "ffpyplayer"
 
-if len(argv) > 1 and argv[1] == "--dev":
+if len(sys.argv) > 1 and sys.argv[1] == "--dev":
     set_dev(True)
-    del argv[1]
+    del sys.argv[1]
 
 #
 # wrong_path = os.environ['GST_PLUGIN_PATH']
@@ -246,6 +246,7 @@ class MysteryOnlineApp(App):
             self.main_screen.on_stop()
         config.write()
         super(MysteryOnlineApp, self).on_stop()
+        sys.exit(0)
 
     def on_start(self):
         config = self.config
