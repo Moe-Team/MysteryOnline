@@ -1,8 +1,10 @@
 dev = False
 
+PREFIX = "v"
 MAJOR = 1
 MINOR = 3
-REVISION = 2
+REVISION = 3
+SUFFIX = " beta"
 
 
 def set_dev(value: bool):
@@ -15,4 +17,4 @@ def get_dev() -> bool:
 
 
 def get_version() -> str:
-    return "v{0}.{1}.{2}".format(MAJOR, MINOR, REVISION)
+    return "{0}{1}.{2}.{3}{4}".format(PREFIX, MAJOR, MINOR, REVISION, SUFFIX)
