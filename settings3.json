@@ -47,6 +47,12 @@
   "section": "other",
   "key": "sprite_tooltips"
   },
+  {"type": "bool",
+  "title": "Suppress Rainbow",
+  "desc": "Makes the rainbow effect easier on the eyes.",
+  "section": "other",
+  "key": "suppress_rainbow"
+  },
   {"type": "serieswhitelist",
   "title": "Whitelist Series",
   "desc": "Choose which series you've already read and want to see spoilers from",

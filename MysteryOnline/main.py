@@ -168,7 +168,8 @@ class MysteryOnlineApp(App):
             'whitelisted_series': [],
             'fav_characters': [],
             'fav_sfx': [],
-            'fav_subloc': []
+            'fav_subloc': [],
+            'suppress_rainbow': 0
         })
         config.setdefaults('command-shortcuts', {
             '>': "/color green '>"

@@ -145,8 +145,13 @@ class TextBox(Label):
                 self.msg = self.msg.replace("&amp;", "&")
                 msg_array = list(self.msg)
                 self.msg = ''
-                color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '00adfc', '8b6fba', 'ee82ee']
+                # ff5aac
+                if config.getint("other", "suppress_rainbow") == 0:
+                    color_spectrum = ['ff3333', 'ffa500', 'ffff00', '33cc33', '00adfc', '8b6fba', 'ee82ee']
+                else:
+                    color_spectrum = ['ff8181', 'ffd689', 'ffff89', 'a1e7a1', '86d9ff', 'b6a4d3', 'f093f0']
                 y = 0
+
                 for x in range(len(msg_array)):
                     if y == 7:
                         y = 0
