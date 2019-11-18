@@ -144,5 +144,17 @@
                 max: 60
                 on_value: root.on_speed_slider_value()
 
+            BoxLayout:
+                orientation: 'horizontal'
+
+                Label:
+                    text: "Dance:"
+                    width: 30
+
+                CheckBox:
+                    id: check_dance_h
+                    width: 30
+                    on_active: root.on_dance_checkbox(self.active)
+
     MusicList:
         id: music_list

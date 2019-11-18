@@ -291,6 +291,13 @@ class SpriteWindow(Widget):
         subloc = user.get_subloc()
         pos = user.get_pos()
         char = user.get_char()
+        option = user.get_sprite_option()
+
+        if user.get_dance():
+            for i in subloc.get_users():
+                if i != user and i.get_dance():
+                    i.set_sprite_option(option)
+
         if char.name != 'Narrator':
             subloc.remove_o_user(user)
         if display_sub:

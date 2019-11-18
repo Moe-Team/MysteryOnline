@@ -19,12 +19,13 @@ class User:
         self.prev_subloc = None
         self.color = 'ffffff'  # Default color for text
         self.colored = None  # True for a color selected
+        self.dance = False
         self.color_ids = ['ffffff', 'ff3333', '00adfc', 'ffd700', '00cd00', 'rainbow', '8b6fba']  # Color code for text
         self.sprite_option = -1
         self.inventory = UserInventory(self)
         self.has_choice_popup = False
 
-    def set_from_msg(self, location, sublocation, position, sprite, character):
+    def set_from_msg(self, location, sublocation, position, sprite, character, dance=None):
         self.set_loc(location, True)
         if self.location is not None:
             try:
@@ -38,6 +39,8 @@ class User:
             self.character = characters['RedHerring']
             self.set_current_sprite('4')
         self.character.load_without_icons()
+        if dance is not None:
+            self.set_dance(dance in ["True", True, 1, "true"])
 
     def get_color(self):
         return self.color
@@ -77,6 +80,12 @@ class User:
             red_herring = characters["RedHerring"]
             red_herring.load()
             return red_herring.get_sprite("3")
+
+    def get_dance(self) -> bool:
+        return self.dance
+
+    def set_dance(self, active: bool):
+        self.dance = active
 
     def set_char(self, char):
         self.character = char
@@ -195,7 +204,8 @@ class CurrentUserHandler:
         message = message_factory.build_icon_message(location=loc, sublocation=self.chosen_subloc_name,
                                                      character=char, sprite=self.chosen_sprite_name,
                                                      position=self.chosen_pos_name,
-                                                     sprite_option=self.chosen_sprite_option)
+                                                     sprite_option=self.chosen_sprite_option,
+                                                     dance=self.user.get_dance())
 
         self.chosen_to_current()
         self.user.set_pos(self.current_pos_name)
