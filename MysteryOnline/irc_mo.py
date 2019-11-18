@@ -220,10 +220,17 @@ class IconMessage:
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 7)
-        arguments.remove("sc")
-        self.location, self.sublocation, self.character, self.sprite, self.position, \
-        self.sprite_option, self.dance = arguments
+        try:
+            arguments = message.split('#', 7)
+            arguments.remove("sc")
+            self.location, self.sublocation, self.character, self.sprite, self.position, \
+            self.sprite_option, self.dance = arguments
+        except ValueError:
+            arguments = message.split('#', 6)
+            arguments.remove("sc")
+            self.location, self.sublocation, self.character, self.sprite, self.position, \
+            self.sprite_option = arguments
+            self.dance = False
 
     def execute(self, connection_manager, main_screen, user_handler):
         username = self.sender
