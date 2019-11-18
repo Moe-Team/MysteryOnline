@@ -195,10 +195,10 @@ class MysteryOnlineApp(App):
         settings.add_json_panel('Other', self.config, 'settings3.json')
         settings.add_json_panel('Favorites', self.config, 'settings4.json')
 
-    def set_user(self, user):
+    def set_user(self, user: MysteryOnline.user.User):
         self.user = user
 
-    def get_user(self):
+    def get_user(self) -> MysteryOnline.user.User:
         return self.user
 
     def set_fav_chars(self, fav_chars):
@@ -225,10 +225,10 @@ class MysteryOnlineApp(App):
     def get_main_screen(self) -> MainScreen:
         return self.main_screen
 
-    def set_user_handler(self, user_handler):
+    def set_user_handler(self, user_handler: MysteryOnline.user.CurrentUserHandler):
         self.user_handler = user_handler
 
-    def get_user_handler(self):
+    def get_user_handler(self) -> MysteryOnline.user.CurrentUserHandler:
         return self.user_handler
 
     def get_message_factory(self):
@@ -351,7 +351,8 @@ class MysteryOnlineApp(App):
         np_message = self.message_factory \
             .build_icon_message(location=self.user.get_loc().name, sublocation=self.user_handler.get_current_subloc_name(),
                                 character=self.user.get_char().name, sprite=self.user.get_current_sprite().name,
-                                position=self.user.get_pos(), sprite_option=self.user_handler.get_current_sprite_option())
+                                position=self.user.get_pos(), sprite_option=self.user_handler.get_current_sprite_option(),
+                                dance=self.user.get_dance())
         self.user_handler.get_connection_manager().send_msg(np_message)
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):

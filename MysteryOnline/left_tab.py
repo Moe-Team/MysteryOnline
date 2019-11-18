@@ -4,6 +4,8 @@ from kivy.properties import ObjectProperty
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
 from kivy.logger import Logger
+
+import MysteryOnline
 from MysteryOnline.utils import binary_search
 from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
@@ -416,3 +418,10 @@ class LeftTab(TabbedPanel):
         config = App.get_running_app().config
         value = int(self.speed_slider.value)
         config.set('other', 'textbox_speed', value)
+
+    def on_dance_checkbox(self, active):
+        app: MysteryOnline.main.MysteryOnlineApp = App.get_running_app()
+        user: MysteryOnline.user.User = app.get_user()
+        user.set_dance(active)
+        app.send_current_nullpost()
+

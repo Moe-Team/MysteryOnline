@@ -212,20 +212,22 @@ class IconMessage:
         self.sprite = kwargs.get('sprite')
         self.position = kwargs.get('position')
         self.sprite_option = kwargs.get('sprite_option')
+        self.dance = kwargs.get('dance')
 
     def to_irc(self):
         msg = "sc#{0[location]}#{0[sublocation]}#{0[character]}#{0[sprite]}#" \
-              "{0[position]}#{0[sprite_option]}".format(self.components)
+              "{0[position]}#{0[sprite_option]}#{0[dance]}".format(self.components)
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 6)
+        arguments = message.split('#', 7)
         arguments.remove("sc")
         self.location, self.sublocation, self.character, self.sprite, self.position, \
-        self.sprite_option = arguments
+        self.sprite_option, self.dance = arguments
 
     def execute(self, connection_manager, main_screen, user_handler):
         username = self.sender
+        local_user = App.get_running_app().get_user()
         if username == "default":
             user = App.get_running_app().get_user()
         else:
@@ -235,7 +237,7 @@ class IconMessage:
                 connection_manager.on_join(username)
 
         if user is not None:
-            user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character)
+            user.set_from_msg(self.location, self.sublocation, self.position, self.sprite, self.character, self.dance)
 
         if self.location == user_handler.get_current_loc().name and user not in main_screen.ooc_window.muted_users:
             try:
@@ -244,6 +246,8 @@ class IconMessage:
                 if user.get_char().get_sprite(self.sprite).is_cg():
                     return # No nullposting for cgs!
                 user.set_sprite_option(option)
+                if username != "default" and user.get_dance() and local_user.get_subloc().name == self.sublocation and local_user.get_dance():
+                    main_screen.sprite_settings.check_flip_h.active = user.sprite_option == 0
                 main_screen.sprite_window.set_sprite(user, False)
                 main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
                 main_screen.sprite_window.display_sub(old_subloc)
