@@ -314,16 +314,16 @@ class OOCWindow(TabbedPanel):
 
     def on_ooc_volume_change(self, s, k, v):
         self.effect_slider.value = v
-        try:
-            self.ooc_notif.volume = int(v) / 100.0
-            self.pm_notif_volume = int(v) / 100.0
-            self.pm_open_sound_volume = int(v) / 100.0
-        except AttributeError:
-            pass
 
     def on_slider_effect_value(self, *args):
         config = App.get_running_app().config
         value = int(self.effect_slider.value)
+        try:
+            self.ooc_notif.volume = value / 100.0
+            self.pm_notif_volume = value / 100.0
+            self.pm_open_sound_volume = value / 100.0
+        except AttributeError:
+            pass
         config.set('sound', 'effect_volume', value)
 
     def add_user(self, user):
@@ -458,7 +458,7 @@ class OOCWindow(TabbedPanel):
                 self.ooc_chat_header.background_normal = ''
                 self.ooc_chat_header.background_color = color
             if self.ooc_play:
-                App.get_running_app().play_sound(self.ooc_notif)
+                App.get_running_app().play_sound(self.ooc_notif, volume=self.ooc_notif.volume)
                 config = App.get_running_app().config
                 delay = config.getdefaultint('other', 'ooc_notif_delay', 60)
                 Clock.schedule_once(self.ooc_time_callback, delay)
