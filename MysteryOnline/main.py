@@ -247,6 +247,7 @@ class MysteryOnlineApp(App):
             self.main_screen.on_stop()
         config.write()
         super(MysteryOnlineApp, self).on_stop()
+        App.get_running_app().get_main_screen().ooc_window.music_tab.reset_music()
         sys.exit(0)
 
     def on_start(self):
