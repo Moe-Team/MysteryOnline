@@ -101,7 +101,7 @@ class MainScreenManager(ScreenManager):
         config = App.get_running_app().config
         sfx = SoundLoader.load('sounds/general/login.mp3')
         v = config.getdefaultint('sound', 'effect_volume', 100)
-        App.get_running_app().play_sound(sfx, volume=v / 100.0)
+        App.get_running_app().play_sound(sfx, volume=App.get_running_app().logarithmic_volume(v / 100.0))
         self.current = "main"
         self.main_screen.on_ready()
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
