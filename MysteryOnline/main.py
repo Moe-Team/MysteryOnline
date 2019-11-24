@@ -54,7 +54,6 @@ from MysteryOnline.mopopup import MOPopup
 from MysteryOnline.mopopup import MOPopupYN
 from MysteryOnline.location import location_manager
 from os import listdir
-import math
 
 from MysteryOnline.commands import command_processor
 from kivy.core.window import Window
@@ -360,7 +359,6 @@ class MysteryOnlineApp(App):
     @staticmethod
     def exponential_volume(volume):
         fvalue = (volume**2)/10000.0
-        print("fvalue " + str(fvalue) + " volume" + str(volume))
         return fvalue
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
