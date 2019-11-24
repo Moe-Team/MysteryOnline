@@ -670,7 +670,7 @@ class PrivateMessageQueue:
 
 class IrcConnection:
 
-    def __init__(self, server, port, channel, username):
+    def __init__(self, server, port, channel, username, password=None):
         irc.client.ServerConnection.buffer_class = buffer.LenientDecodingLineBuffer
         self.reactor = irc.client.Reactor()
         self.username = username
@@ -683,6 +683,12 @@ class IrcConnection:
         self.on_users_handler = None
         self.on_disconnect_handler = None
         self.connection_manager = None
+
+        if password is not None:
+            if not password.strip():
+                password = None
+
+        self.password = password
 
         try:
             self.connection = self.reactor.server().connect(self.server, port, username)
@@ -737,7 +743,7 @@ class IrcConnection:
 
     def on_welcome(self, c, e):
         if irc.client.is_channel(self.channel):
-            c.join(self.channel)
+            c.join(self.channel, self.password)
         else:
             raise ChannelConnectionError("Couldn't connect to {}".format(self.channel))
 
