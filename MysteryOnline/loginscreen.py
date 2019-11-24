@@ -165,7 +165,7 @@ class LoginScreen(Screen):
             epopup = MOPopup("Something went wrong", "You entered invalid data.", "Aw, shucks.")
             epopup.open()
 
-        popup = FormPopup("Server selection", on_popup_validate, on_popup_submitted, on_popup_error, submit_text="Save")
+        popup = FormPopup("Server selection", on_popup_validate, on_popup_submitted, on_popup_error, submit_text="Save", size_hint= [0.5, 0.9])
         popup.add_field("channel", True, text=self.channel)
         popup.add_field("password", False, text=self.password)
         popup.add_field("IRC Server", True, text=self.server)
