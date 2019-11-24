@@ -52,8 +52,8 @@ class TextBox(Label):
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
         config.add_callback(self.on_sfx_volume_change, 'sound', 'effect_volume')
         config.add_callback(self.on_trans_change, 'other', 'textbox_transparency')
-        self.volume = config.getdefaultint('sound', 'blip_volume', 100) / 100.0
-        self.sfx_volume = config.getdefaultint('sound', 'effect_volume', 100) / 100.0
+        self.volume = App.get_running_app().logarithmic_volume(config.getdefaultint('sound', 'blip_volume', 100) / 100.0)
+        self.sfx_volume = App.get_running_app().logarithmic_volume(config.getdefaultint('sound', 'effect_volume', 100) / 100.0)
         for sfx in self.sfx.values():
             sfx.volume = self.sfx_volume
         self.sfx["ffffff"].volume = self.volume
@@ -187,14 +187,14 @@ class TextBox(Label):
         self.text = ""
 
     def on_volume_change(self, s, k, v):
-        self.volume = int(v) / 100.0
+        self.volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
         try:
             self.sfx["ffffff"].volume = self.volume
         except AttributeError:
             pass
 
     def on_sfx_volume_change(self, s, k, v):
-        self.sfx_volume = int(v) / 100.0
+        self.sfx_volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
         try:
             for sfx_name in self.sfx:
                 if sfx_name == "ffffff":
@@ -203,6 +203,7 @@ class TextBox(Label):
                 sfx.volume = self.sfx_volume * 0.5
         except AttributeError:
             pass
+
 
 class MainTextInput(TextInput):
     def __init__(self, **kwargs):

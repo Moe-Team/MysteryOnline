@@ -54,6 +54,7 @@ from MysteryOnline.mopopup import MOPopup
 from MysteryOnline.mopopup import MOPopupYN
 from MysteryOnline.location import location_manager
 from os import listdir
+import math
 
 from MysteryOnline.commands import command_processor
 from kivy.core.window import Window
@@ -355,6 +356,10 @@ class MysteryOnlineApp(App):
                                 position=self.user.get_pos(), sprite_option=self.user_handler.get_current_sprite_option(),
                                 dance=self.user.get_dance())
         self.user_handler.get_connection_manager().send_msg(np_message)
+
+    @staticmethod
+    def logarithmic_volume(volume):
+        return math.log(volume+1, 4)
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
         """Kivy is a mess, so we need to do this for *every* audio we want to play, on platforms other than windows."""

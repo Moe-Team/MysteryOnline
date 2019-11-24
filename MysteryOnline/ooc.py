@@ -277,9 +277,9 @@ class OOCWindow(TabbedPanel):
         config.add_callback(self.on_ooc_volume_change, 'sound', 'effect_volume')
         self.effect_slider.value = v
         try:
-            self.ooc_notif.volume = int(v) / 100.0
-            self.pm_notif_volume = int(v) / 100.0
-            self.pm_open_sound_volume = int(v) / 100.0
+            self.ooc_notif.volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
+            self.pm_notif_volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
+            self.pm_open_sound_volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
         except AttributeError:
             pass
         self.ooc_chat_header.bind(on_press=self.on_ooc_checked)
@@ -306,7 +306,7 @@ class OOCWindow(TabbedPanel):
         config = App.get_running_app().config
         value = int(self.music_slider.value)
         try:
-            self.music_tab.track.volume = value / 100.0
+            self.music_tab.track.volume = App.get_running_app().logarithmic_volume(value / 100.0)
         except AttributeError:
             pass
 
@@ -319,9 +319,9 @@ class OOCWindow(TabbedPanel):
         config = App.get_running_app().config
         value = int(self.effect_slider.value)
         try:
-            self.ooc_notif.volume = value / 100.0
-            self.pm_notif_volume = value / 100.0
-            self.pm_open_sound_volume = value / 100.0
+            self.ooc_notif.volume = App.get_running_app().logarithmic_volume(value / 100.0)
+            self.pm_notif_volume = App.get_running_app().logarithmic_volume(value / 100.0)
+            self.pm_open_sound_volume = App.get_running_app().logarithmic_volume(value / 100.0)
         except AttributeError:
             pass
         config.set('sound', 'effect_volume', value)
