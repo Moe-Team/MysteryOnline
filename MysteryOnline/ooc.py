@@ -181,7 +181,7 @@ class MusicTab(TabbedPanelItem):
                     return
             track = SoundLoader.load(os.path.join(music_path, songtitle+".mp3"))
             track.loop = root.loop
-            track.volume = config_.getdefaultint('sound', 'music_volume', 100.0) / 100.0
+            track.volume = config_.getdefaultint('sound', 'music_volume', 100.0)
             root.track = track
             track.play()
             root.tracks.append(weakref.ref(track))
@@ -277,9 +277,9 @@ class OOCWindow(TabbedPanel):
         config.add_callback(self.on_ooc_volume_change, 'sound', 'effect_volume')
         self.effect_slider.value = v
         try:
-            self.ooc_notif.volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
-            self.pm_notif_volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
-            self.pm_open_sound_volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
+            self.ooc_notif.volume = App.get_running_app().exponential_volume(v)
+            self.pm_notif_volume = App.get_running_app().exponential_volume(v)
+            self.pm_open_sound_volume = App.get_running_app().exponential_volume(v)
         except AttributeError:
             pass
         self.ooc_chat_header.bind(on_press=self.on_ooc_checked)
@@ -306,7 +306,7 @@ class OOCWindow(TabbedPanel):
         config = App.get_running_app().config
         value = int(self.music_slider.value)
         try:
-            self.music_tab.track.volume = App.get_running_app().logarithmic_volume(value / 100.0)
+            self.music_tab.track.volume = App.get_running_app().exponential_volume(value)
         except AttributeError:
             pass
 
@@ -319,9 +319,9 @@ class OOCWindow(TabbedPanel):
         config = App.get_running_app().config
         value = int(self.effect_slider.value)
         try:
-            self.ooc_notif.volume = App.get_running_app().logarithmic_volume(value / 100.0)
-            self.pm_notif_volume = App.get_running_app().logarithmic_volume(value / 100.0)
-            self.pm_open_sound_volume = App.get_running_app().logarithmic_volume(value / 100.0)
+            self.ooc_notif.volume = App.get_running_app().exponential_volume(value)
+            self.pm_notif_volume = App.get_running_app().exponential_volume(value)
+            self.pm_open_sound_volume = App.get_running_app().exponential_volume(value)
         except AttributeError:
             pass
         config.set('sound', 'effect_volume', value)

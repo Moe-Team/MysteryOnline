@@ -52,8 +52,8 @@ class TextBox(Label):
         config.add_callback(self.on_volume_change, 'sound', 'blip_volume')
         config.add_callback(self.on_sfx_volume_change, 'sound', 'effect_volume')
         config.add_callback(self.on_trans_change, 'other', 'textbox_transparency')
-        self.volume = App.get_running_app().logarithmic_volume(config.getdefaultint('sound', 'blip_volume', 100) / 100.0)
-        self.sfx_volume = App.get_running_app().logarithmic_volume(config.getdefaultint('sound', 'effect_volume', 100) / 100.0)
+        self.volume = App.get_running_app().exponential_volume(config.getdefaultint('sound', 'blip_volume', 100))
+        self.sfx_volume = App.get_running_app().exponential_volume(config.getdefaultint('sound', 'effect_volume', 100))
         for sfx in self.sfx.values():
             sfx.volume = self.sfx_volume
         self.sfx["ffffff"].volume = self.volume
@@ -103,9 +103,9 @@ class TextBox(Label):
         sfx = self.load_wav('sounds/sfx/{0}'.format(sfx_name))
         config = App.get_running_app().config
         if sfx_name != "blip":
-            v = config.getdefaultint('sound', 'effect_volume', 100) / 100.0
+            v = config.getdefaultint('sound', 'effect_volume', 100)
         else:
-            v = config.getdefaultint('sound', 'blip_volume', 100) / 100.0
+            v = config.getdefaultint('sound', 'blip_volume', 100)
         App.get_running_app().play_sound(sfx, volume=v)
 
     def display_text(self, msg, user, color, sender):
@@ -187,14 +187,14 @@ class TextBox(Label):
         self.text = ""
 
     def on_volume_change(self, s, k, v):
-        self.volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
+        self.volume = App.get_running_app().exponential_volume(v)
         try:
             self.sfx["ffffff"].volume = self.volume
         except AttributeError:
             pass
 
     def on_sfx_volume_change(self, s, k, v):
-        self.sfx_volume = App.get_running_app().logarithmic_volume(int(v) / 100.0)
+        self.sfx_volume = App.get_running_app().exponential_volume(v)
         try:
             for sfx_name in self.sfx:
                 if sfx_name == "ffffff":

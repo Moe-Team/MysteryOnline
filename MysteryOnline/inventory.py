@@ -53,7 +53,7 @@ class UserInventory(Popup):
         v = config.getdefaultint('sound', 'effect_volume', 100)
         item.open_popup()
         inv_open_sound = SoundLoader.load('sounds/general/takethat.mp3')
-        App.get_running_app().play_sound(inv_open_sound, volume=App.get_running_app().logarithmic_volume(v / 100.0))
+        App.get_running_app().play_sound(inv_open_sound, volume=App.get_running_app().exponential_volume(v))
 
     def delete_item(self, name):
         if name in self.item_dictionary_logic:

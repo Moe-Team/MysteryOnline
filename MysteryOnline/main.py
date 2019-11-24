@@ -101,7 +101,7 @@ class MainScreenManager(ScreenManager):
         config = App.get_running_app().config
         sfx = SoundLoader.load('sounds/general/login.mp3')
         v = config.getdefaultint('sound', 'effect_volume', 100)
-        App.get_running_app().play_sound(sfx, volume=App.get_running_app().logarithmic_volume(v / 100.0))
+        App.get_running_app().play_sound(sfx, volume=App.get_running_app().exponential_volume(v))
         self.current = "main"
         self.main_screen.on_ready()
         connection_manager = App.get_running_app().get_user_handler().get_connection_manager()
@@ -358,8 +358,10 @@ class MysteryOnlineApp(App):
         self.user_handler.get_connection_manager().send_msg(np_message)
 
     @staticmethod
-    def logarithmic_volume(volume):
-        return math.log(volume+1, 4)
+    def exponential_volume(volume):
+        fvalue = (volume**2)/10000.0
+        print("fvalue " + str(fvalue) + " volume" + str(volume))
+        return fvalue
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
         """Kivy is a mess, so we need to do this for *every* audio we want to play, on platforms other than windows."""
