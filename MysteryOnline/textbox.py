@@ -103,9 +103,9 @@ class TextBox(Label):
         sfx = self.load_wav('sounds/sfx/{0}'.format(sfx_name))
         config = App.get_running_app().config
         if sfx_name != "blip":
-            v = config.getdefaultint('sound', 'effect_volume', 100)
+            v = App.get_running_app().exponential_volume(config.getdefaultint('sound', 'effect_volume', 100))
         else:
-            v = config.getdefaultint('sound', 'blip_volume', 100)
+            v = App.get_running_app().exponential_volume(config.getdefaultint('sound', 'blip_volume', 100))
         App.get_running_app().play_sound(sfx, volume=v)
 
     def display_text(self, msg, user, color, sender):

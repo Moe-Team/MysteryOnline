@@ -181,7 +181,7 @@ class MusicTab(TabbedPanelItem):
                     return
             track = SoundLoader.load(os.path.join(music_path, songtitle+".mp3"))
             track.loop = root.loop
-            track.volume = config_.getdefaultint('sound', 'music_volume', 100.0)
+            track.volume = App.get_running_app().exponential_volume(config_.getdefaultint('sound', 'music_volume', 100.0))
             root.track = track
             track.play()
             root.tracks.append(weakref.ref(track))
