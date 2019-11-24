@@ -247,6 +247,7 @@ class MysteryOnlineApp(App):
             self.main_screen.on_stop()
         config.write()
         super(MysteryOnlineApp, self).on_stop()
+        App.get_running_app().get_main_screen().ooc_window.music_tab.reset_music()
         sys.exit(0)
 
     def on_start(self):
@@ -357,6 +358,8 @@ class MysteryOnlineApp(App):
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
         """Kivy is a mess, so we need to do this for *every* audio we want to play, on platforms other than windows."""
+        if volume == 0.00:
+            return
         if platform != "win":
             sound.load()
         sound.loop = loop
