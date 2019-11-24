@@ -10,7 +10,7 @@ from kivy.clock import Clock
 from kivy.config import ConfigParser
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
-from MysteryOnline.mopopup import MOPopup, MOPopupFile
+from MysteryOnline.mopopup import MOPopup, MOPopupFile, FormPopup
 from MysteryOnline.user import User, CurrentUserHandler
 
 dirty = False
@@ -68,6 +68,10 @@ class LoginScreen(Screen):
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
         self.picked_char = None
+        self.server = SERVER
+        self.port = PORT
+        self.channel = CHANNEL
+        self.password = PASSWORD
         if get_dev():
             Clock.schedule_once(self.on_login_clicked, 0)
         Clock.schedule_once(self.set_version_label, 0)
@@ -89,7 +93,7 @@ class LoginScreen(Screen):
 
     def create_irc_connection(self):
         user_handler = App.get_running_app().get_user_handler()
-        connection = IrcConnection(SERVER, PORT, CHANNEL, self.username, PASSWORD)
+        connection = IrcConnection(self.server, self.port, self.channel, self.username, self.password)
         user_handler.set_connection_manager(ConnectionManager(connection))
         self.manager.irc_connection = connection
 
@@ -130,6 +134,43 @@ class LoginScreen(Screen):
         cs = CharacterSelect()
         cs.bind(on_dismiss=self.on_picked)
         cs.open()
+
+    def on_server_clicked(self, *args):
+        def on_popup_validate(fields={}):
+            if not fields["channel"].text.startswith("#"):
+                return False
+
+            try:
+                int(fields["IRC Server Port"].text)
+            except ValueError:
+                return False
+
+            return True
+
+        def on_popup_submitted(popup, fields={}):
+            config.set("Channel name", "channel", fields["channel"].text)
+            config.set("Channel name", "password", fields["password"].text)
+            config.set("IRC Server name", "irc_server", fields["IRC Server"].text)
+            config.set("IRC Server name", "irc_server_port", fields["IRC Server Port"].text)
+
+            with open('irc_channel_name.ini', "w+") as configfile:
+                config.write(configfile)
+
+            self.channel = fields["channel"].text
+            self.password = fields["password"].text
+            self.server = fields["IRC Server"].text
+            self.port = int(fields["IRC Server Port"].text)
+
+        def on_popup_error(popup, fields={}):
+            epopup = MOPopup("Something went wrong", "You entered invalid data.", "Aw, shucks.")
+            epopup.open()
+
+        popup = FormPopup("Server selection", on_popup_validate, on_popup_submitted, on_popup_error, submit_text="Save")
+        popup.add_field("channel", True, text=self.channel)
+        popup.add_field("password", False, text=self.password)
+        popup.add_field("IRC Server", True, text=self.server)
+        popup.add_field("IRC Server Port", True, text=str(self.port))
+        popup.open()
 
     def on_picked(self, inst):
         self.picked_char = inst.picked_char
