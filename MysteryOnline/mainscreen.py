@@ -169,6 +169,7 @@ class MainScreen(Screen):
         char = self.user.get_char()
         if char is not None:
             self.on_new_char(char)
+        self.sprite_window.set_subloc(user_handler.get_chosen_subloc())
         App.get_running_app().keyboard_listener.bind_keyboard()
 
     def on_new_char(self, char):
