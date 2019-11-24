@@ -13,24 +13,43 @@ from kivy.uix.screenmanager import Screen
 from MysteryOnline.mopopup import MOPopup, MOPopupFile
 from MysteryOnline.user import User, CurrentUserHandler
 
+dirty = False
 config = configparser.ConfigParser()
 config.read('irc_channel_name.ini')
-try:
-    channel_in_config = config.get("Channel name", 'Channel')
-    irc_server = config.get("IRC Server name", 'irc_server')
-    irc_server_port = config.get("IRC Server name", 'irc_server_port')
-except configparser.NoSectionError:
-    config.read('irc_channel_name.ini')
-    if not config.has_section('Channel name'):
-        config.add_section('Channel name')
-        config.set('Channel name', 'Channel', '##mysteryonlinetest')
-    if not config.has_section('IRC Server name'):
-        config.add_section('IRC Server name')
-        config.set('IRC Server name', 'irc_server', 'chat.freenode.net')
-        config.set('IRC Server name', 'irc_server_port', '6665')
-    channel_in_config = config.get("Channel name", 'Channel')
-    irc_server = config.get("IRC Server name", 'irc_server')
-    irc_server_port = config.get("IRC Server name", 'irc_server_port')
+
+if not config.has_section("Channel name"):
+    config.add_section("Channel name")
+    dirty = True
+
+if not config.has_option("Channel name", "channel"):
+    config.set("Channel name", "channel", "#mysteryonline")
+    dirty = True
+
+channel_in_config = config.get("Channel name", "channel")
+
+if not config.has_option("Channel name", "password"):
+    config.set("Channel name", "password", "")
+    dirty = True
+
+password_in_config = config.get("Channel name", "password")
+
+if not config.has_section("IRC Server name"):
+    config.add_section("IRC Server name")
+    dirty = True
+
+if not config.has_option("IRC Server name", "irc_server"):
+    config.set("IRC Server name", "irc_server", "chat.freenode.net")
+    dirty = True
+
+irc_server = config.get("IRC Server name", "irc_server")
+
+if not config.has_option("IRC Server name", "irc_server_port"):
+    config.set("IRC Server name", "irc_server_port", "6665")
+    dirty = True
+
+irc_server_port = config.get("IRC Server name", "irc_server_port")
+
+if dirty:
     with open('irc_channel_name.ini', "w+") as configfile:
         config.write(configfile)
 
@@ -39,6 +58,7 @@ PORT = int(irc_server_port)
 '''The PORT variable needs an integer to work so we convert the irc_server_port variable into an integer
  and that does the job.'''
 CHANNEL = channel_in_config
+PASSWORD = password_in_config
 
 
 class LoginScreen(Screen):
@@ -69,7 +89,7 @@ class LoginScreen(Screen):
 
     def create_irc_connection(self):
         user_handler = App.get_running_app().get_user_handler()
-        connection = IrcConnection(SERVER, PORT, CHANNEL, self.username)
+        connection = IrcConnection(SERVER, PORT, CHANNEL, self.username, PASSWORD)
         user_handler.set_connection_manager(ConnectionManager(connection))
         self.manager.irc_connection = connection
 
