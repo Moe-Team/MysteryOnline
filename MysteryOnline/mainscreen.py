@@ -225,11 +225,7 @@ class MainScreen(Screen):
 
     def add_character_to_dlc_list(self, char, link, version):
         try:
-            config = ConfigParser()
-            path = "characters/{0}/".format(char)
-            config.read(path + "settings.ini")
-            charconf = config['character']
-            oldver = charconf['ver']
+            oldver = characters[char].version
         except Exception as e:
             oldver = 0
 
