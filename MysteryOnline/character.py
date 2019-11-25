@@ -72,7 +72,10 @@ class Character:
         try:
             self.version = char['ver']
         except KeyError:
-            self.version = 0
+            try:
+                self.version = char['version']
+            except KeyError:
+                self.version = 0
 
     def read_nsfw_sprites(self):
         try:
