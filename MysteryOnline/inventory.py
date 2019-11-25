@@ -173,9 +173,13 @@ class Item(GridLayout):
         return self.popup
 
     def open_popup(self):
-        popup = self.build_item_window()
-        popup.bind(on_dismiss=self.clear_cache)
-        popup.open()
+        try:
+            popup = self.build_item_window()
+            popup.bind(on_dismiss=self.clear_cache)
+            popup.open()
+        except AttributeError:
+            Logger.warning(traceback.format_exc())
+            return
 
     # Encoded by: name#description#image_link#owner_name
     def encode(self):
