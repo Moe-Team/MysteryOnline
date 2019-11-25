@@ -4,7 +4,7 @@ PREFIX = "v"
 MAJOR = 1
 MINOR = 3
 REVISION = 3
-SUFFIX = " beta"
+SUFFIX = " stable"
 
 
 def set_dev(value: bool):
