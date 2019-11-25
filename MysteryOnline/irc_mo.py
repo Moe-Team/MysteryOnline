@@ -179,9 +179,13 @@ class ChatMessage:
                 option = int(self.sprite_option)
             except ValueError:
                 return
-            user.set_sprite_option(option)
-            main_screen.sprite_window.set_subloc(user.get_subloc())
-            main_screen.sprite_window.set_sprite(user)
+            try:
+                user.set_sprite_option(option)
+                main_screen.sprite_window.set_subloc(user.get_subloc())
+                main_screen.sprite_window.set_sprite(user)
+            except AttributeError:
+                Logger.warning(traceback.format_exc())
+                pass
             try:
                 col = user.color_ids[int(self.color_id)]
             except (ValueError, IndexError) as e:
