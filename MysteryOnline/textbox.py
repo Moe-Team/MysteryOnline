@@ -223,7 +223,7 @@ class MainTextInput(TextInput):
             return
         elif len(self.text) == 0 and not self.icon_change_spam:
             self.icon_change_spam = True
-            Clock.schedule_once(self.enable_icon_change, 0.5)
+            Clock.schedule_once(self.enable_icon_change, 0.25)
             App.get_running_app().get_user_handler().send_icon()
             return
         main_scr = App.get_running_app().get_main_screen()

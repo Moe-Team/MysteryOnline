@@ -38,7 +38,7 @@ if not config.has_section("IRC Server name"):
     dirty = True
 
 if not config.has_option("IRC Server name", "irc_server"):
-    config.set("IRC Server name", "irc_server", "chat.freenode.net")
+    config.set("IRC Server name", "irc_server", "irc.zumorica.es")
     dirty = True
 
 irc_server = config.get("IRC Server name", "irc_server")
