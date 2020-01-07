@@ -358,7 +358,7 @@ class MysteryOnlineApp(App):
 
     @staticmethod
     def exponential_volume(volume):
-        fvalue = (volume**2)/10000.0
+        fvalue = (int(volume)**2)/10000.0
         return fvalue
 
     def play_sound(self, sound: Sound, loop=False, volume=1.0):
