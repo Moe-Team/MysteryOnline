@@ -3,7 +3,7 @@ dev = False
 PREFIX = "v"
 MAJOR = 1
 MINOR = 3
-REVISION = 3
+REVISION = 4
 SUFFIX = " stable"
 
 
