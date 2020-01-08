@@ -38,13 +38,13 @@ if not config.has_section("IRC Server name"):
     dirty = True
 
 if not config.has_option("IRC Server name", "irc_server"):
-    config.set("IRC Server name", "irc_server", "irc.zumorica.es")
+    config.set("IRC Server name", "irc_server", "irc.swiftirc.net")
     dirty = True
 
 irc_server = config.get("IRC Server name", "irc_server")
 
 if not config.has_option("IRC Server name", "irc_server_port"):
-    config.set("IRC Server name", "irc_server_port", "6665")
+    config.set("IRC Server name", "irc_server_port", "6666")
     dirty = True
 
 irc_server_port = config.get("IRC Server name", "irc_server_port")

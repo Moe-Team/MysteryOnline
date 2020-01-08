@@ -88,9 +88,7 @@ ENV/
 # Rope project settings
 .ropeproject
 
-mysteryonline\.ini
-
-
+mysteryonline.ini
 temp\.mp3
 mucache/*
 characters/

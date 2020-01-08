@@ -194,7 +194,8 @@ class ChatMessage:
             if self.sfx_name is not None:
                 main_screen.text_box.play_sfx(self.sfx_name)
             main_screen.text_box.display_text(self.content, user, col, username)
-        main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
+        if user.subloc is not None:
+            main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
 
         if self.need_to_notify(self.content, user_handler.get_user().username):
             App.get_running_app().flash_window()
