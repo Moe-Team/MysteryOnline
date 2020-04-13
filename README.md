@@ -5,7 +5,7 @@ An **IRC** based **Visual Novel Chatroom** made using **Python** and **[Kivy](ht
 
 Check out this **[video presentation](https://www.youtube.com/watch?v=peS0a0uAAas&feature=youtu.be)**.
 
-With over **700** [characters](https://github.com/Moe-Team/MysteryOnline/wiki/Character-list) already made by the community, [Mystery Online](https://moe-team.github.io/MysteryOnline/) is **finally out** for the **world** to see.
+With over **700** [characters](https://github.com/Moe-Team/MysteryOnline/wiki/Character-list) already made by ~~the community~~ Archy, [Mystery Online](https://moe-team.github.io/MysteryOnline/) is **finally out** for the **world** to see.
 
 * **Create** your own [Server](https://github.com/Moe-Team/MysteryOnline/wiki/Create-your-own-Server)
 * **Create** your own [Characters](https://github.com/Moe-Team/MysteryOnline/wiki/Characters-via-Atlas)
