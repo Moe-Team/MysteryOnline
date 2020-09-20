@@ -153,6 +153,8 @@ class CommandProcessor:
                                         r'(\d*)?\s*(d[\d\w]*)\s*([+-]\s*\d*)?'),
             'clear': CommandHandler('clear'),
 
+            'clean': CommandHandler('clear'),
+
             'color': RegexCommandHandler('color', ['color', 'text'],
                                          r'([a-z]*)\s*["\'](.*)["\']$'),
             'refresh': CommandHandler('refresh'),
@@ -167,7 +169,9 @@ class CommandProcessor:
 
             'random': CommandHandler('random', 'str:option'),
 
-            'help': CommandHandler('help')
+            'help': CommandHandler('help'),
+
+            'nickname': CommandHandler('nickname', 'str:newNick')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -202,6 +206,9 @@ class CommandProcessor:
             message = message_factory.build_clear_message(location)
             connection_manager.send_msg(message)
             connection_manager.send_local(message)
+
+    def process_clean(self):
+        self.process_clear()
 
     def process_color(self):
         user_handler = App.get_running_app().get_user_handler()
@@ -243,6 +250,17 @@ class CommandProcessor:
                         sprite_settings.on_subloc_select(None, subloc)
             except IndexError:
                 pass
+
+    def process_nickname(self):
+        new_nickname = self.command['newNick']
+        message_factory = App.get_running_app().get_message_factory()
+        user_handler = App.get_running_app().get_user_handler()
+        connection_manager = user_handler.get_connection_manager()
+        message = message_factory.change_nickname_message(new_nickname)
+        connection_manager.send_msg(message)
+        connection_manager.send_local(message)
+        user = App.get_running_app().get_user()
+        user.username = new_nickname
 
     def process_random(self):
         user = App.get_running_app().get_user()

@@ -3,6 +3,7 @@ import traceback
 from kivy import Logger
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.core.audio import SoundLoader
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Rectangle
 from kivy.properties import ObjectProperty
@@ -10,10 +11,6 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.utils import escape_markup, platform
 from kivy.resources import resource_find
-from kivy.core.audio.audio_sdl2 import SoundSDL2
-
-from kivy.core.audio import SoundLoader
-
 import re
 from MysteryOnline.commands import command_processor, CommandInvalidArgumentsError, CommandNoArgumentsError
 from MysteryOnline.mopopup import MOPopup
@@ -77,7 +74,7 @@ class TextBox(Label):
         if rfn is not None:
             filename = rfn
         if platform == 'win':
-            sound = SoundSDL2(source=filename)
+            sound = SoundLoader.load(filename)
         else:
             sound = SoundLoader.load(filename)
             sound.unload()  # We don't need to keep these loaded all the time... On linux.
