@@ -80,10 +80,6 @@ class MessageFactory:
         result = ClearMessage("default", location)
         return result
 
-    def change_nickname_message(self, new_nickname):
-        result = ChangeNicknameMessage("default", new_nickname)
-        return result
-
     def build_choice_message(self, sender, text, options, list_of_users):
         result = ChoiceMessage(sender, text, options, list_of_users)
         return result
@@ -117,8 +113,6 @@ class MessageFactory:
             result = ChoiceMessage(username)
         elif irc_message.startswith('ch2#'):
             result = ChoiceReturnMessage(username)
-        elif irc_message.startswith('nn#'):
-            result = ChangeNicknameMessage(username)
         else:
             result = OOCMessage(username)
         result.from_irc(irc_message)
@@ -599,28 +593,6 @@ class ItemMessage:
             username = 'You'
         user.inventory.receive_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
         main_screen.log_window.add_entry("{} presented {}{}.\n".format(username, dcdi[0], entry_text))
-
-
-class ChangeNicknameMessage:
-    def __init__(self, sender, new_nickname=None):
-        self.sender = sender
-        self.new_nickname = new_nickname
-
-    def to_irc(self):
-        msg = "nn#{0}".format(self.new_nickname)
-        return msg
-
-    def from_irc(self, message):
-        arguments = message.split('#', 1)
-        self.new_nickname = arguments[1]
-
-    def execute(self, connection_manager, main_screen, user_handler):
-        username = self.sender
-        if username == "default":
-            username = "You"
-        else:
-            sender = main_screen.users[username]
-            sender.username = self.new_nickname
 
 
 class ClearMessage:
