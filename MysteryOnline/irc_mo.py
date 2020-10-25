@@ -84,6 +84,10 @@ class MessageFactory:
         result = ChangeNicknameMessage("default", new_nickname)
         return result
 
+    def me_message(self, description):
+        result = MeMessage("default", description)
+        return result
+
     def build_choice_message(self, sender, text, options, list_of_users):
         result = ChoiceMessage(sender, text, options, list_of_users)
         return result
@@ -119,6 +123,8 @@ class MessageFactory:
             result = ChoiceReturnMessage(username)
         elif irc_message.startswith('nn#'):
             result = ChangeNicknameMessage(username)
+        elif irc_message.startswith('em#'):
+            result = MeMessage(username)
         else:
             result = OOCMessage(username)
         result.from_irc(irc_message)
@@ -199,7 +205,7 @@ class ChatMessage:
                 return
             if self.sfx_name is not None:
                 main_screen.text_box.play_sfx(self.sfx_name)
-            main_screen.text_box.display_text(self.content, user, col, username)
+            main_screen.text_box.display_text(self.content, user, col, username, True)
         if user.subloc is not None:
             main_screen.ooc_window.update_subloc(user.username, user.subloc.name)
 
@@ -211,6 +217,7 @@ class ChatMessage:
     def need_to_notify(self, msg, username):
         mention: str = "@{0}".format(username)
         return msg == mention or mention+" " in msg
+
 
 class IconMessage:
 
@@ -274,6 +281,7 @@ class IconMessage:
                 return
         else:
             main_screen.ooc_window.update_subloc(user.username, self.sublocation)
+
 
 class ChoiceMessage:
 
@@ -419,6 +427,7 @@ class LocationMessage:
         user.set_loc(loc, True)
         main_screen.ooc_window.update_loc(user.username, loc)
         main_screen.sprite_window.refresh_sub()
+
 
 class OOCMessage:
 
@@ -599,6 +608,36 @@ class ItemMessage:
             username = 'You'
         user.inventory.receive_item(dcdi[0], dcdi[1], dcdi[2], dcdi[3])
         main_screen.log_window.add_entry("{} presented {}{}.\n".format(username, dcdi[0], entry_text))
+
+
+class MeMessage:
+    def __init__(self, sender, action_description=None):
+        self.sender = sender
+        self.actionDescription = action_description
+
+    def to_irc(self):
+        msg = "em#{0}".format(self.actionDescription)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 1)
+        self.actionDescription = arguments[1]
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        username = self.sender
+        if username == "default":
+            user = App.get_running_app().get_user()
+            username = user.username
+        else:
+            connection_manager.reschedule_ping()
+            user = main_screen.users.get(username, None)
+
+        main_screen.log_window.add_entry("{} {}.\n".format(username, self.actionDescription))
+        main_screen.log_window.write_text_log(self.actionDescription, username, False, True)
+
+        textbox = main_screen.text_box
+        textbox.clear_textbox()
+        textbox.display_text(username + " " + self.actionDescription, user, 'ffffff', username, False)
 
 
 class ChangeNicknameMessage:

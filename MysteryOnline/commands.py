@@ -171,7 +171,11 @@ class CommandProcessor:
 
             'help': CommandHandler('help'),
 
-            'nickname': CommandHandler('nickname', 'str:newNick')
+            'nickname': CommandHandler('nickname', 'str:newNick'),
+
+            'me': CommandHandler('me', 'str:description'),
+
+            'em': CommandHandler('me', 'str:description')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -261,6 +265,18 @@ class CommandProcessor:
         connection_manager.send_local(message)
         user = App.get_running_app().get_user()
         user.username = new_nickname
+
+    def process_me(self):
+        action = self.command['description']
+        message_factory = App.get_running_app().get_message_factory()
+        user_handler = App.get_running_app().get_user_handler()
+        connection_manager = user_handler.get_connection_manager()
+        message = message_factory.me_message(action)
+        connection_manager.send_msg(message)
+        connection_manager.send_local(message)
+
+    def process_em(self):
+        self.process_me()
 
     def process_random(self):
         user = App.get_running_app().get_user()

@@ -62,14 +62,22 @@ class LogWindow(ScrollView):
             self.add_new_label()
         self.add_entry("{0}: [ref={2}]{1}[/ref]\n".format(username, msg, self.remove_markup(msg)))
         self.counter += 1
-        self.write_text_log(msg, username)
+        self.write_text_log(msg, username, True, True)
 
-    def write_text_log(self, msg, username):
-        now = datetime.now()
-        cur_date = now.strftime("%d-%m-%Y")
-        cur_time = now.strftime("%H:%M:%S")
+    def write_text_log(self, msg, username, write_username: bool, write_date: bool):
+        if write_date:
+            now = datetime.now()
+            cur_time = now.strftime("%H:%M:%S") + " "
+            cur_date = now.strftime("%d-%m-%Y")
+        else:
+            cur_time = ""
+            cur_date = ""
+        if not write_username:
+            username = ""
+        else:
+            username = " " + username + ":"
         msg = self.remove_markup(msg)
-        log_msg = "<{} {}> {}: {}\n".format(cur_time, cur_date, username, msg)
+        log_msg = "<{}{}>{} {}\n".format(cur_time, cur_date, username, msg)
         with open('msg_log.txt', 'a', encoding='utf-8') as f:
             f.write(log_msg)
 

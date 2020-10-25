@@ -105,7 +105,7 @@ class TextBox(Label):
             v = App.get_running_app().exponential_volume(config.getdefaultint('sound', 'blip_volume', 100))
         App.get_running_app().play_sound(sfx, volume=v)
 
-    def display_text(self, msg, user, color, sender):
+    def display_text(self, msg, user, color, sender, write_to_log: bool):
         self.is_displaying_msg = True
         if self.prev_user is not user or (len(self.text) + len(msg) > 240):
             self.clear_textbox()
@@ -160,7 +160,8 @@ class TextBox(Label):
             self.text += " "
             self.is_displaying_msg = False
         main_scr = App.get_running_app().get_main_screen()  # BLAAAME KIVYYYY
-        main_scr.log_window.add_chat_entry(self.msg, user.username)
+        if write_to_log:
+            main_scr.log_window.add_chat_entry(self.msg, user.username)
         if sender == "default":
             main_scr.toolbar.text_col_btn.text = 'color'
         user.color = 'ffffff'
