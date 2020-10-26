@@ -75,9 +75,9 @@ class LogWindow(ScrollView):
         if not write_username:
             username = ""
         else:
-            username = " " + username + ":"
+            username = " " + username + ": "
         msg = self.remove_markup(msg)
-        log_msg = "<{}{}>{} {}\n".format(cur_time, cur_date, username, msg)
+        log_msg = "<{}{}>{}{}\n".format(cur_time, cur_date, username, msg)
         with open('msg_log.txt', 'a', encoding='utf-8') as f:
             f.write(log_msg)
 

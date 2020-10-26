@@ -270,8 +270,10 @@ class CommandProcessor:
         action = self.command['description']
         message_factory = App.get_running_app().get_message_factory()
         user_handler = App.get_running_app().get_user_handler()
+        user = App.get_running_app().get_user()
+        local_nickname = user.username
         connection_manager = user_handler.get_connection_manager()
-        message = message_factory.me_message(action)
+        message = message_factory.me_message(local_nickname, action)
         connection_manager.send_msg(message)
         connection_manager.send_local(message)
 

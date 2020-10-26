@@ -84,8 +84,8 @@ class MessageFactory:
         result = ChangeNicknameMessage("default", new_nickname)
         return result
 
-    def me_message(self, description):
-        result = MeMessage("default", description)
+    def me_message(self, local_nickname, description):
+        result = MeMessage("default",local_nickname, description)
         return result
 
     def build_choice_message(self, sender, text, options, list_of_users):
@@ -611,17 +611,19 @@ class ItemMessage:
 
 
 class MeMessage:
-    def __init__(self, sender, action_description=None):
+    def __init__(self, sender, nickname=None, action_description=None):
         self.sender = sender
         self.actionDescription = action_description
+        self.nickname = nickname
 
     def to_irc(self):
-        msg = "em#{0}".format(self.actionDescription)
+        msg = "em#{}#{}".format(self.actionDescription, self.nickname)
         return msg
 
     def from_irc(self, message):
-        arguments = message.split('#', 1)
+        arguments = message.split('#', 2)
         self.actionDescription = arguments[1]
+        self.nickname = arguments[2]
 
     def execute(self, connection_manager, main_screen, user_handler):
         username = self.sender
@@ -629,15 +631,19 @@ class MeMessage:
             user = App.get_running_app().get_user()
             username = user.username
         else:
-            connection_manager.reschedule_ping()
-            user = main_screen.users.get(username, None)
+            user = main_screen.users[username]
+            username = user.username
 
-        main_screen.log_window.add_entry("{} {}.\n".format(username, self.actionDescription))
+        username_for_log_window = username + " "
+        if username is "":
+            username_for_log_window = username
+
+        main_screen.log_window.add_entry("{}{}.\n".format(username_for_log_window, self.actionDescription))
         main_screen.log_window.write_text_log(self.actionDescription, username, False, True)
 
         textbox = main_screen.text_box
         textbox.clear_textbox()
-        textbox.display_text(username + " " + self.actionDescription, user, 'ffffff', username, False)
+        textbox.display_text(username_for_log_window + self.actionDescription, user, 'ffffff', username, False)
 
 
 class ChangeNicknameMessage:
