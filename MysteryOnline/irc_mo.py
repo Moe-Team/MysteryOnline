@@ -80,12 +80,16 @@ class MessageFactory:
         result = ClearMessage("default", location)
         return result
 
+    def bring_message(self, sender, target, position):
+        result = BringMessage(sender, target, position)
+        return result
+
     def change_nickname_message(self, new_nickname):
         result = ChangeNicknameMessage("default", new_nickname)
         return result
 
-    def me_message(self, local_nickname, description):
-        result = MeMessage("default",local_nickname, description)
+    def me_message(self, sender, local_nickname, description):
+        result = MeMessage(sender, local_nickname, description)
         return result
 
     def build_choice_message(self, sender, text, options, list_of_users):
@@ -125,6 +129,8 @@ class MessageFactory:
             result = ChangeNicknameMessage(username)
         elif irc_message.startswith('em#'):
             result = MeMessage(username)
+        elif irc_message.startswith('bm#'):
+            result = BringMessage(username)
         else:
             result = OOCMessage(username)
         result.from_irc(irc_message)
@@ -459,6 +465,7 @@ class OOCMessage:
     def execute(self, connection_manager, main_screen, user_handler):
         main_screen.ooc_window.update_ooc(self.content, self.sender)
 
+
 class LOOCMessage:
 
     def __init__(self, sender, location=None, content=None):
@@ -610,29 +617,77 @@ class ItemMessage:
         main_screen.log_window.add_entry("{} presented {}{}.\n".format(username, dcdi[0], entry_text))
 
 
-class MeMessage:
-    def __init__(self, sender, nickname=None, action_description=None):
+class BringMessage:
+    def __init__(self, sender, target_username=None, position=None):
         self.sender = sender
-        self.actionDescription = action_description
-        self.nickname = nickname
+        self.targetUsername = target_username
+        self.position = position
 
     def to_irc(self):
-        msg = "em#{}#{}".format(self.actionDescription, self.nickname)
+        msg = "bm#{}#{}".format(self.targetUsername, self.position)
         return msg
 
     def from_irc(self, message):
         arguments = message.split('#', 2)
-        self.actionDescription = arguments[1]
-        self.nickname = arguments[2]
+        self.targetUsername = arguments[1]
+        self.position = arguments[2]
 
     def execute(self, connection_manager, main_screen, user_handler):
-        username = self.sender
-        if username == "default":
+        target = self.targetUsername
+        position = self.position
+        user = None
+        username = None
+        target_user = None
+        if self.sender == App.get_running_app().get_user():
             user = App.get_running_app().get_user()
             username = user.username
         else:
-            user = main_screen.users[username]
+            user = main_screen.users[self.sender]
             username = user.username
+
+        if user.get_loc().name != user_handler.get_current_loc().name:
+            return
+
+        target_user = None
+        if target == App.get_running_app().get_user().username:
+            user_handler.set_current_subloc_name(user.get_subloc().name)
+            user_handler.set_chosen_subloc_name(user.get_subloc().name)
+            if position == "center" or position == "right" or position == "left":
+                user_handler.set_chosen_pos_name(position)
+                user_handler.set_current_pos_name(position)
+        elif target in main_screen.users.keys():
+            main_screen.users[target].set_loc(user.get_loc())
+        else:
+            return
+
+
+class MeMessage:
+    def __init__(self, sender, local_nickname=None, action_description=None):
+        self.sender = sender
+        self.nickname = local_nickname
+        self.actionDescription = action_description
+
+    def to_irc(self):
+        msg = "em#{}#{}".format(self.nickname, self.actionDescription)
+        return msg
+
+    def from_irc(self, message):
+        arguments = message.split('#', 2)
+        self.nickname = arguments[1]
+        self.actionDescription = arguments[2]
+
+    def execute(self, connection_manager, main_screen, user_handler):
+        user = None
+        username = None
+        if self.sender == App.get_running_app().get_user():
+            user = App.get_running_app().get_user()
+            username = user.username
+        else:
+            user = main_screen.users[self.sender]
+            username = user.username
+
+        if user.get_loc().name != user_handler.get_current_loc().name:
+            return
 
         username_for_log_window = username + " "
         if username is "":

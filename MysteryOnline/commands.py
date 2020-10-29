@@ -175,7 +175,9 @@ class CommandProcessor:
 
             'me': CommandHandler('me', 'str:description'),
 
-            'em': CommandHandler('me', 'str:description')
+            'em': CommandHandler('me', 'str:description'),
+
+            'bring': RegexCommandHandler('bring', ['target', 'position'], '([^,\s]+) ([^,\s]+)')
         }
 
     def process_command(self, cmd_name, cmd):
@@ -255,6 +257,17 @@ class CommandProcessor:
             except IndexError:
                 pass
 
+    def process_bring(self):
+        target = self.command['target']
+        position = self.command['position']
+        message_factory = App.get_running_app().get_message_factory()
+        user_handler = App.get_running_app().get_user_handler()
+        connection_manager = user_handler.get_connection_manager()
+        user = App.get_running_app().get_user()
+        message = message_factory.bring_message(user, target, position)
+        connection_manager.send_msg(message)
+        connection_manager.send_local(message)
+
     def process_nickname(self):
         new_nickname = self.command['newNick']
         message_factory = App.get_running_app().get_message_factory()
@@ -273,7 +286,7 @@ class CommandProcessor:
         user = App.get_running_app().get_user()
         local_nickname = user.username
         connection_manager = user_handler.get_connection_manager()
-        message = message_factory.me_message(local_nickname, action)
+        message = message_factory.me_message(user, local_nickname, action)
         connection_manager.send_msg(message)
         connection_manager.send_local(message)
 
