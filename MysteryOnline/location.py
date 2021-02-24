@@ -13,14 +13,16 @@ class SubLocation:
         self.foreground_path: str = None
 
         dir_path: str = os.path.dirname(img_path)
-        foreground_png: str = os.path.join(dir_path, name+"_foreground.png")  # We only support png
+        foreground_png: str = os.path.join(dir_path, name+"_foreground.png")  # We only support png and that is sad
 
         if os.path.exists(foreground_png):
             self.foreground_path = foreground_png
 
-        self.c_users = []
-        self.l_users = []
-        self.r_users = []
+        self.c_users = [] #Center
+        self.fl_users = [] #Far-left
+        self.l_users = [] #Left
+        self.fr_users = [] #Far-right
+        self.r_users = [] #Right
         self.o_users = []
 
     def get_img(self):
@@ -44,8 +46,14 @@ class SubLocation:
     def add_l_user(self, user):
         self.l_users.append(user)
 
+    def add_fl_user(self, user):
+        self.fl_users.append(user)
+
     def add_r_user(self, user):
         self.r_users.append(user)
+
+    def add_fr_user(self, user):
+        self.fr_users.append(user)
 
     def get_c_user(self):
         return self.c_users[-1]
@@ -53,14 +61,20 @@ class SubLocation:
     def get_l_user(self):
         return self.l_users[-1]
 
+    def get_fl_user(self):
+        return self.fl_users[-1]
+
     def get_r_user(self):
         return self.r_users[-1]
+
+    def get_fr_user(self):
+        return self.fr_users[-1]
 
     def get_o_user(self):
         return self.o_users[-1]
 
     def get_users(self) -> []:
-        return self.o_users + self.l_users + self.c_users + self.r_users
+        return self.o_users + self.l_users + self.c_users + self.r_users + self.fl_users + self.fr_users
 
     def remove_o_user(self, user):
         if user in self.o_users:
@@ -74,9 +88,17 @@ class SubLocation:
         if user in self.l_users:
             self.l_users.remove(user)
 
+    def remove_fl_user(self, user):
+        if user in self.fl_users:
+            self.fl_users.remove(user)
+
     def remove_r_user(self, user):
         if user in self.r_users:
             self.r_users.remove(user)
+
+    def remove_fr_user(self, user):
+        if user in self.fr_users:
+            self.fr_users.remove(user)
 
 
 class LocationManager:

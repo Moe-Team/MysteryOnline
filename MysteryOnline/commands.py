@@ -1,5 +1,9 @@
 import re
 import random
+import subprocess
+
+from kivy import Logger
+
 from MysteryOnline.dicegame import dice_game
 from MysteryOnline.mainscreen import RightClickMenu
 from MysteryOnline.sprite import SpriteSettings
@@ -177,7 +181,10 @@ class CommandProcessor:
 
             'em': CommandHandler('me', 'str:description'),
 
-            'bring': RegexCommandHandler('bring', ['target', 'position'], '([^,\s]+) ([^,\s]+)')
+            'bring': RegexCommandHandler('bring', ['target', 'position'], '([^,\s]+) ([^,\s]+)'),
+
+            'updateytdl': CommandHandler('updateytdl')
+
         }
 
     def process_command(self, cmd_name, cmd):
@@ -192,6 +199,13 @@ class CommandProcessor:
     #                       #
     # v Command Processes v #
     #                       #
+
+    def process_updateytdl(self):
+        Logger.info("[DEBUG] Updating youtubedl")
+        try:
+            subprocess.run(['pip', 'install', 'youtube_dl'], check=True)
+        except subprocess.CalledProcessError:
+            MOPopup("Error updating", "Can't update youtube-dl. Do you have Python installed and present in your PATH? ", "OK").open()
 
     def process_roll(self):
         try:

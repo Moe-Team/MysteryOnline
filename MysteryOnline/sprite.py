@@ -186,7 +186,7 @@ class SpriteSettings(BoxLayout):
 
     def create_pos_drop(self):
         self.pos_drop = DropDown(size_hint=(None, None), size=(100, 30), scroll_type=["bars", "content"], effect_cls="ScrollEffect", bar_width=10)
-        for pos in ('center', 'right', 'left'):
+        for pos in ('center', 'far-right', 'right', 'left', 'far-left'):
             btn = Button(text=pos, size_hint=(None, None), size=(100, 30))
             btn.bind(on_release=lambda btn_: self.pos_drop.select(btn_.text))
             self.pos_drop.add_widget(btn)
@@ -269,9 +269,14 @@ class SpriteWindow(Widget):
         self.center_sprite = Image(allow_stretch=True, keep_ratio=False,
                                    opacity=0, size_hint=(None, None), size=(800, 600),
                                    pos_hint={'center_x': 0.5, 'y': 0})
+        self.farleft_sprite = Image(allow_stretch=True, keep_ratio=False,
+                                   opacity=0, size_hint=(None, None), size=(800, 600),
+                                   pos_hint={'center_x': 0.25, 'y': 0})
         self.left_sprite = Image(opacity=0, size_hint=(None, None), size=(800, 600),
-                                 pos_hint={'center_x': 0.25, 'y': 0})
+                                 pos_hint={'center_x': 0.40, 'y': 0})
         self.right_sprite = Image(opacity=0, size_hint=(None, None), size=(800, 600),
+                                  pos_hint={'center_x': 0.60, 'y': 0})
+        self.farright_sprite = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                                   pos_hint={'center_x': 0.75, 'y': 0})
         self.foreground = Image(opacity=0, size_hint=(None, None), size=(800, 600),
                              pos_hint={'center_x': 0.5, 'y': 0})
@@ -279,7 +284,9 @@ class SpriteWindow(Widget):
                              pos_hint={'center_x': 0.5, 'y': 0})
         self.sprite_organizer.add_sprite(self.center_sprite)
         self.sprite_organizer.add_sprite(self.left_sprite)
+        self.sprite_organizer.add_sprite(self.farleft_sprite)
         self.sprite_organizer.add_sprite(self.right_sprite)
+        self.sprite_organizer.add_sprite(self.farright_sprite)
         self.sprite_organizer.add_sprite(self.foreground)
         self.sprite_organizer.add_sprite(self.overlay)
 
@@ -312,10 +319,19 @@ class SpriteWindow(Widget):
                 self.sprite_organizer.add_sprite(self.foreground)
                 subloc.add_r_user(user)
 
+            elif pos == 'far-right':
+                self.sprite_organizer.add_sprite(self.farright_sprite)
+                self.sprite_organizer.add_sprite(self.foreground)
+                subloc.add_fr_user(user)
+
             elif pos == 'left':
                 self.sprite_organizer.add_sprite(self.left_sprite)
                 self.sprite_organizer.add_sprite(self.foreground)
                 subloc.add_l_user(user)
+            elif pos == 'far-left':
+                self.sprite_organizer.add_sprite(self.farleft_sprite)
+                self.sprite_organizer.add_sprite(self.foreground)
+                subloc.add_fl_user(user)
 
             else:
                 self.sprite_organizer.add_sprite(self.center_sprite)
@@ -332,8 +348,12 @@ class SpriteWindow(Widget):
                 subloc.add_o_user(user)
             elif pos == 'right':
                 subloc.add_r_user(user)
+            elif pos == 'far-right':
+                subloc.add_fr_user(user)
             elif pos == 'left':
                 subloc.add_l_user(user)
+            elif pos == 'far-left':
+                subloc.add_fl_user(user)
             else:
                 subloc.add_c_user(user)
 
@@ -349,6 +369,8 @@ class SpriteWindow(Widget):
 
     def set_all_sprites_opacity(self, value: float):
         self.left_sprite.opacity = value
+        self.farleft_sprite.opacity = value
+        self.farright_sprite.opacity = value
         self.right_sprite.opacity = value
         self.center_sprite.opacity = value
         self.foreground.opacity = value
@@ -388,6 +410,44 @@ class SpriteWindow(Widget):
             self.foreground.texture = None
             self.foreground.texture = subloc.get_foreground_img().texture
             self.foreground.opacity = 1
+
+        if subloc.fr_users:
+            user = subloc.get_fr_user()
+            if user.get_subloc() == subloc:
+                sprite = user.get_current_sprite()
+                option = user.get_sprite_option()
+                sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
+                if sprite is not None:
+                    self.farright_sprite.texture = None
+                    self.farright_sprite.texture = sprite.get_texture()
+                    self.farright_sprite.opacity = 1
+                    self.farright_sprite.size = self.farright_sprite.texture.size
+            else:
+                subloc.remove_fr_user(user)
+                self.farright_sprite.opacity = 0
+                self.farright_sprite.texture = None
+        else:
+            self.farright_sprite.texture = None
+            self.farright_sprite.opacity = 0
+
+        if subloc.fl_users:
+            user = subloc.get_fl_user()
+            if user.get_subloc() == subloc:
+                sprite = user.get_current_sprite()
+                option = user.get_sprite_option()
+                sprite = main_scr.sprite_settings.apply_post_processing(sprite, option)
+                if sprite is not None:
+                    self.farleft_sprite.texture = None
+                    self.farleft_sprite.texture = sprite.get_texture()
+                    self.farleft_sprite.opacity = 1
+                    self.farleft_sprite.size = self.farleft_sprite.texture.size
+            else:
+                subloc.remove_fl_user(user)
+                self.farleft_sprite.opacity = 0
+                self.farleft_sprite.texture = None
+        else:
+            self.farleft_sprite.texture = None
+            self.farleft_sprite.opacity = 0
 
         if subloc.c_users:
             user = subloc.get_c_user()

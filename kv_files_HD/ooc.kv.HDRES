@@ -113,7 +113,7 @@
     chat_grid: chat_grid
 
     do_default_tab: False
-    tab_width: 60
+    tab_width: 74
 
     TabbedPanelItem:
         text: 'OOC'
