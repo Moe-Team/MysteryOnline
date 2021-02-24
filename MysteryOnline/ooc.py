@@ -122,22 +122,12 @@ class MusicTab(TabbedPanelItem):
             if url.find("youtube") == -1:  # checks if youtube is not in url string
                 try:  # does the normal stuff
                     r = requests.get(url, timeout=(5, 20))
-                    """If no request were established within 5 seconds, it will raise a Timeout exception.
-                       If no data was received within 20 seconds, it will also raise the same exception."""
                     r.raise_for_status()
-                    """ Any HTTP Error that's between 400 and 600 will force the HTTPError exception to be raised.
-                        root.is_loading_music was moved to be more global inside the method because if a http error is 
-                        raised, the value of the variable won't be changed when it should be set to false. It also
-                        removes the need to have to set it to false within each exception block."""
                 except MissingSchema:
-                    Logger.warning('Music Error: Invalid URL. Did you forget to add http:// at the beginning '
-                                   'by any chance?')
-                    main_scr.music_name_display.text = "Error: Invalid URL. See warning logs for more details."
+                    main_scr.music_name_display.text = 'Music Error: Invalid URL. Did you forget to add http:// at the beginning by any chance?'
                     return
                 except Timeout:
-                    Logger.warning('Music Error: Request timed out. Either the server is not responding back or you '
-                                   'lost connection to internet.')
-                    main_scr.music_name_display.text = "Error: Request timed out. See warning logs for more details."
+                    main_scr.music_name_display.text = 'Music Error: Request timed out. Either the server is not responding back or you lost connection to internet.'
                     return
                 if r.ok:  # no errors were raised, it's now loading the music.
                     '''write a function for this?'''

@@ -119,6 +119,16 @@ class User:
                     self.prev_subloc.remove_l_user(self)
                 elif self in self.subloc.l_users:
                     self.subloc.remove_l_user(self)
+            elif self.pos == 'far-left':
+                if self.prev_subloc is not None and self in self.prev_subloc.fl_users:
+                    self.prev_subloc.remove_fl_user(self)
+                elif self in self.subloc.fl_users:
+                    self.subloc.remove_fl_user(self)
+            elif self.pos == 'far-right':
+                if self.prev_subloc is not None and self in self.prev_subloc.fr_users:
+                    self.prev_subloc.remove_fr_user(self)
+                elif self in self.subloc.fr_users:
+                    self.subloc.remove_fr_user(self)
             else:
                 if self.prev_subloc is not None and self in self.prev_subloc.c_users:
                     self.prev_subloc.remove_c_user(self)
@@ -154,6 +164,10 @@ class User:
             self.subloc.remove_r_user(self)
         elif self.pos == 'left':
             self.subloc.remove_l_user(self)
+        elif self.pos == 'far-right':
+            self.subloc.remove_fr_user(self)
+        elif self.pos == 'far-left':
+            self.subloc.remove_fl_user(self)
         else:
             self.subloc.remove_c_user(self)
 

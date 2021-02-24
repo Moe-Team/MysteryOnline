@@ -15,20 +15,20 @@
         SpriteWindow:
             id: sprite_window
             size_hint: None, None
-            size: 800, 600
+            size: 1220, 900
             pos_hint: {'center_x': 0.5, 'center_y': 0.52}
 
         TextBox:
             id: text_box
             size_hint: None, None
-            size: 800, 170
+            size: 1220, 250
             pos: sprite_window.x, sprite_window.y
 
         MainTextInput:
             id: msg_input
             multiline: False
             size_hint: None, None
-            size: 800, 30
+            size: 1220, 30
             padding_y: 4
             pos: sprite_window.x, sprite_window.y - 35
 
@@ -36,22 +36,22 @@
             id: log_window
             size_hint: None, None
             x: sprite_window.right + 5
-            top: sprite_window.top
-            size: 240, 300
+            top: sprite_window.top + 40
+            size: 300, 640
 
         OOCWindow:
             id: ooc_window
             size_hint: None, None
-            size: 240, 330
+            size: 300, 330
             x: log_window.x
             top: log_window.y -5
 
         IconsLayout:
             id: icons_layout
             size_hint: None, None
-            size: 250, 410
-            right: sprite_window.x - 20
-            y: sprite_window.y -60
+            size: 250, 710
+            right: sprite_window.x - 80
+            y: sprite_window.y - 50
 
         LeftTab:
             id: left_tab
@@ -63,7 +63,7 @@
         Toolbar:
             id: toolbar
             size_hint: None, None
-            size: 800, 30
+            size: 1220, 30
             pos: msg_input.x, msg_input.y - 30
 
         Label:
